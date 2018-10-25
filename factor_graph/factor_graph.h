@@ -1,5 +1,5 @@
 #include<stdio.h>
-#include "util.h"
+#include <util.h>
 #include "dd.h"
 
 #define FACTOR_GRAPH_DEBUG 1

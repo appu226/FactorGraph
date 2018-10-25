@@ -1,4 +1,4 @@
-#include"hash_table.h"
+#include "hash_table.h"
 
 #define TABLE_SIZE 100
 

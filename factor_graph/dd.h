@@ -2,7 +2,7 @@
 #define _DD_H
 
 #include <stdio.h>
-#include "cudd.h"
+#include <cudd.h>
 
 typedef struct DdNode * add_ptr;
 typedef struct DdNode * bdd_ptr;

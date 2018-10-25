@@ -12,7 +12,6 @@ export EXPORT_LFLAGS_cudd = -L${PATH_cudd}/include -L${PATH_cudd}/cudd/.libs -Wl
 COMPONENTS = factor_graph factor_graph_main
 
 include factor_graph/exports.mk
-include factor_graph_main/exports.mk
 
 # pass make command goals to all components
 all clean :
