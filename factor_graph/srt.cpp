@@ -836,7 +836,7 @@ void SRTNode::print_indent(int level) {
   if(this == NULL)
     printf("NULL\n");
   else if(is_leaf()) {
-    printf("Leaf(%d)\n", type.leaf.func->size());
+    std::cout << "Leaf(" << type.leaf.func->size() << ")\n";
   }
   else {
     printf("Non-leaf: ");
@@ -1031,11 +1031,11 @@ void SRT::SRT_print() {
   printf("SRT:\n");
   quant_info->print();
   root->print_indent(4);
-  printf("split_list has %d entries.\n", split_list->size());
+  std::cout << "split_list has " << split_list->size() << " entries.\n";
   for(int i = 0; i < split_list->size(); i++)
     if(split_list->at(i).size() > 0)
-      printf("variable %d has %d split nodes\n", i, split_list->at(i).size());
-  printf("SRT has %d leaves.\n", leaves->size());
+      std::cout << "variable " << i << " has " << split_list->at(i).size() << " split nodes\n";
+  std::cout << "SRT has " << leaves->size() << " leaves.\n";
   return;
 }
 
