@@ -1,4 +1,4 @@
-export CC = gcc
+export CC = g++
 
 export DBG_FLAGS = -g
 export CC_FLAGS = -c ${DBG_FLAGS}
