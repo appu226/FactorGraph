@@ -3,8 +3,8 @@ LFLAGS_factor_graph = ${EXPORT_LFLAGS_cudd}
 
 all : 			libFactorGraph.a
 
-libFactorGraph.a :	factor_graph.o hash_table.o dd.o
-			ar r libFactorGraph.a factor_graph.o hash_table.o dd.o
+libFactorGraph.a :	factor_graph.o hash_table.o dd.o qbf.o
+			ar r libFactorGraph.a factor_graph.o hash_table.o dd.o qbf.o
 			ranlib libFactorGraph.a
 	
 factor_graph.o :	factor_graph.cpp factor_graph.h
@@ -15,6 +15,9 @@ hash_table.o :		hash_table.cpp hash_table.h
 
 dd.o :			dd.cpp dd.h
 			${CC} ${CC_FLAGS} ${IFLAGS_factor_graph} dd.cpp -o dd.o
+
+qbf.o :			qbf.cpp qbf.h factor_graph.h
+			${CC} ${CC_FLAGS} ${IFLAGS_factor_graph} qbf.cpp -o qbf.o
 
 tags : 			*.cpp *.h
 			touch tag
