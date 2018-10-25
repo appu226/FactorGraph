@@ -6,7 +6,7 @@
 #include <stack>
 #include <cstring>
 #include <string>
-#include "ds.h"
+#include "qbf.h"
 
 class SRT;
 class SRTNode;

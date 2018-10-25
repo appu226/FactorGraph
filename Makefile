@@ -9,7 +9,7 @@ export EXPORT_IFLAGS_cudd = -I${PATH_cudd}/include -I${PATH_cudd}/util -I${PATH_
 export EXPORT_LFLAGS_cudd = -L${PATH_cudd}/include -L${PATH_cudd}/cudd/.libs -Wl,-rpath,${PATH_cudd}/cudd/.libs -lcudd
 
 # set of underlying components
-COMPONENTS = factor_graph factor_graph_main
+COMPONENTS = factor_graph factor_graph_main qbf_solve
 
 include factor_graph/exports.mk
 
@@ -20,6 +20,8 @@ all clean :
 	done
 
 factor_graph_main :	factor_graph
+
+qbf_solve :		factor_graph
 
 ${COMPONENTS} : FORCE
 	$(MAKE) -C $@ all
