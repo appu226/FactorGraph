@@ -9,18 +9,18 @@
 
 typedef enum fgnode_type_enum{VAR_NODE, FUNC_NODE} fgnode_type;
 
-struct fgnode_str;
-struct fgnode_list_str;
-struct fgedge_str;
-struct fgedge_list_str;
-struct factor_graph_str;
+struct fgnode;
+struct fgnode_list;
+struct fgedge;
+struct fgedge_list;
+struct factor_graph;
 
-typedef struct fgnode_str
+struct fgnode
 {
   int id;
   bdd_ptr *f, *ss;
-  struct fgnode_str *parent;
-  struct fgedge_list_str * neigh;
+  struct fgnode *parent;
+  struct fgedge_list *neigh;
   int num_neigh;
   int num_messages;
   int fs;
@@ -29,18 +29,18 @@ typedef struct fgnode_str
   int born;
   int died;
   //struct fgnode_list_str *fgl; //TODO
-} fgnode;
+};
 
-typedef struct fgnode_list_str
+struct fgnode_list
 {
-  struct fgnode_list_str *next;
-  struct fgnode_list_str *prev;
+  struct fgnode_list *next;
+  struct fgnode_list *prev;
   fgnode * n;
   int born;
   int died;
-} fgnode_list;
+};
 
-typedef struct fgedge_str
+struct fgedge
 {
   fgnode* fn;
   fgnode* vn;
@@ -50,19 +50,19 @@ typedef struct fgedge_str
   int id;
   int born;
   int died;
-  //struct fgedge_list_str *vnl, *fnl, *fgl; //TODO
-} fgedge;
+  //struct fgedge_list *vnl, *fnl, *fgl; //TODO
+};
 
-typedef struct fgedge_list_str
+struct fgedge_list
 {
-  struct fgedge_list_str *next;
-  struct fgedge_list_str *prev;
+  struct fgedge_list *next;
+  struct fgedge_list *prev;
   fgedge *e;
   int born;
   int died;
-} fgedge_list;
+};
 
-typedef struct factor_graph_str
+struct factor_graph
 {
   fgnode_list *fl;
   fgnode_list *vl;
@@ -73,7 +73,7 @@ typedef struct factor_graph_str
   int time;
   //fgnode_list *dnl;
   //fgedge_list *del;
-} factor_graph;
+};
 
 extern factor_graph * factor_graph_new(DdManager *m,bdd_ptr *f, int size);
 extern void factor_graph_delete(factor_graph *fg);
