@@ -1,0 +1,4 @@
+**/*.swp
+**/*.o
+factor_graph/libFactorGraph.a
+factor_graph_main/factor_graph_main
