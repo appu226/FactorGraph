@@ -8,8 +8,8 @@
 #define SET_UNVISITED(x) ((x)->color = 0)
 #define SET_VISITED(x) ((x)->color = 1)
 #define SKIP_DEAD(list, fg)  if(list->died <= fg->time) { \
-                               list = list->next; \
-                               continue; }
+  list = list->next; \
+  continue; }
 #define TIME_INFTY 99999
 
 /* ------------- Debugging ----------------------------*/
@@ -84,7 +84,7 @@ void var_to_eliminate(factor_graph *, fgnode*, bdd_ptr *, int*);
 Input : Facor Graph that is to check
 Output: returns 0 if Factor Graph is cyclic
 returns 1 if Factor Fraph is acyclic
- */
+*/
 int factor_graph_is_acyclic(factor_graph *fg, fgnode ** cycle){
   fgnode_list *fl,*vl;
   fgnode_list *queue;  
@@ -93,6 +93,10 @@ int factor_graph_is_acyclic(factor_graph *fg, fgnode ** cycle){
   *cycle = NULL;
   fl=fg->fl;
   vl=fg->vl;
+
+
+  // set colors to 0
+  // set parents to null
   do{
     fl->n->color=0;
     fl->n->parent = NULL;
@@ -104,9 +108,12 @@ int factor_graph_is_acyclic(factor_graph *fg, fgnode ** cycle){
     vl->n->parent = NULL;
     vl=vl->next;
   }while(vl!=fg->vl);
-  //fgdm("entering  is_acyclic", 0);
+
+
+
+
   while(1) {
-    //fgdm("looping while", fl->n->id);
+    // skip dead and visited funcs
     while(fl->n->died <= fg->time || fl->n->color == 1) {
       //if(fl->n->died <= fg->time)
       //  fgdm("dead node", fl->n->died);
@@ -114,57 +121,71 @@ int factor_graph_is_acyclic(factor_graph *fg, fgnode ** cycle){
       if(fl == fg->fl)
         return 1;
     }
-    //fgdm("fl set to ", fl->n->id);
-    
+
+    // add one node into the queue
+    // and mark it as visited
     fl->n->color=1;
     queue= fgnode_list_add_node(fg, NULL, fl->n);
+
+
+    // breadth first traversal
     while(queue!=NULL) {
+      // u is an element of the queue
+      // v are the edges of u
       u=queue->n;
-      //fgdm("exploring", u->id);
       queue = fgnode_list_delete(queue);
       v=u->neigh;
-      if (u->num_neigh > 0) do {
-        SKIP_DEAD(v, fg);
-        if(u->type==FUNC_NODE){
-          //fgdm("found", v->e->vn->id);
-          if(v->e->vn == u->parent) {
-            v = v->next;
-            continue;
-          }
-          if(v->e->vn->color==1){
-            *cycle = u;
-            return 0;
+
+      // loop over neighbours v of u
+      if (u->num_neigh > 0) 
+        do {
+          SKIP_DEAD(v, fg);
+          // visit for FUNC_NODE-s
+          if(u->type==FUNC_NODE){
+            // skip if current neighbour is the parent of u
+            if(v->e->vn == u->parent) {
+              v = v->next;
+              continue;
+            }
+
+            // if current neighbour has already been visited,
+            // then we've found a cyle
+            if(v->e->vn->color==1){
+              *cycle = u;
+              return 0;
+            }
+            // else, mark u as parent of current neighbour
+            // and add it to the queue
+            else{
+              v->e->vn->color=1;
+              v->e->vn->parent = u;
+              if(queue == NULL)
+                queue = fgnode_list_add_node(fg, queue, v->e->vn);
+              else
+                fgnode_list_add_node(fg, queue, v->e->vn);
+            }
           }
           else{
-            v->e->vn->color=1;
-            v->e->vn->parent = u;
-            if(queue == NULL)
-              queue = fgnode_list_add_node(fg, queue, v->e->vn);
-            else
-              fgnode_list_add_node(fg, queue, v->e->vn);
+            // visit for VAR_NODE-s
+            if(v->e->fn == u->parent) {
+              v = v->next;
+              continue;
+            }
+            if(v->e->fn->color==1){
+              *cycle = u;
+              return 0;
+            }
+            else{
+              v->e->fn->color=1;
+              v->e->fn->parent = u;
+              if(queue == NULL)
+                queue = fgnode_list_add_node(fg, queue, v->e->fn);
+              else
+                fgnode_list_add_node(fg, queue, v->e->fn);
+            }
           }
-        }
-        else{
-          //fgdm("found", v->e->fn->id);
-          if(v->e->fn == u->parent) {
-            v = v->next;
-            continue;
-          }
-          if(v->e->fn->color==1){
-            *cycle = u;
-            return 0;
-          }
-          else{
-            v->e->fn->color=1;
-            v->e->fn->parent = u;
-            if(queue == NULL)
-              queue = fgnode_list_add_node(fg, queue, v->e->fn);
-            else
-              fgnode_list_add_node(fg, queue, v->e->fn);
-          }
-        }
-        v=v->next;
-      }while(v!=u->neigh);
+          v=v->next;
+        }while(v!=u->neigh);
     }
   }
   assert(0); //THIS LINE SHOULD BE UNREACHABLE
@@ -194,7 +215,7 @@ void actually_merge(factor_graph *fg,fgnode *n1,fgnode *n2){
 
 
 int compute_cost(factor_graph *fg,fgnode *n1,fgnode *n2){
-  
+
   if(n1->type == VAR_NODE)
   {
     assert(n2->type == VAR_NODE && "Computing the cost of unmatched nodes\n");
@@ -204,17 +225,17 @@ int compute_cost(factor_graph *fg,fgnode *n1,fgnode *n2){
     bdd_free(fg->m, temp);
     return ret;
   }
-  
+
   assert(n1->type == FUNC_NODE);
   assert(n2->type == FUNC_NODE);
-  
+
   bdd_ptr ss = bdd_one(fg->m);
   int i;
   for(i = 0; i < n1->fs; i++)
     bdd_and_accumulate(fg->m, &ss, n1->ss[i]);
   for(i = 0; i < n2->fs; i++)
-      bdd_and_accumulate(fg->m, &ss, n2->ss[i]);
-  
+    bdd_and_accumulate(fg->m, &ss, n2->ss[i]);
+
   int ret = bdd_size(fg->m, ss) - 1;
   bdd_free(fg->m, ss);
   return ret;
@@ -235,13 +256,13 @@ int merge_heur1(factor_graph *fg,fgnode *n1,fgnode *n2,int l){
   bdd_ptr temp = NULL;
   int i;
   while(n1!=n2){
-  /*
-    printf("merging");
-    fgnode_printname(n1);
-    printf("and");
-    fgnode_printname(n2);
-    printf("\n");
-  */
+    /*
+       printf("merging");
+       fgnode_printname(n1);
+       printf("and");
+       fgnode_printname(n2);
+       printf("\n");
+       */
     assert(n1->type == n2->type);
 
     if(n1->type==VAR_NODE){
@@ -273,18 +294,18 @@ int merge_heur2(factor_graph *fg,fgnode *n1,fgnode *n2,int l)
 {
   fgnode *ptr1, *ptr2, *min1, *min2, *term;
   int mincost = (0x1<<30), curcost;
-  
+
   ptr1 = n1->parent; ptr2 = n2;
   while(ptr1 != ptr2)
   {
     ptr1 = ptr1->parent;
     ptr2 = ptr2->parent;
   }
-  
+
   term = ptr1;
   if(term->parent != NULL)
     term = term->parent;
-  
+
   for(ptr1 = n1; ptr1 != term; ptr1 = ptr1->parent)
   {
     for(ptr2 = n1; ptr2 != term; ptr2 = ptr2->parent)
@@ -385,7 +406,7 @@ bdd_ptr factor_graph_make_acyclic(factor_graph *fg,fgnode *v,int l){
       u=queue->n;
       //fgdm("exploring", u->id);
       queue=fgnode_list_delete(queue);
-      
+
       el=u->neigh;
       if(el != NULL)
       {
@@ -452,10 +473,10 @@ bdd_ptr factor_graph_make_acyclic(factor_graph *fg,fgnode *v,int l){
       ans = bdd_one(fg->m);
       while(n1->parent != n2)
       {
-	var_to_eliminate(fg, n1, &ans, &to_break);
-	var_to_eliminate(fg, n2, &ans, &to_break);
-	n1 = n1->parent;
-	n2 = n2->parent;
+        var_to_eliminate(fg, n1, &ans, &to_break);
+        var_to_eliminate(fg, n2, &ans, &to_break);
+        n1 = n1->parent;
+        n2 = n2->parent;
       }
       return ans;
     }
@@ -466,7 +487,7 @@ bdd_ptr factor_graph_make_acyclic(factor_graph *fg,fgnode *v,int l){
       fgdm("verification failed", factor_graph_verify(fg));
       exit(0);
     }
-    
+
   }
 }
 
@@ -520,7 +541,7 @@ void factor_graph_hide_varnode(factor_graph *fg, fgnode *n)
   fgedge_list *el;
   fgedge_list *nextel;
   fgnode_list *vnl;
-  
+
   if(n->died <= fg->time)
     return;
   if(fg->time == n->born)
@@ -528,14 +549,14 @@ void factor_graph_hide_varnode(factor_graph *fg, fgnode *n)
     factor_graph_delete_varnode(fg, n);
     return;
   }
-  
+
   el = n->neigh;
   do {
     nextel = el->next;
     factor_graph_hide_edge(fg, el->e);
     el = nextel;
   }while(el != n->neigh);
-  
+
   vnl = fg->vl;
   do {
     if(vnl->n == n)
@@ -559,7 +580,7 @@ void factor_graph_unhide_edge(factor_graph *fg, fgedge *e)
     return;
   factor_graph_unhide_funcnode(fg, e->fn);
   factor_graph_unhide_varnode(fg, e->vn);
-  
+
   el = e->fn->neigh;
   do{
     if(el->e == e)
@@ -571,7 +592,7 @@ void factor_graph_unhide_edge(factor_graph *fg, fgedge *e)
     }
     el = el->next;
   }while(el != e->fn->neigh);
-  
+
   el = e->vn->neigh;
   do{
     if(el->e == e)
@@ -583,7 +604,7 @@ void factor_graph_unhide_edge(factor_graph *fg, fgedge *e)
     }
     el = el->next;
   }while(el != e->vn->neigh);
-  
+
   el = fg->el;
   do {
     if(el->e == e)
@@ -595,7 +616,7 @@ void factor_graph_unhide_edge(factor_graph *fg, fgedge *e)
     }
     el = el->next;
   }while(el != fg->el);
-  
+
   e->died = TIME_INFTY;
 }
 
@@ -644,7 +665,7 @@ void factor_graph_hide_funcnode(factor_graph *fg, fgnode *n)
   fgedge_list *el;
   fgnode_list *fnl;
   fgedge_list *nextel;
-  
+
   if(n->died <= fg->time)
     return;
   if(n->born == fg->time)
@@ -652,14 +673,14 @@ void factor_graph_hide_funcnode(factor_graph *fg, fgnode *n)
     factor_graph_delete_funcnode(fg, n);
     return;
   }
-  
+
   el = n->neigh;
   do {
     nextel = el->next;
     factor_graph_hide_edge(fg, el->e);
     el = nextel;
   }while(el != n->neigh);
-  
+
   fnl = fg->fl;
   do {
     if(fnl->n == n)
@@ -679,13 +700,13 @@ void factor_graph_hide_edge(factor_graph *fg, fgedge *e)
   fgedge_list *el;
   if(e->died <= fg->time)
     return;
-    
+
   if(e->born == fg->time)
   {
     factor_graph_delete_edge(fg, e);
     return;
   }
-  
+
   el = fg->el;
   do
   {
@@ -697,7 +718,7 @@ void factor_graph_hide_edge(factor_graph *fg, fgedge *e)
     }
     el = el->next;
   }while(el != fg->el);
-  
+
   assert(e != NULL);
   assert(e->fn != NULL);
   el = e->fn->neigh;
@@ -711,7 +732,7 @@ void factor_graph_hide_edge(factor_graph *fg, fgedge *e)
     }
     el = el->next;
   }while(el != e->fn->neigh);
-  
+
   el = e->vn->neigh;
   do
   {
@@ -723,7 +744,7 @@ void factor_graph_hide_edge(factor_graph *fg, fgedge *e)
     }
     el = el->next;
   }while(el != e->vn->neigh);
-  
+
   e->died = fg->time;
   e->vn->num_neigh--;
   e->fn->num_neigh--;
@@ -975,7 +996,7 @@ int factor_graph_add_func(factor_graph *fg, bdd_ptr f)
 }
 
 /** Deletes a variable from a graph, including all its neighboring edges
- */
+*/
 void factor_graph_delete_varnode(factor_graph * fg, fgnode* v)
 {
   int i;
@@ -1010,7 +1031,7 @@ void factor_graph_delete_varnode(factor_graph * fg, fgnode* v)
 }
 
 /** Deletes a variable from a graph, including all its neighboring edges
- */
+*/
 void factor_graph_delete_var(factor_graph * fg, bdd_ptr v)
 {
   int i;
@@ -1039,7 +1060,7 @@ void factor_graph_delete_var(factor_graph * fg, bdd_ptr v)
 }
 
 /** Deletes a function from a graph, including all its neighboring edges
- */
+*/
 void factor_graph_delete_func(factor_graph * fg, bdd_ptr f)
 {
   int i;
@@ -1069,7 +1090,7 @@ void factor_graph_delete_func(factor_graph * fg, bdd_ptr f)
 }
 
 /** Deletes a function from a graph, including all its neighboring edges
- */
+*/
 void factor_graph_delete_funcnode(factor_graph * fg, fgnode* f)
 {
   int i;
@@ -1089,9 +1110,9 @@ void factor_graph_delete_funcnode(factor_graph * fg, fgnode* f)
   while(fn->num_neigh > 0)
   {
     factor_graph_delete_edge(fg, fn->neigh->e);
-      
+
   }
-    
+
   if(fn->died > fg->time)
     fg->num_funcs --;
   //delete the function from the graph
@@ -1103,7 +1124,7 @@ void factor_graph_delete_funcnode(factor_graph * fg, fgnode* f)
 }
 
 /** Deletes an edge from a graph. Does not delete the nodes.
- */
+*/
 void factor_graph_delete_edge(factor_graph *fg, fgedge * e)
 {
   fgedge_list * el;
@@ -1133,7 +1154,7 @@ void factor_graph_delete_edge(factor_graph *fg, fgedge * e)
       el = el->next;
     }while(el != e->fn->neigh);
   }
-  
+
   //delete edge list from var node
   el = e->vn->neigh;
   if(el->e == e)
@@ -1282,7 +1303,7 @@ void fgnode_delete(DdManager *m, fgnode *n)
     for(i = 0; i < n->fs; i++)
       if(n->ss[i] != NULL)
         bdd_free(m, n->ss[i]);
-  
+
   while(n->num_neigh > 0)
   {
     n->neigh = fgedge_list_delete(n->neigh);
@@ -1366,7 +1387,7 @@ int var_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
       bdd_and_accumulate(fg->m,&b2,el1->e->msg_fv);
       el1=el1->prev;
     }
-    
+
     while(el->died <= fg->time)
       el = el->next;
     F=bdd_and(fg->m, b1, b2);
@@ -1439,7 +1460,7 @@ int func_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
     }
 
     F = bdd_one(fg->m);
-  
+
     for(i = 0; i < num_funcs && !error; i++)
     {
       if(f1[i] != NULL) 
@@ -1461,10 +1482,10 @@ int func_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
     bdd_free(fg->m, el->e->msg_fv);
     el->e->msg_fv = F;
     //F = NULL;
-  
+
     el = el->next;
   }while(el != n->neigh && !error);
-  
+
   free(f1);
   free(ss1);
   return error;
@@ -1472,7 +1493,7 @@ int func_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
 
 
 /** Acyclic version of var_node_pass_messages
-	*/
+*/
 int var_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
 {
   fgedge_list *el, *eparent;
@@ -1482,64 +1503,64 @@ int var_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
   el = n->neigh;
   F = bdd_one(fg->m);
   double init,final;
-  
-  // Find the parent, the edge where message from function to variable is not passed
-//  init = clock();
-  do {
-  	SKIP_DEAD(el,fg);
-  	if(el->e->msg_fv == NULL) {
-  		assert(el->e->msg_vf == NULL);
-  		eparent = el;
 
-			// Check that rest of messages must be passed
-			el = el->next;
-  		while(el != n->neigh) {
-  			SKIP_DEAD(el,fg);
-  			assert(el->e->msg_fv != NULL && "More than one message unpassed in acyclic var node message passing");
-  			el = el->next;
-  		}
-  		
-  		break;
-  		
-  	}
-  	el = el->next;
-  } while(el != n->neigh);
-//	final = clock();
-//	time_find_parent += (double)(final-init) / ((double)CLOCKS_PER_SEC);
-  
-  assert(eparent != NULL && "Parent not found in acyclic var node message passing");
-  
-  el = n->neigh;
+  // Find the parent, the edge where message from function to variable is not passed
+  //  init = clock();
   do {
-  	SKIP_DEAD(el,fg);
-  	if(el == eparent) {
-  		el = el->next;
-  		continue;
-  	}
-//	  init = clock();
-    bdd_and_accumulate(fg->m,&F,el->e->msg_fv);
-//    final = clock();
-//		time_combine += (double)(final-init) / ((double)CLOCKS_PER_SEC);
-    
+    SKIP_DEAD(el,fg);
+    if(el->e->msg_fv == NULL) {
+      assert(el->e->msg_vf == NULL);
+      eparent = el;
+
+      // Check that rest of messages must be passed
+      el = el->next;
+      while(el != n->neigh) {
+        SKIP_DEAD(el,fg);
+        assert(el->e->msg_fv != NULL && "More than one message unpassed in acyclic var node message passing");
+        el = el->next;
+      }
+
+      break;
+
+    }
     el = el->next;
   } while(el != n->neigh);
-  
+  //	final = clock();
+  //	time_find_parent += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+
+  assert(eparent != NULL && "Parent not found in acyclic var node message passing");
+
+  el = n->neigh;
+  do {
+    SKIP_DEAD(el,fg);
+    if(el == eparent) {
+      el = el->next;
+      continue;
+    }
+    //	  init = clock();
+    bdd_and_accumulate(fg->m,&F,el->e->msg_fv);
+    //    final = clock();
+    //		time_combine += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+
+    el = el->next;
+  } while(el != n->neigh);
+
   eparent->e->msg_vf = bdd_dup(F);
   eparent->e->fn->num_messages++;
-  
-  
-  
-/*  if(IS_VISITED(eparent->e->fn)) {
-  	fgdm("Num_neighbours: ",eparent->e->fn->num_neigh);
-  	fgdm("Num_messages: ",eparent->e->fn->num_messages);
-  	factor_graph_print(fg,"factgrph.dot","tempfile");
-  	system("rm -f tempfile");
-  	system("fdp -Tpng -o factgrph.png factgrph.dot");
-  }*/
-  	
-  	
-  	
-//  assert(IS_UNVISITED(eparent->e->fn) && "Parent already visited");
+
+
+
+  /*  if(IS_VISITED(eparent->e->fn)) {
+      fgdm("Num_neighbours: ",eparent->e->fn->num_neigh);
+      fgdm("Num_messages: ",eparent->e->fn->num_messages);
+      factor_graph_print(fg,"factgrph.dot","tempfile");
+      system("rm -f tempfile");
+      system("fdp -Tpng -o factgrph.png factgrph.dot");
+      }*/
+
+
+
+  //  assert(IS_UNVISITED(eparent->e->fn) && "Parent already visited");
   *parent = eparent->e->fn;
   bdd_free(fg->m, F);
 
@@ -1547,7 +1568,7 @@ int var_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
 }
 
 /** Acyclic version of func_node_pass_messages
-	*/
+*/
 int func_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
 {
   assert(n->type == FUNC_NODE);
@@ -1560,7 +1581,7 @@ int func_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
   bdd_ptr * f1 = (bdd_ptr *)malloc(sizeof(bdd_ptr) * num_funcs);
   bdd_ptr *ss1 = (bdd_ptr *)malloc(sizeof(bdd_ptr) * num_funcs);
   double init,final;
-  
+
   if(f1 == NULL || ss1 == NULL)
   {
     if(f1 != NULL)      free(f1);
@@ -1572,31 +1593,31 @@ int func_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
 
   el = n->neigh;
   F = bdd_one(fg->m);
-  
-  // Find the parent, the edge where message from function to variable is not passed
-//  init = clock();
-  do {
-  	SKIP_DEAD(el,fg);
-  	if(el->e->msg_vf == NULL) {
-  		assert(el->e->msg_fv == NULL);
-  		eparent = el;
 
-			// Check that rest of messages must be passed
-			el = el->next;
-  		while(el != n->neigh) {
-		  	SKIP_DEAD(el,fg);
-  			assert(el->e->msg_vf != NULL && "More than one message unpassed in acyclic var node message passing");
-  			el = el->next;
-  		}
-  		
-  		break;
-  		
-  	}
-  	el = el->next;
+  // Find the parent, the edge where message from function to variable is not passed
+  //  init = clock();
+  do {
+    SKIP_DEAD(el,fg);
+    if(el->e->msg_vf == NULL) {
+      assert(el->e->msg_fv == NULL);
+      eparent = el;
+
+      // Check that rest of messages must be passed
+      el = el->next;
+      while(el != n->neigh) {
+        SKIP_DEAD(el,fg);
+        assert(el->e->msg_vf != NULL && "More than one message unpassed in acyclic var node message passing");
+        el = el->next;
+      }
+
+      break;
+
+    }
+    el = el->next;
   } while(el != n->neigh);
-//	final = clock();
-//	time_find_parent += (double)(final-init) / ((double)CLOCKS_PER_SEC);
-  
+  //	final = clock();
+  //	time_find_parent += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+
   assert(eparent != NULL && "Parent not found in acyclic var node message passing");
 
   for(i = 0; i < n->fs; i++)  //the complete array of functions
@@ -1619,8 +1640,8 @@ int func_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
 
   assert(i == num_funcs);
 
-	exist_error = bdd_and_exist_vector(fg->m, f1, ss1, num_funcs, eparent->e->vn->ss[0]);
-	
+  exist_error = bdd_and_exist_vector(fg->m, f1, ss1, num_funcs, eparent->e->vn->ss[0]);
+
   if(exist_error == -1)
   {
     for(i = 0; i < num_funcs; i++)
@@ -1641,10 +1662,10 @@ int func_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
   {
     if(f1[i] != NULL) 
     {
-//    	init = clock();
+      //    	init = clock();
       bdd_and_accumulate(fg->m, &F, f1[i]);
-//      final = clock();
-//			time_combine += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+      //      final = clock();
+      //			time_combine += (double)(final-init) / ((double)CLOCKS_PER_SEC);
       bdd_free(fg->m, f1[i]);
     }
     if(ss1[i] != NULL) bdd_free(fg->m, ss1[i]);
@@ -1659,7 +1680,7 @@ int func_node_pass_messages_up(factor_graph *fg, fgnode *n, fgnode **parent)
   return error;
 }
 
-	
+
 
 
 
@@ -1679,9 +1700,9 @@ int fgnode_support_size(DdManager *m, fgnode *n)
 {
   if(n->type == VAR_NODE)
     return (bdd_size(m, n->ss[0]) - 1);
-    
+
   assert(n->type == FUNC_NODE);
-  
+
   bdd_ptr temp = bdd_one(m);
   int i;
   for(i = 0; i < n->fs; i++)
@@ -1908,31 +1929,31 @@ fgedge_list *fgedge_list_add_edge(factor_graph *fg, fgedge_list * L, fgedge * e)
 
 fgnode * factor_graph_get_varnode(factor_graph *fg, bdd_ptr v)
 {
-	fgnode_list *vl = fg->vl;
-	bdd_ptr temp = NULL;
-	do {
-		SKIP_DEAD(vl, fg);
-		temp = bdd_cube_intersection(fg->m, v, vl->n->ss[0]);
-		if(bdd_is_one(fg->m, temp))
-		{
-			bdd_free(fg->m, temp);
-			temp = NULL;
-		}
-		else
-			break;
-		vl = vl->next;
-	}while(vl != fg->vl);
-	if(temp == NULL)
-		return NULL;
-	bdd_free(fg->m, temp);
-	return vl->n;
+  fgnode_list *vl = fg->vl;
+  bdd_ptr temp = NULL;
+  do {
+    SKIP_DEAD(vl, fg);
+    temp = bdd_cube_intersection(fg->m, v, vl->n->ss[0]);
+    if(bdd_is_one(fg->m, temp))
+    {
+      bdd_free(fg->m, temp);
+      temp = NULL;
+    }
+    else
+      break;
+    vl = vl->next;
+  }while(vl != fg->vl);
+  if(temp == NULL)
+    return NULL;
+  bdd_free(fg->m, temp);
+  return vl->n;
 }
 
 bdd_ptr* factor_graph_incoming_messages(factor_graph * fg, fgnode * V, int *size)
 {
   bdd_ptr * result;
   fgedge_list *el;
-  
+
   if(V->num_neigh == 0)
   {
     *size = 0;
@@ -1961,7 +1982,7 @@ int factor_graph_assign_var(factor_graph *fg, bdd_ptr var)
   bdd_ptr temp, unnegated;
   fgedge_list *el, *nextel;
   int found, i;
-  
+
   unnegated = bdd_support(fg->m, var);
   vl = fg->vl;
   found = 0;
@@ -1981,7 +2002,7 @@ int factor_graph_assign_var(factor_graph *fg, bdd_ptr var)
   if(!found)
     return 0; //no errors
   old_v = vl->n;
-  
+
   el = old_v->neigh;
   newneigh = NULL;
   do {
@@ -2026,7 +2047,7 @@ int factor_graph_assign_var(factor_graph *fg, bdd_ptr var)
   }while(el != old_v->neigh && old_v->neigh != NULL);
   temp = bdd_cube_diff(fg->m, old_v->ss[0], unnegated);
   bdd_free(fg->m, unnegated);
-  
+
   factor_graph_hide_varnode(fg, old_v);
 
   if(!bdd_is_one(fg->m, temp))
@@ -2036,9 +2057,9 @@ int factor_graph_assign_var(factor_graph *fg, bdd_ptr var)
       return 1;
     factor_graph_add_varnode(fg, newn);
   }
-  
+
   bdd_free(fg->m, temp);
-  
+
   while(newneigh != NULL)
   {
     factor_graph_add_funcnode(fg, newneigh->n);
@@ -2059,7 +2080,7 @@ void factor_graph_rollback(factor_graph *fg)
   fgnode_list *nl, *nnl;
   fgedge_list *el, *nel;
   int i;
-  
+
   //add back deleted function nodes
   nl = fg->fl;
   do {
@@ -2067,9 +2088,9 @@ void factor_graph_rollback(factor_graph *fg)
       factor_graph_unhide_funcnode(fg, nl->n);
     nl = nl->next;
   }while(nl != fg->fl);
-  
+
   //fgdm("added back deleted function nodes", factor_graph_verify(fg));
-  
+
   //add back deleted variable nodes
   nl = fg->vl;
   do {
@@ -2078,7 +2099,7 @@ void factor_graph_rollback(factor_graph *fg)
     nl = nl->next;
   }while(nl != fg->vl);
   //fgdm("added back deleted variable nodes", factor_graph_verify(fg));
-  
+
   //add back deleted edges
   el = fg->el;
   do {
@@ -2087,7 +2108,7 @@ void factor_graph_rollback(factor_graph *fg)
     el = el->next;
   }while(el != fg->el);
   //fgdm("added back deleted edges", factor_graph_verify(fg));
-  
+
   //remove added edges
   el = fg->el;
   do
@@ -2102,7 +2123,7 @@ void factor_graph_rollback(factor_graph *fg)
     el = nel;
   }while(el != fg->el && el != NULL);
   //fgdm("removed added edges", factor_graph_verify(fg));
-  
+
   //remove added functions
   nl = fg->fl;
   do
@@ -2114,7 +2135,7 @@ void factor_graph_rollback(factor_graph *fg)
     nl = nnl;
   }while(nl != fg->fl);
   //fgdm("removed added func nodes", factor_graph_verify(fg));
-  
+
   //remove added variables
   nl = fg->vl;
   do
@@ -2125,15 +2146,15 @@ void factor_graph_rollback(factor_graph *fg)
     nl = nnl;
   }while(nl != fg->vl);
   //fgdm("removed added var nodes", factor_graph_verify(fg));
-  
+
   fg->time--;
-  
+
   if(factor_graph_verify(fg) < 0)
   {
     fgdm("verification failed", factor_graph_verify(fg));
     exit(0);
   }
-  
+
 }
 
 /**
@@ -2196,7 +2217,7 @@ factor_graph * factor_graph_new(DdManager *m,bdd_ptr *f, int size)
 }
 
 /** Deletes a factor graph and frees all memory
- */
+*/
 void factor_graph_delete(factor_graph *fg)
 {
   while(fg->vl != NULL)
@@ -2207,7 +2228,7 @@ void factor_graph_delete(factor_graph *fg)
 }
 
 /** Function to set all messages in the factor graph to true
- */
+*/
 void factor_graph_reset_messages(factor_graph *fg)
 {
   //set all messages to true
@@ -2235,14 +2256,14 @@ void factor_graph_reset_messages(factor_graph *fg)
 }
 
 /** Function to reset messages to NULL and num_messages to 0
-  */
+*/
 void factor_graph_reset_messages_num(factor_graph *fg)
 {
-	//set number of messages received from neighbours to be 0
-	fgnode_list *viter;
-	fgnode_list *fiter;
+  //set number of messages received from neighbours to be 0
+  fgnode_list *viter;
+  fgnode_list *fiter;
   fgedge_list *el;
-  
+
   //set all messages to NULL
   el = fg->el;
   if(el != NULL) do {
@@ -2262,23 +2283,23 @@ void factor_graph_reset_messages_num(factor_graph *fg)
     el = el->next;
   } while(el != fg->el);
 
-	viter = fg->vl;
-	do
-	{
-		SKIP_DEAD(viter, fg);
-		viter->n->num_messages = 0;
-		viter = viter->next;
-	}while(viter != fg->vl);
-  
-	fiter = fg->fl;
-	do
-	{
-		SKIP_DEAD(fiter, fg);
-		fiter->n->num_messages = 0;
-		fiter = fiter->next;
-	}while(fiter != fg->fl);
-  
-	return;
+  viter = fg->vl;
+  do
+  {
+    SKIP_DEAD(viter, fg);
+    viter->n->num_messages = 0;
+    viter = viter->next;
+  }while(viter != fg->vl);
+
+  fiter = fg->fl;
+  do
+  {
+    SKIP_DEAD(fiter, fg);
+    fiter->n->num_messages = 0;
+    fiter = fiter->next;
+  }while(fiter != fg->fl);
+
+  return;
 }
 
 
@@ -2291,55 +2312,18 @@ int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root)
   fgedge_list *el;
   int error = 0;
   double init,final;
-  
+
   if(!root)
-  	return 1;
+    return 1;
 
   if(fg->el == NULL)
     return 1;
-    
+
   assert(root->type == VAR_NODE && "Root is not a variable node in factor_graph_acyclic_messages");
 
   factor_graph_reset_messages_num(fg);
 
   queue = NULL;
-  
-/*  // Add leaves of the tree starting at root
-  bfs = fgnode_list_add_node(fg,bfs,root);
-  while(bfs != NULL) {
-  	n = bfs->n;
-  	var = (n->type == VAR_NODE)?1:0;
-  	SET_UNVISITED(n);
-  	bfs = fgnode_list_delete(bfs);
-  	if(n==root)
-  		assert(bfs==NULL);
-  		
-  	el = n->neigh;
-  	do {
-  		SKIP_DEAD(el,fg);
-  		if(var) {
-	  		nn = el->e->fn;
-	  	}
-	  	else {
-	  		nn = el->e->vn;
-	  	}
-	  	if(nn == n->parent) {
-	  		el = el->next;
-	  		i++;
-	  		continue;
-	  	}
-	  	if(nn->num_neigh == 1) {
-	  		queue = fgnode_list_add_node(fg,queue,nn);
-	  		SET_VISITED(nn);
-	  	}
-	  	else {
-	  		nn->parent = n;
-	  		bfs = fgnode_list_add_node(fg,bfs,nn);
-	  	}
-	  	
-	  	el = el->next;
-  	} while (el != n->neigh);
-  }*/
 
   itr = fg->fl;
   do
@@ -2347,34 +2331,34 @@ int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root)
     SKIP_DEAD(itr, fg);
     SET_UNVISITED(itr->n);
     if(itr->n->num_neigh == 1) {
-	    queue = fgnode_list_add_node(fg, queue, itr->n);
-	    SET_VISITED(itr->n);
+      queue = fgnode_list_add_node(fg, queue, itr->n);
+      SET_VISITED(itr->n);
     }
     itr = itr->next;
   }while(itr != fg->fl);
-  
+
   itr = fg->vl;
   do
   {
     SKIP_DEAD(itr, fg);
     SET_UNVISITED(itr->n);
     if(itr->n->num_neigh == 1 && itr->n != root) {
-	    queue = fgnode_list_add_node(fg, queue, itr->n);
-	    SET_VISITED(itr->n);
+      queue = fgnode_list_add_node(fg, queue, itr->n);
+      SET_VISITED(itr->n);
     }
     itr = itr->next;
   }while(itr != fg->vl);
 
-	// There has to be a leaf
+  // There has to be a leaf
   if(queue == NULL)
   {
     fgdm("queue is null!", fg->num_funcs);
     return -1;
   }
 
-	// While queue is not empty, take a node. See what link hasn't had its message set. 
-	// Pass accumulated message of all other links on that link
-	// If that node has now num_messages == num_neigh-1 and it is not root, then add it to the queue
+  // While queue is not empty, take a node. See what link hasn't had its message set. 
+  // Pass accumulated message of all other links on that link
+  // If that node has now num_messages == num_neigh-1 and it is not root, then add it to the queue
   while(queue != NULL && !error)
   {
     n = queue->n;
@@ -2382,27 +2366,27 @@ int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root)
     queue = fgnode_list_delete(queue);
     SET_UNVISITED(n);
     if(n->num_messages == n->num_neigh)
-    	continue;
+      continue;
 
     if(n->type == VAR_NODE) {
-//		  init = clock();
- 	    error = var_node_pass_messages_up(fg, n, &parent);
-//			final=clock();
-//			time_var_node += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+      //		  init = clock();
+      error = var_node_pass_messages_up(fg, n, &parent);
+      //			final=clock();
+      //			time_var_node += (double)(final-init) / ((double)CLOCKS_PER_SEC);
     }
     else {
       assert(n->type == FUNC_NODE);
-//		  init = clock();
+      //		  init = clock();
       error = func_node_pass_messages_up(fg, n, &parent);
-//			final=clock();
-//			time_func_node += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+      //			final=clock();
+      //			time_func_node += (double)(final-init) / ((double)CLOCKS_PER_SEC);
     }
     if(parent->num_messages == parent->num_neigh - 1 && parent != root) {
-//    	assert(!IS_VISITED(parent) && "Node with insufficient messages already visited");
-			if(IS_UNVISITED(parent)) {
-		  	queue = fgnode_list_add_node(fg, queue, parent);
-		  	SET_VISITED(parent);
-		  }
+      //    	assert(!IS_VISITED(parent) && "Node with insufficient messages already visited");
+      if(IS_UNVISITED(parent)) {
+        queue = fgnode_list_add_node(fg, queue, parent);
+        SET_VISITED(parent);
+      }
     }
   }
   if(error)
@@ -2412,7 +2396,7 @@ int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root)
     fgdm("error", error);
     return -1;
   }
-  
+
   assert(root->num_messages == root->num_neigh && "Root didn't receive messages from all neighbours");
 
   return 1;
@@ -2421,7 +2405,7 @@ int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root)
 
 
 /** Passes messages in a factor graph till convergence
- */
+*/
 int factor_graph_converge(factor_graph *fg)
 {
   int i,j;
@@ -2446,7 +2430,7 @@ int factor_graph_converge(factor_graph *fg)
     queue = fgnode_list_add_node(fg, queue, itr->n);
     itr = itr->next;
   }while(itr != fg->fl);
-  
+
   itr = fg->vl;
   do
   {
@@ -2517,7 +2501,7 @@ void factor_graph_print(factor_graph *fg, const char * dotfile, const char * fgf
     fgv = fopen(fgfile, "w");
   else
     fgv = stdout;
-  
+
   int i;
   //printf("* * * * * * *\n* Printing factor graph:\n");
   fiter = fg->fl;
@@ -2568,13 +2552,13 @@ void factor_graph_print(factor_graph *fg, const char * dotfile, const char * fgf
     fclose(gv);
   if(fgv != stdout)
     fclose(fgv);
-  
+
   viter = fg->vl;
   /*do{
     fgdm("nei : ", viter->n->num_neigh);
     viter = viter->next;
-  }while(viter != fg->vl);
-  */ 
+    }while(viter != fg->vl);
+    */ 
 }
 
 
@@ -2673,7 +2657,7 @@ int factor_graph_verify(factor_graph *fg)//performing 7 tests
   //if(max_fid != fg->max_fid){
   //  return -4;
   //}
-//  fgdm("num_funcs ok", 0);
+  //  fgdm("num_funcs ok", 0);
   count = 0;//reset count for the check of the variable nodes
   //checking the number of variable nodes
   if(vl != NULL) do {
@@ -2698,7 +2682,7 @@ int factor_graph_verify(factor_graph *fg)//performing 7 tests
   //  is_correct = -8;
   //  return is_correct;
   //}
-//  fgdm("num_vars ok", 1);
+  //  fgdm("num_vars ok", 1);
   count = 0;  //reset count for the check of number of edges
   //checking the total no. of edges
   el = fg->el;
@@ -2754,7 +2738,7 @@ int factor_graph_verify(factor_graph *fg)//performing 7 tests
   //  is_correct = -14;
   //  return is_correct;
   //}
-//  fgdm("num_edges ok", 2);
+  //  fgdm("num_edges ok", 2);
   //checking the no. of neighbours of each function node
   do{
     SKIP_DEAD(fl, fg);
@@ -2846,7 +2830,7 @@ void var_to_eliminate(factor_graph *fg, fgnode *n, bdd_ptr *ans, int *score)
       bdd_free(fg->m, *ans);
       *ans = bdd_dup(var);
     }
-    
+
     bdd_free(fg->m, var);
   }
 }
@@ -2857,7 +2841,7 @@ int bdd_and_exist_vector(DdManager *m, bdd_ptr *f, bdd_ptr* ss, int size, bdd_pt
   int i, min_index;
   Vbar = bdd_one(m);
   double init, final;
-  
+
   if(Vbar == NULL)
     return -1;
   for(i = 0; i < size; i++)
@@ -2885,10 +2869,10 @@ int bdd_and_exist_vector(DdManager *m, bdd_ptr *f, bdd_ptr* ss, int size, bdd_pt
         continue;
       }
       assert(&(f[min_index]) == (f + min_index));
-//  init = clock();
+      //  init = clock();
       bdd_and_accumulate(m, &(f[min_index]), f[i]);
-//	final = clock();
-//	time_combine += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+      //	final = clock();
+      //	time_combine += (double)(final-init) / ((double)CLOCKS_PER_SEC);
       bdd_free(m, f[i]);
       bdd_free(m, ss[i]);
       f[i] = NULL;
@@ -2897,10 +2881,10 @@ int bdd_and_exist_vector(DdManager *m, bdd_ptr *f, bdd_ptr* ss, int size, bdd_pt
 
     if(min_index != -1)
     {
-//	init = clock();
+      //	init = clock();
       temp = bdd_forsome(m, f[min_index], nextv);
-//	final = clock();
-//	time_exist += (double)(final-init) / ((double)CLOCKS_PER_SEC);
+      //	final = clock();
+      //	time_exist += (double)(final-init) / ((double)CLOCKS_PER_SEC);
       bdd_free(m, f[min_index]);
       f[min_index] = temp;
 
