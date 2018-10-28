@@ -28,7 +28,6 @@ struct fgnode
   fgnode_type type;
   int born;
   int died;
-  //struct fgnode_list_str *fgl; //TODO
 };
 
 struct fgnode_list
@@ -46,11 +45,9 @@ struct fgedge
   fgnode* vn;
   bdd_ptr msg_fv;
   bdd_ptr msg_vf;
-  //int changed_fv, changed_vf;
   int id;
   int born;
   int died;
-  //struct fgedge_list *vnl, *fnl, *fgl; //TODO
 };
 
 struct fgedge_list
@@ -71,8 +68,6 @@ struct factor_graph
   int max_fid, max_vid, max_eid;
   DdManager *m;
   int time;
-  //fgnode_list *dnl;
-  //fgedge_list *del;
 };
 
 extern factor_graph * factor_graph_new(DdManager *m,bdd_ptr *f, int size);

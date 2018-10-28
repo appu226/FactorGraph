@@ -27,10 +27,10 @@ class SRTChildren {
 class SRTLeaf {
   public:
     BDD_List* func;			// Array of BDD's associated with this leaf node
-//    Vector_Int* dependency;	// Array of indices of variables on which this leaf depends
+    //    Vector_Int* dependency;	// Array of indices of variables on which this leaf depends
 
     /* Functions of SRTLeaf */
-//    void build_dependency(DdManager *m, BDD_List* added_bdds = NULL);
+    //    void build_dependency(DdManager *m, BDD_List* added_bdds = NULL);
     void set_func(DdManager *m, BDD_List* newfunc);
     void add_func(DdManager *m, BDD_List *addedfunc);
     bool check_func(DdManager *m, bdd_ptr check);
@@ -41,8 +41,8 @@ class SRTNode {
   public:
     int qstart;		// start index of quantifiers associated with this SRT Node
     int splitvar;	// last bit: 0 if this is leaf node, 1 otherwise
+                  // if this bit is 1, then remaining bits give the index of variable which is split
     SRTNode *parent;
-    // if this bit is 1, then remaining bits give the index of variable which is split
     DdManager *m;
     union {						// Every node is either leaf or an internal node
       SRTChildren children;
@@ -55,14 +55,14 @@ class SRTNode {
     {
       if(is_leaf())
       {
-				for(int i = 0; i < type.leaf.func->size(); i++)
-					bdd_free(m, type.leaf.func->at(i));
-				delete type.leaf.func;
-			//	delete type.leaf.dependency;
+        for(int i = 0; i < type.leaf.func->size(); i++)
+          bdd_free(m, type.leaf.func->at(i));
+        delete type.leaf.func;
+        //	delete type.leaf.dependency;
       } else
       {
-				delete type.children.t;
-				delete type.children.e;
+        delete type.children.t;
+        delete type.children.e;
       }
     }
 
@@ -70,7 +70,7 @@ class SRTNode {
       qstart = 0;
       splitvar = 0;
       type.leaf.func = new BDD_List();
-//      type.leaf.dependency = new Vector_Int();
+      //      type.leaf.dependency = new Vector_Int();
       this->m = m;
       parent = NULL;
     }
@@ -87,24 +87,24 @@ class SRTNode {
     SRTNode* SRT_Else();
     void merge(Quant* q, int threshold, boolop op);		// This must have been split on the innermost variable 
     void merge_folding (Quant *q, int threshold, boolop op);
-		void merge_heuristic (Quant* q, int threshold, boolop op);
+    void merge_heuristic (Quant* q, int threshold, boolop op);
     // Apply merge operation to quantify out the innermost variable
-		void form_final_tree(Quant* q, SRTNode* t, SRTNode* e, Deduction_List& dl, boolop op, int threshold);
-//    void synchronize_ordering(FreqMap &freqinfo);
-//    void pull_up_split_var(int var);
-//    int get_child_qstart();
-//    void set_child_qstart();
+    void form_final_tree(Quant* q, SRTNode* t, SRTNode* e, Deduction_List& dl, boolop op, int threshold);
+    //    void synchronize_ordering(FreqMap &freqinfo);
+    //    void pull_up_split_var(int var);
+    //    int get_child_qstart();
+    //    void set_child_qstart();
 
     /* Functions on leaf nodes */
-//    int no_dependent() const;
-//    int is_dependent (int v) const;
+    //    int no_dependent() const;
+    //    int is_dependent (int v) const;
     BDD_List* get_func();
     void for_all_innermost(DdManager* d, Quant* q);	// quantifies out innermost universal block of q from leaf node n
     void putBDD(BDD_List* func);	// replace functions by those in argument
     void append(BDD_List* func);	// appends given functions represented as BDD's to the leaf node
     void append(SRTNode* n);	// appends given functions represented as BDD's to the leaf node
     void do_append(SRTNode* n);	// appends given functions represented as BDD's to the leaf node
-//    void append(SRTNode *node, Vector_Int &to_split, Vector_Int &already_split);
+    //    void append(SRTNode *node, Vector_Int &to_split, Vector_Int &already_split);
     void apply_deduction(Deduction d);
     void deduce();						// finds and applies deductions
     void split(int var);			// Split this leaf node on variable var
@@ -122,23 +122,15 @@ class SRTNode {
 
 };
 
-/*
-   class Formula {
-   public:*/
-/* Functions on formula */
-/*Formula* assign_true(int var);
-  Formula* assign_false(int var);
-  bdd_ptr evaluate_formula();
-  };*/
 
 class SRT {
   public:
-    Quant* quant_info;					// Maintains variables and their quantifiers in order
-    DdManager* ddm;						// DdManager of all Cudd operations
-    SRTNode* root;						// Root node of the tree
-    CNF_vector* global_clauses;			// Global CNF_vector for storing implicitly appended clauses
-    SRTNode_List* leaves;				// Queue of leaves
-    SRTList_List* split_list;			// Queues of nodes split on a given variable for all variables in quantifier order
+    Quant* quant_info;				       // Maintains variables and their quantifiers in order
+    DdManager* ddm;						       // DdManager of all Cudd operations
+    SRTNode* root;						       // Root node of the tree
+    CNF_vector* global_clauses;			 // Global CNF_vector for storing implicitly appended clauses
+    SRTNode_List* leaves;				     // Queue of leaves
+    SRTList_List* split_list;			   // Queues of nodes split on a given variable for all variables in quantifier order
     //  This is just an optimization
     //  Have to analyze how optimal this will be
 
@@ -158,7 +150,7 @@ class SRT {
     CNF_vector* SRT_clauses ();
     SRTNode* SRT_getroot ();
     DdManager* SRT_getddm();
-//    SRTNode* SRT_split (SRTNode* n, int var);
+    //    SRTNode* SRT_split (SRTNode* n, int var);
     void SRT_merge (int v, int threshold);
     void SRT_print();
 };
