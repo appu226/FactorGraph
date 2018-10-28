@@ -33,6 +33,9 @@ class QBlock {
 };
 
 /* Maintains variables and their quantifiers in order */
+// The variables are ordered by the ordering of quantification (outermost to innermost).
+// So this class also maintains the mapping between the variable index in the srt to the index/name in the original qdimacs file.
+// Finally, this class also contains the bdd variables themselves, retrievable by the quantifier ordering.
 class Quant {
   public:
     QBlock_List blocks;		// List of blocks from outermost to innermost
