@@ -1,4 +1,5 @@
 #include "dd.h"
+#include "bnet.h"
 #include <stdlib.h>
 
 void common_error(void * R, const char * s)
@@ -508,3 +509,5 @@ void bdd_print_minterms(DdManager *dd, bdd_ptr f)
   if(i == 0)
     common_error(NULL, "bdd_print_minterms : failed\n");
 }
+
+
