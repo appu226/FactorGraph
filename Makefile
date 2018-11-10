@@ -9,8 +9,9 @@ export EXPORT_IFLAGS_cudd = -I${PATH_cudd}/include -I${PATH_cudd}/util -I${PATH_
 export EXPORT_LFLAGS_cudd = -L${PATH_cudd}/include -L${PATH_cudd}/cudd/.libs -Wl,-rpath,${PATH_cudd}/cudd/.libs -lcudd
 
 # set of underlying components
-COMPONENTS = factor_graph factor_graph_main qbf_solve
+COMPONENTS = dd factor_graph factor_graph_main qbf_solve
 
+include dd/exports.mk
 include factor_graph/exports.mk
 
 # pass make command goals to all components
@@ -18,6 +19,8 @@ all clean :
 	for component in ${COMPONENTS} ; do \
 		$(MAKE) -C $$component $@ ; \
 	done
+
+factor_graph : dd
 
 factor_graph_main :	factor_graph
 

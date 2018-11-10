@@ -6,6 +6,7 @@ How to rebuild:
 
 
 Components:
+  dd : A wrapper around cudd, exposing select functionality to cpp
   factor_graph : A library providing the factor_graph and SRT data structures and functions.
   factor_graph_main : An executable for interactively building/modifying factor_graphs.
   qbf_solve : An executable for solving a problem in qdimacs format.

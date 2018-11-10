@@ -1,11 +1,11 @@
-#include<stdio.h>
-#include <util.h>
-#include "dd.h"
-
-#define FACTOR_GRAPH_DEBUG 1
-
 #ifndef FACTOR_GRAPH
 #define FACTOR_GRAPH
+
+#include<stdio.h>
+#include <util.h>
+#include <dd.h>
+
+#define FACTOR_GRAPH_DEBUG 1
 
 typedef enum fgnode_type_enum{VAR_NODE, FUNC_NODE} fgnode_type;
 
