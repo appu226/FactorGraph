@@ -132,6 +132,10 @@ typedef struct BnetNode {
     struct BnetNode *next; /**< pointer to implement the linked list of nodes */
 } BnetNode;
 
+typedef BnetNode * BnetNode_ptr;
+typedef BnetNode const * BnetNode_cptr;
+
+
 /**
  ** @brief Very simple boolean network data structure.
  */
@@ -149,6 +153,8 @@ typedef struct BnetNetwork {
     st_table *hash;	/**< symbol table to access nodes by name */
     char *slope;	/**< wire_load_slope */
 } BnetNetwork;
+
+typedef struct BnetNetwork * BnetNetwork_ptr;
 
 /*---------------------------------------------------------------------------*/
 /* Variable declarations                                                     */

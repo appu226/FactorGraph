@@ -11,6 +11,16 @@
 #include <srt.h>
 #include <cuddInt.h>
 
+
+// logging
+#define blif_solve_log(level, msg) \
+  if (blif_solve_verbosity >= level) { \
+    std::cout << "[" << #level << "] " << msg << std::endl; \
+  }
+
+
+
+
 // typedefs
 
 
@@ -55,8 +65,14 @@ int main(int argc, char ** argv)
 
   try {
 
+  
+    
+    
     // init cudd
-    auto srt = std::make_shared<SRT>();
+    std::shared_ptr<SRT> srt = std::make_shared<SRT>();
+    
+    
+    
     
     // read blif file
     FILE * fp = fopen(argv[1], "r");
@@ -64,16 +80,18 @@ int main(int argc, char ** argv)
       throw std::invalid_argument(std::string("Could not open file '") + argv[0] + "'");
 
 
+    
+    
+    
     // create blif network structure and read bdds
-    auto network = Bnet_ReadNetwork(fp, 0);
+    BnetNetwork_ptr network = Bnet_ReadNetwork(fp, 0);
     if (blif_solve_verbosity >= INFO)
     {
-      std::cout << "Parsed network with " << network->npis << " primary inputs, "
-                << network->ninputs << " inputs, "
-                << network->npos << " primary outputs, "
-                << network->noutputs << " outputs and "
-                << network->nlatches << " latches."
-                << std::endl;
+      blif_solve_log(INFO, "Parsed network with " << network->npis << " primary inputs, "
+                                                  << network->ninputs << " inputs, "
+                                                  << network->npos << " primary outputs, "
+                                                  << network->noutputs << " outputs and "
+                                                  << network->nlatches << " latches.");
     }
     auto options = std::unique_ptr<NtrOptions>(mainInit());
     if (network == NULL)
@@ -82,21 +100,63 @@ int main(int argc, char ** argv)
 
 
 
-    // clean-up
-    // Dispose of node BDDs
-    auto network_nodes = network->nodes;
-    while (network_nodes != NULL) {
-      if (network_nodes->dd != NULL &&
-          network_nodes->type != BNET_INPUT_NODE &&
-          network_nodes->type != BNET_PRESENT_STATE_NODE) {
-        Cudd_IterDerefBdd(srt->ddm, network_nodes->dd);
-        network_nodes->dd = NULL;
+
+    // compute the conjunction of all functions
+    // and collect all primary input variables
+    bdd_ptr conj = bdd_one(srt->ddm);
+    bdd_ptr pi_vars = bdd_one(srt->ddm);
+    for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
+    {
+      bdd_ptr temp;
+      if (node->dd != NULL)
+      {
+        temp = bdd_and(srt->ddm, conj, node->dd);
+        bdd_free(srt->ddm, conj);
+        conj = temp;
+        if (node->name[0] = 'p' && node->name[1] == 'i')
+        {
+          bdd_ptr var = bdd_new_var_with_index(srt->ddm, node->var);
+          temp = bdd_cube_union(srt->ddm, pi_vars, var);
+          bdd_free(srt->ddm, pi_vars);
+          pi_vars = temp;
+        }
       }
-      network_nodes = network_nodes->next;
+    }
+    blif_solve_log(INFO, "Created conjunction of all functions");
+
+
+
+
+
+    // quantify out the primary variables
+    bdd_ptr result = bdd_forsome(srt->ddm, conj, pi_vars);
+    blif_solve_log(INFO, "Quantified out primary inputs to get transition relation");
+
+
+    
+    
+    // clean-up
+    // Clean ptrs
+    bdd_free(srt->ddm, result);
+    bdd_free(srt->ddm, conj);
+    bdd_free(srt->ddm, pi_vars);
+    // Dispose of node BDDs
+    for( BnetNode_ptr node = network->nodes; node != NULL; node = node->next)
+    {
+      if (node->dd != NULL &&
+          node->type != BNET_INPUT_NODE &&
+          node->type != BNET_PRESENT_STATE_NODE) {
+        Cudd_IterDerefBdd(srt->ddm, node->dd);
+        node->dd = NULL;
+      }
     }
     // free network
     Bnet_FreeNetwork(network);
 
+  
+  
+  
+  
   } catch (std::exception const & e)
   {
     if (blif_solve_verbosity >= ERROR)

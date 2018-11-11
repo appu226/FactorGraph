@@ -1,6 +1,6 @@
 **/*.swp
 **/*.o
-factor_graph/libFactorGraph.a
+**/*.a
 factor_graph_main/factor_graph_main
 qbf_solve/qbf_solve
 tags

@@ -5,7 +5,6 @@
 
 typedef struct DdNode * add_ptr;
 typedef struct DdNode * bdd_ptr;
-typedef struct BnetNetwork * BnetNetwork_ptr;
 
 void common_error(void * R, const char * s);
 
