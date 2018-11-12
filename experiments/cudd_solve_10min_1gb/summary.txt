@@ -27,7 +27,7 @@ Experimental setup:
 
 Result Summary:
   A total of 30 blif files were run.
-  9 of them failed to create bdds within 10 mins.
+  10 of them failed to create bdds within 10 mins.
   The rest of the files succeeded at quantification as well.
   In other words, there were no files which succeeded at creating a BDD but failed at quantification.
   There is a rough correlation between size and success of BDD creation, but there are counter examples.
