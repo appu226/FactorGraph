@@ -1,0 +1,98 @@
+4.1M /home/parakram/Software/DDP/data_sets/bddblif/6s0_bdd.blif
+[INFO] Parsed network with 364 primary inputs, 364 inputs, 158 primary outputs, 158 outputs and 0 latches.
+16M /home/parakram/Software/DDP/data_sets/bddblif/6s105_bdd.blif
+[INFO] Parsed network with 200 primary inputs, 200 inputs, 152 primary outputs, 152 outputs and 0 latches.
+984K /home/parakram/Software/DDP/data_sets/bddblif/6s109_bdd.blif
+[INFO] Parsed network with 347 primary inputs, 347 inputs, 339 primary outputs, 339 outputs and 0 latches.
+20M /home/parakram/Software/DDP/data_sets/bddblif/6s120_bdd.blif
+[INFO] Parsed network with 116 primary inputs, 116 inputs, 59 primary outputs, 59 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+636K /home/parakram/Software/DDP/data_sets/bddblif/6s134_bdd.blif
+[INFO] Parsed network with 570 primary inputs, 570 inputs, 572 primary outputs, 572 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+612K /home/parakram/Software/DDP/data_sets/bddblif/6s185_bdd.blif
+[INFO] Parsed network with 403 primary inputs, 403 inputs, 368 primary outputs, 368 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+384K /home/parakram/Software/DDP/data_sets/bddblif/6s186_bdd.blif
+[INFO] Parsed network with 409 primary inputs, 409 inputs, 373 primary outputs, 373 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+376K /home/parakram/Software/DDP/data_sets/bddblif/6s187_bdd.blif
+[INFO] Parsed network with 409 primary inputs, 409 inputs, 373 primary outputs, 373 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+1.1M /home/parakram/Software/DDP/data_sets/bddblif/6s188_bdd.blif
+[INFO] Parsed network with 813 primary inputs, 813 inputs, 787 primary outputs, 787 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+8.4M /home/parakram/Software/DDP/data_sets/bddblif/6s209b0_bdd.blif
+[INFO] Parsed network with 3001 primary inputs, 3001 inputs, 5760 primary outputs, 5760 outputs and 0 latches.
+4.7M /home/parakram/Software/DDP/data_sets/bddblif/6s269r_bdd.blif
+[INFO] Parsed network with 364 primary inputs, 364 inputs, 158 primary outputs, 158 outputs and 0 latches.
+4.0M /home/parakram/Software/DDP/data_sets/bddblif/6s274r_bdd.blif
+[INFO] Parsed network with 1788 primary inputs, 1788 inputs, 1713 primary outputs, 1713 outputs and 0 latches.
+3.7M /home/parakram/Software/DDP/data_sets/bddblif/6s275rb318_bdd.blif
+[INFO] Parsed network with 3271 primary inputs, 3271 inputs, 3197 primary outputs, 3197 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+3.7M /home/parakram/Software/DDP/data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] Parsed network with 3275 primary inputs, 3275 inputs, 3202 primary outputs, 3202 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+332K /home/parakram/Software/DDP/data_sets/bddblif/6s280r_bdd.blif
+[INFO] Parsed network with 925 primary inputs, 925 inputs, 858 primary outputs, 858 outputs and 0 latches.
+784K /home/parakram/Software/DDP/data_sets/bddblif/6s292rb037_bdd.blif
+[INFO] Parsed network with 3205 primary inputs, 3205 inputs, 3191 primary outputs, 3191 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+4.0M /home/parakram/Software/DDP/data_sets/bddblif/6s29_bdd.blif
+[INFO] Parsed network with 2251 primary inputs, 2251 inputs, 2248 primary outputs, 2248 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+280K /home/parakram/Software/DDP/data_sets/bddblif/6s319r_bdd.blif
+[INFO] Parsed network with 229 primary inputs, 229 inputs, 193 primary outputs, 193 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+6.5M /home/parakram/Software/DDP/data_sets/bddblif/6s351rb02_bdd.blif
+[INFO] Parsed network with 3865 primary inputs, 3865 inputs, 3863 primary outputs, 3863 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+7.6M /home/parakram/Software/DDP/data_sets/bddblif/6s351rb15_bdd.blif
+[INFO] Parsed network with 3865 primary inputs, 3865 inputs, 3863 primary outputs, 3863 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+84K /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif
+[INFO] Parsed network with 232 primary inputs, 232 inputs, 205 primary outputs, 205 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+2.0M /home/parakram/Software/DDP/data_sets/bddblif/6s366r_bdd.blif
+[INFO] Parsed network with 2076 primary inputs, 2076 inputs, 1999 primary outputs, 1999 outputs and 0 latches.
+1.9M /home/parakram/Software/DDP/data_sets/bddblif/6s367r_bdd.blif
+[INFO] Parsed network with 1645 primary inputs, 1645 inputs, 1611 primary outputs, 1611 outputs and 0 latches.
+1.2M /home/parakram/Software/DDP/data_sets/bddblif/6s372rb26_bdd.blif
+[INFO] Parsed network with 1159 primary inputs, 1159 inputs, 1125 primary outputs, 1125 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+1.1M /home/parakram/Software/DDP/data_sets/bddblif/6s37_bdd.blif
+[INFO] Parsed network with 793 primary inputs, 793 inputs, 754 primary outputs, 754 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+1.5M /home/parakram/Software/DDP/data_sets/bddblif/6s41_bdd.blif
+[INFO] Parsed network with 976 primary inputs, 976 inputs, 960 primary outputs, 960 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+364K /home/parakram/Software/DDP/data_sets/bddblif/6s4_bdd.blif
+[INFO] Parsed network with 411 primary inputs, 411 inputs, 203 primary outputs, 203 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+180K /home/parakram/Software/DDP/data_sets/bddblif/6s514r_bdd.blif
+[INFO] Parsed network with 477 primary inputs, 477 inputs, 442 primary outputs, 442 outputs and 0 latches.
+160K /home/parakram/Software/DDP/data_sets/bddblif/6s515rb1_bdd.blif
+[INFO] Parsed network with 477 primary inputs, 477 inputs, 442 primary outputs, 442 outputs and 0 latches.
+[INFO] Created conjunction of all functions
+[INFO] Quantified out primary inputs to get transition relation
+456K /home/parakram/Software/DDP/data_sets/bddblif/6s516r_bdd.blif
+[INFO] Parsed network with 925 primary inputs, 925 inputs, 858 primary outputs, 858 outputs and 0 latches.
