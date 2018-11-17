@@ -5,7 +5,10 @@ then
     ls -sh $blif_file;
     timeout 10m blif_solve/blif_solve $blif_file;
   done;
-else # else run a test file
-  blif_solve/blif_solve /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif
+elif [ $# -eq 0 ] # else run a test file
+then
+  blif_solve/blif_solve --verbosity INFO --cudd /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif;
+else
+  blif_solve/blif_solve $@;
 fi
 

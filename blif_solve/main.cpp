@@ -11,14 +11,15 @@
 #include <srt.h>
 #include <cuddInt.h>
 
+// blif_solve includes
+#include "command_line_options.h"
 
 // logging
+std::shared_ptr<blif_solve::CommandLineOptions> clo;
 #define blif_solve_log(level, msg) \
-  if (blif_solve_verbosity >= level) { \
+  if (clo->verbosity >= blif_solve::level) { \
     std::cout << "[" << #level << "] " << msg << std::endl; \
   }
-
-
 
 
 // typedefs
@@ -27,23 +28,7 @@
 
 // function declarations
 int main(int argc, char ** argv);
-void usage();
 NtrOptions* mainInit();
-
-
-
-// globals
-enum Verbosity {
-  QUIET,
-  ERROR,
-  WARNING,
-  INFO,
-  DEBUG
-};
-Verbosity blif_solve_verbosity = INFO;
-
-
-
 
 
 // *** Function ****
@@ -56,12 +41,7 @@ int main(int argc, char ** argv)
 {
   
   // parse inputs
-  if (argc != 2)
-  {
-    usage();
-    exit(1);
-  }
-
+  clo = std::make_shared<blif_solve::CommandLineOptions>(argc, argv);
 
   try {
 
@@ -75,9 +55,9 @@ int main(int argc, char ** argv)
     
     
     // read blif file
-    FILE * fp = fopen(argv[1], "r");
+    FILE * fp = fopen(clo->blif_file_path.c_str(), "r");
     if (fp == NULL)
-      throw std::invalid_argument(std::string("Could not open file '") + argv[0] + "'");
+      throw std::invalid_argument(std::string("Could not open file '") + clo->blif_file_path + "'");
 
 
     
@@ -85,61 +65,93 @@ int main(int argc, char ** argv)
     
     // create blif network structure and read bdds
     BnetNetwork_ptr network = Bnet_ReadNetwork(fp, 0);
-    if (blif_solve_verbosity >= INFO)
+    // print statistics about number of inputs
     {
-      blif_solve_log(INFO, "Parsed network with " << network->npis << " primary inputs, "
-                                                  << network->ninputs << " inputs, "
-                                                  << network->npos << " primary outputs, "
-                                                  << network->noutputs << " outputs and "
-                                                  << network->nlatches << " latches.");
-    }
-    auto options = std::unique_ptr<NtrOptions>(mainInit());
-    if (network == NULL)
-      throw std::logic_error("Unexpected error parsing blif file");
-    Ntr_buildDDs(network, srt->ddm, options.get(), NULL);
-
-
-
-
-    // compute the conjunction of all functions
-    // and collect all primary input variables
-    bdd_ptr conj = bdd_one(srt->ddm);
-    bdd_ptr pi_vars = bdd_one(srt->ddm);
-    for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
-    {
-      bdd_ptr temp;
-      if (node->dd != NULL)
+      int num_pi = 0, num_po = 0, num_li = 0, num_lo = 0;
+      for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
       {
-        temp = bdd_and(srt->ddm, conj, node->dd);
-        bdd_free(srt->ddm, conj);
-        conj = temp;
-        if (node->name[0] = 'p' && node->name[1] == 'i')
+        std::string name = node->name;
+        if (name.find("pi") == 0)
+          ++num_pi;
+        else if (name.find("po") == 0)
+          ++num_po;
+        else if (name.find("li") == 0)
+          ++num_li;
+        else if (name.find("lo") == 0)
+          ++num_lo;
+      }
+      blif_solve_log(INFO, "Parsed " << clo->blif_file_path.substr(clo->blif_file_path.find_last_of('/') + 1) 
+                                     << " with "
+                                     << num_pi << " pi, " 
+                                     << num_po << " po, "
+                                     << num_li << " li, "
+                                     << num_lo << " lo variables.");
+    }
+
+
+
+    if (clo->mustApplyCudd || clo->mustApplyFactorGraph)
+    {
+      auto options = std::unique_ptr<NtrOptions>(mainInit());
+      if (network == NULL)
+        throw std::logic_error("Unexpected error parsing blif file");
+      Ntr_buildDDs(network, srt->ddm, options.get(), NULL);
+      blif_solve_log(INFO, "Created BDDs in the network");
+    }
+
+
+    // apply cudd based quantification
+    if (clo->mustApplyCudd)
+    {
+
+
+      // compute the conjunction of all functions
+      // and collect all primary input variables
+      bdd_ptr conj = bdd_one(srt->ddm);
+      bdd_ptr pi_vars = bdd_one(srt->ddm);
+      for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
+      {
+        bdd_ptr temp;
+        if (node->dd != NULL)
         {
-          bdd_ptr var = bdd_new_var_with_index(srt->ddm, node->var);
-          temp = bdd_cube_union(srt->ddm, pi_vars, var);
-          bdd_free(srt->ddm, pi_vars);
-          pi_vars = temp;
+          temp = bdd_and(srt->ddm, conj, node->dd);
+          bdd_free(srt->ddm, conj);
+          conj = temp;
+          if (node->name[0] = 'p' && node->name[1] == 'i')
+          {
+            bdd_ptr var = bdd_new_var_with_index(srt->ddm, node->var);
+            temp = bdd_cube_union(srt->ddm, pi_vars, var);
+            bdd_free(srt->ddm, pi_vars);
+            pi_vars = temp;
+          }
         }
       }
-    }
-    blif_solve_log(INFO, "Created conjunction of all functions");
+      blif_solve_log(INFO, "Created conjunction of all functions");
 
 
 
 
 
-    // quantify out the primary variables
-    bdd_ptr result = bdd_forsome(srt->ddm, conj, pi_vars);
-    blif_solve_log(INFO, "Quantified out primary inputs to get transition relation");
+      // quantify out the primary variables
+      bdd_ptr result = bdd_forsome(srt->ddm, conj, pi_vars);
+      blif_solve_log(INFO, "Quantified out primary inputs to get transition relation");
+
+
+
+
+      // clean up cudd specific stuff
+      // Clean ptrs
+      bdd_free(srt->ddm, result);
+      bdd_free(srt->ddm, conj);
+      bdd_free(srt->ddm, pi_vars);
+
+
+    } // end cudd based quantification
 
 
     
     
     // clean-up
-    // Clean ptrs
-    bdd_free(srt->ddm, result);
-    bdd_free(srt->ddm, conj);
-    bdd_free(srt->ddm, pi_vars);
     // Dispose of node BDDs
     for( BnetNode_ptr node = network->nodes; node != NULL; node = node->next)
     {
@@ -159,31 +171,12 @@ int main(int argc, char ** argv)
   
   } catch (std::exception const & e)
   {
-    if (blif_solve_verbosity >= ERROR)
+    if (clo->verbosity >= blif_solve::ERROR)
       std::cerr << "Fatal error: " << e.what() << std::endl;
     exit(1);
   }
   return 0;
 }
-
-
-
-
-
-
-// *** Function ******
-// prints the usage information for the executable
-// *******************
-void usage()
-{
-  std::cout << "blif_solve : Utility for solving a blif file using various methods\n"
-            << "Usage:\n"
-            << "\tblif_solve <blif file path>" << std::endl;
-}
-
-
-
-
 
 
 
