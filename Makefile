@@ -34,4 +34,4 @@ ${COMPONENTS} : FORCE
 FORCE :
 
 TAGS :
-	ctags-exuberant -R .
+	ctags-exuberant -R . ${PATH_cudd}/cudd
