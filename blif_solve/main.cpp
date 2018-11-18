@@ -29,8 +29,10 @@ std::shared_ptr<blif_solve::CommandLineOptions> clo;
 // function declarations
 int main(int argc, char ** argv);
 NtrOptions* mainInit();
-
-
+BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions const & clo);
+void create_bdds(BnetNetwork_ptr const network, DdManager * const ddm );
+void apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm);
+void clean_up_network(BnetNetwork_ptr const network, DdManager * const ddm);
 
 
 
@@ -52,7 +54,11 @@ double duration(T const & start, T const & end)
 // main function:
 //   parses inputs
 //   reads blif file
-//   creates bdds
+//   creates bdds if either cudd or factor_graph needs to be applied
+//   applies cudd to compute transition relation if required
+//   applies factor_graph to compute transition relation if required
+//   cleans up memory before exiting
+//   logs useful information
 // *****************
 int main(int argc, char ** argv)
 {
@@ -69,8 +75,6 @@ int main(int argc, char ** argv)
     std::shared_ptr<SRT> srt = std::make_shared<SRT>();
     
     
-    
-    
     // read blif file
     FILE * fp = fopen(clo->blif_file_path.c_str(), "r");
     if (fp == NULL)
@@ -78,127 +82,26 @@ int main(int argc, char ** argv)
 
 
     
-    
-    
-    // create blif network structure and read bdds
-    BnetNetwork_ptr network;
-    {
-      auto start = std::chrono::system_clock::now();
-      network = Bnet_ReadNetwork(fp, 0);
-      auto end = std::chrono::system_clock::now();
-    // print statistics about number of inputs
-      int num_pi = 0, num_po = 0, num_li = 0, num_lo = 0;
-      for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
-      {
-        std::string name = node->name;
-        if (name.find("pi") == 0)
-          ++num_pi;
-        else if (name.find("po") == 0)
-          ++num_po;
-        else if (name.find("li") == 0)
-          ++num_li;
-        else if (name.find("lo") == 0)
-          ++num_lo;
-      }
-      blif_solve_log(INFO, "Parsed " << clo->blif_file_path.substr(clo->blif_file_path.find_last_of('/') + 1) 
-                                     << " with "
-                                     << num_pi << " pi, " 
-                                     << num_po << " po, "
-                                     << num_li << " li, "
-                                     << num_lo << " lo variables in "
-                                     << duration(start, end) << " sec");
-    }
+    // create blif network structure
+    BnetNetwork_ptr network = parse_network(fp, *clo); 
 
 
 
+    // create bdds
     if (clo->mustApplyCudd || clo->mustApplyFactorGraph)
-    {
-      auto options = std::unique_ptr<NtrOptions>(mainInit());
-      if (network == NULL)
-        throw std::logic_error("Unexpected error parsing blif file");
-      auto start = std::chrono::system_clock::now();
-      Ntr_buildDDs(network, srt->ddm, options.get(), NULL);
-      auto end = std::chrono::system_clock::now();
-      blif_solve_log(INFO, "Created BDDs in the network in " << duration(start, end) << " sec");
-    }
+      create_bdds(network, srt->ddm);
+
 
 
     // apply cudd based quantification
     if (clo->mustApplyCudd)
-    {
-
-
-      // compute the conjunction of all functions
-      // and collect all primary input variables
-      bdd_ptr conj = bdd_one(srt->ddm);
-      bdd_ptr pi_vars = bdd_one(srt->ddm);
-      auto conj_start = std::chrono::system_clock::now();
-      for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
-      {
-        bdd_ptr temp;
-        if (node->dd != NULL)
-        {
-          temp = bdd_and(srt->ddm, conj, node->dd);
-          bdd_free(srt->ddm, conj);
-          conj = temp;
-          if (node->name[0] = 'p' && node->name[1] == 'i')
-          {
-            bdd_ptr var = bdd_new_var_with_index(srt->ddm, node->var);
-            temp = bdd_cube_union(srt->ddm, pi_vars, var);
-            bdd_free(srt->ddm, pi_vars);
-            pi_vars = temp;
-          }
-        }
-      }
-      auto conj_end = std::chrono::system_clock::now();
-      blif_solve_log(INFO, "Created conjunction of all functions in " 
-                           << duration(conj_start, conj_end)
-                           << " sec");
-
-
-
-
-
-      // quantify out the primary variables
-      auto quant_start = std::chrono::system_clock::now();
-      bdd_ptr result = bdd_forsome(srt->ddm, conj, pi_vars);
-      auto quant_end = std::chrono::system_clock::now();
-      blif_solve_log(INFO, "Quantified out primary inputs to get transition relation in "
-                           << duration(quant_start, quant_end)
-                           << " sec");
-
-
-
-
-      // clean up cudd specific stuff
-      // Clean ptrs
-      bdd_free(srt->ddm, result);
-      bdd_free(srt->ddm, conj);
-      bdd_free(srt->ddm, pi_vars);
-
-
-    } // end cudd based quantification
-
+      apply_cudd(network, srt->ddm);
 
     
     
     // clean-up
-    // Dispose of node BDDs
-    for( BnetNode_ptr node = network->nodes; node != NULL; node = node->next)
-    {
-      if (node->dd != NULL &&
-          node->type != BNET_INPUT_NODE &&
-          node->type != BNET_PRESENT_STATE_NODE) {
-        Cudd_IterDerefBdd(srt->ddm, node->dd);
-        node->dd = NULL;
-      }
-    }
-    // free network
-    Bnet_FreeNetwork(network);
-
-  
-  
-  
+    clean_up_network(network, srt->ddm); 
+    
   
   } catch (std::exception const & e)
   {
@@ -207,6 +110,154 @@ int main(int argc, char ** argv)
     exit(1);
   }
   return 0;
+}
+
+
+
+
+
+// *** Function ****************
+// actually creates the bdds in a blif files.
+// also logs the time taken.
+// *****************************
+void create_bdds(BnetNetwork_ptr const network, DdManager * const ddm)
+{
+  std::unique_ptr<NtrOptions> options(mainInit());
+  if (network == NULL)
+    throw std::logic_error("Unexpected error parsing blif file");
+  auto start = std::chrono::system_clock::now();
+  Ntr_buildDDs(network, ddm, options.get(), NULL);
+  auto end = std::chrono::system_clock::now();
+  blif_solve_log(INFO, "Created BDDs in the network in " << duration(start, end) << " sec");
+}
+
+
+
+
+
+
+// *** Function ****************
+// parse_network
+// Parses a blif file and creates a blif network.
+// Note that the blif network is just a parsed data structure
+//   that faithfully represents the file.
+// In particular, no bdd's are created automatically.
+// Also logs some info about the network.
+// Returns the parsed BnetNetwork_ptr.
+// *****************************
+BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions const & options)
+{
+  auto start = std::chrono::system_clock::now();
+  BnetNetwork_ptr network = Bnet_ReadNetwork(fp, 0);
+  auto end = std::chrono::system_clock::now();
+  // print statistics about number of inputs
+  int num_pi = 0, num_po = 0, num_li = 0, num_lo = 0;
+  for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
+  {
+    std::string name = node->name;
+    if (name.find("pi") == 0)
+      ++num_pi;
+    else if (name.find("po") == 0)
+      ++num_po;
+    else if (name.find("li") == 0)
+      ++num_li;
+    else if (name.find("lo") == 0)
+      ++num_lo;
+  }
+  blif_solve_log(INFO, "Parsed " << options.blif_file_path.substr(clo->blif_file_path.find_last_of('/') + 1) 
+      << " with "
+      << num_pi << " pi, " 
+      << num_po << " po, "
+      << num_li << " li, "
+      << num_lo << " lo variables in "
+      << duration(start, end) << " sec");
+  return network;
+}
+
+
+
+//**** Function ************
+// Compute the transition relation using cudd quantification
+//  by first computing
+//    the conjunction of all the bdds in the network,
+//  and then
+//    existentially quantifying out the primary input (pi_<nnn>) variables
+//**************************
+void apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
+{
+
+
+  // compute the conjunction of all functions
+  // and collect all primary input variables
+  bdd_ptr conj = bdd_one(ddm);
+  bdd_ptr pi_vars = bdd_one(ddm);
+  auto conj_start = std::chrono::system_clock::now();
+  for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
+  {
+    bdd_ptr temp;
+    if (node->dd != NULL)
+    {
+      temp = bdd_and(ddm, conj, node->dd);
+      bdd_free(ddm, conj);
+      conj = temp;
+      if (node->name[0] = 'p' && node->name[1] == 'i')
+      {
+        bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
+        temp = bdd_cube_union(ddm, pi_vars, var);
+        bdd_free(ddm, pi_vars);
+        pi_vars = temp;
+      }
+    }
+  }
+  auto conj_end = std::chrono::system_clock::now();
+  blif_solve_log(INFO, "Created conjunction of all functions in " 
+      << duration(conj_start, conj_end)
+      << " sec");
+
+
+
+
+
+  // quantify out the primary variables
+  auto quant_start = std::chrono::system_clock::now();
+  bdd_ptr result = bdd_forsome(ddm, conj, pi_vars);
+  auto quant_end = std::chrono::system_clock::now();
+  blif_solve_log(INFO, "Quantified out primary inputs to get transition relation in "
+      << duration(quant_start, quant_end)
+      << " sec");
+
+
+
+
+  // clean up cudd specific stuff
+  // Clean ptrs
+  bdd_free(ddm, result);
+  bdd_free(ddm, conj);
+  bdd_free(ddm, pi_vars);
+
+
+} // end cudd based quantification
+
+
+
+
+// ******* Function *******
+// Clear the memory captured by a network
+// ************************
+void clean_up_network(BnetNetwork_ptr const network, DdManager * const ddm)
+{
+  for( BnetNode_ptr node = network->nodes; node != NULL; node = node->next)
+  {
+    if (node->dd != NULL &&
+        node->type != BNET_INPUT_NODE &&
+        node->type != BNET_PRESENT_STATE_NODE) {
+      Cudd_IterDerefBdd(ddm, node->dd);
+      node->dd = NULL;
+    }
+  }
+  // free network
+  Bnet_FreeNetwork(network);
+
 }
 
 
