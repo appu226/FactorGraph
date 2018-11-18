@@ -4,6 +4,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <chrono>
 
 // factor_graph includes
 #include <dd.h>
@@ -29,6 +30,11 @@ std::shared_ptr<blif_solve::CommandLineOptions> clo;
 // function declarations
 int main(int argc, char ** argv);
 NtrOptions* mainInit();
+template<typename T> 
+double duration(T const & start, T const & end)
+{
+  return std::chrono::duration<double>(end - start).count();
+}
 
 
 // *** Function ****
@@ -64,9 +70,12 @@ int main(int argc, char ** argv)
     
     
     // create blif network structure and read bdds
-    BnetNetwork_ptr network = Bnet_ReadNetwork(fp, 0);
-    // print statistics about number of inputs
+    BnetNetwork_ptr network;
     {
+      auto start = std::chrono::system_clock::now();
+      network = Bnet_ReadNetwork(fp, 0);
+      auto end = std::chrono::system_clock::now();
+    // print statistics about number of inputs
       int num_pi = 0, num_po = 0, num_li = 0, num_lo = 0;
       for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
       {
@@ -85,7 +94,8 @@ int main(int argc, char ** argv)
                                      << num_pi << " pi, " 
                                      << num_po << " po, "
                                      << num_li << " li, "
-                                     << num_lo << " lo variables.");
+                                     << num_lo << " lo variables in "
+                                     << duration(start, end) << " sec");
     }
 
 
@@ -95,8 +105,10 @@ int main(int argc, char ** argv)
       auto options = std::unique_ptr<NtrOptions>(mainInit());
       if (network == NULL)
         throw std::logic_error("Unexpected error parsing blif file");
+      auto start = std::chrono::system_clock::now();
       Ntr_buildDDs(network, srt->ddm, options.get(), NULL);
-      blif_solve_log(INFO, "Created BDDs in the network");
+      auto end = std::chrono::system_clock::now();
+      blif_solve_log(INFO, "Created BDDs in the network in " << duration(start, end) << " sec");
     }
 
 
@@ -109,6 +121,7 @@ int main(int argc, char ** argv)
       // and collect all primary input variables
       bdd_ptr conj = bdd_one(srt->ddm);
       bdd_ptr pi_vars = bdd_one(srt->ddm);
+      auto conj_start = std::chrono::system_clock::now();
       for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
       {
         bdd_ptr temp;
@@ -126,15 +139,22 @@ int main(int argc, char ** argv)
           }
         }
       }
-      blif_solve_log(INFO, "Created conjunction of all functions");
+      auto conj_end = std::chrono::system_clock::now();
+      blif_solve_log(INFO, "Created conjunction of all functions in " 
+                           << duration(conj_start, conj_end)
+                           << " sec");
 
 
 
 
 
       // quantify out the primary variables
+      auto quant_start = std::chrono::system_clock::now();
       bdd_ptr result = bdd_forsome(srt->ddm, conj, pi_vars);
-      blif_solve_log(INFO, "Quantified out primary inputs to get transition relation");
+      auto quant_end = std::chrono::system_clock::now();
+      blif_solve_log(INFO, "Quantified out primary inputs to get transition relation in "
+                           << duration(quant_start, quant_end)
+                           << " sec");
 
 
 
