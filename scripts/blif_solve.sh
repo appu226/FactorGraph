@@ -3,11 +3,11 @@ if [ $# -gt 0 ] && [ $1 = "all" ] #if first argument is 'all' then run all files
 then
   for blif_file in /home/parakram/Software/DDP/data_sets/bddblif/*; do
     ls -sh $blif_file;
-    timeout 10m blif_solve/blif_solve --verbosity INFO --cudd $blif_file;
+    timeout 10m blif_solve/blif_solve --verbosity INFO --cudd --factor_graph $blif_file;
   done;
 elif [ $# -eq 0 ] # else run a test file
 then
-  blif_solve/blif_solve --verbosity INFO --cudd /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif;
+  blif_solve/blif_solve --verbosity INFO --cudd --factor_graph /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif;
 else
   blif_solve/blif_solve $@;
 fi
