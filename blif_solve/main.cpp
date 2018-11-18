@@ -30,9 +30,10 @@ std::shared_ptr<blif_solve::CommandLineOptions> clo;
 int main(int argc, char ** argv);
 NtrOptions* mainInit();
 BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions const & clo);
-void create_bdds(BnetNetwork_ptr const network, DdManager * const ddm );
-void apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm);
-void clean_up_network(BnetNetwork_ptr const network, DdManager * const ddm);
+void create_bdds        (BnetNetwork_ptr const network, DdManager * const ddm );
+void apply_cudd         (BnetNetwork_ptr const network, DdManager * const ddm);
+void apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
+void clean_up_network   (BnetNetwork_ptr const network, DdManager * const ddm);
 
 
 
@@ -97,6 +98,9 @@ int main(int argc, char ** argv)
     if (clo->mustApplyCudd)
       apply_cudd(network, srt->ddm);
 
+    if (clo->mustApplyFactorGraph)
+      apply_factor_graph(network, srt->ddm);
+
     
     
     // clean-up
@@ -109,6 +113,10 @@ int main(int argc, char ** argv)
       std::cerr << "Fatal error: " << e.what() << std::endl;
     exit(1);
   }
+
+
+  blif_solve_log(INFO, "SUCCESS " << clo->blif_file_path.substr(clo->blif_file_path.find_last_of("/") + 1));
+
   return 0;
 }
 
@@ -176,6 +184,90 @@ BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions co
 
 
 
+// ***** Function ***********
+// Apply the factor graph algorithm to compute the transition relation
+//   - create the factor_graph using the set of nodes in the network
+//   - merge all the var nodes that are not pi<nnn> (primary inputs) into a single node R
+//   - pass messages, collect the conjunction of messages coming into R
+// **************************
+void apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
+{
+
+  // collect from the network
+  // the info required to create a factor graph
+  std::vector<bdd_ptr> funcs;         // the set of functions
+  bdd_ptr non_pi_vars = bdd_one(ddm); // the set of non_pi vars
+  int num_non_pi_vars = 0;
+  for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
+  {
+    // collect the function
+    if (node->dd != NULL)
+      funcs.push_back(bdd_dup(node->dd));
+
+    // collect the non-pi var
+    if (std::string(node->name).compare(0, 2, "pi") != 0)
+    {
+      bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
+      bdd_ptr temp = bdd_cube_union(ddm, var, non_pi_vars);
+      bdd_free(ddm, non_pi_vars);
+      non_pi_vars = temp;
+      bdd_free(ddm, var);
+      ++num_non_pi_vars;
+    }
+  }
+
+  // create factor graph
+  auto start = std::chrono::system_clock::now();
+  factor_graph * fg = factor_graph_new(ddm, &funcs[0], funcs.size());
+  blif_solve_log(INFO, "Created factor graph with "
+                       << funcs.size() << " functions in "
+                       << duration(start, std::chrono::system_clock::now()) << " secs");
+
+
+
+  // group the non-pi variables in the factor graph
+  factor_graph_group_vars(fg, non_pi_vars);
+  start = std::chrono::system_clock::now();
+  blif_solve_log(INFO, "Grouped " << num_non_pi_vars << " variables in "
+                       << duration(start, std::chrono::system_clock::now()) << " secs");
+
+
+
+  // pass messages till convergence
+  start = std::chrono::system_clock::now();
+  factor_graph_converge(fg);
+  blif_solve_log(INFO, "Factor graph messages have converged in "
+                       << duration(start, std::chrono::system_clock::now()) << " secs");
+
+
+
+  // compute the result by conjoining all incoming messages
+  start = std::chrono::system_clock::now();
+  fgnode * V = factor_graph_get_varnode(fg, non_pi_vars);
+  int num_messages;
+  bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
+  bdd_ptr result = bdd_one(ddm);
+  for (int mi = 0; mi < num_messages; ++mi)
+  {
+    bdd_ptr temp = bdd_and(ddm, result, messages[mi]);
+    bdd_free(ddm, result);
+    bdd_free(ddm, messages[mi]);
+    result = temp;
+  }
+  free(messages);
+  blif_solve_log(INFO, "Computed final factor graph result in "
+                       << duration(start, std::chrono::system_clock::now()) << " secs");
+
+  // clean-up
+  bdd_free(ddm, result);
+  factor_graph_delete(fg);
+  bdd_free(ddm, non_pi_vars);
+}
+
+
+
+
+
 //**** Function ************
 // Compute the transition relation using cudd quantification
 //  by first computing
@@ -205,6 +297,7 @@ void apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
         bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
         temp = bdd_cube_union(ddm, pi_vars, var);
         bdd_free(ddm, pi_vars);
+        bdd_free(ddm, var);
         pi_vars = temp;
       }
     }
