@@ -15,6 +15,8 @@
 // blif_solve includes
 #include "command_line_options.h"
 
+
+
 // logging
 std::shared_ptr<blif_solve::CommandLineOptions> clo;
 #define blif_solve_log(level, msg) \
@@ -23,18 +25,27 @@ std::shared_ptr<blif_solve::CommandLineOptions> clo;
   }
 
 
-// typedefs
-
-
 
 // function declarations
 int main(int argc, char ** argv);
 NtrOptions* mainInit();
+
+
+
+
+
+// ****** Function *******
+// duration
+// takes a start and end chrono time
+// and returns the duration in seconds as a double
+// ***********************
 template<typename T> 
 double duration(T const & start, T const & end)
 {
   return std::chrono::duration<double>(end - start).count();
 }
+
+
 
 
 // *** Function ****
