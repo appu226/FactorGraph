@@ -1,0 +1,195 @@
+4.1M /home/parakram/Software/DDP/data_sets/bddblif/6s0_bdd.blif
+[INFO] Parsed 6s0_bdd.blif with 207 pi, 1 po, 157 li, 157 lo variables in 0.370394 sec
+16M /home/parakram/Software/DDP/data_sets/bddblif/6s105_bdd.blif
+[INFO] Parsed 6s105_bdd.blif with 49 pi, 1 po, 151 li, 151 lo variables in 2.49352 sec
+984K /home/parakram/Software/DDP/data_sets/bddblif/6s109_bdd.blif
+[INFO] Parsed 6s109_bdd.blif with 9 pi, 1 po, 338 li, 338 lo variables in 0.119949 sec
+20M /home/parakram/Software/DDP/data_sets/bddblif/6s120_bdd.blif
+[INFO] Parsed 6s120_bdd.blif with 58 pi, 1 po, 58 li, 58 lo variables in 1.96812 sec
+[INFO] Created BDDs in the network in 27.5196 sec
+[INFO] Created conjunction of all functions in 2.13482 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.843e-06 sec
+[INFO] Created factor graph with 176 functions in 1.04929 secs
+[INFO] Grouped 336140 variables in 3.62e-06 secs
+636K /home/parakram/Software/DDP/data_sets/bddblif/6s134_bdd.blif
+[INFO] Parsed 6s134_bdd.blif with 36 pi, 1 po, 571 li, 534 lo variables in 0.260273 sec
+[INFO] Created BDDs in the network in 1.04737 sec
+[INFO] Created conjunction of all functions in 0.181516 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.571e-06 sec
+[INFO] Created factor graph with 1143 functions in 0.332913 secs
+[INFO] Grouped 11445 variables in 6.188e-06 secs
+[INFO] Factor graph messages have converged in 75.6468 secs
+[INFO] Computed final factor graph result in 0.00376584 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s134_bdd.blif
+612K /home/parakram/Software/DDP/data_sets/bddblif/6s185_bdd.blif
+[INFO] Parsed 6s185_bdd.blif with 37 pi, 1 po, 367 li, 366 lo variables in 0.135478 sec
+[INFO] Created BDDs in the network in 0.062707 sec
+[INFO] Created conjunction of all functions in 0.017327 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.374e-06 sec
+[INFO] Created factor graph with 772 functions in 0.210716 secs
+[INFO] Grouped 10764 variables in 6.513e-06 secs
+[INFO] Factor graph messages have converged in 0.982442 secs
+[INFO] Computed final factor graph result in 0.00177181 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s185_bdd.blif
+384K /home/parakram/Software/DDP/data_sets/bddblif/6s186_bdd.blif
+[INFO] Parsed 6s186_bdd.blif with 38 pi, 1 po, 372 li, 371 lo variables in 0.0603022 sec
+[INFO] Created BDDs in the network in 0.0763954 sec
+[INFO] Created conjunction of all functions in 0.0189369 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.915e-06 sec
+[INFO] Created factor graph with 783 functions in 0.219289 secs
+[INFO] Grouped 6961 variables in 6.143e-06 secs
+[INFO] Factor graph messages have converged in 1.02104 secs
+[INFO] Computed final factor graph result in 0.00184292 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s186_bdd.blif
+376K /home/parakram/Software/DDP/data_sets/bddblif/6s187_bdd.blif
+[INFO] Parsed 6s187_bdd.blif with 38 pi, 1 po, 372 li, 371 lo variables in 0.0442744 sec
+[INFO] Created BDDs in the network in 0.101317 sec
+[INFO] Created conjunction of all functions in 0.0199271 sec
+[INFO] Quantified out primary inputs to get transition relation in 4.085e-06 sec
+[INFO] Created factor graph with 783 functions in 0.210375 secs
+[INFO] Grouped 6832 variables in 6.421e-06 secs
+[INFO] Factor graph messages have converged in 1.04476 secs
+[INFO] Computed final factor graph result in 0.00187301 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s187_bdd.blif
+1.1M /home/parakram/Software/DDP/data_sets/bddblif/6s188_bdd.blif
+[INFO] Parsed 6s188_bdd.blif with 30 pi, 1 po, 786 li, 783 lo variables in 0.204764 sec
+[INFO] Created BDDs in the network in 0.635104 sec
+[INFO] Created conjunction of all functions in 0.170833 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.285e-06 sec
+[INFO] Created factor graph with 1601 functions in 0.651931 secs
+[INFO] Grouped 19106 variables in 6.164e-06 secs
+8.4M /home/parakram/Software/DDP/data_sets/bddblif/6s209b0_bdd.blif
+[INFO] Parsed 6s209b0_bdd.blif with 392 pi, 1 po, 5759 li, 2609 lo variables in 7.75552 sec
+4.7M /home/parakram/Software/DDP/data_sets/bddblif/6s269r_bdd.blif
+[INFO] Parsed 6s269r_bdd.blif with 207 pi, 1 po, 157 li, 157 lo variables in 0.623434 sec
+4.0M /home/parakram/Software/DDP/data_sets/bddblif/6s274r_bdd.blif
+[INFO] Parsed 6s274r_bdd.blif with 76 pi, 1 po, 1712 li, 1712 lo variables in 1.51347 sec
+3.7M /home/parakram/Software/DDP/data_sets/bddblif/6s275rb318_bdd.blif
+[INFO] Parsed 6s275rb318_bdd.blif with 844 pi, 1 po, 3196 li, 2427 lo variables in 1.99242 sec
+[INFO] Created BDDs in the network in 0.36615 sec
+[INFO] Created conjunction of all functions in 1.64431 sec
+[INFO] Quantified out primary inputs to get transition relation in 8.524e-06 sec
+[INFO] Created factor graph with 6469 functions in 9.5933 secs
+[INFO] Grouped 66816 variables in 5.818e-06 secs
+3.7M /home/parakram/Software/DDP/data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] Parsed 6s276rb342_bdd.blif with 843 pi, 1 po, 3201 li, 2432 lo variables in 2.17927 sec
+[INFO] Created BDDs in the network in 0.326974 sec
+[INFO] Created conjunction of all functions in 1.66645 sec
+[INFO] Quantified out primary inputs to get transition relation in 9.174e-06 sec
+[INFO] Created factor graph with 6478 functions in 9.45476 secs
+[INFO] Grouped 66481 variables in 6.753e-06 secs
+332K /home/parakram/Software/DDP/data_sets/bddblif/6s280r_bdd.blif
+[INFO] Parsed 6s280r_bdd.blif with 68 pi, 1 po, 857 li, 857 lo variables in 0.0772614 sec
+784K /home/parakram/Software/DDP/data_sets/bddblif/6s292rb037_bdd.blif
+[INFO] Parsed 6s292rb037_bdd.blif with 111 pi, 1 po, 3190 li, 3094 lo variables in 0.458751 sec
+[INFO] Created BDDs in the network in 0.0408802 sec
+[INFO] Created conjunction of all functions in 1.54619 sec
+[INFO] Quantified out primary inputs to get transition relation in 4.109e-06 sec
+[INFO] Created factor graph with 6397 functions in 6.97572 secs
+[INFO] Grouped 17045 variables in 6.549e-06 secs
+4.0M /home/parakram/Software/DDP/data_sets/bddblif/6s29_bdd.blif
+[INFO] Parsed 6s29_bdd.blif with 4 pi, 1 po, 2247 li, 2247 lo variables in 1.6101 sec
+[INFO] Created BDDs in the network in 3.44161 sec
+[INFO] Created conjunction of all functions in 1.28738 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.107e-06 sec
+[INFO] Created factor graph with 4500 functions in 5.55409 secs
+[INFO] Grouped 69635 variables in 6.313e-06 secs
+280K /home/parakram/Software/DDP/data_sets/bddblif/6s319r_bdd.blif
+[INFO] Parsed 6s319r_bdd.blif with 37 pi, 1 po, 192 li, 192 lo variables in 0.0389673 sec
+[INFO] Created BDDs in the network in 29.8857 sec
+[INFO] Created conjunction of all functions in 2.92115 sec
+[INFO] Quantified out primary inputs to get transition relation in 4.183e-06 sec
+[INFO] Created factor graph with 423 functions in 0.927395 secs
+[INFO] Grouped 4974 variables in 6.332e-06 secs
+6.5M /home/parakram/Software/DDP/data_sets/bddblif/6s351rb02_bdd.blif
+[INFO] Parsed 6s351rb02_bdd.blif with 4 pi, 1 po, 3862 li, 3861 lo variables in 3.949 sec
+[INFO] Created BDDs in the network in 6.09318 sec
+[INFO] Created conjunction of all functions in 3.66418 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.195e-06 sec
+[INFO] Created factor graph with 7729 functions in 15.9251 secs
+[INFO] Grouped 113481 variables in 6.138e-06 secs
+7.6M /home/parakram/Software/DDP/data_sets/bddblif/6s351rb15_bdd.blif
+[INFO] Parsed 6s351rb15_bdd.blif with 4 pi, 1 po, 3862 li, 3861 lo variables in 4.63309 sec
+[INFO] Created BDDs in the network in 14.2126 sec
+[INFO] Created conjunction of all functions in 4.85481 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.586e-06 sec
+[INFO] Created factor graph with 7729 functions in 16.4029 secs
+[INFO] Grouped 132764 variables in 6.218e-06 secs
+84K /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif
+[INFO] Parsed 6s365r_bdd.blif with 28 pi, 1 po, 204 li, 204 lo variables in 0.0232985 sec
+[INFO] Created BDDs in the network in 0.00244521 sec
+[INFO] Created conjunction of all functions in 0.00402906 sec
+[INFO] Quantified out primary inputs to get transition relation in 2.49e-06 sec
+[INFO] Created factor graph with 438 functions in 0.0315234 secs
+[INFO] Grouped 1646 variables in 5.745e-06 secs
+[INFO] Factor graph messages have converged in 0.174264 secs
+[INFO] Computed final factor graph result in 0.000550317 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s365r_bdd.blif
+2.0M /home/parakram/Software/DDP/data_sets/bddblif/6s366r_bdd.blif
+[INFO] Parsed 6s366r_bdd.blif with 78 pi, 1 po, 1998 li, 1998 lo variables in 0.850578 sec
+1.9M /home/parakram/Software/DDP/data_sets/bddblif/6s367r_bdd.blif
+[INFO] Parsed 6s367r_bdd.blif with 35 pi, 1 po, 1610 li, 1610 lo variables in 0.686147 sec
+1.2M /home/parakram/Software/DDP/data_sets/bddblif/6s372rb26_bdd.blif
+[INFO] Parsed 6s372rb26_bdd.blif with 74 pi, 1 po, 1124 li, 1085 lo variables in 0.597926 sec
+[INFO] Created BDDs in the network in 0.079989 sec
+[INFO] Created conjunction of all functions in 0.188806 sec
+[INFO] Quantified out primary inputs to get transition relation in 4.023e-06 sec
+[INFO] Created factor graph with 2285 functions in 1.87748 secs
+[INFO] Grouped 21469 variables in 6.754e-06 secs
+1.1M /home/parakram/Software/DDP/data_sets/bddblif/6s37_bdd.blif
+[INFO] Parsed 6s37_bdd.blif with 41 pi, 1 po, 753 li, 752 lo variables in 0.230002 sec
+[INFO] Created BDDs in the network in 0.773088 sec
+[INFO] Created conjunction of all functions in 0.085088 sec
+[INFO] Quantified out primary inputs to get transition relation in 3.791e-06 sec
+[INFO] Created factor graph with 1548 functions in 0.964582 secs
+[INFO] Grouped 18794 variables in 6.473e-06 secs
+[INFO] Factor graph messages have converged in 13.0351 secs
+[INFO] Computed final factor graph result in 0.00703866 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s37_bdd.blif
+1.5M /home/parakram/Software/DDP/data_sets/bddblif/6s41_bdd.blif
+[INFO] Parsed 6s41_bdd.blif with 19 pi, 1 po, 959 li, 957 lo variables in 0.362984 sec
+[INFO] Created BDDs in the network in 3.94816 sec
+[INFO] Created conjunction of all functions in 0.49753 sec
+[INFO] Quantified out primary inputs to get transition relation in 2.978e-06 sec
+[INFO] Created factor graph with 1937 functions in 0.826372 secs
+[INFO] Grouped 26506 variables in 6.243e-06 secs
+364K /home/parakram/Software/DDP/data_sets/bddblif/6s4_bdd.blif
+[INFO] Parsed 6s4_bdd.blif with 209 pi, 1 po, 202 li, 202 lo variables in 0.036735 sec
+[INFO] Created BDDs in the network in 0.684906 sec
+[INFO] Created conjunction of all functions in 0.0219381 sec
+[INFO] Quantified out primary inputs to get transition relation in 5.611e-06 sec
+[INFO] Created factor graph with 615 functions in 0.322907 secs
+[INFO] Grouped 6565 variables in 5.998e-06 secs
+[INFO] Factor graph messages have converged in 0.653062 secs
+[INFO] Computed final factor graph result in 0.00191458 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s4_bdd.blif
+180K /home/parakram/Software/DDP/data_sets/bddblif/6s514r_bdd.blif
+[INFO] Parsed 6s514r_bdd.blif with 36 pi, 1 po, 441 li, 441 lo variables in 0.330877 sec
+160K /home/parakram/Software/DDP/data_sets/bddblif/6s515rb1_bdd.blif
+[INFO] Parsed 6s515rb1_bdd.blif with 36 pi, 1 po, 441 li, 441 lo variables in 0.304845 sec
+[INFO] Created BDDs in the network in 0.0109268 sec
+[INFO] Created conjunction of all functions in 0.0192872 sec
+[INFO] Quantified out primary inputs to get transition relation in 4.639e-06 sec
+[INFO] Created factor graph with 920 functions in 0.261546 secs
+[INFO] Grouped 3252 variables in 6.379e-06 secs
+[INFO] Factor graph messages have converged in 9.93204 secs
+[INFO] Computed final factor graph result in 0.00270834 secs
+[INFO] The cudd result does indeed  imply the factor graph result.
+
+[INFO] SUCCESS 6s515rb1_bdd.blif
+456K /home/parakram/Software/DDP/data_sets/bddblif/6s516r_bdd.blif
+[INFO] Parsed 6s516r_bdd.blif with 68 pi, 1 po, 857 li, 857 lo variables in 1.75677 sec

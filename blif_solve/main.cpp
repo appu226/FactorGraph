@@ -30,10 +30,10 @@ std::shared_ptr<blif_solve::CommandLineOptions> clo;
 int main(int argc, char ** argv);
 NtrOptions* mainInit();
 BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions const & clo);
-void create_bdds        (BnetNetwork_ptr const network, DdManager * const ddm );
-void apply_cudd         (BnetNetwork_ptr const network, DdManager * const ddm);
-void apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
-void clean_up_network   (BnetNetwork_ptr const network, DdManager * const ddm);
+void create_bdds           (BnetNetwork_ptr const network, DdManager * const ddm );
+bdd_ptr apply_cudd         (BnetNetwork_ptr const network, DdManager * const ddm);
+bdd_ptr apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
+void clean_up_network      (BnetNetwork_ptr const network, DdManager * const ddm);
 
 
 
@@ -95,16 +95,40 @@ int main(int argc, char ** argv)
 
 
     // apply cudd based quantification
+    bdd_ptr cuddResult = NULL;
     if (clo->mustApplyCudd)
-      apply_cudd(network, srt->ddm);
+      cuddResult = apply_cudd(network, srt->ddm);
 
+
+    // apply factor graph based quantification
+    bdd_ptr factorGraphResult = NULL;
     if (clo->mustApplyFactorGraph)
-      apply_factor_graph(network, srt->ddm);
+      factorGraphResult = apply_factor_graph(network, srt->ddm);
 
     
+
+    // confirm that the cudd result implies the factor graph result
+    if (clo->mustApplyCudd && clo->mustApplyFactorGraph)
+    {
+      // (a implies b) = (!a or b)
+      bdd_ptr notCuddResult = bdd_not(srt->ddm, cuddResult);
+      bdd_ptr cuddImpliesFactorGraph = bdd_or(srt->ddm, notCuddResult, factorGraphResult);
+      bdd_free(srt->ddm, notCuddResult);
+      int implicationIsTrue = bdd_is_one(srt->ddm, cuddImpliesFactorGraph);
+      bdd_free(srt->ddm, cuddImpliesFactorGraph);
+      blif_solve_log(INFO, "The cudd result does "
+                           << (implicationIsTrue ? "indeed " : "NOT ")
+                           << " imply the factor graph result."
+                           << std::endl);
+      if (!implicationIsTrue)
+        blif_solve_log(ERROR, "The cudd result does NOT imply the factor graph result");
+    }
+
     
     // clean-up
-    clean_up_network(network, srt->ddm); 
+    if (cuddResult != NULL)        bdd_free(srt->ddm, cuddResult);
+    if (factorGraphResult != NULL) bdd_free(srt->ddm, factorGraphResult);
+    clean_up_network(network, srt->ddm);
     
   
   } catch (std::exception const & e)
@@ -190,7 +214,7 @@ BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions co
 //   - merge all the var nodes that are not pi<nnn> (primary inputs) into a single node R
 //   - pass messages, collect the conjunction of messages coming into R
 // **************************
-void apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
+bdd_ptr apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
 {
 
   // collect from the network
@@ -258,11 +282,11 @@ void apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
   blif_solve_log(INFO, "Computed final factor graph result in "
                        << duration(start, std::chrono::system_clock::now()) << " secs");
 
-  // clean-up
-  bdd_free(ddm, result);
+  // clean-up and return
   factor_graph_delete(fg);
   bdd_free(ddm, non_pi_vars);
-}
+  return result;
+} // end factor graph based quantification
 
 
 
@@ -275,7 +299,7 @@ void apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
 //  and then
 //    existentially quantifying out the primary input (pi_<nnn>) variables
 //**************************
-void apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
+bdd_ptr apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
 {
 
 
@@ -322,13 +346,10 @@ void apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
 
 
 
-  // clean up cudd specific stuff
-  // Clean ptrs
-  bdd_free(ddm, result);
+  // clean up and return
   bdd_free(ddm, conj);
   bdd_free(ddm, pi_vars);
-
-
+  return result;
 } // end cudd based quantification
 
 
