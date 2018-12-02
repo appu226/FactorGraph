@@ -1,5 +1,6 @@
-
 #pragma once
+
+#include <iostream>
 
 namespace blif_solve {
 
@@ -15,10 +16,17 @@ namespace blif_solve {
   Verbosity getVerbosity();
   void setVerbosity(Verbosity verbosity);
 
-#define blif_log(verbosity, message) \
-  if (blif_sove::getVerbosity() >= verbosity) \
+#define blif_solve_log(verbosity, message) \
+  if (blif_solve::getVerbosity() >= blif_solve::verbosity) \
   { \
-    std::cout << "[" ## verbosity ## "] " << message << std::endl; \
+    std::cout << "[" << #verbosity << "] " << message << std::endl; \
+  }
+
+#define blif_solve_log_bdd(verbosity, message, ddm, bdd) \
+  if (blif_solve::getVerbosity() >= blif_solve::verbosity) \
+  { \
+    std::cout << "[" << #verbosity << "] " << message << std::endl; \
+    bdd_print_minterms(ddm, bdd); \
   }
 
 } // end namespace blif_solve

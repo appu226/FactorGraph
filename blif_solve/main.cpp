@@ -14,6 +14,7 @@
 
 // blif_solve includes
 #include "command_line_options.h"
+#include "blif_factors.h"
 
 
 // constants
@@ -25,22 +26,10 @@ std::string const quantification_answer_prefix = "ans_qpi";
 
 
 
-
-// logging
-std::shared_ptr<blif_solve::CommandLineOptions> clo;
-#define blif_solve_log(level, msg) \
-  if (clo->verbosity >= blif_solve::level) { \
-    std::cout << "[" << #level << "] " << msg << std::endl; \
-  }
-
-
-
 // function declarations
 int             main               (int argc, char ** argv);
 NtrOptions*     mainInit           ();
-BnetNetwork_ptr parse_network      (FILE * const fp, blif_solve::CommandLineOptions const & clo);
-void            create_bdds        (BnetNetwork_ptr const network, DdManager * const ddm );
-bdd_ptr         apply_cudd         (BnetNetwork_ptr const network, DdManager * const ddm);
+bdd_ptr         apply_cudd         (blif_solve::BlifFactors const & blifFactors);
 bdd_ptr         apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
 void            clean_up_network   (BnetNetwork_ptr const network, DdManager * const ddm);
 bool            startsWith         (std::string const & str, std::string const & prefix);
@@ -75,41 +64,37 @@ int main(int argc, char ** argv)
 {
   
   // parse inputs
-  clo = std::make_shared<blif_solve::CommandLineOptions>(argc, argv);
+  auto clo = std::make_shared<blif_solve::CommandLineOptions>(argc, argv);
+  blif_solve::setVerbosity(clo->verbosity);
 
   try {
-
   
     
     
     // init cudd
-    std::shared_ptr<SRT> srt = std::make_shared<SRT>();
+    auto srt = std::make_shared<SRT>();
     
-    
-    // read blif file
-    FILE * fp = fopen(clo->blif_file_path.c_str(), "r");
-    if (fp == NULL)
-      throw std::invalid_argument(std::string("Could not open file '") + clo->blif_file_path + "'");
+   
+
+    // parse network
+    auto blifFactors = std::make_shared<blif_solve::BlifFactors>(clo->blif_file_path, srt->ddm);
 
 
     
-    // create blif network structure
-    BnetNetwork_ptr network = parse_network(fp, *clo); 
-
-
-
     // create bdds
     if (clo->mustApplyCudd || clo->mustApplyFactorGraph)
-      create_bdds(network, srt->ddm);
+      blifFactors->createBdds();
 
 
 
     // apply cudd based quantification
     bdd_ptr cuddResult = NULL;
     if (clo->mustApplyCudd)
-      cuddResult = apply_cudd(network, srt->ddm);
+      cuddResult = apply_cudd(*blifFactors);
 
 
+    /*
+    
     // apply factor graph based quantification
     bdd_ptr factorGraphResult = NULL;
     if (clo->mustApplyFactorGraph)
@@ -139,6 +124,7 @@ int main(int argc, char ** argv)
     if (cuddResult != NULL)        bdd_free(srt->ddm, cuddResult);
     if (factorGraphResult != NULL) bdd_free(srt->ddm, factorGraphResult);
     clean_up_network(network, srt->ddm);
+    */
     
   
   } catch (std::exception const & e)
@@ -154,67 +140,6 @@ int main(int argc, char ** argv)
   return 0;
 }
 
-
-
-
-
-// *** Function ****************
-// actually creates the bdds in a blif files.
-// also logs the time taken.
-// *****************************
-void create_bdds(BnetNetwork_ptr const network, DdManager * const ddm)
-{
-  std::unique_ptr<NtrOptions> options(mainInit());
-  if (network == NULL)
-    throw std::logic_error("Unexpected error parsing blif file");
-  auto start = std::chrono::system_clock::now();
-  Ntr_buildDDs(network, ddm, options.get(), NULL);
-  auto end = std::chrono::system_clock::now();
-  blif_solve_log(INFO, "Created BDDs in the network in " << duration(start, end) << " sec");
-}
-
-
-
-
-
-
-// *** Function ****************
-// parse_network
-// Parses a blif file and creates a blif network.
-// Note that the blif network is just a parsed data structure
-//   that faithfully represents the file.
-// In particular, no bdd's are created automatically.
-// Also logs some info about the network.
-// Returns the parsed BnetNetwork_ptr.
-// *****************************
-BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions const & options)
-{
-  auto start = std::chrono::system_clock::now();
-  BnetNetwork_ptr network = Bnet_ReadNetwork(fp, 0);
-  auto end = std::chrono::system_clock::now();
-  // print statistics about number of inputs
-  int num_pi = 0, num_po = 0, num_li = 0, num_lo = 0;
-  for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
-  {
-    std::string name = node->name;
-    if (name.find(primary_input_prefix) == 0)
-      ++num_pi;
-    else if (name.find("po") == 0)
-      ++num_po;
-    else if (name.find("li") == 0)
-      ++num_li;
-    else if (name.find("lo") == 0)
-      ++num_lo;
-  }
-  blif_solve_log(INFO, "Parsed " << options.blif_file_path.substr(clo->blif_file_path.find_last_of('/') + 1) 
-      << " with "
-      << num_pi << " pi, " 
-      << num_po << " po, "
-      << num_li << " li, "
-      << num_lo << " lo variables in "
-      << duration(start, end) << " sec");
-  return network;
-}
 
 
 
@@ -302,99 +227,33 @@ bdd_ptr apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
 
 
 
-//**** Function ************
+// **** Function ************
 // Compute the transition relation using cudd quantification
 //  by first computing
 //    the conjunction of all the bdds in the network,
 //  and then
 //    existentially quantifying out the primary input (pi_<nnn>) variables
-//**************************
-bdd_ptr apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
+// **************************
+bdd_ptr apply_cudd(blif_solve::BlifFactors const & blif_factors)
 {
-
-
-  // compute the conjunction of all functions
-  // and collect all primary input variables
-  // and collect ans_qpi, if present (which represents the final answer),
-  //   for verification of the algorithm
-  bdd_ptr conj = bdd_one(ddm);
-  bdd_ptr pi_vars = bdd_one(ddm);
-  bdd_ptr ans_qpi = NULL;
-  auto conj_start = std::chrono::system_clock::now();
-  for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
+  auto factors = blif_factors.getFactors();
+  auto ddm = blif_factors.getDdManager();
+  auto conj = bdd_one(ddm);
+  for (auto fit = factors->cbegin(); fit != factors->cend(); ++fit)
   {
-    bdd_ptr temp;
-    if (node->dd != NULL)
-    {
-      temp = bdd_and(ddm, conj, node->dd);
-      bdd_free(ddm, conj);
-      conj = temp;
-      std::string const name = node->name;
-      blif_solve_log(DEBUG, "Parsing node " << name);
-      if (name.find(primary_input_prefix) == 0)
-      {
-        bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
-        temp = bdd_cube_union(ddm, pi_vars, var);
-        bdd_free(ddm, pi_vars);
-        bdd_free(ddm, var);
-        pi_vars = temp;
-      }
-      if (name == quantification_answer_prefix)
-      {
-        blif_solve_log(DEBUG, "Found final answer embedded in problem");
-        ans_qpi = bdd_dup(node->dd);
-      }
-      if (clo->mustDumpBdds && clo->verbosity >= blif_solve::DEBUG)
-      {
-        std::cout << "Bdd for node " << name << " is\n";
-        bdd_print_minterms(ddm, node->dd);
-      }
-    }
+    auto temp = bdd_and(ddm, *fit, conj);
+    bdd_free(ddm, conj);
+    conj = temp;
   }
-  auto conj_end = std::chrono::system_clock::now();
-  blif_solve_log(INFO, "Created conjunction of all functions in " 
-      << duration(conj_start, conj_end)
-      << " sec");
-  if (clo->mustDumpBdds && clo->verbosity >= blif_solve::DEBUG)
+  bdd_ptr result = bdd_forsome(ddm, conj, blif_factors.getPiVars());
+  if (blif_solve::getVerbosity() >= blif_solve::DEBUG)
   {
-    std::cout << "Bdd for conjunction is\n";
+    blif_solve_log(DEBUG, "printing conj from cudd_apply:");
     bdd_print_minterms(ddm, conj);
+    blif_solve_log(DEBUG, "printing result from cudd_apply:");
+    bdd_print_minterms(ddm, result);
   }
-
-
-
-
-
-  // quantify out the primary variables
-  auto quant_start = std::chrono::system_clock::now();
-  bdd_ptr result = bdd_forsome(ddm, conj, pi_vars);
-  auto quant_end = std::chrono::system_clock::now();
-  blif_solve_log(INFO, "Quantified out primary inputs to get transition relation in "
-      << duration(quant_start, quant_end)
-      << " sec");
-
-
-
-
-  // verify the final answer, if ans_qpi is present
-  if (NULL != ans_qpi)
-  {
-    if (ans_qpi == result)
-    {
-      blif_solve_log(INFO, "Cudd answer matches expected answer");
-    }
-    else
-    {
-      blif_solve_log(ERROR, "Cudd answer does not match expected answer");
-      throw std::logic_error("Cudd answer does not match expected answer");
-    }
-  }
-
-
-
-  // clean up and return
   bdd_free(ddm, conj);
-  bdd_free(ddm, pi_vars);
   return result;
 } // end cudd based quantification
 

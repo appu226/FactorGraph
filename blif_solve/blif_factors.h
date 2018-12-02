@@ -51,6 +51,10 @@ namespace blif_solve {
       //   otherwise, this function will throw
       bdd_ptr getNonPiVars() const;
 
+      // ****** Accessor function ******
+      // returns the DdManager
+      DdManager * getDdManager() const;
+
 
       static std::string primary_input_prefix;
       static std::string primary_output_prefix;

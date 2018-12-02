@@ -6,166 +6,7 @@
 #include <cuddInt.h>
 
 
-// local function declarations
-namespace {
-
-
-  // ***** Function *****
-  // inits the ntr options to some sensible default
-  NtrOptions * mainInit();
-
-
-
-  // ***** Function *****
-  // computes the union and re-assigns to back to cube
-  // i.e.:
-  //    cube = cube \union var
-  // also de-refs the previous value of the cube and the var
-  void reassignToUnion(DdManager * ddm, bdd_ptr & cube, bdd_ptr var);
-
-
-
-
-} // end anonymous namespace
-
-
-
-
-
-// definitions for BlifFactors functions
-namespace blif_solve {
-
-
-
-
-  // static member variables
-  std::string BlifFactors::primary_input_prefix = "pi";
-  std::string BlifFactors::primary_output_prefix = "po";
-  std::string BlifFactors::latch_input_prefix = "li";
-  std::string BlifFactors::latch_output_prefix = "lo";
-
-
-
-
-
-  // constructor
-  // parses the network file, WITHOUT creating the actual bdds
-  BlifFactors::BlifFactors(std::string const & fileName, DdManager * const ddm)
-  {
-    FILE * const fp = fopen(fileName.c_str(), "r");
-    m_network.reset(Bnet_ReadNetwork(fp, 0));
-    fclose(fp);
-    m_ddm = ddm;
-  }
-
-
-
-
-  // destructor
-  BlifFactors::~BlifFactors()
-  {
-    for (BnetNode_ptr node = m_network->nodes; node != NULL; node = node->next)
-    {
-      if (node->dd != NULL &&
-          node->type != BNET_INPUT_NODE &&
-          node->type != BNET_PRESENT_STATE_NODE) {
-        Cudd_IterDerefBdd(m_ddm, node->dd);
-        node->dd= NULL;
-      }
-    }
-    // free network
-    Bnet_FreeNetwork(m_network.get());
-
-  }
-
-
-
-
-  // createBdds
-  // creates the bdds
-  // extracts the factors (li <-> li_circuit)
-  // stores the pi and non-pi (li & lo) variable cubes
-  void BlifFactors::createBdds()
-  {
-
-    // build bdds in the blif file
-    std::unique_ptr<NtrOptions> options(mainInit());
-    if (m_network == NULL)
-      throw std::logic_error("Unexpected error parsing blif file");
-    Ntr_buildDDs(m_network.get(), m_ddm, options.get(), NULL);
-
-
-    m_piVars = bdd_one(m_ddm);
-    m_nonPiVars = bdd_one(m_ddm);
-    m_factors.reset(new std::vector<bdd_ptr>());
-
-
-    // loop over all variables
-    for (BnetNode_cptr node = m_network->nodes; node != NULL; node = node->next)
-    {
-      if (NULL == node->dd)
-        continue;
-      std::string name = node->name;
-
-
-      if (name.find(primary_input_prefix) == 0)
-      {
-        // if primary input variable
-        // store in piVars
-        reassignToUnion(m_ddm, m_piVars, bdd_new_var_with_index(m_ddm, node->var));
-        
-      }
-
-
-      else if (name.find(latch_output_prefix) == 0)
-      {
-        // if lo variable
-        // store in nonPiVars
-        reassignToUnion(m_ddm, m_nonPiVars, bdd_new_var_with_index(m_ddm, node->var));
-      }
-
-
-      else if (name.find(latch_input_prefix) == 0)
-      {
-        // if li variable
-        // store in nonPiVars
-        // and create factor
-        bdd_ptr li = bdd_new_var_with_index(m_ddm, -1);
-        bdd_ptr li_circuit = node->dd;
-        bdd_ptr li_and_lic = Cudd_bddAnd(m_ddm, li, li_circuit);
-        bdd_ptr nli_and_nlic = Cudd_bddAnd(m_ddm, Cudd_Not(li), Cudd_Not(li));
-        bdd_ptr factor = bdd_or(m_ddm, li_and_lic, nli_and_nlic);
-        m_factors->push_back(factor);
-        reassignToUnion(m_ddm, m_nonPiVars, li);
-      }
-
-
-
-    }
-  }
-
-
-
-
-  // accessors
-  BlifFactors::FactorVec BlifFactors::getFactors() const
-  {
-    return m_factors;
-  }
-  bdd_ptr BlifFactors::getPiVars() const
-  {
-    return m_piVars;
-  }
-  bdd_ptr BlifFactors::getNonPiVars() const
-  {
-    return m_nonPiVars;
-  }
-
-} // end namespace blif_solve
-
-
-
-
+// local function definitions
 namespace {
 
   // ***** Function *****
@@ -277,4 +118,149 @@ namespace {
 
 
 } // end anonymous namespace
+
+
+
+// definitions for BlifFactors functions
+namespace blif_solve {
+
+
+
+
+  // static member variables
+  std::string BlifFactors::primary_input_prefix = "pi";
+  std::string BlifFactors::primary_output_prefix = "po";
+  std::string BlifFactors::latch_input_prefix = "li";
+  std::string BlifFactors::latch_output_prefix = "lo";
+
+
+
+
+
+  // constructor
+  // parses the network file, WITHOUT creating the actual bdds
+  BlifFactors::BlifFactors(std::string const & fileName, DdManager * const ddm)
+  {
+    FILE * const fp = fopen(fileName.c_str(), "r");
+    if (NULL == fp)
+      throw std::invalid_argument("Could not open file '" + fileName + "'");
+    m_network.reset(Bnet_ReadNetwork(fp, 0));
+    fclose(fp);
+    m_ddm = ddm;
+  }
+
+
+
+
+  // destructor
+  BlifFactors::~BlifFactors()
+  {
+    for (BnetNode_ptr node = m_network->nodes; node != NULL; node = node->next)
+    {
+      if (node->dd != NULL &&
+          node->type != BNET_INPUT_NODE &&
+          node->type != BNET_PRESENT_STATE_NODE) {
+        Cudd_IterDerefBdd(m_ddm, node->dd);
+        node->dd= NULL;
+      }
+    }
+    // free network
+    Bnet_FreeNetwork(m_network.get());
+
+  }
+
+
+
+
+  // createBdds
+  // creates the bdds
+  // extracts the factors (li <-> li_circuit)
+  // stores the pi and non-pi (li & lo) variable cubes
+  void BlifFactors::createBdds()
+  {
+
+    // build bdds in the blif file
+    std::unique_ptr<NtrOptions> options(mainInit());
+    if (m_network == NULL)
+      throw std::logic_error("Unexpected error parsing blif file");
+    Ntr_buildDDs(m_network.get(), m_ddm, options.get(), NULL);
+
+
+    m_piVars = bdd_one(m_ddm);
+    m_nonPiVars = bdd_one(m_ddm);
+    m_factors.reset(new std::vector<bdd_ptr>());
+
+
+    // loop over all variables
+    for (BnetNode_cptr node = m_network->nodes; node != NULL; node = node->next)
+    {
+      if (NULL == node->dd)
+        continue;
+      std::string name = node->name;
+
+
+      if (name.find(primary_input_prefix) == 0)
+      {
+        // if primary input variable
+        // store in piVars
+        bdd_ptr piVar = bdd_new_var_with_index(m_ddm, node->var);
+        blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, piVar);
+        reassignToUnion(m_ddm, m_piVars, piVar);
+      }
+
+
+      else if (name.find(latch_output_prefix) == 0)
+      {
+        // if lo variable
+        // store in nonPiVars
+        bdd_ptr nonPiVar = bdd_new_var_with_index(m_ddm, node->var);
+        blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, nonPiVar);
+        reassignToUnion(m_ddm, m_nonPiVars, nonPiVar);
+      }
+
+
+      else if (name.find(latch_input_prefix) == 0)
+      {
+        // if li variable
+        // store in nonPiVars
+        // and create factor
+        bdd_ptr li = bdd_new_var_with_index(m_ddm, -1);
+        blif_solve_log_bdd(DEBUG, "creating var " << name << " as:", m_ddm, li);
+        bdd_ptr li_circuit = node->dd;
+        blif_solve_log_bdd(DEBUG, "parsing circuit for " << name << " as:", m_ddm, li_circuit);
+        bdd_ptr li_and_lic = Cudd_bddAnd(m_ddm, li, li_circuit);
+        bdd_ptr nli_and_nlic = Cudd_bddAnd(m_ddm, Cudd_Not(li), Cudd_Not(li_circuit));
+        bdd_ptr factor = bdd_or(m_ddm, li_and_lic, nli_and_nlic);
+        m_factors->push_back(factor);
+        reassignToUnion(m_ddm, m_nonPiVars, li);
+      }
+
+
+
+    } // end loop over all network nodes
+  } //end BlifFactors::createBdds
+
+
+
+
+  // accessors
+  BlifFactors::FactorVec BlifFactors::getFactors() const
+  {
+    return m_factors;
+  }
+  bdd_ptr BlifFactors::getPiVars() const
+  {
+    return m_piVars;
+  }
+  bdd_ptr BlifFactors::getNonPiVars() const
+  {
+    return m_nonPiVars;
+  }
+  DdManager * BlifFactors::getDdManager() const
+  {
+    return m_ddm;
+  }
+
+} // end namespace blif_solve
+
 
