@@ -2,20 +2,10 @@
 
 #include <string>
 #include <iostream>
+#include "log.h"
 
 namespace blif_solve {
   
-
-  // Verbosity for logging
-  enum Verbosity {
-    QUIET,
-    ERROR,
-    WARNING,
-    INFO,
-    DEBUG
-  };
-
-
 
   // command line options
   struct CommandLineOptions
@@ -26,6 +16,8 @@ namespace blif_solve {
     bool mustApplyCudd;
     // verbosity for logging
     Verbosity verbosity;
+    // path to dump bdds
+    bool mustDumpBdds;
 
     std::string blif_file_path;
 

@@ -1,0 +1,11 @@
+.model DD
+.inputs pi00 pi01 lo00
+.outputs po00 li00 ans_qpi
+.names pi00 pi01 li00
+11 1
+.names li00 lo00 po00
+11 1
+.names lo00 ans_qpi
+1 1
+.name 
+.end

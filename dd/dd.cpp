@@ -88,7 +88,13 @@ bdd_ptr bdd_new_var_with_index(DdManager * dd, int index)
 {
   DdNode * result;
   
-  result = Cudd_bddIthVar(dd, index);
+  if (index >= 0)
+  {
+    result = Cudd_bddIthVar(dd, index);
+  } else
+  {
+    result = Cudd_bddNewVar(dd);
+  }
   Cudd_Ref(result);
   common_error(result, "bdd_new_var_with_index: result = NULL");
   return((bdd_ptr)result);
@@ -509,5 +515,4 @@ void bdd_print_minterms(DdManager *dd, bdd_ptr f)
   if(i == 0)
     common_error(NULL, "bdd_print_minterms : failed\n");
 }
-
 

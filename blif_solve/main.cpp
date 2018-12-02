@@ -16,6 +16,15 @@
 #include "command_line_options.h"
 
 
+// constants
+std::string const primary_input_prefix = "pi";
+std::string const primary_output_prefix = "po";
+std::string const latch_input_prefix = "li";
+std::string const latch_output_prefix = "lo";
+std::string const quantification_answer_prefix = "ans_qpi";
+
+
+
 
 // logging
 std::shared_ptr<blif_solve::CommandLineOptions> clo;
@@ -27,13 +36,14 @@ std::shared_ptr<blif_solve::CommandLineOptions> clo;
 
 
 // function declarations
-int main(int argc, char ** argv);
-NtrOptions* mainInit();
-BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions const & clo);
-void create_bdds           (BnetNetwork_ptr const network, DdManager * const ddm );
-bdd_ptr apply_cudd         (BnetNetwork_ptr const network, DdManager * const ddm);
-bdd_ptr apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
-void clean_up_network      (BnetNetwork_ptr const network, DdManager * const ddm);
+int             main               (int argc, char ** argv);
+NtrOptions*     mainInit           ();
+BnetNetwork_ptr parse_network      (FILE * const fp, blif_solve::CommandLineOptions const & clo);
+void            create_bdds        (BnetNetwork_ptr const network, DdManager * const ddm );
+bdd_ptr         apply_cudd         (BnetNetwork_ptr const network, DdManager * const ddm);
+bdd_ptr         apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
+void            clean_up_network   (BnetNetwork_ptr const network, DdManager * const ddm);
+bool            startsWith         (std::string const & str, std::string const & prefix);
 
 
 
@@ -117,7 +127,7 @@ int main(int argc, char ** argv)
       int implicationIsTrue = bdd_is_one(srt->ddm, cuddImpliesFactorGraph);
       bdd_free(srt->ddm, cuddImpliesFactorGraph);
       blif_solve_log(INFO, "The cudd result does "
-                           << (implicationIsTrue ? "indeed " : "NOT ")
+                           << (implicationIsTrue ? "indeed" : "NOT")
                            << " imply the factor graph result."
                            << std::endl);
       if (!implicationIsTrue)
@@ -187,7 +197,7 @@ BnetNetwork_ptr parse_network(FILE * const fp, blif_solve::CommandLineOptions co
   for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
   {
     std::string name = node->name;
-    if (name.find("pi") == 0)
+    if (name.find(primary_input_prefix) == 0)
       ++num_pi;
     else if (name.find("po") == 0)
       ++num_po;
@@ -229,7 +239,7 @@ bdd_ptr apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
       funcs.push_back(bdd_dup(node->dd));
 
     // collect the non-pi var
-    if (std::string(node->name).compare(0, 2, "pi") != 0)
+    if (std::string(node->name).find(primary_input_prefix) != 0)
     {
       bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
       bdd_ptr temp = bdd_cube_union(ddm, var, non_pi_vars);
@@ -305,8 +315,11 @@ bdd_ptr apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
 
   // compute the conjunction of all functions
   // and collect all primary input variables
+  // and collect ans_qpi, if present (which represents the final answer),
+  //   for verification of the algorithm
   bdd_ptr conj = bdd_one(ddm);
   bdd_ptr pi_vars = bdd_one(ddm);
+  bdd_ptr ans_qpi = NULL;
   auto conj_start = std::chrono::system_clock::now();
   for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
   {
@@ -316,7 +329,9 @@ bdd_ptr apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
       temp = bdd_and(ddm, conj, node->dd);
       bdd_free(ddm, conj);
       conj = temp;
-      if (node->name[0] = 'p' && node->name[1] == 'i')
+      std::string const name = node->name;
+      blif_solve_log(DEBUG, "Parsing node " << name);
+      if (name.find(primary_input_prefix) == 0)
       {
         bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
         temp = bdd_cube_union(ddm, pi_vars, var);
@@ -324,12 +339,27 @@ bdd_ptr apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
         bdd_free(ddm, var);
         pi_vars = temp;
       }
+      if (name == quantification_answer_prefix)
+      {
+        blif_solve_log(DEBUG, "Found final answer embedded in problem");
+        ans_qpi = bdd_dup(node->dd);
+      }
+      if (clo->mustDumpBdds && clo->verbosity >= blif_solve::DEBUG)
+      {
+        std::cout << "Bdd for node " << name << " is\n";
+        bdd_print_minterms(ddm, node->dd);
+      }
     }
   }
   auto conj_end = std::chrono::system_clock::now();
   blif_solve_log(INFO, "Created conjunction of all functions in " 
       << duration(conj_start, conj_end)
       << " sec");
+  if (clo->mustDumpBdds && clo->verbosity >= blif_solve::DEBUG)
+  {
+    std::cout << "Bdd for conjunction is\n";
+    bdd_print_minterms(ddm, conj);
+  }
 
 
 
@@ -343,6 +373,22 @@ bdd_ptr apply_cudd(BnetNetwork_ptr const network, DdManager * const ddm)
       << duration(quant_start, quant_end)
       << " sec");
 
+
+
+
+  // verify the final answer, if ans_qpi is present
+  if (NULL != ans_qpi)
+  {
+    if (ans_qpi == result)
+    {
+      blif_solve_log(INFO, "Cudd answer matches expected answer");
+    }
+    else
+    {
+      blif_solve_log(ERROR, "Cudd answer does not match expected answer");
+      throw std::logic_error("Cudd answer does not match expected answer");
+    }
+  }
 
 
 
@@ -470,3 +516,10 @@ mainInit(
 } /* end of mainInit */
 
 
+
+// ******* Function *******
+// startsWith: determines whether str starts with prefix
+bool startsWith(std::string const & str, std::string const & prefix)
+{
+  return str.find(prefix) == 0;
+}
