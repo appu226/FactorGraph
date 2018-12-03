@@ -228,9 +228,7 @@ namespace blif_solve {
         blif_solve_log_bdd(DEBUG, "creating var " << name << " as:", m_ddm, li);
         bdd_ptr li_circuit = node->dd;
         blif_solve_log_bdd(DEBUG, "parsing circuit for " << name << " as:", m_ddm, li_circuit);
-        bdd_ptr li_and_lic = Cudd_bddAnd(m_ddm, li, li_circuit);
-        bdd_ptr nli_and_nlic = Cudd_bddAnd(m_ddm, Cudd_Not(li), Cudd_Not(li_circuit));
-        bdd_ptr factor = bdd_or(m_ddm, li_and_lic, nli_and_nlic);
+        bdd_ptr factor = bdd_xnor(m_ddm, li, li_circuit);
         m_factors->push_back(factor);
         reassignToUnion(m_ddm, m_nonPiVars, li);
       }

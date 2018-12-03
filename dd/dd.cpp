@@ -516,3 +516,23 @@ void bdd_print_minterms(DdManager *dd, bdd_ptr f)
     common_error(NULL, "bdd_print_minterms : failed\n");
 }
 
+/**Function********************************************************************
+
+  @brief Computes the exclusive NOR of two BDDs f and g.
+
+  @return a pointer to the resulting %BDD if successful; NULL if the
+  intermediate result blows up.
+
+  @sideeffect None
+
+  @see Cudd_bddIte Cudd_addApply Cudd_bddAnd Cudd_bddOr
+  Cudd_bddNand Cudd_bddNor Cudd_bddXor
+
+******************************************************************************/
+bdd_ptr bdd_xnor(DdManager *dd, bdd_ptr f, bdd_ptr g)
+{
+  DdNode * result = Cudd_bddXnor(dd, (DdNode *)f, (DdNode *)g);
+  common_error(result, "bdd_xnor: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}

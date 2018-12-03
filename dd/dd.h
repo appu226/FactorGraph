@@ -31,3 +31,4 @@ extern int      bdd_is_zero (DdManager *, bdd_ptr);
 extern void     bdd_or_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
 extern int      bdd_size (DdManager *, bdd_ptr);
 extern void     bdd_print_minterms(DdManager *dd, bdd_ptr f);
+extern bdd_ptr  bdd_xnor(DdManager *dd, bdd_ptr f1, bdd_ptr f2);
