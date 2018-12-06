@@ -30,7 +30,7 @@ std::string const quantification_answer_prefix = "ans_qpi";
 int             main               (int argc, char ** argv);
 NtrOptions*     mainInit           ();
 bdd_ptr         apply_cudd         (blif_solve::BlifFactors const & blifFactors);
-bdd_ptr         apply_factor_graph (BnetNetwork_ptr const network, DdManager * const ddm);
+bdd_ptr         apply_factor_graph (blif_solve::BlifFactors const & blifFactors);
 void            clean_up_network   (BnetNetwork_ptr const network, DdManager * const ddm);
 bool            startsWith         (std::string const & str, std::string const & prefix);
 
@@ -42,12 +42,15 @@ bool            startsWith         (std::string const & str, std::string const &
 // and returns the duration in seconds as a double
 // ***********************
 template<typename T> 
-double duration(T const & start, T const & end)
+double duration(T const & start)
 {
-  return std::chrono::duration<double>(end - start).count();
+  return std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
 }
 
-
+inline auto now()
+{
+  return std::chrono::high_resolution_clock::now();
+}
 
 
 // *** Function ****
@@ -62,7 +65,7 @@ double duration(T const & start, T const & end)
 // *****************
 int main(int argc, char ** argv)
 {
-  
+ 
   // parse inputs
   auto clo = std::make_shared<blif_solve::CommandLineOptions>(argc, argv);
   blif_solve::setVerbosity(clo->verbosity);
@@ -77,13 +80,19 @@ int main(int argc, char ** argv)
    
 
     // parse network
+    auto start = now();
     auto blifFactors = std::make_shared<blif_solve::BlifFactors>(clo->blif_file_path, srt->ddm);
+    blif_solve_log(INFO, "parsed blif file in " << duration(start) << " sec");
 
 
     
     // create bdds
     if (clo->mustApplyCudd || clo->mustApplyFactorGraph)
+    {
+      start = now();
       blifFactors->createBdds();
+      blif_solve_log(INFO, "create factor bdds in " << duration(start) << " sec");
+    }
 
 
 
@@ -93,14 +102,14 @@ int main(int argc, char ** argv)
       cuddResult = apply_cudd(*blifFactors);
 
 
-    /*
     
     // apply factor graph based quantification
     bdd_ptr factorGraphResult = NULL;
     if (clo->mustApplyFactorGraph)
-      factorGraphResult = apply_factor_graph(network, srt->ddm);
+      factorGraphResult = apply_factor_graph(*blifFactors);
 
     
+    /*
 
     // confirm that the cudd result implies the factor graph result
     if (clo->mustApplyCudd && clo->mustApplyFactorGraph)
@@ -119,13 +128,11 @@ int main(int argc, char ** argv)
         blif_solve_log(ERROR, "The cudd result does NOT imply the factor graph result");
     }
 
+    */
     
     // clean-up
     if (cuddResult != NULL)        bdd_free(srt->ddm, cuddResult);
     if (factorGraphResult != NULL) bdd_free(srt->ddm, factorGraphResult);
-    clean_up_network(network, srt->ddm);
-    */
-    
   
   } catch (std::exception const & e)
   {
@@ -149,60 +156,42 @@ int main(int argc, char ** argv)
 //   - merge all the var nodes that are not pi<nnn> (primary inputs) into a single node R
 //   - pass messages, collect the conjunction of messages coming into R
 // **************************
-bdd_ptr apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
+bdd_ptr apply_factor_graph(blif_solve::BlifFactors const & blifFactors)
 {
 
   // collect from the network
   // the info required to create a factor graph
-  std::vector<bdd_ptr> funcs;         // the set of functions
-  bdd_ptr non_pi_vars = bdd_one(ddm); // the set of non_pi vars
-  int num_non_pi_vars = 0;
-  for (BnetNode_cptr node = network->nodes; node != NULL; node = node->next)
-  {
-    // collect the function
-    if (node->dd != NULL)
-      funcs.push_back(bdd_dup(node->dd));
-
-    // collect the non-pi var
-    if (std::string(node->name).find(primary_input_prefix) != 0)
-    {
-      bdd_ptr var = bdd_new_var_with_index(ddm, node->var);
-      bdd_ptr temp = bdd_cube_union(ddm, var, non_pi_vars);
-      bdd_free(ddm, non_pi_vars);
-      non_pi_vars = temp;
-      bdd_free(ddm, var);
-      ++num_non_pi_vars;
-    }
-  }
+  auto funcs = blifFactors.getFactors();      // the set of functions
+  auto ddm = blifFactors.getDdManager();
 
   // create factor graph
-  auto start = std::chrono::system_clock::now();
-  factor_graph * fg = factor_graph_new(ddm, &funcs[0], funcs.size());
+  auto start = now();
+  factor_graph * fg = factor_graph_new(ddm, &(funcs->front()), funcs->size());
   blif_solve_log(INFO, "Created factor graph with "
-                       << funcs.size() << " functions in "
-                       << duration(start, std::chrono::system_clock::now()) << " secs");
+                       << funcs->size() << " functions in "
+                       << duration(start) << " secs");
 
 
 
   // group the non-pi variables in the factor graph
-  factor_graph_group_vars(fg, non_pi_vars);
-  start = std::chrono::system_clock::now();
-  blif_solve_log(INFO, "Grouped " << num_non_pi_vars << " variables in "
-                       << duration(start, std::chrono::system_clock::now()) << " secs");
+  factor_graph_group_vars(fg, blifFactors.getNonPiVars());
+  start = now();
+  blif_solve_log(INFO, "Grouped non-pi variables in "
+                       << duration(start) << " secs");
 
 
 
   // pass messages till convergence
-  start = std::chrono::system_clock::now();
+  start = now();
   factor_graph_converge(fg);
   blif_solve_log(INFO, "Factor graph messages have converged in "
-                       << duration(start, std::chrono::system_clock::now()) << " secs");
+                       << duration(start) << " secs");
 
 
 
   // compute the result by conjoining all incoming messages
-  start = std::chrono::system_clock::now();
-  fgnode * V = factor_graph_get_varnode(fg, non_pi_vars);
+  start = now();
+  fgnode * V = factor_graph_get_varnode(fg, blifFactors.getNonPiVars());
   int num_messages;
   bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
   bdd_ptr result = bdd_one(ddm);
@@ -215,11 +204,10 @@ bdd_ptr apply_factor_graph(BnetNetwork_ptr const network, DdManager * const ddm)
   }
   free(messages);
   blif_solve_log(INFO, "Computed final factor graph result in "
-                       << duration(start, std::chrono::system_clock::now()) << " secs");
+                       << duration(start) << " secs");
 
   // clean-up and return
   factor_graph_delete(fg);
-  bdd_free(ddm, non_pi_vars);
   return result;
 } // end factor graph based quantification
 
@@ -238,6 +226,7 @@ bdd_ptr apply_cudd(blif_solve::BlifFactors const & blif_factors)
 {
   auto factors = blif_factors.getFactors();
   auto ddm = blif_factors.getDdManager();
+  auto start = now();
   auto conj = bdd_one(ddm);
   for (auto fit = factors->cbegin(); fit != factors->cend(); ++fit)
   {
@@ -245,7 +234,10 @@ bdd_ptr apply_cudd(blif_solve::BlifFactors const & blif_factors)
     bdd_free(ddm, conj);
     conj = temp;
   }
+  blif_solve_log(INFO, "computed conjunction of factors in " << duration(start) << " secs");
+  start = now();
   bdd_ptr result = bdd_forsome(ddm, conj, blif_factors.getPiVars());
+  blif_solve_log(INFO, "computed existential quantification in " << duration(start) << " secs");
   if (blif_solve::getVerbosity() >= blif_solve::DEBUG)
   {
     blif_solve_log(DEBUG, "printing conj from cudd_apply:");
