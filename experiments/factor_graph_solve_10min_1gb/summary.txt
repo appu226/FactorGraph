@@ -1,0 +1,74 @@
+11 Nov 2018
+
+Experimental setup: 
+  Blif files describe digital circuits in the form of boolean formulae describing the relationships between boolean variables, which in turn represent wires in the circuit.
+  For each file we first print the size and the file name, to print a message of the form:
+    20M /home/parakram/Software/DDP/data_sets/bddblif/6s120_bdd.blif
+
+  Then we we parse the file to a data structure, without any real processing (other than the parsing), and print something like:
+    [INFO] Parsed network with 116 primary inputs, 116 inputs, 59 primary outputs, 59 outputs and 0 latches.
+
+  Then we create BDDs (binary decision diagrams) for the boolean formulae. This can be a time/memory intensive task.
+    [INFO] Created conjunction of all functions
+
+  Finally, we use cudd's CuddExistsAbstract function to existentially quantify out the primary variables to get the transition relation:
+    Transition(p_o, l_i, l_o) = \exists p_i ( Circuit(p_i, p_o, l_i, l_o) )
+          where: p_i = primary input variables, identified as starting with the characters 'pi' in the blif file
+                 p_o = primary output
+                 l_i = latch input
+                 l_o = latch output
+    And print a message of the form:
+    [INFO] Quantified out primary inputs to get transition relation
+  Throughout all of this, there is a time limit of 10 mins per blif file. 
+  Note that this was wall clock time, not cpu time, and the files which failed in fact did exhibit thrashing behavior as if there were too many page-ins from swap happening.
+  This was performed in a single thread on a quad core Intel(R) Core(TM) i3-4030U CPU @ 1.90GHz machine, with a about 4Gb RAM and additional 4Gb Swap.
+
+
+
+Result Summary:
+  A total of 30 blif files were run.
+  10 of them failed to create bdds within 10 mins.
+  The rest of the files succeeded at quantification as well.
+  In other words, there were no files which succeeded at creating a BDD but failed at quantification.
+  There is a rough correlation between size and success of BDD creation, but there are counter examples.
+    Case 4 (6s120_bdd.blif) was 20M in size, but succeeded.
+    Case 30 (6s516r_bdd.blif) was 456K in size, but failed.
+
+
+
+
+Results:
+  Number    Size    Parsed    BDD created    Quantified    FileName
+  1.        4.1M      Y                                    6s0_bdd.blif
+  2.        16M       Y                                    6s105_bdd.blif
+  3.        984K      Y                                    6s109_bdd.blif
+  4.        20M       Y            Y              Y        6s120_bdd.blif
+  5.        636K      Y            Y              Y        6s134_bdd.blif
+  6.        612K      Y            Y              Y        6s185_bdd.blif
+  7.        384K      Y            Y              Y        6s186_bdd.blif
+  8.        376K      Y            Y              Y        6s187_bdd.blif
+  9.        1.1M      Y            Y              Y        6s188_bdd.blif
+  10.       8.4M      Y                                    6s209b0_bdd.blif
+  11.       4.7M      Y                                    6s269r_bdd.blif
+  12.       4.0M      Y                                    6s274r_bdd.blif
+  13.       3.7M      Y            Y              Y        6s275rb318_bdd.blif
+  14.       3.7M      Y            Y              Y        6s276rb342_bdd.blif
+  15.       332K      Y                                    6s280r_bdd.blif
+  16.       784K      Y            Y              Y        6s292rb037_bdd.blif
+  17.       4.0M      Y            Y              Y        6s29_bdd.blif
+  18.       280K      Y            Y              Y        6s319r_bdd.blif
+  19.       6.5M      Y            Y              Y        6s351rb02_bdd.blif
+  20.       7.6M      Y            Y              Y        6s351rb15_bdd.blif
+  21.       84K       Y            Y              Y        6s365r_bdd.blif
+  22.       2.0M      Y                                    6s366r_bdd.blif
+  23.       1.9M      Y                                    6s367r_bdd.blif
+  24.       1.2M      Y            Y              Y        6s372rb26_bdd.blif
+  25.       1.1M      Y            Y              Y        6s37_bdd.blif
+  26.       1.5M      Y            Y              Y        6s41_bdd.blif
+  27.       364K      Y            Y              Y        6s4_bdd.blif
+  28.       180K      Y            Y              Y        6s514r_bdd.blif
+  29.       160K      Y            Y              Y        6s515rb1_bdd.blif
+  30.       456K      Y                                    6s516r_bdd.blif
+
+  
+

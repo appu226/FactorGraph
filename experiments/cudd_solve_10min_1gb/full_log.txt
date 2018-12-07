@@ -1,98 +1,79 @@
 4.1M /home/parakram/Software/DDP/data_sets/bddblif/6s0_bdd.blif
-[INFO] Parsed network with 364 primary inputs, 364 inputs, 158 primary outputs, 158 outputs and 0 latches.
+[INFO] parsed blif file in 0.90913 sec
 16M /home/parakram/Software/DDP/data_sets/bddblif/6s105_bdd.blif
-[INFO] Parsed network with 200 primary inputs, 200 inputs, 152 primary outputs, 152 outputs and 0 latches.
+[INFO] parsed blif file in 3.67052 sec
 984K /home/parakram/Software/DDP/data_sets/bddblif/6s109_bdd.blif
-[INFO] Parsed network with 347 primary inputs, 347 inputs, 339 primary outputs, 339 outputs and 0 latches.
+[INFO] parsed blif file in 0.358009 sec
 20M /home/parakram/Software/DDP/data_sets/bddblif/6s120_bdd.blif
-[INFO] Parsed network with 116 primary inputs, 116 inputs, 59 primary outputs, 59 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 1.82452 sec
+[INFO] create factor bdds in 33.4525 sec
 636K /home/parakram/Software/DDP/data_sets/bddblif/6s134_bdd.blif
-[INFO] Parsed network with 570 primary inputs, 570 inputs, 572 primary outputs, 572 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.132538 sec
+[INFO] create factor bdds in 1.41459 sec
 612K /home/parakram/Software/DDP/data_sets/bddblif/6s185_bdd.blif
-[INFO] Parsed network with 403 primary inputs, 403 inputs, 368 primary outputs, 368 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.230951 sec
+[INFO] create factor bdds in 0.145758 sec
 384K /home/parakram/Software/DDP/data_sets/bddblif/6s186_bdd.blif
-[INFO] Parsed network with 409 primary inputs, 409 inputs, 373 primary outputs, 373 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.198855 sec
+[INFO] create factor bdds in 0.171515 sec
 376K /home/parakram/Software/DDP/data_sets/bddblif/6s187_bdd.blif
-[INFO] Parsed network with 409 primary inputs, 409 inputs, 373 primary outputs, 373 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.112941 sec
+[INFO] create factor bdds in 0.19174 sec
 1.1M /home/parakram/Software/DDP/data_sets/bddblif/6s188_bdd.blif
-[INFO] Parsed network with 813 primary inputs, 813 inputs, 787 primary outputs, 787 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.64807 sec
+[INFO] create factor bdds in 1.12813 sec
 8.4M /home/parakram/Software/DDP/data_sets/bddblif/6s209b0_bdd.blif
-[INFO] Parsed network with 3001 primary inputs, 3001 inputs, 5760 primary outputs, 5760 outputs and 0 latches.
+[INFO] parsed blif file in 7.56533 sec
 4.7M /home/parakram/Software/DDP/data_sets/bddblif/6s269r_bdd.blif
-[INFO] Parsed network with 364 primary inputs, 364 inputs, 158 primary outputs, 158 outputs and 0 latches.
+[INFO] parsed blif file in 1.23881 sec
 4.0M /home/parakram/Software/DDP/data_sets/bddblif/6s274r_bdd.blif
-[INFO] Parsed network with 1788 primary inputs, 1788 inputs, 1713 primary outputs, 1713 outputs and 0 latches.
+[INFO] parsed blif file in 1.4519 sec
 3.7M /home/parakram/Software/DDP/data_sets/bddblif/6s275rb318_bdd.blif
-[INFO] Parsed network with 3271 primary inputs, 3271 inputs, 3197 primary outputs, 3197 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 2.19696 sec
+[INFO] create factor bdds in 5.56935 sec
 3.7M /home/parakram/Software/DDP/data_sets/bddblif/6s276rb342_bdd.blif
-[INFO] Parsed network with 3275 primary inputs, 3275 inputs, 3202 primary outputs, 3202 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 1.9747 sec
+[INFO] create factor bdds in 5.41063 sec
 332K /home/parakram/Software/DDP/data_sets/bddblif/6s280r_bdd.blif
-[INFO] Parsed network with 925 primary inputs, 925 inputs, 858 primary outputs, 858 outputs and 0 latches.
+[INFO] parsed blif file in 0.491408 sec
 784K /home/parakram/Software/DDP/data_sets/bddblif/6s292rb037_bdd.blif
-[INFO] Parsed network with 3205 primary inputs, 3205 inputs, 3191 primary outputs, 3191 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.535995 sec
+[INFO] create factor bdds in 6.35163 sec
 4.0M /home/parakram/Software/DDP/data_sets/bddblif/6s29_bdd.blif
-[INFO] Parsed network with 2251 primary inputs, 2251 inputs, 2248 primary outputs, 2248 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 1.81476 sec
+[INFO] create factor bdds in 8.25435 sec
 280K /home/parakram/Software/DDP/data_sets/bddblif/6s319r_bdd.blif
-[INFO] Parsed network with 229 primary inputs, 229 inputs, 193 primary outputs, 193 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.141155 sec
+[INFO] create factor bdds in 35.1919 sec
 6.5M /home/parakram/Software/DDP/data_sets/bddblif/6s351rb02_bdd.blif
-[INFO] Parsed network with 3865 primary inputs, 3865 inputs, 3863 primary outputs, 3863 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 4.24483 sec
+[INFO] create factor bdds in 21.4107 sec
 7.6M /home/parakram/Software/DDP/data_sets/bddblif/6s351rb15_bdd.blif
-[INFO] Parsed network with 3865 primary inputs, 3865 inputs, 3863 primary outputs, 3863 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 4.77376 sec
+[INFO] create factor bdds in 29.4716 sec
 84K /home/parakram/Software/DDP/data_sets/bddblif/6s365r_bdd.blif
-[INFO] Parsed network with 232 primary inputs, 232 inputs, 205 primary outputs, 205 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.0264152 sec
+[INFO] create factor bdds in 0.0187157 sec
 2.0M /home/parakram/Software/DDP/data_sets/bddblif/6s366r_bdd.blif
-[INFO] Parsed network with 2076 primary inputs, 2076 inputs, 1999 primary outputs, 1999 outputs and 0 latches.
+[INFO] parsed blif file in 0.977198 sec
 1.9M /home/parakram/Software/DDP/data_sets/bddblif/6s367r_bdd.blif
-[INFO] Parsed network with 1645 primary inputs, 1645 inputs, 1611 primary outputs, 1611 outputs and 0 latches.
+[INFO] parsed blif file in 0.981983 sec
 1.2M /home/parakram/Software/DDP/data_sets/bddblif/6s372rb26_bdd.blif
-[INFO] Parsed network with 1159 primary inputs, 1159 inputs, 1125 primary outputs, 1125 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.491682 sec
+[INFO] create factor bdds in 0.832062 sec
 1.1M /home/parakram/Software/DDP/data_sets/bddblif/6s37_bdd.blif
-[INFO] Parsed network with 793 primary inputs, 793 inputs, 754 primary outputs, 754 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.581288 sec
+[INFO] create factor bdds in 1.36065 sec
 1.5M /home/parakram/Software/DDP/data_sets/bddblif/6s41_bdd.blif
-[INFO] Parsed network with 976 primary inputs, 976 inputs, 960 primary outputs, 960 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.497895 sec
+[INFO] create factor bdds in 5.32767 sec
 364K /home/parakram/Software/DDP/data_sets/bddblif/6s4_bdd.blif
-[INFO] Parsed network with 411 primary inputs, 411 inputs, 203 primary outputs, 203 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.124487 sec
+[INFO] create factor bdds in 0.902251 sec
 180K /home/parakram/Software/DDP/data_sets/bddblif/6s514r_bdd.blif
-[INFO] Parsed network with 477 primary inputs, 477 inputs, 442 primary outputs, 442 outputs and 0 latches.
+[INFO] parsed blif file in 0.0528968 sec
 160K /home/parakram/Software/DDP/data_sets/bddblif/6s515rb1_bdd.blif
-[INFO] Parsed network with 477 primary inputs, 477 inputs, 442 primary outputs, 442 outputs and 0 latches.
-[INFO] Created conjunction of all functions
-[INFO] Quantified out primary inputs to get transition relation
+[INFO] parsed blif file in 0.0521703 sec
+[INFO] create factor bdds in 0.103088 sec
 456K /home/parakram/Software/DDP/data_sets/bddblif/6s516r_bdd.blif
-[INFO] Parsed network with 925 primary inputs, 925 inputs, 858 primary outputs, 858 outputs and 0 latches.
+[INFO] parsed blif file in 0.0984408 sec
