@@ -536,3 +536,26 @@ bdd_ptr bdd_xnor(DdManager *dd, bdd_ptr f, bdd_ptr g)
   Cudd_Ref(result);
   return result;
 }
+
+/**
+  @brief Takes the AND of multiple BDDs and simultaneously abstracts 
+  the variables in cube.
+
+  @details The variables are existentially abstracted.
+  Cudd_bddAndAbstract implements the semiring matrix multiplication
+  algorithm for the boolean semiring.
+
+  @return a pointer to the result is successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see Cudd_addMatrixMultiply Cudd_addTriangle Cudd_bddAnd
+
+*/
+bdd_ptr  bdd_and_exists_multi(DdManager *dd, bdd_ptr_vec const & funcs, bdd_ptr var_cube)
+{
+  DdNode * result = Cudd_bddAndAbstractMulti(dd, (DdNode **)(&funcs.front()), funcs.size(), var_cube);
+  common_error(result, "bdd_and_exists_multi: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
