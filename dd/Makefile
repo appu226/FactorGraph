@@ -3,11 +3,11 @@ LFLAGS_dd = ${EXPORT_LFLAGS_cudd}
 
 all : 			libDd.a
 
-libDd.a :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o
-			ar r libDd.a dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o
+libDd.a :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o
+			ar r libDd.a dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o
 			ranlib libDd.a
 	
-dd.o :			dd.cpp dd.h bnet.h ntr.h
+dd.o :			dd.cpp dd.h bnet.h ntr.h cuddAndAbsMulti.h
 			${CC} ${CC_FLAGS} ${IFLAGS_dd} dd.cpp -o dd.o
 
 bnet.o :    bnet.c bnet.h
@@ -21,6 +21,9 @@ ntrHeap.o : ntrHeap.c ntr.h
 
 ntrMflow.o : ntrMflow.c ntr.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} ntrMflow.c -o ntrMflow.o
+
+cuddAndAbsMulti.o : cuddAndAbsMulti.cpp cuddAndAbsMulti.h
+	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} cuddAndAbsMulti.cpp -o cuddAndAbsMulti.o
 
 tags : 			*.cpp *.h
 			touch tag
