@@ -4,4 +4,5 @@
 factor_graph_main/factor_graph_main
 qbf_solve/qbf_solve
 blif_solve/blif_solve
+test/test
 tags
