@@ -358,7 +358,8 @@ DdNode * cuddBddAndMultiRecur(
   if (t == e)
   {
     r = t;
-  } else {
+  } else
+  {
     if (Cudd_IsComplement(t))
     {
       r = cuddUniqueInter(manager, (int) index, Cudd_Not(t), Cudd_Not(e));
@@ -383,32 +384,5 @@ DdNode * cuddBddAndMultiRecur(
   cuddDeref(e);
   cuddDeref(t);
   return r;
-
-
-
-
-  throw std::runtime_error("asfa");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
