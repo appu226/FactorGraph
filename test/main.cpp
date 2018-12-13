@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <cstdlib>
+#include <iostream>
 
 void testCuddBddAndAbstractMulti(DdManager * manager);
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
@@ -14,6 +15,8 @@ int main()
   
   testCuddBddAndAbstractMulti(manager);
 
+  std::cout << "SUCCESS" << std::endl;
+
   return 0;
 }
 
@@ -22,19 +25,22 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
 {
   int const numVars = 3;
   int const numTests = 5000;
-  int const numFuncsPerTest = 10;
+  int const numFuncsPerTest = 3;
   std::vector<DdNode *> vars;
   for (int vi = 0; vi < numVars; ++vi)
     vars.push_back(bdd_new_var_with_index(manager, vi));
-  int const totalMinTerms = (1 << (numVars - 1));
-  int const totalFuncs = (1 << (totalMinTerms - 1));
+  int const totalMinTerms = 1 << numVars;
+  int const totalFuncs = 1 << totalMinTerms;
   for (int itest = 0; itest < numTests; ++itest)
   {
     std::set<DdNode *> funcs;
     for (int ifunc = 0; ifunc < numFuncsPerTest; ++ifunc)
     {
       int const funcAsInteger = rand() % totalFuncs;
-      funcs.insert(makeFunc(manager, numVars, funcAsInteger));
+      auto f = makeFunc(manager, numVars, funcAsInteger);
+      //std::cout << "creating function for " << funcAsInteger << std::endl;
+      //bdd_print_minterms(manager, f);
+      funcs.insert(f);
     }
     
     const int numVarsToBeQuantified = rand() % numVars;
@@ -46,12 +52,21 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
       cube = bdd_cube_union(manager, cube, bdd_new_var_with_index(manager, varIndex));
       bdd_free(manager, temp);
     }
+    //std::cout << "quantifying cube" << std::endl;
+    //bdd_print_minterms(manager, cube);
 
     auto manualConjunction = bdd_one(manager);
     for (auto f: funcs)
       bdd_and_accumulate(manager, &manualConjunction, f);
+    //std::cout << "Computed manual conjunction" << std::endl;
+    //bdd_print_minterms(manager, manualConjunction);
     auto manualResult = bdd_forsome(manager, manualConjunction, cube);
+    //std::cout << "Manually quantified result" << std::endl;
+    //bdd_print_minterms(manager, manualResult);
+
     auto autoResult = bdd_and_exists_multi(manager, funcs, cube);
+    //std::cout << "Automatically quantified result" << std::endl;
+    //bdd_print_minterms(manager, autoResult);
     auto answerMatches = bdd_xnor(manager, autoResult, manualResult);
     auto one = bdd_one(manager);
     if (answerMatches != one)
@@ -71,7 +86,7 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsInteger)
 {
-  int const totalMinTerms = 1 << (numVars - 1);
+  int const totalMinTerms = 1 << numVars;
   auto func = bdd_zero(manager);
   for (int iMinTerm = 0; iMinTerm < totalMinTerms; ++iMinTerm)
   {

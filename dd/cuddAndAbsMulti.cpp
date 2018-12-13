@@ -122,7 +122,7 @@ DdNode * Cudd_bddAndMulti(
 // Recursive and-abstract implementation
 DdNode * cuddBddAndAbstractMultiRecur(
     DdManager * manager,
-    std::set<DdNode*> const & fSet,
+    std::set<DdNode*> const & fSet2,
     DdNode * cube)
 {
 
@@ -130,6 +130,9 @@ DdNode * cuddBddAndAbstractMultiRecur(
   auto one = DD_ONE(manager);
   auto zero = Cudd_Not(one);
   DdNode * r = NULL;
+
+  auto fSet = fSet2;
+  fSet.erase(one);
 
   // Terminal cases.
   // if any of the funcs is zero, return zero
@@ -142,11 +145,14 @@ DdNode * cuddBddAndAbstractMultiRecur(
 
   // if all of the funcs are one, return one
   if (fSet.empty()) return one;
-  if (fSet.size() == 1 && *fSet.cbegin() == one) return one;
 
   // if there is only one element, no more need for conjunction
   if (fSet.size() == 1)
     return cuddBddExistAbstractRecur(manager, *fSet.cbegin(), cube);
+
+  // if cube is empty, return the conjunction
+  if (cube == one)
+    return cuddBddAndMultiRecur(manager, fSet);
 
   // find the top variable of the set of functions
   int top = manager->perm[Cudd_Regular(*fSet.cbegin())->index];
@@ -190,7 +196,7 @@ DdNode * cuddBddAndAbstractMultiRecur(
 
   // need to quantify the topmost variable
   if (topcube == top) {
-    auto *remainingCube = cuddT(cube);
+    auto remainingCube = cuddT(cube);
     auto t = cuddBddAndAbstractMultiRecur(manager, tv, remainingCube);
     if (t == NULL) return NULL;
     // Special case: 1 or anything = 1. Hence, no need to compute
@@ -287,22 +293,25 @@ DdNode * cuddBddAndMultiRecur(
 {
   statLine(manager);
   auto one = DD_ONE(manager);
+  auto zero = Cudd_Not(one);
 
   // Terminal cases
   std::set<DdNode *> fSet = fset;
   fSet.erase(one);
   if (fSet.empty())
     return one;
-  else if (fSet.size() == 1)
+  if (fSet.size() == 1)
     return *fSet.cbegin();
-  else if (fSet.size() == 2)
+  if (fSet.size() == 2)
   {
     auto first = fSet.cbegin();
     auto second = fSet.cbegin();
     ++second;
     if (*first == Cudd_Not(*second))
-      return Cudd_Not(one);
-  }
+      return zero;
+  } 
+  if (fSet.count(zero) > 0)
+    return zero;
 
   auto index = Cudd_Regular(*fSet.cbegin())->index;
   auto top = manager->perm[index];
