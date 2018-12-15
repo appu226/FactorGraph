@@ -228,20 +228,10 @@ bdd_ptr apply_cudd(blif_solve::BlifFactors const & blif_factors)
   auto ddm = blif_factors.getDdManager();
   auto start = now();
   auto conj = bdd_one(ddm);
-  for (auto fit = factors->cbegin(); fit != factors->cend(); ++fit)
-  {
-    auto temp = bdd_and(ddm, *fit, conj);
-    bdd_free(ddm, conj);
-    conj = temp;
-  }
-  blif_solve_log(INFO, "computed conjunction of factors in " << duration(start) << " secs");
-  start = now();
-  bdd_ptr result = bdd_forsome(ddm, conj, blif_factors.getPiVars());
+  auto result = bdd_and_exists_multi(ddm, std::set<DdNode*>(factors->cbegin(), factors->cend()), blif_factors.getPiVars());
   blif_solve_log(INFO, "computed existential quantification in " << duration(start) << " secs");
   if (blif_solve::getVerbosity() >= blif_solve::DEBUG)
   {
-    blif_solve_log(DEBUG, "printing conj from cudd_apply:");
-    bdd_print_minterms(ddm, conj);
     blif_solve_log(DEBUG, "printing result from cudd_apply:");
     bdd_print_minterms(ddm, result);
   }
