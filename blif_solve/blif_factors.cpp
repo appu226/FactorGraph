@@ -187,7 +187,7 @@ namespace blif_solve {
 
 
     m_piVars = bdd_one(m_ddm);
-    m_nonPiVars = bdd_one(m_ddm);
+    m_nonPiVars = std::make_shared<std::vector<bdd_ptr> >();
     m_factors.reset(new std::vector<bdd_ptr>());
 
 
@@ -215,7 +215,7 @@ namespace blif_solve {
         // store in nonPiVars
         bdd_ptr nonPiVar = bdd_new_var_with_index(m_ddm, node->var);
         blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, nonPiVar);
-        reassignToUnion(m_ddm, m_nonPiVars, nonPiVar);
+        m_nonPiVars->push_back(nonPiVar);
       }
 
 
@@ -230,7 +230,7 @@ namespace blif_solve {
         blif_solve_log_bdd(DEBUG, "parsing circuit for " << name << " as:", m_ddm, li_circuit);
         bdd_ptr factor = bdd_xnor(m_ddm, li, li_circuit);
         m_factors->push_back(factor);
-        reassignToUnion(m_ddm, m_nonPiVars, li);
+        m_nonPiVars->push_back(li);
       }
 
 
@@ -250,7 +250,7 @@ namespace blif_solve {
   {
     return m_piVars;
   }
-  bdd_ptr BlifFactors::getNonPiVars() const
+  BlifFactors::FactorVec BlifFactors::getNonPiVars() const
   {
     return m_nonPiVars;
   }

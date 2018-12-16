@@ -30,7 +30,7 @@ std::string const quantification_answer_prefix = "ans_qpi";
 int             main               (int argc, char ** argv);
 NtrOptions*     mainInit           ();
 bdd_ptr         apply_cudd         (blif_solve::BlifFactors const & blifFactors);
-bdd_ptr         apply_factor_graph (blif_solve::BlifFactors const & blifFactors);
+bdd_ptr         apply_factor_graph (blif_solve::BlifFactors const & blifFactors, int varNodeSize);
 void            clean_up_network   (BnetNetwork_ptr const network, DdManager * const ddm);
 bool            startsWith         (std::string const & str, std::string const & prefix);
 
@@ -106,7 +106,7 @@ int main(int argc, char ** argv)
     // apply factor graph based quantification
     bdd_ptr factorGraphResult = NULL;
     if (clo->mustApplyFactorGraph)
-      factorGraphResult = apply_factor_graph(*blifFactors);
+      factorGraphResult = apply_factor_graph(*blifFactors, clo->varNodeMergeLimit);
 
     
     /*
@@ -156,7 +156,7 @@ int main(int argc, char ** argv)
 //   - merge all the var nodes that are not pi<nnn> (primary inputs) into a single node R
 //   - pass messages, collect the conjunction of messages coming into R
 // **************************
-bdd_ptr apply_factor_graph(blif_solve::BlifFactors const & blifFactors)
+bdd_ptr apply_factor_graph(blif_solve::BlifFactors const & blifFactors, int varNodeSize)
 {
 
   // collect from the network
@@ -174,10 +174,29 @@ bdd_ptr apply_factor_graph(blif_solve::BlifFactors const & blifFactors)
 
 
   // group the non-pi variables in the factor graph
-  factor_graph_group_vars(fg, blifFactors.getNonPiVars());
+  if (0 >= varNodeSize)
+    varNodeSize = fg->num_vars;
+  auto nonPiVars = blifFactors.getNonPiVars();
+  std::vector<bdd_ptr> nonPiVarGroups;
+  int lastSize = varNodeSize;
+  for (auto npv: *nonPiVars)
+  {
+    if (lastSize >= varNodeSize)
+    {
+      nonPiVarGroups.push_back(bdd_one(ddm));
+      lastSize = 0;
+    }
+    bdd_and_accumulate(ddm, &nonPiVarGroups.back(), npv);
+    ++lastSize;
+  }
+
+  for (auto nonPiVarGroup: nonPiVarGroups)
+    factor_graph_group_vars(fg, nonPiVarGroup);
+
   start = now();
   blif_solve_log(INFO, "Grouped non-pi variables in "
                        << duration(start) << " secs");
+
 
 
 
@@ -189,20 +208,22 @@ bdd_ptr apply_factor_graph(blif_solve::BlifFactors const & blifFactors)
 
 
 
+
   // compute the result by conjoining all incoming messages
   start = now();
-  fgnode * V = factor_graph_get_varnode(fg, blifFactors.getNonPiVars());
-  int num_messages;
-  bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
   bdd_ptr result = bdd_one(ddm);
-  for (int mi = 0; mi < num_messages; ++mi)
+  for (auto nonPiVarCube: nonPiVarGroups)
   {
-    bdd_ptr temp = bdd_and(ddm, result, messages[mi]);
-    bdd_free(ddm, result);
-    bdd_free(ddm, messages[mi]);
-    result = temp;
+    fgnode * V = factor_graph_get_varnode(fg, nonPiVarCube);
+    int num_messages;
+    bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
+    for (int mi = 0; mi < num_messages; ++mi)
+    {
+      bdd_and_accumulate(ddm, &result, messages[mi]);
+      bdd_free(ddm, messages[mi]);
+    }
+    free(messages);
   }
-  free(messages);
   blif_solve_log(INFO, "Computed final factor graph result in "
                        << duration(start) << " secs");
 

@@ -18,6 +18,8 @@ namespace blif_solve {
     Verbosity verbosity;
     // path to dump bdds
     bool mustDumpBdds;
+    // maximum number of variable nodes to merge into a single node in the factor graph
+    int varNodeMergeLimit;
 
     std::string blif_file_path;
 

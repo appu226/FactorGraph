@@ -49,7 +49,7 @@ namespace blif_solve {
       // return a cube consisting of the latch input output variables
       // Pre-requisite: createBdds() must be called
       //   otherwise, this function will throw
-      bdd_ptr getNonPiVars() const;
+      FactorVec getNonPiVars() const;
 
       // ****** Accessor function ******
       // returns the DdManager
@@ -66,7 +66,7 @@ namespace blif_solve {
       DdManager * m_ddm;
       FactorVec m_factors;
       bdd_ptr m_piVars;
-      bdd_ptr m_nonPiVars; 
+      FactorVec m_nonPiVars; 
   }; // end class BlifFactors
 
 } // end namespace blif_solve

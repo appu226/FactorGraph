@@ -10,6 +10,7 @@ namespace blif_solve {
     mustApplyCudd(false),
     verbosity(WARNING),
     mustDumpBdds(false),
+    varNodeMergeLimit(0),
     blif_file_path()
   {
 
@@ -47,6 +48,13 @@ namespace blif_solve {
       {
         mustDumpBdds = true;
       }
+      else if(arg == "--var_node_merge_limit")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("var node merge limit missing after --var_node_merge_limit flag");
+        varNodeMergeLimit = std::atoi(argv[argi]);
+      }
       else blif_file_path = arg;
 
       if(blif_file_path.empty())
@@ -63,11 +71,14 @@ namespace blif_solve {
       std::cerr << "Error: " << error << std::endl;
     std::cout << "blif_solve : Utility for solving a blif file using various methods\n"
               << "Usage:\n"
-              << "\tblif_solve [--help] [--factor_graph] [--cudd] [--verbosity <verbosity>] <blif file path>\n"
+              << "\tblif_solve [--help] [--factor_graph] [--cudd] [--verbosity <verbosity>] \n"
+              << "\t           [--var_node_merge_limit <number>] <blif file path>\n"
               << "\t\t--help          : print this usage information and exit\n"
               << "\t\t--factor_graph  : apply the factor_graph algorithm for existential quantification\n"
               << "\t\t--cudd          : use Cudd_bddExistAbstract for existential quantification\n"
               << "\t\t--dump_bdds     : whether to print bdds to stdout\n"
+              << "\t\t--var_node_merge_limit : maximum number of variables to merge into a single node in the factor graph\n"
+              << "\t\t                         default is 0 which means infinity\n"
               << "\t\t--verbosity v   : set verbosity level to v (one of QUIET/ERROR/WARNING/INFO/DEBUG)\n"
               << std::endl;
     exit(error.empty());
