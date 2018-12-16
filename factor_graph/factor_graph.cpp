@@ -1004,9 +1004,10 @@ void factor_graph_delete_varnode(factor_graph * fg, fgnode* v)
   fgnode * vn;
 
   //Search for the var node
-  do {
-    vl = vl->next;
-  }while((vl->n != v || vl->n->type == FUNC_NODE) && vl != fg->vl);
+  if (vl->n != v)
+    do {
+      vl = vl->next;
+    }while((vl->n != v || vl->n->type == FUNC_NODE) && vl != fg->vl);
   if(vl->n->type == FUNC_NODE || vl->n != v) // node does not exist
     return;
   vn = vl->n;
@@ -1296,13 +1297,19 @@ void fgnode_delete(DdManager *m, fgnode *n)
 {
   int i;
   if(n->f != NULL)
+  {
     for(i = 0; i < n->fs; i++)
       if(n->f[i] != NULL)
         bdd_free(m, n->f[i]);
+    free(n->f);
+  }
   if(n->ss != NULL)
+  {
     for(i = 0; i < n->fs; i++)
       if(n->ss[i] != NULL)
         bdd_free(m, n->ss[i]);
+    free(n->ss);
+  }
 
   while(n->num_neigh > 0)
   {
@@ -2184,7 +2191,8 @@ factor_graph * factor_graph_new(DdManager *m,bdd_ptr *f, int size)
   fg->time = -1;
   fg->vl = fgnode_list_new_var( fg, bdd_one( fg->m ) );
   fg->fl = fgnode_list_new_func( fg, bdd_one( fg->m ) );
-  fg->el = fgedge_list_new(fg, fg->vl->n, fg->fl->n );
+  fg->el = NULL;
+  factor_graph_add_edge(fg, fg->fl->n, fg->vl->n);
   fg->el->died = fg->vl->died = fg->fl->died = -1;
   fg->vl->n->died = fg->fl->n->died = -1;  
   fg->time = 1;

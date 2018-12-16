@@ -920,6 +920,7 @@ SRT::~SRT() {
   //free(ddm);
   delete leaves;
   delete split_list;
+  delete root;
 }
 
 void SRT::parse_qdimacs_srt(char* filename) {
