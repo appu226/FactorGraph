@@ -62,7 +62,7 @@ namespace blif_solve {
       static std::string latch_output_prefix;
 
     private:
-      std::shared_ptr<BnetNetwork> m_network;
+      BnetNetwork * m_network;
       DdManager * m_ddm;
       FactorVec m_factors;
       bdd_ptr m_piVars;

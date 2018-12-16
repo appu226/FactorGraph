@@ -36,12 +36,11 @@ namespace {
   //  @see ntrReadOptions
   //
   // ****************
-  NtrOptions * mainInit()
+  std::unique_ptr<NtrOptions> mainInit()
   {
-    NtrOptions	*option;
+    auto option = std::make_unique<NtrOptions>();
 
     // Initialize option structure. 
-    option = ALLOC(NtrOptions,1);
     option->initialTime    = util_cpu_time();
     option->verify         = FALSE;
     option->second         = FALSE;
@@ -144,7 +143,7 @@ namespace blif_solve {
     FILE * const fp = fopen(fileName.c_str(), "r");
     if (NULL == fp)
       throw std::invalid_argument("Could not open file '" + fileName + "'");
-    m_network.reset(Bnet_ReadNetwork(fp, 0));
+    m_network = Bnet_ReadNetwork(fp, 0);
     fclose(fp);
     m_ddm = ddm;
   }
@@ -165,7 +164,7 @@ namespace blif_solve {
       }
     }
     // free network
-    Bnet_FreeNetwork(m_network.get());
+    Bnet_FreeNetwork(m_network);
 
   }
 
@@ -183,7 +182,7 @@ namespace blif_solve {
     std::unique_ptr<NtrOptions> options(mainInit());
     if (m_network == NULL)
       throw std::logic_error("Unexpected error parsing blif file");
-    Ntr_buildDDs(m_network.get(), m_ddm, options.get(), NULL);
+    Ntr_buildDDs(m_network, m_ddm, options.get(), NULL);
 
 
     m_piVars = bdd_one(m_ddm);
