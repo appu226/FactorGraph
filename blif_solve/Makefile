@@ -21,3 +21,4 @@ blif_factors.o: blif_factors.cpp blif_factors.h ${EXPORT_ARTIFACTS_factor_graph}
 
 clean :
 	rm -f blif_solve
+	rm -f *.o
