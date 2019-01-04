@@ -23,5 +23,4 @@ blif_factors.o: blif_factors.cpp blif_factors.h ${EXPORT_ARTIFACTS_factor_graph}
 	${CC} ${CC_FLAGS} ${IFLAGS_blif_solve} blif_factors.cpp -o blif_factors.o
 
 clean :
-	rm -f blif_solve
-	rm -f *.o
+	rm -f blif_solve *.o
