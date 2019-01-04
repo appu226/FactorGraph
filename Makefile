@@ -9,10 +9,11 @@ export EXPORT_IFLAGS_cudd = -I${PATH_cudd}/include -I${PATH_cudd}/util -I${PATH_
 export EXPORT_LFLAGS_cudd = -L${PATH_cudd}/include -L${PATH_cudd}/cudd/.libs -Wl,-rpath,${PATH_cudd}/cudd/.libs -lcudd
 
 # set of underlying components
-COMPONENTS = dd factor_graph factor_graph_main qbf_solve blif_solve test
+COMPONENTS = dd factor_graph factor_graph_main qbf_solve blif_solve_lib blif_solve test
 
 include dd/exports.mk
 include factor_graph/exports.mk
+include blif_solve_lib/exports.mk
 
 # pass make command goals to all components
 all clean :
@@ -26,7 +27,9 @@ factor_graph_main :	factor_graph
 
 qbf_solve :		factor_graph
 
-blif_solve : factor_graph
+blif_solve : blif_solve_lib
+
+blif_solve_lib : factor_graph dd
 
 test : dd
 
