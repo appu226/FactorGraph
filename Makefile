@@ -31,7 +31,7 @@ blif_solve : blif_solve_lib
 
 blif_solve_lib : factor_graph dd
 
-test : dd
+test : dd blif_solve_lib
 
 ${COMPONENTS} : FORCE
 	$(MAKE) -C $@ all

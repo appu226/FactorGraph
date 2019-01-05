@@ -1,23 +1,64 @@
 #include <dd.h>
+#include <cnf_dump.h>
 
 #include <memory>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
+#include <stdexcept>
+
+#include "bdd_factory.h"
 
 void testCuddBddAndAbstractMulti(DdManager * manager);
+void testCnfDump(DdManager * manager);
+
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
 int main()
 {
-  DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
-  common_error(manager, "test/main.cpp : Could not initialize DdManager\n");
-  
-  testCuddBddAndAbstractMulti(manager);
+  try {
+    DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
+    common_error(manager, "test/main.cpp : Could not initialize DdManager\n");
 
-  std::cout << "SUCCESS" << std::endl;
+    testCuddBddAndAbstractMulti(manager);
+    testCnfDump(manager);
 
-  return 0;
+    std::cout << "SUCCESS" << std::endl;
+
+    return 0;
+  }
+  catch (std::exception const & e)
+  {
+    std::cout << "[ERROR] " << e.what() << std::endl;
+    return -1;
+  }
+}
+
+void testCnfDump(DdManager * manager)
+{
+  using test::BddWrapper;
+  BddWrapper x(bdd_new_var_with_index(manager, 1), manager);
+  BddWrapper y(bdd_new_var_with_index(manager, 2), manager);
+  BddWrapper z(bdd_new_var_with_index(manager, 3), manager);
+
+  bdd_ptr_set upperLimit;
+  auto overApprox1 = x*y + x*-y*z;
+  auto overApprox2 = y*-z + -y*z;
+  upperLimit.insert(overApprox1.getUncountedBdd());
+  upperLimit.insert(overApprox2.getUncountedBdd());
+
+  bdd_ptr_set lowerLimit;
+  auto underApprox1 = x*y*z;
+  auto underApprox2 = overApprox2;
+  lowerLimit.insert(underApprox1.getUncountedBdd());
+  lowerLimit.insert(underApprox2.getUncountedBdd());
+
+  blif_solve::dumpCnfForModelCounting(manager,
+                                      upperLimit,
+                                      lowerLimit,
+                                      "temp/testCnfDump_headers.dimacs",
+                                      "temp/testCnfDump_clauses.dimacs");
+
 }
 
 

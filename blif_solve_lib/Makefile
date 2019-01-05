@@ -7,7 +7,7 @@ libBlifSolveLib.a :	cnf_dump.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFAC
 			ar r libBlifSolveLib.a cnf_dump.o
 			ranlib libBlifSolveLib.a
 	
-cnf_dump.o :	cnf_dump.o ${EXPORT_ARTIFACTS_dd}
+cnf_dump.o :	cnf_dump.cpp ${EXPORT_ARTIFACTS_dd}
 			${CC} ${CC_FLAGS} ${IFLAGS_blif_solve_lib} cnf_dump.cpp -o cnf_dump.o
 
 tags : 			*.cpp *.h

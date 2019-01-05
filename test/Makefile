@@ -1,11 +1,11 @@
-IFLAGS_test = ${EXPORT_IFLAGS_dd}
-LFLAGS_test = ${EXPORT_LFLAGS_dd}
+IFLAGS_test = ${EXPORT_IFLAGS_dd} ${EXPORT_IFLAGS_blif_solve_lib}
+LFLAGS_test = ${EXPORT_LFLAGS_dd} ${EXPORT_LFLAGS_blif_solve_lib}
 
 
 all : test
 
-test :	main.cpp ${EXPORT_ARTIFACTS_dd}
-	${CC} ${DBG_FLAGS} main.cpp ${IFLAGS_test} ${LFLAGS_test} -o test
+test :	main.cpp bdd_factory.cpp bdd_factory.h ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
+	${CC} ${DBG_FLAGS} main.cpp bdd_factory.cpp ${IFLAGS_test} ${LFLAGS_test} -o test
 
 clean :
 	rm -f test
