@@ -81,8 +81,7 @@ void testCnfDump(DdManager * manager)
   blif_solve::dumpCnfForModelCounting(manager,
                                       upperLimit,
                                       lowerLimit,
-                                      "temp/testCnfDump_headers.dimacs",
-                                      "temp/testCnfDump_clauses.dimacs");
+                                      "temp/testCnfDump.dimacs");
 
 }
 

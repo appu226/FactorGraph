@@ -32,10 +32,10 @@ namespace blif_solve {
   // Parses the command line arguments into a data structure
   // *******************
   CommandLineOptions::CommandLineOptions(int const argc, char const * const * const argv) :
-    mustApplyFactorGraph(false),
-    mustApplyCudd(false),
+    overApproximatingMethod("FactorGraphApprox"),
+    underApproximatingMethod("AcyclicViaForAll"),
     verbosity(WARNING),
-    mustDumpBdds(false),
+    diffOutputPath(),
     varNodeMergeLimit(0),
     blif_file_path()
   {
@@ -47,10 +47,20 @@ namespace blif_solve {
       std::string arg(argv[argi]);
       if (arg == "--help")
         usage("");
-      else if(arg == "--factor_graph")
-        mustApplyFactorGraph = true;
-      else if(arg == "--cudd")
-        mustApplyCudd = true;
+      else if(arg == "--over_approximating_method")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("Solve method not specified after --overApproximatingMethod flag");
+        overApproximatingMethod = argv[argi];
+      }
+      else if(arg == "--under_approximating_method")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("Solve method nto specified after --underApproximatingMethod flag");
+        underApproximatingMethod = argv[argi];
+      }
       else if(arg == "--verbosity")
       {
         ++argi;
@@ -70,9 +80,12 @@ namespace blif_solve {
         else
           usage("Unknown verbosity '" + v + "', expecting one of QUIET/ERROR/WARNING/INFO/DEBUG");
       }
-      else if(arg == "--dump_bdds")
+      else if(arg == "--diff_output_path")
       {
-        mustDumpBdds = true;
+        ++argi;
+        if (argi >= argc)
+          usage("Output path not specified after --diff_output_path flag");
+        diffOutputPath= argv[argi];
       }
       else if(arg == "--var_node_merge_limit")
       {
@@ -95,20 +108,27 @@ namespace blif_solve {
   {
     if (!error.empty())
       std::cerr << "Error: " << error << std::endl;
-    std::cout << "blif_solve : Utility for solving a blif file using various methods\n"
+    std::cout << "blif_solve : Utility for solving a blif file using two methods, and compute the diff of the answers\n"
               << "Usage:\n"
-              << "\tblif_solve [--help] [--factor_graph] [--cudd] [--verbosity <verbosity>] \n"
+              << "\tblif_solve [--help] [--over_approximating_method <solveMethod>] \n"
+              << "\t           [--under_approximating_method <solveMethod>] [--verbosity <verbosity>] \n"
               << "\t           [--var_node_merge_limit <number>] <blif file path>\n"
-              << "\t\t--help          : print this usage information and exit\n"
-              << "\t\t--factor_graph  : apply the factor_graph algorithm for existential quantification\n"
-              << "\t\t--cudd          : use Cudd_bddExistAbstract for existential quantification\n"
-              << "\t\t--dump_bdds     : whether to print bdds to stdout\n"
-              << "\t\t--var_node_merge_limit : maximum number of variables to merge into a single node in the factor graph\n"
-              << "\t\t                         default is 0 which means infinity\n"
-              << "\t\t--verbosity v   : set verbosity level to v (one of QUIET/ERROR/WARNING/INFO/DEBUG)\n"
+              << "\t\t--help                       : print this usage information and exit\n"
+              << "\t\t--over_approximating_method  : method to compute the upper limit\n"
+              << "\t\t--under_approximating_method : method to compute the lower limit\n"
+              << "\t\t--diff_output_path           : path to dump the diff bdd\n"
+              << "\t\t                                 (upper_limit and not(lower_limit)) \n"
+              << "\t\t                               in dimacs files (header and clauses separate)\n"
+              << "\t\t--var_node_merge_limit       : maximum number of variables to merge into a single node \n"
+              << "\t\t                               in the factor graph; default is 0 which means infinity\n"
+              << "\t\t--verbosity v                : set verbosity level to v;\n"
+              << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"
+              << "\tAvailable solve methods: ExactAndAccumulate/ExactAndAbstractMulti/FactorGraphApprox/\n"
+              << "\t                         FactorGraphExact/AcyclicViaForAll/Skip"
               << std::endl;
     exit(error.empty());
   }
+
 
 
 

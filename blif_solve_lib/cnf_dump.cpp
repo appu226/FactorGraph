@@ -235,10 +235,10 @@ namespace blif_solve {
   void dumpCnfForModelCounting(DdManager * manager,
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
-                               std::string const & headerFile,
-                               std::string const & clauseFile)
+                               std::string const & outputPath)
   {
     CnfDumpCache cnfDumpCache;
+    std::string const clauseFile = outputPath + ".clauses.txt";
     std::ofstream clauseOut(clauseFile);
     int numClauses = 0;
 
@@ -277,21 +277,26 @@ namespace blif_solve {
 
 
 
-    // write independent vars into header file
-    std::ofstream headerOut(headerFile);
+    // write independent vars into the final output
+    std::ofstream finalOut(outputPath);
     auto independentCnfVars = cnfDumpCache.getAllIndependentCnfVars();
-    headerOut << "c ind ";
+    finalOut << "c ind ";
     for (auto icv: independentCnfVars)
-      headerOut << icv << " ";
-    headerOut << "0\n";
+      finalOut << icv << " ";
+    finalOut << "0\n";
 
 
     // write number of variables and number of clauses
-    headerOut << "p cnf " << cnfDumpCache.getNumVars() << " " << numClauses << "\n";
+    finalOut << "p cnf " << cnfDumpCache.getNumVars() << " " << numClauses << "\n";
 
 
-    // done processing headers
-    headerOut.close();
+    // append the clauses into the final file
+    std::ifstream clauseIn(clauseFile);
+    std::string line;
+    while(getline(clauseIn, line))
+      finalOut << line << "\n";
+    clauseIn.close();
+    finalOut.close();
 
   }
 

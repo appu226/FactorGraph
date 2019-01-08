@@ -12,7 +12,6 @@ echo "[blif_solve diff] SUCCESS"
 mkdir temp
 test/test | sed "s/^/[test] /"
 (exit ${PIPESTATUS[0]})
-(cat temp/testCnfDump_headers.dimacs; cat temp/testCnfDump_clauses.dimacs) > temp/testCnfDump.dimacs
 diff temp/testCnfDump.dimacs test/expected_outputs/testCnfDump.dimacs
 echo [testCnfDump] counting number of solutions
 cat temp/testCnfDump.dimacs | docker run -i -a stdin -a stdout msoos/approxmc | grep "Number of solutions" > temp/testCnfDump.scalmc

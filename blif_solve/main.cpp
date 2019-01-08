@@ -39,8 +39,10 @@ SOFTWARE.
 #include <cuddInt.h>
 
 // blif_solve includes
+#include <cnf_dump.h>
 #include "command_line_options.h"
 #include "blif_factors.h"
+#include "blif_solve_method.h"
 
 
 // constants
@@ -109,57 +111,48 @@ int main(int argc, char ** argv)
     auto start = now();
     auto blifFactors = std::make_shared<blif_solve::BlifFactors>(clo->blif_file_path, srt->ddm);
     blif_solve_log(INFO, "parsed blif file in " << duration(start) << " sec");
+    blifFactors->createBdds();
 
 
-    
-    // create bdds
-    if (clo->mustApplyCudd || clo->mustApplyFactorGraph)
+
+    // compute upper limit
+    bdd_ptr_set upperLimit;
+    if (clo->overApproximatingMethod != "Skip")
     {
-      start = now();
-      blifFactors->createBdds();
-      blif_solve_log(INFO, "create factor bdds in " << duration(start) << " sec");
+      auto upperMethod = blif_solve::BlifSolveMethod::createBlifSolveMethod(clo->overApproximatingMethod);
+      upperLimit = upperMethod->solve(*blifFactors);
     }
 
 
 
-    // apply cudd based quantification
-    bdd_ptr cuddResult = NULL;
-    if (clo->mustApplyCudd)
-      cuddResult = apply_cudd(*blifFactors);
-
-
-    
-    // apply factor graph based quantification
-    bdd_ptr factorGraphResult = NULL;
-    if (clo->mustApplyFactorGraph)
-      factorGraphResult = apply_factor_graph(*blifFactors, clo->varNodeMergeLimit);
-
-    
-    /*
-
-    // confirm that the cudd result implies the factor graph result
-    if (clo->mustApplyCudd && clo->mustApplyFactorGraph)
+    // compute lower limit
+    bdd_ptr_set lowerLimit;
+    if (clo->underApproximatingMethod != "Skip")
     {
-      // (a implies b) = (!a or b)
-      bdd_ptr notCuddResult = bdd_not(srt->ddm, cuddResult);
-      bdd_ptr cuddImpliesFactorGraph = bdd_or(srt->ddm, notCuddResult, factorGraphResult);
-      bdd_free(srt->ddm, notCuddResult);
-      int implicationIsTrue = bdd_is_one(srt->ddm, cuddImpliesFactorGraph);
-      bdd_free(srt->ddm, cuddImpliesFactorGraph);
-      blif_solve_log(INFO, "The cudd result does "
-                           << (implicationIsTrue ? "indeed" : "NOT")
-                           << " imply the factor graph result."
-                           << std::endl);
-      if (!implicationIsTrue)
-        blif_solve_log(ERROR, "The cudd result does NOT imply the factor graph result");
+      auto lowerMethod = blif_solve::BlifSolveMethod::createBlifSolveMethod(clo->underApproximatingMethod);
+      lowerLimit = lowerMethod->solve(*blifFactors);
     }
 
-    */
-    
-    // clean-up
-    if (cuddResult != NULL)        bdd_free(srt->ddm, cuddResult);
-    if (factorGraphResult != NULL) bdd_free(srt->ddm, factorGraphResult);
-  
+
+
+    // dump the diff
+    if (upperLimit.size() > 0 && lowerLimit.size() > 0)
+    {
+      std::cout << "writing to " << clo->diffOutputPath << std::endl;
+      blif_solve::dumpCnfForModelCounting(blifFactors->getDdManager(),
+                                          upperLimit,
+                                          lowerLimit,
+                                          clo->diffOutputPath);
+    }
+
+
+
+    // free bdds
+    for (auto uli = upperLimit.cbegin(); uli != upperLimit.cend(); ++uli)
+      bdd_free(blifFactors->getDdManager(), *uli);
+    for (auto lli = lowerLimit.cbegin(); lli != lowerLimit.cend(); ++lli)
+      bdd_free(blifFactors->getDdManager(), *lli);
+   
   } catch (std::exception const & e)
   {
     if (clo->verbosity >= blif_solve::ERROR)

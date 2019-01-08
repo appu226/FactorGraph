@@ -22,40 +22,25 @@ SOFTWARE.
 
 */
 
-
-
 #pragma once
 
-#include <string>
-#include <iostream>
-#include "log.h"
+#include "blif_factors.h"
+#include "command_line_options.h"
+#include <memory>
 
 namespace blif_solve {
-  
 
-  // command line options
-  struct CommandLineOptions
+  class BlifSolveMethod
   {
+    public:
+      typedef std::shared_ptr<BlifSolveMethod const> Cptr;
 
-    // overApproximatingMethod
-    std::string overApproximatingMethod;
-    // underApproximatingMethod
-    std::string underApproximatingMethod;
-    // verbosity for logging
-    Verbosity verbosity;
-    // path to dump the diff cnf and header files
-    std::string diffOutputPath;
-    // maximum number of variable nodes to merge into a single node in the factor graph
-    int varNodeMergeLimit;
+      virtual bdd_ptr_set solve(BlifFactors const & blifFactors) const = 0;
 
-    std::string blif_file_path;
+      static Cptr createBlifSolveMethod(std::string const & blif_solve_method);
 
-    // constructor to parse the command line options
-    CommandLineOptions(int argc, char const * const * const argv);
+  }; // end class BlifSolveMethod
 
-    // print usage information and exit
-    static void usage(std::string const & error);
-  };
+  typedef BlifSolveMethod::Cptr BlifSolveMethodCptr;
 
-  
 } // end namespace blif_solve

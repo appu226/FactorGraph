@@ -56,7 +56,6 @@ namespace blif_solve {
   void dumpCnfForModelCounting(DdManager * manager,
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
-                               std::string const & headerFile,
-                               std::string const & clauseFile);
+                               std::string const & outputPath);
 
 } // end namespace blif_solve
