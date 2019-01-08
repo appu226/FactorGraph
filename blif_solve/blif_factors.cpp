@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "blif_factors.h"
 
-#include "log.h"
+#include <log.h>
 
 #include <ntr.h>
 #include <cuddInt.h>

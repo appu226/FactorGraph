@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include <string>
 #include <iostream>
-#include "log.h"
+#include <log.h>
 
 namespace blif_solve {
   
