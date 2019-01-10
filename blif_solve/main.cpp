@@ -30,7 +30,6 @@ SOFTWARE.
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <chrono>
 
 // factor_graph includes
 #include <dd.h>
@@ -55,26 +54,13 @@ std::string const quantification_answer_prefix = "ans_qpi";
 
 
 // function declarations
-int             main               (int argc, char ** argv);
-bdd_ptr         apply_cudd         (blif_solve::BlifFactors const & blifFactors);
+int                             main                 (int argc, char ** argv);
+blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr, blif_solve::CommandLineOptions const & clo);
 
 
+using blif_solve::now;
+using blif_solve::duration;
 
-// ****** Function *******
-// duration
-// takes a start and end chrono time
-// and returns the duration in seconds as a double
-// ***********************
-template<typename T> 
-double duration(T const & start)
-{
-  return std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
-}
-
-inline auto now()
-{
-  return std::chrono::high_resolution_clock::now();
-}
 
 
 // *** Function ****
@@ -115,7 +101,7 @@ int main(int argc, char ** argv)
     bdd_ptr_set upperLimit;
     if (clo->overApproximatingMethod != "Skip")
     {
-      auto upperMethod = blif_solve::BlifSolveMethod::createBlifSolveMethod(clo->overApproximatingMethod);
+      auto upperMethod = createBlifSolveMethod(clo->overApproximatingMethod, *clo);
       upperLimit = upperMethod->solve(*blifFactors);
     }
 
@@ -125,7 +111,7 @@ int main(int argc, char ** argv)
     bdd_ptr_set lowerLimit;
     if (clo->underApproximatingMethod != "Skip")
     {
-      auto lowerMethod = blif_solve::BlifSolveMethod::createBlifSolveMethod(clo->underApproximatingMethod);
+      auto lowerMethod = createBlifSolveMethod(clo->underApproximatingMethod, *clo);
       lowerLimit = lowerMethod->solve(*blifFactors);
     }
 
@@ -134,7 +120,7 @@ int main(int argc, char ** argv)
     // dump the diff
     if (upperLimit.size() > 0 && lowerLimit.size() > 0)
     {
-      std::cout << "writing to " << clo->diffOutputPath << std::endl;
+      blif_solve_log(DEBUG, "Writing diff to " << clo->diffOutputPath);
       blif_solve::dumpCnfForModelCounting(blifFactors->getDdManager(),
                                           upperLimit,
                                           lowerLimit,
@@ -247,4 +233,27 @@ bdd_ptr apply_factor_graph(blif_solve::BlifFactors const & blifFactors, int varN
   return result;
 } // end factor graph based quantification
 
+
+
+// ***** Function *****
+// BlifSolveMethod :: createBlifSolveMethod
+// Takes a string and creates an impl of the BlifSolveMethod class
+// ********************
+blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr, blif_solve::CommandLineOptions const & clo)
+{
+  if ("ExactAndAccumulate" == bsmStr)
+    return blif_solve::BlifSolveMethod::createExactAndAccumulate();
+  else if ("ExactAndAbstractMulti" == bsmStr)
+    return blif_solve::BlifSolveMethod::createExactAndAbstractMulti();
+  else if ("FactorGraphApprox" == bsmStr)
+    return blif_solve::BlifSolveMethod::createFactorGraphApprox(clo.varNodeMergeLimit);
+  else if (bsmStr == "FactorGraphExact"
+      || bsmStr == "AcyclicViaForAll"
+      || bsmStr == "Skip")
+    throw std::runtime_error("BlifSolveMethod for '" + bsmStr + "' not yet implemented.");
+  else
+    throw std::runtime_error("Invalid BlifSolveMethod '" + bsmStr + "', "
+        "expecting one of ExactAndAccumulate/ExactAndAbstractMulti/"
+        "FactorGraphApprox/FactorGraphExact/AcyclicViaForAll/Skip");
+}
 

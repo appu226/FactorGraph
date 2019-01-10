@@ -27,6 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include <iostream>
+#include <chrono>
 
 namespace blif_solve {
 
@@ -54,6 +55,23 @@ namespace blif_solve {
     std::cout << "[" << #verbosity << "] " << message << std::endl; \
     bdd_print_minterms(ddm, bdd); \
   }
+
+  // ****** Function *******
+  // duration
+  // takes a start and end chrono time
+  // and returns the duration in seconds as a double
+  // ***********************
+  template<typename T> 
+  double duration(T const & start)
+  {
+    return std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
+  }
+
+  inline auto now()
+  {
+    return std::chrono::high_resolution_clock::now();
+  }
+
 
 } // end namespace blif_solve
 

@@ -8,7 +8,5 @@
 ---1  1
 [DEBUG] parsing circuit for li00 as:
 111-  1
-[DEBUG] printing result from cudd_apply:
---00  1
---1-  1
+[DEBUG] Writing diff to temp/simple_and.dimacs
 [INFO] SUCCESS simple_and.blif
