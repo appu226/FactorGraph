@@ -247,8 +247,9 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
     return blif_solve::BlifSolveMethod::createExactAndAbstractMulti();
   else if ("FactorGraphApprox" == bsmStr)
     return blif_solve::BlifSolveMethod::createFactorGraphApprox(clo.varNodeMergeLimit);
+  else if ("AcyclicViaForAll" == bsmStr)
+    return blif_solve::BlifSolveMethod::createAcyclicViaForAll();
   else if (bsmStr == "FactorGraphExact"
-      || bsmStr == "AcyclicViaForAll"
       || bsmStr == "Skip")
     throw std::runtime_error("BlifSolveMethod for '" + bsmStr + "' not yet implemented.");
   else

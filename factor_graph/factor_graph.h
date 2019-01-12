@@ -97,24 +97,37 @@ struct factor_graph
   int time;
 };
 
-extern factor_graph * factor_graph_new(DdManager *m,bdd_ptr *f, int size);
-extern void factor_graph_delete(factor_graph *fg);
-extern int factor_graph_converge(factor_graph *fg);
-extern int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root);
-extern int factor_graph_group_vars(factor_graph *fg, bdd_ptr vars);
-extern int factor_graph_verify(factor_graph *fg);
-extern int factor_graph_test(DdManager *dd);
-extern bdd_ptr *vector_to_bdd(DdManager *m, int **cnf, int *clssz, int cnfsz, int *ressz);
-extern void factor_graph_print(factor_graph *fg, const char * dotfile, const char * fgfile);
-extern bdd_ptr factor_graph_make_acyclic(factor_graph *fg,fgnode *v,int l);
-extern void factor_graph_rollback(factor_graph *fg);
-extern int factor_graph_assign_var(factor_graph *fg, bdd_ptr var);
-extern bdd_ptr* factor_graph_incoming_messages(factor_graph * fg, fgnode * V, int *size);
-extern void actually_merge(factor_graph *fg,fgnode *n1,fgnode *n2);
-extern int factor_graph_is_connected(DdManager * m, fgnode* f, fgnode *v);
-extern fgnode * factor_graph_get_varnode(factor_graph *fg, bdd_ptr v);
+factor_graph * factor_graph_new(DdManager *m,bdd_ptr *f, int size);
+void factor_graph_delete(factor_graph *fg);
+int factor_graph_converge(factor_graph *fg);
+int factor_graph_acyclic_messages(factor_graph *fg, fgnode* root);
+int factor_graph_group_vars(factor_graph *fg, bdd_ptr vars);
+int factor_graph_verify(factor_graph *fg);
+int factor_graph_test(DdManager *dd);
+bdd_ptr *vector_to_bdd(DdManager *m, int **cnf, int *clssz, int cnfsz, int *ressz);
+void factor_graph_print(factor_graph *fg, const char * dotfile, const char * fgfile);
+bdd_ptr factor_graph_make_acyclic(factor_graph *fg,fgnode *v,int l);
+void factor_graph_rollback(factor_graph *fg);
+int factor_graph_assign_var(factor_graph *fg, bdd_ptr var);
+bdd_ptr* factor_graph_incoming_messages(factor_graph * fg, fgnode * V, int *size);
+void actually_merge(factor_graph *fg,fgnode *n1,fgnode *n2);
+int factor_graph_is_connected(DdManager * m, fgnode* f, fgnode *v);
+fgnode * factor_graph_get_varnode(factor_graph *fg, bdd_ptr v);
 
 #define fgdm(m, i) printf("%s: %s %d\n", __FUNCTION__, m, i); fflush(stdout)
 //#define fgdm(i) 0
+
+template<typename FgList, typename Func>
+void for_each_list(FgList* const fl, Func func, int const time = -1)
+{
+  if (NULL == fl)
+    return;
+  auto fli = fl;
+  do {
+    if (fli->died > time)
+      func(fli);
+    fli = fli->next;
+  } while(fli != fl);
+}
 
 #endif /* FACTOR_GRAPH */

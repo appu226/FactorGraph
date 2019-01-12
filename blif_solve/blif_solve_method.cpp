@@ -22,14 +22,163 @@ SOFTWARE.
 
 */
 
+// blif_solve includes
 #include "blif_solve_method.h"
+
+// FactorGraph includes
 #include <dd.h>
 #include <factor_graph.h>
+
+// std includes
 #include <memory>
+#include <queue>
+#include <map>
 
 namespace {
 
   using namespace blif_solve;
+
+  // ***** Class *****
+  // AcyclicViaForAll
+  // An implementation for BlifSolveMethod
+  // Commpute an underapproximation of the and-exists operator
+  //   - create the factor graph
+  //   - do a breadth first traversal, and collect all back-edges
+  //   - delete each back-edge by universally quantifying out
+  //       the variable(s) from the function
+  //   - do an acyclic-message passing using the remaining graph
+  // *****************
+  class AcyclicViaForAll:
+    public BlifSolveMethod
+  {
+    public:
+      bdd_ptr_set solve(BlifFactors const & blifFactors) const override
+      {
+        // create factor graph
+        auto funcs = blifFactors.getFactors();
+        auto ddm = blifFactors.getDdManager();
+        auto fg = factor_graph_new(ddm, &(funcs->front()), funcs->size());
+
+
+        // group non-pi vars
+        auto nonPiVarVec = blifFactors.getNonPiVars();
+        auto nonPiVars = bdd_one(ddm);
+        for (auto npv: (*nonPiVarVec))
+          bdd_and_accumulate(ddm, &nonPiVars, npv);
+        factor_graph_group_vars(fg, nonPiVars);
+        auto rootNode = factor_graph_get_varnode(fg, nonPiVars);
+
+        
+
+        // initialize the colors for bfs
+        const int COLOR_UNVISITED = 1, COLOR_QUEUED = 2, COLOR_VISITED = 3;
+        for_each_list(fg->fl, 
+                      [&](fgnode_list* fl)
+                      { 
+                        fl->n->color = COLOR_UNVISITED; 
+                      });
+        for_each_list(fg->vl,
+                      [&](fgnode_list* vl)
+                      {
+                        vl->n->color = COLOR_UNVISITED;
+                      });
+
+
+        // add the root node to the var queue
+        std::queue<fgnode *> q;
+        q.push(rootNode);
+        rootNode->color = COLOR_QUEUED;
+
+
+        // set of back edges
+        // maps the functions to the variables
+        std::map<bdd_ptr, std::set<bdd_ptr>> backEdges;
+
+
+        // BFS: loop until queue is empty
+        while(!q.empty())
+        {
+          fgnode* curNode = q.front();
+          q.pop();
+          curNode->color = COLOR_VISITED;
+          for_each_list(curNode->neigh,
+                       [&](fgedge_list* el)
+                       {
+                         fgnode * nextNode = (curNode->type == VAR_NODE ? el->e->fn : el->e->vn);
+                         if (curNode->parent == nextNode)
+                           return;
+                         else if (nextNode->color != COLOR_UNVISITED)
+                         {
+                           // found a back edge, record it
+                           fgnode * fn = curNode->type == FUNC_NODE ? curNode : nextNode;
+                           fgnode * vn = curNode->type == VAR_NODE ? curNode : nextNode;
+                           for (int fidx = 0; fidx < fn->fs; ++fidx)
+                           for (int vidx = 0; vidx < vn->fs; ++vidx)
+                               backEdges[fn->f[fidx]].insert(vn->f[vidx]);
+                         }
+                         else
+                         {
+                           // no back edge, add to queue
+                           nextNode->parent = curNode;
+                           nextNode->color = COLOR_QUEUED;
+                           q.push(nextNode);
+                         }
+                       });
+
+
+        } // end of BFS loop
+
+
+
+        // create functions which would lead to an acyclic graph
+        std::vector<bdd_ptr> acyclicFuncs;
+        for (auto func: *funcs)
+        {
+          auto bei = backEdges.find(func);
+          if (bei != backEdges.end())
+          {
+            // found back edge for this function, quantify out all vars
+            bdd_ptr vars = bdd_one(ddm);
+            for (auto vi = bei->second.cbegin(); vi != bei->second.cend(); ++vi)
+              bdd_and_accumulate(ddm, &vars, *vi);
+            acyclicFuncs.push_back(bdd_forall(ddm, func, vars));
+            bdd_free(ddm, vars);
+          }
+          else
+          {
+            // no back edges, keep as it is
+            acyclicFuncs.push_back(bdd_dup(func));
+          }
+        }
+
+
+
+        // pass acyclic messages and collect results
+        auto acyclicFg = factor_graph_new(ddm, &acyclicFuncs.front(), acyclicFuncs.size());
+        factor_graph_group_vars(acyclicFg, nonPiVars);
+        auto acyclicRootNode = factor_graph_get_varnode(acyclicFg, nonPiVars);
+        factor_graph_acyclic_messages(acyclicFg, acyclicRootNode);
+        int resultSize;
+        bdd_ptr* resultArray = factor_graph_incoming_messages(acyclicFg, acyclicRootNode, &resultSize);
+
+
+        // clean-up
+        for(auto acyclicFunc: acyclicFuncs)
+          bdd_free(ddm, acyclicFunc);
+        factor_graph_delete(fg);
+        factor_graph_delete(acyclicFg);
+        bdd_free(ddm, nonPiVars);
+
+
+
+        return bdd_ptr_set(resultArray, resultArray + resultSize);
+      }
+
+  }; // end class AcyclicViaForAll
+
+
+
+
 
   // ***** Class *****
   // FactorGraphApprox
@@ -205,6 +354,11 @@ namespace blif_solve
   BlifSolveMethodCptr BlifSolveMethod::createFactorGraphApprox(int varNodeMergeLimit)
   {
     return std::make_shared<FactorGraphApprox>(varNodeMergeLimit);
+  }
+
+  BlifSolveMethodCptr BlifSolveMethod::createAcyclicViaForAll()
+  {
+    return std::make_shared<AcyclicViaForAll>();
   }
 
 
