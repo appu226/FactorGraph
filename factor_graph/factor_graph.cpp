@@ -25,6 +25,7 @@ SOFTWARE.
 
 
 #include <time.h>
+#include <queue>
 #include "factor_graph.h"
 
 
@@ -2971,3 +2972,75 @@ bdd_ptr *vector_to_bdd(DdManager *m, int **cnf, int *clssz, int cnfsz, int *ress
   }
   return res;
 }
+
+bool factor_graph_is_single_connected_component(factor_graph *fg)
+{
+  int const COLOR_UNVISITED = 0, COLOR_VISITED = 1;
+  if (fg->fl == NULL || fg->vl == NULL)
+    return false;
+  fgnode * topNode = NULL;
+  auto mark_unvisited = [&](fgnode_list *fl)
+                        {
+                          fl->n->color = COLOR_UNVISITED;
+                          topNode = fl->n;
+                        };
+  for_each_list(fg->fl, mark_unvisited);
+  for_each_list(fg->vl, mark_unvisited);
+
+  if (NULL == topNode)
+    return false;
+
+  std::queue<fgnode*> q;
+  q.push(topNode);
+  topNode->color = COLOR_VISITED;
+
+  while(!q.empty())
+  {
+    auto curNode = q.front();
+    q.pop();
+    for_each_list(curNode->neigh,
+                  [&](fgedge_list * el)
+                  {
+                    fgnode * nextNode = (curNode->type == FUNC_NODE ? el->e->vn : el->e->fn);
+                    if (nextNode->color == COLOR_UNVISITED)
+                    {
+                      nextNode->color = COLOR_VISITED;
+                      q.push(nextNode);
+                    }
+                  });
+  }
+
+  bool isConnected = true;
+  auto find_unvisited = [&](fgnode_list *nl)
+                        {
+                          if(nl->n->color == COLOR_UNVISITED)
+                            isConnected = false;
+                        };
+  for_each_list(fg->fl, find_unvisited);
+  for_each_list(fg->vl, find_unvisited);
+  return isConnected;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

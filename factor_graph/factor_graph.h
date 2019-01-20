@@ -113,6 +113,7 @@ bdd_ptr* factor_graph_incoming_messages(factor_graph * fg, fgnode * V, int *size
 void actually_merge(factor_graph *fg,fgnode *n1,fgnode *n2);
 int factor_graph_is_connected(DdManager * m, fgnode* f, fgnode *v);
 fgnode * factor_graph_get_varnode(factor_graph *fg, bdd_ptr v);
+bool factor_graph_is_single_connected_component(factor_graph *fg);
 
 #define fgdm(m, i) printf("%s: %s %d\n", __FUNCTION__, m, i); fflush(stdout)
 //#define fgdm(i) 0

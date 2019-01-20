@@ -31,11 +31,13 @@ SOFTWARE.
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
+#include <factor_graph.h>
 
 #include "bdd_factory.h"
 
 void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
+void testIsConnectedComponent(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -47,6 +49,7 @@ int main()
 
     testCuddBddAndAbstractMulti(manager);
     testCnfDump(manager);
+    testIsConnectedComponent(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -83,6 +86,39 @@ void testCnfDump(DdManager * manager)
                                       lowerLimit,
                                       "temp/testCnfDump.dimacs");
 
+}
+
+
+
+
+void testIsConnectedComponent(DdManager * manager)
+{
+  using test::BddWrapper;
+  BddWrapper w(bdd_new_var_with_index(manager, 1), manager);
+  BddWrapper x(bdd_new_var_with_index(manager, 2), manager);
+  BddWrapper y(bdd_new_var_with_index(manager, 3), manager);
+  BddWrapper z(bdd_new_var_with_index(manager, 4), manager);
+
+
+  auto fxy = x * y;
+  auto fyz = -y + y * z;
+  auto fwx = w + -x;
+
+  std::vector<bdd_ptr> funcs;
+  funcs.push_back(fwx.getUncountedBdd());
+  funcs.push_back(fyz.getUncountedBdd());
+  funcs.push_back(fyz.getUncountedBdd()); // add again, to make a cycle
+  
+  auto fg_disconnected = factor_graph_new(manager, &funcs.front(), funcs.size());
+  if (factor_graph_is_single_connected_component(fg_disconnected))
+    throw std::runtime_error("factor graph was expected to be disconnected");
+  factor_graph_delete(fg_disconnected);
+
+  funcs.push_back(fxy.getUncountedBdd());
+  auto fg_connected = factor_graph_new(manager, &funcs.front(), funcs.size());
+  if (!factor_graph_is_single_connected_component(fg_connected))
+    throw std::runtime_error("factor graph was expected to be connected");
+  factor_graph_delete(fg_connected);
 }
 
 
