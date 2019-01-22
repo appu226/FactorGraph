@@ -246,7 +246,12 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
   else if ("ExactAndAbstractMulti" == bsmStr)
     return blif_solve::BlifSolveMethod::createExactAndAbstractMulti();
   else if ("FactorGraphApprox" == bsmStr)
-    return blif_solve::BlifSolveMethod::createFactorGraphApprox(clo.varNodeMergeLimit);
+    return blif_solve::BlifSolveMethod::createFactorGraphApprox(
+        clo.varNodeSize,
+        clo.funcNodeSize,
+        clo.seed,
+        clo.numConvergence,
+        clo.dotDumpPath);
   else if ("AcyclicViaForAll" == bsmStr)
     return blif_solve::BlifSolveMethod::createAcyclicViaForAll();
   else if (bsmStr == "FactorGraphExact"

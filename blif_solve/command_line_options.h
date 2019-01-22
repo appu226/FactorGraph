@@ -46,7 +46,16 @@ namespace blif_solve {
     // path to dump the diff cnf and header files
     std::string diffOutputPath;
     // maximum number of variable nodes to merge into a single node in the factor graph
-    int varNodeMergeLimit;
+    int varNodeSize;
+    // maximum number of function nodes to merge into a single node in the factor graph
+    int funcNodeSize;
+    // seed for randomized message passing
+    int seed;
+    // number of convergences to perform
+    int numConvergence;
+
+    // path to dump dot files (for factor graph visualization)
+    std::string dotDumpPath;
 
     std::string blif_file_path;
 

@@ -8,5 +8,7 @@
 ---1  1
 [DEBUG] parsing circuit for li00 as:
 111-  1
+[INFO] varNodeSize:0, funcNodeSize:1, seed:0, numConvergence:1
+[INFO] Initiating message passing
 [DEBUG] Writing diff to temp/simple_and.dimacs
 [INFO] SUCCESS simple_and.blif

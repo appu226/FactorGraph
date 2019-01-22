@@ -36,7 +36,11 @@ namespace blif_solve {
     underApproximatingMethod("AcyclicViaForAll"),
     verbosity(WARNING),
     diffOutputPath(),
-    varNodeMergeLimit(0),
+    varNodeSize(0),
+    funcNodeSize(1),
+    seed(0),
+    numConvergence(1),
+    dotDumpPath(),
     blif_file_path()
   {
 
@@ -87,12 +91,40 @@ namespace blif_solve {
           usage("Output path not specified after --diff_output_path flag");
         diffOutputPath= argv[argi];
       }
-      else if(arg == "--var_node_merge_limit")
+      else if(arg == "--var_node_size")
       {
         ++argi;
         if (argi >= argc)
-          usage("var node merge limit missing after --var_node_merge_limit flag");
-        varNodeMergeLimit = std::atoi(argv[argi]);
+          usage("var node size missing after --var_node_size flag");
+        varNodeSize = std::atoi(argv[argi]);
+      }
+      else if(arg == "--func_node_size")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("func node size missing after --func_node_size flag");
+        funcNodeSize = std::atoi(argv[argi]);
+      }
+      else if (arg == "--seed")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("numeric seed missing after --seed flag");
+        seed = std::atoi(argv[argi]);
+      }
+      else if (arg == "--num_convergence")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("number of convergences missing after --num_convergence flag");
+        numConvergence = std::atoi(argv[argi]);
+      }
+      else if(arg == "--dot_dump_path")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("dot dump path missing after --dot_dump_path flag");
+        dotDumpPath = argv[argi];
       }
       else blif_file_path = arg;
 
@@ -119,10 +151,15 @@ namespace blif_solve {
               << "\t\t--diff_output_path           : path to dump the diff bdd\n"
               << "\t\t                                 (upper_limit and not(lower_limit)) \n"
               << "\t\t                               in dimacs files (header and clauses separate)\n"
-              << "\t\t--var_node_merge_limit       : maximum number of variables to merge into a single node \n"
+              << "\t\t--var_node_size              : maximum number of variables to merge into a single node \n"
               << "\t\t                               in the factor graph; default is 0 which means infinity\n"
+              << "\t\t--func_node_sze              : maximum number of functions to merge into a single node \n"
+              << "\t\t                               in the factor graph; default is 1 which means no merging\n"
+              << "\t\t--seed                       : seed to use for randomized merging of var and func nodes\n"
+              << "\t\t--num_convergence            : number of times to run message passing algorithm\n"
               << "\t\t--verbosity v                : set verbosity level to v;\n"
               << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"
+              << "\t\t--dot_dump_path ddp          : path to dump dot files (for factor graph visualization\n"
               << "\tAvailable solve methods: ExactAndAccumulate/ExactAndAbstractMulti/FactorGraphApprox/\n"
               << "\t                         FactorGraphExact/AcyclicViaForAll/Skip"
               << std::endl;

@@ -39,7 +39,11 @@ namespace blif_solve {
 
       static Cptr createExactAndAccumulate();
       static Cptr createExactAndAbstractMulti();
-      static Cptr createFactorGraphApprox(int varNodeSize);
+      static Cptr createFactorGraphApprox(int varNodeSize,
+                                          int funcNodeSize,
+                                          int seed,
+                                          int numConvergence,
+                                          std::string const & dotDumpPath);
       static Cptr createAcyclicViaForAll();
 
   }; // end class BlifSolveMethod

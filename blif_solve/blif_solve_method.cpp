@@ -33,6 +33,9 @@ SOFTWARE.
 #include <memory>
 #include <queue>
 #include <map>
+#include <random>
+#include <algorithm>
+#include <sstream>
 
 namespace {
 
@@ -192,88 +195,150 @@ namespace {
     public BlifSolveMethod
   {
     public:
-      FactorGraphApprox(int varNodeSize):
-        m_varNodeSize(varNodeSize)
+      FactorGraphApprox(int varNodeSize, 
+                        int funcNodeSize, 
+                        int seed, 
+                        int numConvergence, 
+                        std::string dotDumpPath):
+        m_varNodeSize(varNodeSize),
+        m_funcNodeSize(funcNodeSize),
+        m_seed(seed),
+        m_numConvergence(numConvergence),
+        m_dotDumpPath(dotDumpPath)
       { }
 
       bdd_ptr_set solve(BlifFactors const & blifFactors) const override
       {
-        // collect from the network
-        // the info required to create a factor graph
+        // setup
+        blif_solve_log(INFO, "varNodeSize:" << m_varNodeSize << ", funcNodeSize:" << m_funcNodeSize << ", seed:" << m_seed << ", numConvergence:" << m_numConvergence);
         auto funcs = blifFactors.getFactors();      // the set of functions
-        auto ddm = blifFactors.getDdManager();
-
-        // create factor graph
-        auto start = now();
-        factor_graph * fg = factor_graph_new(ddm, &(funcs->front()), funcs->size());
-        blif_solve_log(INFO, "Created factor graph with "
-                              << funcs->size() << " functions in "
-                              << duration(start) << " secs");
-
-
-
-        // group the non-pi variables in the factor graph
-        int varNodeSize = m_varNodeSize;
-        if (0 >= varNodeSize)
-          varNodeSize = fg->num_vars;
         auto nonPiVars = blifFactors.getNonPiVars();
-        std::vector<bdd_ptr> nonPiVarGroups;
-        int lastSize = varNodeSize;
-        for (auto npv: *nonPiVars)
+        auto ddm = blifFactors.getDdManager();
+        bdd_ptr_set result; // the set of results
+        std::mt19937 randGen(m_seed); // randomizer
+
+
+
+        // run message passing multiple times and collect results
+        for (int nc = 0; nc < m_numConvergence; ++nc)
         {
-          if (lastSize >= varNodeSize)
+          
+          // randomly group the funcs in the factor graph
+          auto start = now();
+          auto shuffledFuncs = *funcs;
+          std::copy(result.begin(), result.end(), std::back_inserter(shuffledFuncs));
+
+          std::shuffle(shuffledFuncs.begin(), shuffledFuncs.end(), randGen);
+          std::vector<bdd_ptr> funcGroups;
+          int lastSize = m_funcNodeSize;
+          for (auto func: shuffledFuncs)
           {
-            nonPiVarGroups.push_back(bdd_one(ddm));
-            lastSize = 0;
+            if (lastSize >= m_funcNodeSize)
+            {
+              funcGroups.push_back(bdd_one(ddm));
+              lastSize = 0;
+            }
+            bdd_and_accumulate(ddm, &funcGroups.back(), func);
+            ++lastSize;
           }
-          bdd_and_accumulate(ddm, &nonPiVarGroups.back(), npv);
-          ++lastSize;
-        }
-
-        for (auto nonPiVarGroup: nonPiVarGroups)
-          factor_graph_group_vars(fg, nonPiVarGroup);
-
-        start = now();
-        blif_solve_log(INFO, "Grouped non-pi variables in "
-                              << duration(start) << " secs");
+          blif_solve_log(INFO, "Grouped func nodes in " << duration(start) << " secs");
+          start = now();
+          factor_graph * fg = factor_graph_new(ddm, &funcGroups.front(), funcGroups.size()); // the factor graph
+          blif_solve_log(INFO, "Created factor graph with "
+              << funcGroups.size() << " functions in "
+              << duration(start) << " secs");
+          for (auto funcGroup: funcGroups)
+            bdd_free(ddm, funcGroup);
 
 
 
-
-        // pass messages till convergence
-        start = now();
-        factor_graph_converge(fg);
-        blif_solve_log(INFO, "Factor graph messages have converged in "
-                             << duration(start) << " secs");
-
-
-
-
-        // compute the result by conjoining all incoming messages
-        start = now();
-        bdd_ptr_set result;
-        for (auto nonPiVarCube: nonPiVarGroups)
-        {
-          fgnode * V = factor_graph_get_varnode(fg, nonPiVarCube);
-          int num_messages;
-          bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
-          for (int mi = 0; mi < num_messages; ++mi)
+          // dump original factor graph in the first iteration
+          if (0 == nc && m_dotDumpPath.size() > 0)
           {
-            result.insert(messages[mi]);
+            std::string original_fg_path = m_dotDumpPath + "/original_factor_graph.dot";
+            factor_graph_print(fg, original_fg_path.c_str(), "/dev/null");
           }
-          free(messages);
-        }
-        blif_solve_log(INFO, "Computed final factor graph result in "
-                              << duration(start) << " secs");
 
-        // clean-up and return
-        factor_graph_delete(fg);
+
+          // randomly group the non-pi variables in the factor graph
+          int varNodeSize = m_varNodeSize;
+          if (0 >= varNodeSize)
+            varNodeSize = fg->num_vars;
+          start = now();
+          auto shuffledVars = *nonPiVars;
+          std::shuffle(shuffledVars.begin(), shuffledVars.end(), randGen);
+          std::vector<bdd_ptr> nonPiVarGroups;
+          lastSize = varNodeSize;
+          for (auto npv: shuffledVars)
+          {
+            if (lastSize >= varNodeSize)
+            {
+              nonPiVarGroups.push_back(bdd_one(ddm));
+              lastSize = 0;
+            }
+            bdd_and_accumulate(ddm, &nonPiVarGroups.back(), npv);
+            ++lastSize;
+          }
+          for (auto nonPiVarGroup: nonPiVarGroups)
+          {
+            factor_graph_group_vars(fg, nonPiVarGroup);
+            bdd_free(ddm, nonPiVarGroup);
+          }
+          blif_solve_log(INFO, "Grouped non-pi variables in "
+              << duration(start) << " secs"); 
+
+
+          // dump factor graph with grouped var nodes
+          if (m_dotDumpPath.size() > 0)
+          {
+            std::stringstream groupedFgPathSs;
+            groupedFgPathSs << m_dotDumpPath << "/factor_graph_approx_" << nc << ".dot";
+            std::string groupedFgPath = groupedFgPathSs.str();
+            factor_graph_print(fg, groupedFgPath.c_str(), "/dev/null");
+          }
+
+
+
+
+          // pass messages till convergence
+          start = now();
+          blif_solve_log(INFO, "Initiating message passing");
+          factor_graph_converge(fg);
+          blif_solve_log(INFO, "Factor graph messages have converged in "
+              << duration(start) << " secs");
+
+
+
+
+          // compute the result by conjoining all incoming messages
+          for (auto nonPiVarCube: nonPiVarGroups)
+          {
+            fgnode * V = factor_graph_get_varnode(fg, nonPiVarCube);
+            int num_messages;
+            bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
+            for (int mi = 0; mi < num_messages; ++mi)
+            {
+              result.insert(messages[mi]);
+            }
+            free(messages);
+          }
+          factor_graph_delete(fg);
+
+
+
+        } // end loop on number of iterations
+
+
+
         return result;
-
-      }
+      } // end 
 
     private:
       int m_varNodeSize;
+      int m_funcNodeSize;
+      int m_seed;
+      int m_numConvergence;
+      std::string m_dotDumpPath;
   }; // end of class FactorGraphApprox
 
 
@@ -351,9 +416,14 @@ namespace blif_solve
     return std::make_shared<ExactAndAbstractMulti>();
   }
 
-  BlifSolveMethodCptr BlifSolveMethod::createFactorGraphApprox(int varNodeMergeLimit)
+  BlifSolveMethodCptr BlifSolveMethod::createFactorGraphApprox(
+      int varNodeSize,
+      int funcNodeSize,
+      int seed,
+      int numConvergence,
+      std::string const & dotDumpPath)
   {
-    return std::make_shared<FactorGraphApprox>(varNodeMergeLimit);
+    return std::make_shared<FactorGraphApprox>(varNodeSize, funcNodeSize, seed, numConvergence, dotDumpPath);
   }
 
   BlifSolveMethodCptr BlifSolveMethod::createAcyclicViaForAll()
