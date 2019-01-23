@@ -121,7 +121,10 @@ int main(int argc, char ** argv)
     if (upperLimit.size() > 0 && lowerLimit.size() > 0)
     {
       blif_solve_log(DEBUG, "Writing diff to " << clo->diffOutputPath);
+      auto nonPiVars = blifFactors->getNonPiVars();
+      bdd_ptr_set allVars(nonPiVars->cbegin(), nonPiVars->cend());
       blif_solve::dumpCnfForModelCounting(blifFactors->getDdManager(),
+                                          allVars,
                                           upperLimit,
                                           lowerLimit,
                                           clo->diffOutputPath);
@@ -169,8 +172,11 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
         clo.dotDumpPath);
   else if ("AcyclicViaForAll" == bsmStr)
     return blif_solve::BlifSolveMethod::createAcyclicViaForAll();
-  else if (bsmStr == "FactorGraphExact"
-      || bsmStr == "Skip")
+  else if ("True" == bsmStr)
+    return blif_solve::BlifSolveMethod::createTrue();
+  else if ("False" == bsmStr)
+    return blif_solve::BlifSolveMethod::createFalse();
+  else if (bsmStr == "FactorGraphExact")
     throw std::runtime_error("BlifSolveMethod for '" + bsmStr + "' not yet implemented.");
   else
     throw std::runtime_error("Invalid BlifSolveMethod '" + bsmStr + "', "

@@ -81,7 +81,13 @@ void testCnfDump(DdManager * manager)
   lowerLimit.insert(underApprox1.getUncountedBdd());
   lowerLimit.insert(underApprox2.getUncountedBdd());
 
+  bdd_ptr_set allVars;
+  allVars.insert(y.getUncountedBdd());
+  allVars.insert(z.getUncountedBdd());
+  allVars.insert(x.getUncountedBdd());
+
   blif_solve::dumpCnfForModelCounting(manager,
+                                      allVars,
                                       upperLimit,
                                       lowerLimit,
                                       "temp/testCnfDump.dimacs");

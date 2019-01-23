@@ -161,7 +161,7 @@ namespace blif_solve {
               << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"
               << "\t\t--dot_dump_path ddp          : path to dump dot files (for factor graph visualization\n"
               << "\tAvailable solve methods: ExactAndAccumulate/ExactAndAbstractMulti/FactorGraphApprox/\n"
-              << "\t                         FactorGraphExact/AcyclicViaForAll/Skip"
+              << "\t                         FactorGraphExact/AcyclicViaForAll/True/False"
               << std::endl;
     exit(error.empty());
   }

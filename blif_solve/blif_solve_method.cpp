@@ -28,6 +28,7 @@ SOFTWARE.
 // FactorGraph includes
 #include <dd.h>
 #include <factor_graph.h>
+#include <cnf_dump.h>
 
 // std includes
 #include <memory>
@@ -289,7 +290,7 @@ namespace {
 
 
           // dump factor graph with grouped var nodes
-          if (m_dotDumpPath.size() > 0)
+          if (m_dotDumpPath.size() > 0 && blif_solve::getVerbosity() >= blif_solve::DEBUG)
           {
             std::stringstream groupedFgPathSs;
             groupedFgPathSs << m_dotDumpPath << "/factor_graph_approx_" << nc << ".dot";
@@ -323,6 +324,21 @@ namespace {
             free(messages);
           }
           factor_graph_delete(fg);
+
+
+
+          // dump results for debugging
+          if (m_dotDumpPath.size() > 0 && blif_solve::getVerbosity() >= blif_solve::DEBUG)
+          {
+            bdd_ptr_set zero;
+            zero.insert(bdd_zero(ddm));
+            //bdd_ptr_set allVars(nonPiVars->cbegin(), nonPiVars->cend());
+            bdd_ptr_set allVars;
+            std::cout << "number of vars = " << nonPiVars->size() << std::endl;
+            std::stringstream outputPath;
+            outputPath << m_dotDumpPath << "/result_iter_" << nc << ".dimacs";
+            blif_solve::dumpCnfForModelCounting(ddm, allVars, result, zero, outputPath.str());
+          }
 
 
 
@@ -399,6 +415,43 @@ namespace {
       }
   };
 
+
+
+
+  // ***** Class *****
+  // True
+  // An implementation for BlifSolveMethod
+  // Always returns true
+  // *****************
+  class True
+    : public BlifSolveMethod
+  {
+    public:
+      bdd_ptr_set solve(BlifFactors const & blif_factors) const override
+      {
+        bdd_ptr_set result;
+        result.insert(bdd_one(blif_factors.getDdManager()));
+        return result;
+      }
+  };
+
+  // ***** Class *****
+  // False
+  // An implementation for BlifSolveMethod
+  // Always returns false
+  // *****************
+  class False
+    : public BlifSolveMethod
+  {
+    public:
+      bdd_ptr_set solve(BlifFactors const & blif_factors) const override
+      {
+        bdd_ptr_set result;
+        result.insert(bdd_zero(blif_factors.getDdManager()));
+        return result;
+      }
+  };
+
 }// end anonymous namespace
 
 
@@ -429,6 +482,16 @@ namespace blif_solve
   BlifSolveMethodCptr BlifSolveMethod::createAcyclicViaForAll()
   {
     return std::make_shared<AcyclicViaForAll>();
+  }
+
+  BlifSolveMethodCptr BlifSolveMethod::createTrue()
+  {
+    return std::make_shared<True>();
+  }
+
+  BlifSolveMethodCptr BlifSolveMethod::createFalse()
+  {
+    return std::make_shared<False>();
   }
 
 

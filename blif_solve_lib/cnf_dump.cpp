@@ -53,7 +53,7 @@ namespace {
       bool isAlreadyWritten(bdd_ptr func) const;
       std::vector<int> getAllIndependentCnfVars() const;
       int getNumVars() const;
-      CnfDumpCache();
+      CnfDumpCache(DdManager* ddm, bdd_ptr_set const & allVars);
 
     private:
       int m_counter;
@@ -68,11 +68,16 @@ namespace {
 
   // ----------------------------------------------------
   // function definitions for CnfDumpCache
-  CnfDumpCache::CnfDumpCache() :
+  CnfDumpCache::CnfDumpCache(
+      DdManager * ddm,
+      bdd_ptr_set const & allVars) :
     m_counter(0),
     m_independentVars(),
     m_tseytinVars()
-  { }
+  { 
+    for (auto var: allVars)
+      getCnfVarForIndependentVar(ddm->perm[Cudd_Regular(var)->index]);
+  }
 
   int CnfDumpCache::getCnfVarForIndependentVar(int bdd_var_index)
   {
@@ -233,11 +238,12 @@ namespace {
 namespace blif_solve {
 
   void dumpCnfForModelCounting(DdManager * manager,
+                               bdd_ptr_set const & allVars,
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
                                std::string const & outputPath)
   {
-    CnfDumpCache cnfDumpCache;
+    CnfDumpCache cnfDumpCache(manager, allVars);
     std::string const clauseFile = outputPath + ".clauses.txt";
     std::ofstream clauseOut(clauseFile);
     int numClauses = 0;

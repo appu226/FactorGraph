@@ -45,6 +45,8 @@ namespace blif_solve {
                                           int numConvergence,
                                           std::string const & dotDumpPath);
       static Cptr createAcyclicViaForAll();
+      static Cptr createTrue();
+      static Cptr createFalse();
 
   }; // end class BlifSolveMethod
 
