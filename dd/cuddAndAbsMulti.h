@@ -34,3 +34,12 @@ SOFTWARE.
 
 DdNode * Cudd_bddAndAbstractMulti(DdManager *manager, std::set<DdNode *> const & f, DdNode *cube);
 DdNode * Cudd_bddAndMulti(DdManager *manager, std::set<DdNode *> const & f);
+DdNode * Cudd_bddClippingAndMulti(DdManager *manager, 
+                                  std::set<DdNode *> const & f, 
+                                  int maxDepth, 
+                                  int direction);
+DdNode * Cudd_bddClippingAndAbstractMulti(DdManager *manager, 
+                                          std::set<DdNode *> const & f, 
+                                          DdNode *cube, 
+                                          int maxDepth, 
+                                          int Direction);

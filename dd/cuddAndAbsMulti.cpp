@@ -54,6 +54,27 @@ DdNode * cuddBddAndMultiRecur(
 
 
 
+// ***** Function *****
+// Recursive "clipping and" implementation
+// for more than two input bdds
+DdNode * cuddBddClippingAndMultiRecur(
+    DdManager * manager,
+    std::set<DdNode *> const & f,
+    int distance,
+    int direction);
+
+
+
+// ***** Function *****
+// Recursive clipping and-abstract implementation
+// for more than two input bdds
+DdNode * cuddBddClippingAndAbstractMultiRecur(
+    DdManager * manager,
+    std::set<DdNode *> const & f,
+    DdNode * cube,
+    int distance,
+    int direction);
+
 
 
 
@@ -119,8 +140,7 @@ DdNode * Cudd_bddAndAbstractMulti(
 */
 DdNode * Cudd_bddAndMulti(
     DdManager * dd,
-    std::set<DdNode*> const & f,
-    DdNode * cube)
+    std::set<DdNode*> const & f)
 {
   DdNode * res;
   do {
@@ -132,8 +152,81 @@ DdNode * Cudd_bddAndMulti(
     dd->timeoutHandler(dd, dd->tohArg);
   }
   return res;
-}
+} // end of Cudd_bddAndMulti
 
+
+
+
+
+/**
+  @brief Approximates the conjunction of a set f of BDDs
+
+  @return a pointer to the resulting %BDD if successful; NULL if the
+  intermediate result blows up.
+
+  @sideeffect None
+
+  @see Cudd_bddAnd
+
+*/
+DdNode *
+Cudd_bddClippingAndMulti(
+    DdManager * dd,
+    std::set<DdNode *> const & f,
+    int maxDepth,
+    int direction)
+{
+  DdNode * res;
+  do {
+    dd->reordered = 0;
+    res = cuddBddClippingAndMultiRecur(dd, f, maxDepth, direction);
+  } while(1 == dd->reordered);
+  if (CUDD_TIMEOUT_EXPIRED == dd->errorCode && dd->timeoutHandler) {
+    dd->timeoutHandler(dd, dd->tohArg);
+  }
+  return res;
+} // end of Cudd_bddClippingAndMulti
+
+
+
+
+
+/**
+  @brief Approximates the conjunction of a set f of BDDs and
+  simultaneously abstracts the variables in cube.
+
+  @details The variables are existentially abstracted.
+
+  @return a pointer to the resulting %BDD if successful; NULL if the
+  intermediate result blows up.
+
+  @sideeffect None
+
+  @see Cudd_bddAndAbstract Cudd_bddClippingAnd
+
+*/
+DdNode *
+Cudd_bddClippingAndAbstractMulti(
+    DdManager * dd,
+    std::set<DdNode *> const & f,
+    DdNode * cube,
+    int maxDepth,
+    int direction)
+{
+  DdNode * res;
+
+  do 
+  {
+    dd->reordered = 0;
+    res = cuddBddClippingAndAbstractMultiRecur(dd, f, cube, maxDepth, direction);
+  } while (1 == dd->reordered);
+
+
+  if (CUDD_TIMEOUT_EXPIRED == dd->errorCode && dd->timeoutHandler)
+    dd->timeoutHandler(dd, dd->tohArg);
+
+  return res;
+} // end of Cudd_bddClippingAndAbstractMulti
 
 
 
@@ -410,5 +503,349 @@ DdNode * cuddBddAndMultiRecur(
   cuddDeref(e);
   cuddDeref(t);
   return r;
-}
+} // end cuddBddAndMultiRecur
+
+
+
+
+/**
+  @brief Implements the recursive step of Cudd_bddClippingAndMulti
+
+  @details Takes the conjunction of a set of BDDs.
+
+  @return a pointer to the result is successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see cuddBddClippingAnd
+
+*/
+DdNode *
+cuddBddClippingAndMultiRecur(
+    DdManager * manager,
+    std::set<DdNode *> const & f,
+    int distance,
+    int direction)
+{
+  statLine(manager);
+  auto one = DD_ONE(manager);
+  auto zero = Cudd_Not(one);
+
+
+  // Terminal cases
+  if (f.find(zero) != f.end())
+    return zero;
+  for (auto fn: f)
+    if (f.find(Cudd_Not(fn)) != f.end())
+      return zero;
+  std::set<DdNode *> f2;
+  for (auto fn: f)
+    if (fn != one)
+      f2.insert(fn);
+  if (f2.size() == 1)
+    return *f2.begin();
+  else if (f2.size() == 0)
+    return one;
+
+  if (distance == 0) {
+    auto min = *f2.cbegin();
+    for (auto fit = f2.cbegin(); NULL != min && fit != f2.cend(); ++fit)
+    {
+      if (Cudd_bddLeq(manager, min, *fit))
+        min = min;
+      else if (Cudd_bddLeq(manager, *fit, min))
+        min = *fit;
+      else
+        min = NULL;
+    }
+    if (NULL != min)
+      return min;
+    return Cudd_NotCond(one, (direction == 0));
+  }
+
+  // at this point, none of the functions are constant
+  --distance;
+
+  checkWhetherToGiveUp(manager);
+
+  // here we can skip the use of cuddI,
+  // because the operands are known to be non-constant
+  int minIndex = Cudd_Regular(*f2.cbegin())->index;
+  int minTop = manager->perm[minIndex];
+  for (auto felem: f2)
+  {
+    int index = Cudd_Regular(felem)->index;
+    int top = manager->perm[index];
+    if (top < minTop)
+    {
+      minTop = top;
+      minIndex = index;
+    }
+  }
+
+  std::set<DdNode *> ft, fe;
+  for (auto felem: f2)
+  {
+    auto Felem = Cudd_Regular(felem);
+    DdNode *th, *el;
+    if (Felem->index == minIndex)
+    {
+      if (Cudd_IsComplement(felem))
+      {
+        th = Cudd_Not(cuddT(Felem));
+        el = Cudd_Not(cuddE(Felem));
+      } 
+      else
+      {
+        th = cuddT(Felem);
+        el = cuddE(Felem);
+      }
+    }
+    else
+    {
+      th = felem;
+      el = felem;
+    }
+    ft.insert(th);
+    fe.insert(el);
+  }
+
+  auto t = cuddBddClippingAndMultiRecur(manager, ft, distance, direction);
+  if (NULL == t) return NULL;
+  cuddRef(t);
+  auto e = cuddBddClippingAndMultiRecur(manager, fe, distance, direction);
+  if (NULL == e)
+  {
+    Cudd_RecursiveDeref(manager, t);
+    return NULL;
+  }
+  cuddRef(e);
+
+  DdNode * result;
+  if (t == e)
+    result = t;
+  else
+  {
+    if (Cudd_IsComplement(t))
+    {
+      result = cuddUniqueInter(manager, minIndex, Cudd_Not(t), Cudd_Not(e));
+      if (NULL == result)
+      {
+        Cudd_RecursiveDeref(manager, t);
+        Cudd_RecursiveDeref(manager, e);
+        return NULL;
+      }
+      result = Cudd_Not(result);
+    }
+    else
+    {
+      result = cuddUniqueInter(manager, minIndex, t, e);
+      if (NULL == result)
+      {
+        Cudd_RecursiveDeref(manager, t);
+        Cudd_RecursiveDeref(manager, e);
+        return NULL;
+      }
+    }
+  }
+
+  cuddDeref(e);
+  cuddDeref(t);
+  return result;
+
+} // end of cuddBddClippingAndMultiRecur
+
+
+
+
+
+
+
+/**
+  @brief Approximates the AND of a set of BDDs and simultaneously abstracts the
+  variables in cube.
+
+  @details The variables are existentially abstracted.
+
+  @return a pointer to the result is successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see Cudd_bddClippingAndAbstract
+
+*/
+DdNode *
+cuddBddClippingAndAbstractMultiRecur(
+    DdManager * manager,
+    std::set<DdNode *> const & f,
+    DdNode * cube,
+    int distance,
+    int direction)
+{
+
+  statLine(manager);
+  auto const one = DD_ONE(manager);
+  auto const zero = Cudd_Not(one);
+
+  // Terminal cases
+  std::set<DdNode *> f2; // filter out ones
+  for (auto felem: f)
+  {
+    // if any elem is zero return zero
+    if (zero == felem) return zero;
+    // if any elem is the not of any other lem return zero
+    for (auto felem2: f) if (felem == Cudd_Not(felem2)) return zero;
+    // filter away ones
+    if (one != felem) f2.insert(felem);
+  }
+  // if no elements then return true
+  if (f2.size() == 0) return one;
+  // if nothing more to abstract, just compute and
+  if (cube == one) return cuddBddClippingAndMultiRecur(manager, f2, distance, direction);
+  // if only one element, compute abstraction
+  if (f2.size() == 1) return cuddBddExistAbstractRecur(manager, *f2.cbegin(), cube);
+  // if distance 0 then just return true or false depending on direction
+  if (0 == distance) return Cudd_NotCond(one, (0 == direction));
+
+  // At this point, f2 does not have any constants
+  --distance;
+
+  checkWhetherToGiveUp(manager);
+
+  // Here we can skip the use of cuddI, because f2 does not
+  // have any constants
+  
+  // find the topmost variable among all functions
+  int minIndex = Cudd_Regular(*f2.cbegin())->index;
+  int minTop = manager->perm[minIndex];
+  for (auto felem: f2)
+  {
+    int index = Cudd_Regular(felem)->index;
+    int top = manager->perm[index];
+    if (top < minTop)
+    {
+      minIndex = index;
+      minTop = top;
+    }
+  }
+  // find the top variable of the abstraction cube
+  int topCube = manager->perm[cube->index];
+
+  // if none of the funcs have the top cube variable
+  // then we don't need to quantify on this variable
+  if (topCube < minTop)
+    return cuddBddClippingAndAbstractMultiRecur(
+        manager, f2, cuddT(cube), 
+        distance, direction);
+
+  // collect then-s and else-s
+  std::set<DdNode *> ft, fe;
+  for (auto felem: f2)
+  {
+    int index = Cudd_Regular(felem)->index;
+    int top = manager->perm[index];
+    if (top == minTop)
+    {
+      // if top variable needs to be extracted
+      auto ftelem = cuddT(Cudd_Regular(felem));
+      auto feelem = cuddE(Cudd_Regular(felem));
+      if (Cudd_IsComplement(felem))
+      {
+        ftelem = Cudd_Not(ftelem);
+        feelem = Cudd_Not(feelem);
+      }
+      ft.insert(ftelem);
+      fe.insert(feelem);
+    }
+    else
+    {
+      // if function is independent of current variable
+      ft.insert(felem);
+      fe.insert(felem);
+    }
+  }
+
+  // compute the 'then' part of the result
+  auto nextCube = (topCube == minTop) ? cuddT(cube) : cube;
+  auto t = cuddBddClippingAndAbstractMultiRecur(manager, ft, nextCube, distance, direction);
+  if (NULL == t) return NULL;
+  
+  // Special case: 
+  //     1 OR anything = 1.
+  // Hence, no need to compute the else branch if t is 1.
+  if (t == one && topCube == minTop)
+    return one;
+
+  cuddRef(t);
+
+  // compute the 'else' part of the result
+  auto e = cuddBddClippingAndAbstractMultiRecur(manager, fe, nextCube, distance, direction);
+  if (NULL == e)
+  {
+    Cudd_RecursiveDeref(manager, t);
+    return NULL;
+  }
+  cuddRef(e);
+  
+
+  if (topCube == minTop)
+  {
+    // need to abstract
+    // so compute the OR of t and e
+    std::set<DdNode *> teSet;
+    teSet.insert(Cudd_Not(t));
+    teSet.insert(Cudd_Not(e));
+    DdNode * result = cuddBddClippingAndMultiRecur(
+        manager, teSet,
+        distance, (direction == 0));
+    if (NULL == result)
+    {
+      Cudd_RecursiveDeref(manager, t);
+      Cudd_RecursiveDeref(manager, e);
+      return NULL;
+    }
+    result = Cudd_Not(result);
+    cuddRef(result);
+    Cudd_RecursiveDeref(manager, t);
+    Cudd_RecursiveDeref(manager, e);
+    cuddDeref(result);
+    return result;
+  }
+  else if (t == e)
+  {
+    auto result = t;
+    cuddDeref(t);
+    cuddDeref(e);
+    return result;
+  }
+  else
+  {
+    // nothing to abstract, return if-then-else(minIndex, t, e)
+    DdNode * result;
+    if (Cudd_IsComplement(t))
+    {
+      result = cuddUniqueInter(manager, minIndex, Cudd_Not(t), Cudd_Not(e));
+      if (NULL == result)
+      {
+        Cudd_RecursiveDeref(manager, t);
+        Cudd_RecursiveDeref(manager, e);
+        return NULL;
+      }
+      result = Cudd_Not(result);
+    }
+    else
+    {
+      result = cuddUniqueInter(manager, minIndex, t, e);
+      if (NULL == result)
+      {
+        Cudd_RecursiveDeref(manager, t);
+        Cudd_RecursiveDeref(manager, e);
+        return NULL;
+      }
+    }
+    cuddDeref(t);
+    cuddDeref(e);
+    return result;
+  }
+} // end of cuddBddClippingAndAbsMultiRecur
 

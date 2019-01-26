@@ -43,6 +43,11 @@ namespace {
   using namespace blif_solve;
 
   // ***** Class *****
+  // ClippingApprox
+  // An implementation of BlifSolveMethod
+  // Computes an under approximation using cudd's Clip logic
+
+  // ***** Class *****
   // AcyclicViaForAll
   // An implementation for BlifSolveMethod
   // Commpute an underapproximation of the and-exists operator

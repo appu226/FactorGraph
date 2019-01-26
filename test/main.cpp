@@ -133,6 +133,7 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
   int const numVars = 3;
   int const numTests = 5000;
   int const numFuncsPerTest = 3;
+  int const maxDepth = 2;
   std::vector<DdNode *> vars;
   for (int vi = 0; vi < numVars; ++vi)
     vars.push_back(bdd_new_var_with_index(manager, vi));
@@ -145,8 +146,6 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
     {
       int const funcAsInteger = rand() % totalFuncs;
       auto f = makeFunc(manager, numVars, funcAsInteger);
-      //std::cout << "creating function for " << funcAsInteger << std::endl;
-      //bdd_print_minterms(manager, f);
       funcs.insert(f);
     }
     
@@ -159,34 +158,45 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
       cube = bdd_cube_union(manager, cube, bdd_new_var_with_index(manager, varIndex));
       bdd_free(manager, temp);
     }
-    //std::cout << "quantifying cube" << std::endl;
-    //bdd_print_minterms(manager, cube);
 
     auto manualConjunction = bdd_one(manager);
     for (auto f: funcs)
       bdd_and_accumulate(manager, &manualConjunction, f);
-    //std::cout << "Computed manual conjunction" << std::endl;
-    //bdd_print_minterms(manager, manualConjunction);
     auto manualResult = bdd_forsome(manager, manualConjunction, cube);
-    //std::cout << "Manually quantified result" << std::endl;
-    //bdd_print_minterms(manager, manualResult);
 
+    auto autoConjunction = bdd_and_multi(manager, funcs);
     auto autoResult = bdd_and_exists_multi(manager, funcs, cube);
-    //std::cout << "Automatically quantified result" << std::endl;
-    //bdd_print_minterms(manager, autoResult);
-    auto answerMatches = bdd_xnor(manager, autoResult, manualResult);
-    auto one = bdd_one(manager);
-    if (answerMatches != one)
-      throw std::runtime_error("answer does not match");
+    auto conjunctionClipUp = bdd_clipping_and_multi(manager, funcs, maxDepth, dd_constants::Clip_Up);
+    auto conjunctionClipDown = bdd_clipping_and_multi(manager, funcs, maxDepth, dd_constants::Clip_Down);
+    auto resultClipUp = bdd_clipping_and_exists_multi(manager, funcs, cube, maxDepth, dd_constants::Clip_Up);
+    auto resultClipDown = bdd_clipping_and_exists_multi(manager, funcs, cube, maxDepth, dd_constants::Clip_Down);
+
+
+    if (manualResult != autoResult)
+      throw std::runtime_error("bdd_and_exists_multi did not give expected result");
+    if (autoConjunction != manualConjunction)
+      throw std::runtime_error("bdd_and_multi did not give expected result");
+    if (!Cudd_bddLeq(manager, autoConjunction, conjunctionClipUp))
+      throw std::runtime_error("bdd_clipping_and_multi did not give over approximation");
+    if (!Cudd_bddLeq(manager, conjunctionClipDown, autoConjunction))
+      throw std::runtime_error("bdd_clipping_and_multi did not give under approximation");
+    if (!Cudd_bddLeq(manager, autoResult, resultClipUp))
+      throw std::runtime_error("bdd_clipping_and_exists_multi did not give over approximation");
+    if (!Cudd_bddLeq(manager, resultClipDown, autoResult))
+      throw std::runtime_error("bdd_clipping_and_exists_multi did not give under approximation");
+
 
     for (auto f: funcs)
       bdd_free(manager, f);
     bdd_free(manager, cube);
     bdd_free(manager, manualConjunction);
     bdd_free(manager, manualResult);
+    bdd_free(manager, autoConjunction);
     bdd_free(manager, autoResult);
-    bdd_free(manager, answerMatches);
-    bdd_free(manager, one);
+    bdd_free(manager, conjunctionClipUp);
+    bdd_free(manager, conjunctionClipDown);
+    bdd_free(manager, resultClipUp);
+    bdd_free(manager, resultClipDown);
   }
   return;
 }

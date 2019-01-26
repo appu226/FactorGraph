@@ -564,6 +564,32 @@ bdd_ptr bdd_xnor(DdManager *dd, bdd_ptr f, bdd_ptr g)
   return result;
 }
 
+
+
+/**Function*******************************************************************
+
+  @brief Computes the conjunction of a set f of BDDs.
+
+  @return a pointer to the resulting %BDD if successful; NULL if the
+  intermediate result blows up.
+
+  @sideeffect None
+
+  @see Cudd_bddIte Cudd_addApply Cudd_bddAndAbstract Cudd_bddIntersect
+  Cudd_bddOr Cudd_bddNand Cudd_bddNor Cudd_bddXor Cudd_bddXnor
+
+*****************************************************************************/
+bdd_ptr bdd_and_multi(DdManager * dd, bdd_ptr_set const & funcs)
+{
+  DdNode * result = Cudd_bddAndMulti(dd, funcs);
+  common_error(result, "bdd_and_multi: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
+
+
+
 /**Function*******************************************************************
  *
   @brief Takes the AND of multiple BDDs and simultaneously abstracts 
@@ -584,6 +610,70 @@ bdd_ptr  bdd_and_exists_multi(DdManager *dd, bdd_ptr_set const & funcs, bdd_ptr 
 {
   DdNode * result = Cudd_bddAndAbstractMulti(dd, funcs, var_cube);
   common_error(result, "bdd_and_exists_multi: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
+
+
+
+
+/**Function********************************************************************
+
+  @brief Implements the recursive step of Cudd_bddClippingAndMulti
+
+  @details Takes the conjunction of a set of BDDs.
+
+  @return a pointer to the result is successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see cuddBddClippingAnd
+
+******************************************************************************/
+bdd_ptr bdd_clipping_and_multi(
+    DdManager * dd,
+    bdd_ptr_set const & funcs,
+    int max_depth,
+    int direction)
+{
+  DdNode * result = Cudd_bddClippingAndMulti(
+      dd, funcs,
+      max_depth, direction);
+  common_error(result, "bdd_clipping_and__multi: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
+
+
+
+
+/**Function********************************************************************
+
+  @brief Approximates the AND of a set of BDDs and simultaneously abstracts the
+  variables in cube.
+
+  @details The variables are existentially abstracted.
+
+  @return a pointer to the result is successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see Cudd_bddClippingAndAbstract
+
+******************************************************************************/
+bdd_ptr bdd_clipping_and_exists_multi(
+    DdManager *dd, 
+    bdd_ptr_set const & funcs, 
+    bdd_ptr var_cube,
+    int max_depth,
+    int direction)
+{
+  DdNode * result = Cudd_bddClippingAndAbstractMulti(
+      dd, funcs, var_cube,
+      max_depth, direction);
+  common_error(result, "bdd_clipping_and_exists_multi: result = NULL");
   Cudd_Ref(result);
   return result;
 }
