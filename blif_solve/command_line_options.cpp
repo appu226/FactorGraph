@@ -40,6 +40,7 @@ namespace blif_solve {
     funcNodeSize(1),
     seed(0),
     numConvergence(1),
+    clippingDepth(100),
     dotDumpPath(),
     blif_file_path()
   {
@@ -126,6 +127,13 @@ namespace blif_solve {
           usage("dot dump path missing after --dot_dump_path flag");
         dotDumpPath = argv[argi];
       }
+      else if(arg == "--clipping_depth")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("clipping depth missing after --clipping_depth flag");
+        clippingDepth = std::atoi(argv[argi]);
+      }
       else blif_file_path = arg;
 
       if(blif_file_path.empty())
@@ -159,9 +167,11 @@ namespace blif_solve {
               << "\t\t--num_convergence            : number of times to run message passing algorithm\n"
               << "\t\t--verbosity v                : set verbosity level to v;\n"
               << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"
+              << "\t\t--clipping_depth d           : set depth for clipping approximation\n"
               << "\t\t--dot_dump_path ddp          : path to dump dot files (for factor graph visualization\n"
               << "\tAvailable solve methods: ExactAndAccumulate/ExactAndAbstractMulti/FactorGraphApprox/\n"
-              << "\t                         FactorGraphExact/AcyclicViaForAll/True/False"
+              << "\t                         FactorGraphExact/AcyclicViaForAll/True/False/\n"
+              << "\t                         ClippingOverApprox/ClippingUnderApprox"
               << std::endl;
     exit(error.empty());
   }

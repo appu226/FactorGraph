@@ -43,9 +43,35 @@ namespace {
   using namespace blif_solve;
 
   // ***** Class *****
-  // ClippingApprox
+  // ClippingAndAbstract
   // An implementation of BlifSolveMethod
   // Computes an under approximation using cudd's Clip logic
+  class ClippingAndAbstract:
+    public BlifSolveMethod
+  {
+    public:
+      ClippingAndAbstract(int maxDepth, bool isOverApprox) :
+        m_maxDepth(maxDepth),
+        m_isOverApprox(isOverApprox)
+    { }
+
+      bdd_ptr_set solve(BlifFactors const & blifFactors) const override
+      {
+        int direction = m_isOverApprox ? dd_constants::Clip_Up : dd_constants::Clip_Down;
+        auto funcs = blifFactors.getFactors();
+        bdd_ptr_set funcSet(funcs->cbegin(), funcs->cend());
+        auto ddm = blifFactors.getDdManager();
+        auto cube = blifFactors.getPiVars();
+        auto result = bdd_clipping_and_exists_multi(ddm, funcSet, cube, m_maxDepth, direction);
+        bdd_ptr_set resultSet;
+        resultSet.insert(result);
+        return resultSet;
+      }
+
+    private:
+      int m_maxDepth;
+      bool m_isOverApprox;
+  }; // end class ClippingAndAbstract
 
   // ***** Class *****
   // AcyclicViaForAll
@@ -497,6 +523,11 @@ namespace blif_solve
   BlifSolveMethodCptr BlifSolveMethod::createFalse()
   {
     return std::make_shared<False>();
+  }
+
+  BlifSolveMethodCptr BlifSolveMethod::createClippingAndAbstract(int clippingDepth, bool isClippingOverApproximated)
+  {
+    return std::make_shared<ClippingAndAbstract>(clippingDepth, isClippingOverApproximated);
   }
 
 

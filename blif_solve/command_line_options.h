@@ -53,6 +53,8 @@ namespace blif_solve {
     int seed;
     // number of convergences to perform
     int numConvergence;
+    // maximum depth to use while clipping
+    int clippingDepth;
 
     // path to dump dot files (for factor graph visualization)
     std::string dotDumpPath;

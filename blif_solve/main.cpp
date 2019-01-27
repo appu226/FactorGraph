@@ -176,6 +176,10 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
     return blif_solve::BlifSolveMethod::createTrue();
   else if ("False" == bsmStr)
     return blif_solve::BlifSolveMethod::createFalse();
+  else if ("ClippingOverApprox" == bsmStr)
+    return blif_solve::BlifSolveMethod::createClippingAndAbstract(clo.clippingDepth, true);
+  else if ("ClippingUnderApprox" == bsmStr)
+    return blif_solve::BlifSolveMethod::createClippingAndAbstract(clo.clippingDepth, false);
   else if (bsmStr == "FactorGraphExact")
     throw std::runtime_error("BlifSolveMethod for '" + bsmStr + "' not yet implemented.");
   else

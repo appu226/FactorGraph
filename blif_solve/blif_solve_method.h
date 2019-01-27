@@ -47,6 +47,7 @@ namespace blif_solve {
       static Cptr createAcyclicViaForAll();
       static Cptr createTrue();
       static Cptr createFalse();
+      static Cptr createClippingAndAbstract(int clippingDepth, bool isClippingOverApproximated);
 
   }; // end class BlifSolveMethod
 
