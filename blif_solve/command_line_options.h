@@ -59,6 +59,9 @@ namespace blif_solve {
     // path to dump dot files (for factor graph visualization)
     std::string dotDumpPath;
 
+    // whether to count and print the number of solutions
+    bool mustCountSolutions;
+
     std::string blif_file_path;
 
     // constructor to parse the command line options

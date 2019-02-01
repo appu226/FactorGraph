@@ -376,6 +376,12 @@ namespace {
         } // end loop on number of iterations
 
 
+        auto answer = bdd_and_multi(ddm, result);
+        blif_solve_log(INFO, "FactorGraphApprox result has "
+                             << Cudd_LdblCountMinterm(ddm, answer, nonPiVars->size())
+                             << " solutions");
+        bdd_free(ddm, answer);
+
 
         return result;
       } // end 

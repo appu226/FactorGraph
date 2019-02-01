@@ -8,7 +8,10 @@
 ---1  1
 [DEBUG] parsing circuit for li00 as:
 111-  1
+[INFO] Executing over approximating method FactorGraphApprox
 [INFO] varNodeSize:0, funcNodeSize:1, seed:0, numConvergence:1
 [INFO] Initiating message passing
+[INFO] FactorGraphApprox result has 3 solutions
+[INFO] Executing under approximating method ExactAndAccumulate
 [DEBUG] Writing diff to temp/simple_and.dimacs
 [INFO] SUCCESS simple_and.blif

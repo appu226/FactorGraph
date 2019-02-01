@@ -1,0 +1,65 @@
+
+first file
+6s365r:
+blif_solve/blif_solve --under_approximating_method False 
+                      --over_approximating_method ClippingOverApprox 
+                      --clipping_depth 40 
+                      --verbosity INFO 
+                      --diff_output_path temp/6s365r_clip.dimacs 
+                      ../../data_sets/bddblif/6s365r_bdd.blif
+[INFO] ClippingAndAbstract finished with 6.61056e+122 solutions
+[INFO] Finised over approximating method ClippingOverApprox in 3.82288 sec
+
+
+
+overapprox clipping with depth 38: 64 x 2^402
+message passing 10 convergences on var node size 30: 58 x 2^367
+message passing minus under approx:58 x 2^367 
+
+
+
+slightly larger file, more systematic tests
+6s515rb1:
+441 factors with 918 vars (36 primary inputs + 882 others)
+blif_solve/blif_solve --under_approximating_method False 
+                      --over_approximating_method ClippingOverApprox 
+                      --clipping_depth 47 
+                      --verbosity INFO 
+                      --diff_output_path temp/6s515_clip.dimacs 
+                      ../../data_sets/bddblif/6s515rb1_bdd.blif
+[INFO] ClippingAndAbstract finished with 3.22445e+265 solutions
+[INFO] Finised over approximating method ClippingOverApprox in 4.75367 sec
+
+
+ blif_solve/blif_solve --under_approximating_method False 
+                       --over_approximating_method FactorGraphApprox 
+                       --seed 19880201 
+                       --var_node_size 20 
+                       --num_convergence 4 
+                       --verbosity INFO 
+                       --diff_output_path temp/6s515_factor_graph.dimacs 
+                       ../../data_sets/bddblif/6s515rb1_bdd.blif
+[INFO] Finised over approximating method FactorGraphApprox in 4.80566 sec
+[INFO] FactorGraphApprox result has 1.51146e+264 solutions
+
+blif_solve/blif_solve --under_approximating_method False 
+                      --over_approximating_method ClippingUnderApprox 
+                      --clipping_depth 8 
+                      --verbosity INFO 
+                      --diff_output_path temp/6s515_clip.dimacs 
+                      ../../data_sets/bddblif/6s515rb1_bdd.blif
+[INFO] ClippingAndAbstract finished with 0 solutions
+[INFO] Finised over approximating method ClippingUnderApprox in 3.53977 sec
+
+blif_solve/blif_solve --under_approximating_method False 
+                      --over_approximating_method ClippingUnderApprox 
+                      --clipping_depth 8 
+                      --verbosity INFO 
+                      --diff_output_path temp/6s515_clip.dimacs 
+                      ../../data_sets/bddblif/6s515rb1_bdd.blif
+[INFO] ClippingAndAbstract finished with 0 solutions
+[INFO] Finised over approximating method ClippingUnderApprox in 7.16304 sec
+
+
+
+

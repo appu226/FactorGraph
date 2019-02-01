@@ -677,3 +677,29 @@ bdd_ptr bdd_clipping_and_exists_multi(
   Cudd_Ref(result);
   return result;
 }
+
+
+
+/**
+  @brief Returns the number of minterms of aa %ADD or %BDD as a long double.
+
+  @details On systems where double and long double are the same type,
+  Cudd_CountMinterm() is preferable.  On systems where long double values
+  have 15-bit exponents, this function avoids overflow for up to 16383
+  variables.  It applies scaling to try to avoid overflow when the number of
+  variables is larger than 16383, but smaller than 32764.
+
+  @return The nimterm count if successful; +infinity if the number is known to
+  be too large for representation as a long double;
+  `(long double)CUDD_OUT_OF_MEM` otherwise. 
+
+  @see Cudd_CountMinterm Cudd_EpdCountMinterm Cudd_ApaCountMinterm
+*/
+long double bdd_count_minterm(DdManager * dd, bdd_ptr f, int numVars)
+{
+  const int Cudd_Counting_Limit = sizeof(long double) == sizeof(double) ? 1023 : 16383;
+  if (numVars >= Cudd_Counting_Limit)
+    return -1;
+  else
+    return Cudd_LdblCountMinterm(dd, f, numVars);
+}

@@ -55,7 +55,11 @@ std::string const quantification_answer_prefix = "ans_qpi";
 
 // function declarations
 int                             main                 (int argc, char ** argv);
-blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr, blif_solve::CommandLineOptions const & clo);
+blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr,
+                                                      blif_solve::CommandLineOptions const & clo);
+int                             getNumSolutions      (DdManager * ddm,
+                                                      bdd_ptr_set const & bdd,
+                                                      int numVars);
 
 
 using blif_solve::now;
@@ -92,8 +96,15 @@ int main(int argc, char ** argv)
     // parse network
     auto start = now();
     auto blifFactors = std::make_shared<blif_solve::BlifFactors>(clo->blif_file_path, srt->ddm);
-    blif_solve_log(INFO, "parsed blif file in " << duration(start) << " sec");
+    blif_solve_log(DEBUG, "parsed blif file in " << duration(start) << " sec");
+    start = now();
     blifFactors->createBdds();
+    int const numPiVars = Cudd_SupportSize(blifFactors->getDdManager(), blifFactors->getPiVars());
+    int const numNonPiVars = blifFactors->getNonPiVars()->size();
+    blif_solve_log(INFO, "created " << blifFactors->getFactors()->size() << " factors with "
+                          << (numPiVars + numNonPiVars) << " vars ("
+                          << numPiVars << " primary inputs + " << numNonPiVars << " others) in "
+                          << duration(start) << " sec");
 
 
 
@@ -101,8 +112,17 @@ int main(int argc, char ** argv)
     bdd_ptr_set upperLimit;
     if (clo->overApproximatingMethod != "Skip")
     {
+      blif_solve_log(INFO, "Executing over approximating method " << clo->overApproximatingMethod);
+      start = now();
       auto upperMethod = createBlifSolveMethod(clo->overApproximatingMethod, *clo);
       upperLimit = upperMethod->solve(*blifFactors);
+      blif_solve_log(INFO, "Finised over approximating method " 
+                           << clo->overApproximatingMethod << " in " 
+                           << duration(start) << " sec");
+      if(clo->mustCountSolutions)
+        blif_solve_log(INFO, "Over approximating method " << clo->overApproximatingMethod
+                             << " finished with " << getNumSolutions(srt->ddm, upperLimit, numNonPiVars)
+                             << " solutions.");
     }
 
 
@@ -111,8 +131,16 @@ int main(int argc, char ** argv)
     bdd_ptr_set lowerLimit;
     if (clo->underApproximatingMethod != "Skip")
     {
+      blif_solve_log(INFO, "Executing under approximating method " << clo->underApproximatingMethod);
+      start = now();
       auto lowerMethod = createBlifSolveMethod(clo->underApproximatingMethod, *clo);
       lowerLimit = lowerMethod->solve(*blifFactors);
+      blif_solve_log(INFO, "Finished under approximating method " << clo->underApproximatingMethod
+                           << " in " << duration(start) << " sec");
+      if (clo->mustCountSolutions)
+        blif_solve_log(INFO, "Under approximating method " << clo->underApproximatingMethod
+                             << " finished with " << getNumSolutions(srt->ddm, lowerLimit, numNonPiVars)
+                             << " solutions.");
     }
 
 
@@ -188,3 +216,11 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
         "FactorGraphApprox/FactorGraphExact/AcyclicViaForAll/Skip");
 }
 
+
+int getNumSolutions(DdManager * manager, bdd_ptr_set const & bdds, int numVars)
+{
+  auto conj = bdd_and_multi(manager, bdds);
+  auto numSln = bdd_count_minterm(manager, conj, numVars);
+  bdd_free(manager, conj);
+  return numSln;
+}
