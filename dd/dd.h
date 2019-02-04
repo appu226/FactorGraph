@@ -52,6 +52,7 @@ bdd_ptr  bdd_or (DdManager *, bdd_ptr, bdd_ptr);
 bdd_ptr  bdd_one (DdManager *);
 bdd_ptr  bdd_forsome (DdManager *, bdd_ptr, bdd_ptr);
 bdd_ptr  bdd_forall (DdManager *, bdd_ptr, bdd_ptr);
+bdd_ptr  bdd_and_exists (DdManager * manager, bdd_ptr f, bdd_ptr g, bdd_ptr cube);
 bdd_ptr  bdd_cube_intersection (DdManager *, bdd_ptr, bdd_ptr);
 bdd_ptr  bdd_cube_diff (DdManager *, bdd_ptr, bdd_ptr);
 bdd_ptr  bdd_dup (bdd_ptr);

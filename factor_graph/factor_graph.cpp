@@ -1388,142 +1388,114 @@ fgnode *fgnode_new_composite_node(factor_graph *fg, fgnode *fn1,fgnode *fn2)
 
 int var_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
 {
-  fgedge_list *el, *el1;
-  bdd_ptr b1, b2, F;
-  int i, j;
-  int error = 0;
-  assert(n->type == VAR_NODE && "Var_node_pass_messages called on a non-var-node\n");
-  for(i = 1; i <= n->num_neigh && !error;i++){
-    el = n->neigh;
-    el1 = el->prev;
-    b1 = bdd_one(fg->m);
-    b2 = bdd_one(fg->m);
-    for(j = 1; j <= i-1; j++)
-    {
-      if(el->died <= fg->time)
-      {
-        el = el->next;
-        j--;
-        //fgdm("error", 0);
-        continue;
-      }
-      bdd_and_accumulate(fg->m,&b1,el->e->msg_fv);
-      el=el->next;
-    }
-    for(j=n->num_neigh;j>=i+1;j--){
-      if(el1->died <= fg->time)
-      {
-        el1 = el1->prev;
-        j++;
-        //fgdm("dead node!",  0);
-        continue;
-      }
-      bdd_and_accumulate(fg->m,&b2,el1->e->msg_fv);
-      el1=el1->prev;
-    }
+  assert(n->type == VAR_NODE);
+  // compute the AND of all incoming messages
+  bdd_ptr and_all_incoming = bdd_one(fg->m);
+  for_each_list(n->neigh,
+                [&](fgedge_list * el) {
+                    bdd_and_accumulate(fg->m, &and_all_incoming, el->e->msg_fv);
+                },
+                fg->time);
 
-    while(el->died <= fg->time)
-      el = el->next;
-    F=bdd_and(fg->m, b1, b2);
-    bdd_free(fg->m, b1);
-    bdd_free(fg->m, b2);
-    if(el->e->msg_vf!=F){
-      bdd_free(fg->m, el->e->msg_vf);
-      el->e->msg_vf = bdd_dup(F);
-      if(IS_UNVISITED(el->e->fn))
-        if(fgnode_list_add_node(fg, queue, el->e->fn) == NULL)
-          error = 1;
-      SET_VISITED(el->e->fn);
-    }
-    bdd_free(fg->m, F);
-  }
-  return error*(-1);
+  int error = 0;
+  // for each outgoing edge
+  for_each_list(n->neigh,
+                [&](fgedge_list * el) {
+
+                    // exit on memory errors
+                    if (error)
+                        return;
+
+                    // compute the and of
+                    //   the outgoing message
+                    //   and
+                    //   the AND of all incoming messages
+                    bdd_ptr new_outgoing = bdd_and(fg->m, and_all_incoming, el->e->msg_vf);
+                    
+                    // if the message needs updating
+                    if (new_outgoing != el->e->msg_vf)
+                    {
+                        // assign the new message to the outgoing edge
+                        bdd_free(fg->m, el->e->msg_vf);
+                        el->e->msg_vf = new_outgoing;
+
+                        // add the func node to the queue if appropriate
+                        if (IS_UNVISITED(el->e->fn))
+                        {
+                            SET_VISITED(el->e->fn);
+                            if (NULL == fgnode_list_add_node(fg, queue, el->e->fn))
+                              error = 1;
+                        }
+                    }
+                    else
+                        // else throw this new msg away
+                        bdd_free(fg->m, new_outgoing);
+
+                },
+                fg->time);
+  bdd_free(fg->m, and_all_incoming);
+  return error * -1;
 }
+
+
 
 int func_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
 {
-  assert(n->type == FUNC_NODE);
-  fgedge_list *el, *el1;
-  bdd_ptr F;
-  int i;
+  assert(FUNC_NODE == n->type);
+  
+  // compute the conjunction of all incoming messages
+  bdd_ptr and_all_incoming = bdd_one(fg->m);
+  for_each_list(n->neigh,
+                [&](fgedge_list *el) 
+                {
+                  bdd_and_accumulate(fg->m, &and_all_incoming, el->e->msg_vf);
+                },
+                fg->time);
+
+
+  // variable to catch memory errors in loop
   int error = 0;
-  int num_funcs = n->num_neigh + n->fs - 1;
-  bdd_ptr * f1 = (bdd_ptr *)malloc(sizeof(bdd_ptr) * num_funcs);
-  bdd_ptr *ss1 = (bdd_ptr *)malloc(sizeof(bdd_ptr) * num_funcs);
-  if(f1 == NULL || ss1 == NULL)
-  {
-    if(f1 != NULL)      free(f1);
-    if(ss1 != NULL)     free(ss1);
-    fgdm("error allocating f1 or ss1, num_funcs =", num_funcs);
-    return 1;
-  }
-  el = n->neigh;
-  if(n->num_neigh > 0) do
-  {
-    SKIP_DEAD(el, fg);
-    for(i = 0; i < n->fs; i++)  //the complete array of functions
-    {
-      f1[i] = bdd_dup(n->f[i]);
-      ss1[i] = bdd_dup(n->ss[i]);
-    }
-    el1 = n->neigh;
-    do
-    {
-      SKIP_DEAD(el1, fg);
-      if(el1 != el)
-      {
-        f1[i] = bdd_dup(el1->e->msg_vf);
-        ss1[i] = bdd_support(fg->m, el1->e->msg_vf);
-        i++;
-      }
-      el1 = el1->next;
-    }while(el1 != n->neigh);
 
-    assert(i == num_funcs);
+  // on each edge
+  for_each_list(n->neigh,
+                [&](fgedge_list * el)
+                {
+                  // exit on memory error
+                  if (error)
+                    return;
 
-    if(bdd_and_exist_vector(fg->m, f1, ss1, num_funcs, el->e->vn->ss[0]) == -1)
-    {
-      for(i = 0; i < num_funcs; i++)
-      {
-        if( f1[i] != NULL) bdd_free(fg->m,  f1[i]);
-        if(ss1[i] != NULL) bdd_free(fg->m, ss1[i]);
-      }
-      fgdm("error in existential quantification", 0);
-      error = 1;
-      continue;
-    }
+                  // compute the complement of the support set
+                  bdd_ptr all_vars = bdd_support(fg->m, el->e->msg_fv);
+                  bdd_ptr ssbar = bdd_cube_diff(fg->m, all_vars, el->e->vn->ss[0]);
+                  bdd_free(fg->m, all_vars);
 
-    F = bdd_one(fg->m);
+                  // compute:
+                  //   the and of all incoming messages
+                  //   AND
+                  //   the previous outgoing message
+                  // and project it onto the var node of the outgoing edge
+                  bdd_ptr new_outgoing = bdd_and_exists(fg->m, and_all_incoming, el->e->msg_fv, ssbar);
+                  bdd_free(fg->m, ssbar);
+                  // check if the new_outgoing is better
+                  if (new_outgoing != el->e->msg_fv)
+                  {
+                    bdd_free(fg->m, el->e->msg_fv);
+                    el->e->msg_fv = new_outgoing;
+                    if (IS_UNVISITED(el->e->vn))
+                    {
+                      if (NULL == fgnode_list_add_node(fg, queue, el->e->vn))
+                        error = 1;
+                      SET_VISITED(el->e->vn);
+                    }
+                  } else
+                    bdd_free(fg->m, new_outgoing);
+                },
+                fg->time);
 
-    for(i = 0; i < num_funcs && !error; i++)
-    {
-      if(f1[i] != NULL) 
-      {
-        bdd_and_accumulate(fg->m, &F, f1[i]);
-        bdd_free(fg->m, f1[i]);
-      }
-      if(ss1[i] != NULL) bdd_free(fg->m, ss1[i]);
-    }
-    if(el->e->msg_fv!=F){
-      if(IS_UNVISITED(el->e->vn))
-      {
-        if(fgnode_list_add_node(fg, queue, el->e->vn) == NULL)
-          error = 1;
-        else
-          SET_VISITED(el->e->vn);
-      }
-    }
-    bdd_free(fg->m, el->e->msg_fv);
-    el->e->msg_fv = F;
-    //F = NULL;
-
-    el = el->next;
-  }while(el != n->neigh && !error);
-
-  free(f1);
-  free(ss1);
-  return error;
+  bdd_free(fg->m, and_all_incoming);
+  return error * -1;
 }
+
 
 
 /** Acyclic version of var_node_pass_messages

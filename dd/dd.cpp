@@ -322,6 +322,31 @@ bdd_ptr bdd_forsome(DdManager * dd, bdd_ptr fn, bdd_ptr cube)
   return((bdd_ptr)result);
 }
 
+
+/**Function********************************************************************
+  @brief Takes the AND of two BDDs and simultaneously abstracts the
+  variables in cube.
+
+  @details The variables are existentially abstracted.
+  Cudd_bddAndAbstract implements the semiring matrix multiplication
+  algorithm for the boolean semiring.
+
+  @return a pointer to the result is successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see Cudd_addMatrixMultiply Cudd_addTriangle Cudd_bddAnd
+******************************************************************************/
+bdd_ptr bdd_and_exists (DdManager * manager, bdd_ptr f, bdd_ptr g, bdd_ptr cube)
+{
+  auto result = Cudd_bddAndAbstract(manager, f, g, cube);
+  common_error(result, "bdd_and_exists: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
+
+
 /**Function********************************************************************
 
   Synopsis    [Computes the intersection between two BDD cubes.]
