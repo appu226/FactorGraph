@@ -1453,6 +1453,11 @@ int func_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
                 fg->time);
 
 
+  // conjoin it with all the functions in the func node
+  for (int fi = 0; fi < n->fs; ++fi)
+    bdd_and_accumulate(fg->m, &and_all_incoming, n->f[fi]);
+
+
   // variable to catch memory errors in loop
   int error = 0;
 
