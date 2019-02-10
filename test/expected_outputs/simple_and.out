@@ -11,7 +11,8 @@
 [INFO] Executing over approximating method FactorGraphApprox
 [INFO] varNodeSize:0, funcNodeSize:1, seed:0, numConvergence:1
 [INFO] Initiating message passing
-[INFO] FactorGraphApprox result has 3 solutions
+[INFO] Over approximating method FactorGraphApprox finished with 3 solutions.
 [INFO] Executing under approximating method ExactAndAccumulate
+[INFO] Under approximating method ExactAndAccumulate finished with 3 solutions.
 [DEBUG] Writing diff to temp/simple_and.dimacs
 [INFO] SUCCESS simple_and.blif
