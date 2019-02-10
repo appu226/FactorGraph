@@ -1470,7 +1470,7 @@ int func_node_pass_messages(factor_graph *fg, fgnode *n, fgnode_list *queue)
                     return;
 
                   // compute the complement of the support set
-                  bdd_ptr all_vars = bdd_support(fg->m, el->e->msg_fv);
+                  bdd_ptr all_vars = bdd_support(fg->m, and_all_incoming);
                   bdd_ptr ssbar = bdd_cube_diff(fg->m, all_vars, el->e->vn->ss[0]);
                   bdd_free(fg->m, all_vars);
 
