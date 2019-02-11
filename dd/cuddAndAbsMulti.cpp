@@ -29,6 +29,7 @@ SOFTWARE.
 #include <util.h>
 #include <cuddInt.h>
 #include <algorithm>
+#include <float.h>
 
 
 // **************************************
@@ -76,6 +77,13 @@ DdNode * cuddBddClippingAndAbstractMultiRecur(
     int direction);
 
 
+
+// ***** Function *****
+// Recursive model counting for more than two bdds
+long double cuddBddCountMintermMultiAux(
+    DdManager * manager,
+    const std::set<DdNode *> & f,
+    long double max);
 
 
 
@@ -227,6 +235,46 @@ Cudd_bddClippingAndAbstractMulti(
 
   return res;
 } // end of Cudd_bddClippingAndAbstractMulti
+
+
+
+/**
+  @brief Returns the number of minterms of a set of %ADD or %BDD as a long double.
+
+  @details On systems where double and long double are the same type,
+  Cudd_CountMinterm() is preferable.  On systems where long double values
+  have 15-bit exponents, this function avoids overflow for up to 16383
+  variables.  It applies scaling to try to avoid overflow when the number of
+  variables is larger than 16383, but smaller than 32764.
+
+  @return The nimterm count if successful; +infinity if the number is known to
+  be too large for representation as a long double;
+  `(long double)CUDD_OUT_OF_MEM` otherwise. 
+
+  @see Cudd_CountMinterm Cudd_EpdCountMinterm Cudd_ApaCountMinterm
+*/
+long double 
+Cudd_LdblCountMintermMulti(
+    DdManager * manager,
+    const std::set<DdNode *> & funcs,
+    int numVars)
+{
+  long double max = powl(2.0L, (long double) (numVars+LDBL_MIN_EXP));
+  if (HUGE_VALL == max)
+    throw new std::runtime_error("OOM while counting minterms");
+
+
+  long double count = cuddBddCountMintermMultiAux(manager, funcs, max);
+
+  if (count >= powl(2.0L, (long double)(LDBL_MAX_EXP + LDBL_MIN_EXP)))
+    throw std::runtime_error("min term count is too large to be scaled back");
+  else {
+    count *= powl(2.0L, (long double)-LDBL_MIN_EXP);
+    return count;
+  }
+
+}
+
 
 
 
@@ -848,4 +896,95 @@ cuddBddClippingAndAbstractMultiRecur(
     return result;
   }
 } // end of cuddBddClippingAndAbsMultiRecur
+
+
+
+long double cuddBddCountMintermMultiAux(
+    DdManager * manager,
+    const std::set<DdNode *> & f,
+    long double max)
+{
+  const auto one = DD_ONE(manager);
+  const auto zero = Cudd_Not(one);
+
+  // if any of the funcs is false
+  // then there are zero solutions
+  if (f.count(zero) > 0)
+    return 0;
+
+  // filter away true funcs
+  // as they cannot affect the answer
+  std::set<DdNode *> funcs;
+  for (const auto func: f)
+    if(func != one)
+      funcs.insert(func);
+
+  // no funcs left, so all funcs must have been true
+  if (funcs.empty())
+    return max;
+
+
+  // find the earliest variable
+  int minIndex = Cudd_Regular(*funcs.cbegin())->index;
+  int minTop = manager->perm[minIndex];
+  for (const auto func: funcs)
+  {
+    int index = Cudd_Regular(func)->index;
+    int top = manager->perm[index];
+    if (top < minTop)
+    {
+      minTop = top;
+      minIndex = index;
+    }
+  }
+
+
+  // process the "then" children
+  std::set<DdNode *> children;
+  for (const auto func: funcs)
+  {
+    int index = Cudd_Regular(func)->index;
+    if (index == minIndex)
+    {
+      // This is one of the nodes
+      // that is splitting on the earliest variable.
+      // So we need to take the "then" child
+      DdNode * t = cuddT(Cudd_Regular(func));
+      if (Cudd_IsComplement(func))
+        t = Cudd_Not(t);
+      children.insert(t);
+    } else
+    {
+      // This node will split later,
+      // so just keep it as it is
+      children.insert(func);
+    }
+  }
+  const long double tCount = cuddBddCountMintermMultiAux(manager, children, max);
+
+
+  // process the "else" children
+  children.clear();
+  for (const auto func: funcs)
+  {
+    int index = Cudd_Regular(func)->index;
+    if (index == minIndex)
+    {
+      // split on this node
+      DdNode * e = cuddE(Cudd_Regular(func));
+      if (Cudd_IsComplement(func))
+        e = Cudd_Not(e);
+      children.insert(e);
+    } else
+    {
+      // do not split on this node yet
+      children.insert(func);
+    }
+  }
+  const long double eCount = cuddBddCountMintermMultiAux(manager, children, max);
+
+  return (tCount * .5) + (eCount * .5);
+
+
+} // end of cuddBddCountMintermMultiAux
 

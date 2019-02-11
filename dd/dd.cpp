@@ -28,6 +28,8 @@ SOFTWARE.
 #include "bnet.h"
 #include "cuddAndAbsMulti.h"
 #include <stdlib.h>
+#include <sstream>
+#include <stdexcept>
 
 void common_error(void * R, const char * s)
 {
@@ -724,7 +726,44 @@ long double bdd_count_minterm(DdManager * dd, bdd_ptr f, int numVars)
 {
   const int Cudd_Counting_Limit = sizeof(long double) == sizeof(double) ? 1023 : 16383;
   if (numVars >= Cudd_Counting_Limit)
-    return -1;
+  {
+    std::stringstream ss;
+    ss << "Cannot count solutions because number of variables (" << numVars 
+       << ") is greater than the allwed limit (" << Cudd_Counting_Limit << ")";
+    throw std::runtime_error(ss.str());
+  }
   else
     return Cudd_LdblCountMinterm(dd, f, numVars);
 }
+
+
+
+/**
+  @brief Returns the number of minterms of a set of %ADD or %BDD as a long double.
+
+  @details On systems where double and long double are the same type,
+  Cudd_CountMinterm() is preferable.  On systems where long double values
+  have 15-bit exponents, this function avoids overflow for up to 16383
+  variables.  It applies scaling to try to avoid overflow when the number of
+  variables is larger than 16383, but smaller than 32764.
+
+  @return The nimterm count if successful; +infinity if the number is known to
+  be too large for representation as a long double;
+  `(long double)CUDD_OUT_OF_MEM` otherwise. 
+
+  @see Cudd_CountMinterm Cudd_EpdCountMinterm Cudd_ApaCountMinterm
+*/
+long double bdd_count_minterm_multi(DdManager * dd, const bdd_ptr_set & funcs, int numVars)
+{
+  const int Cudd_Counting_Limit = sizeof(long double) == sizeof(double) ? 1023 : 16383;
+  if (numVars >= Cudd_Counting_Limit)
+  {
+    std::stringstream ss;
+    ss << "Cannot count solutions because number of variables (" << numVars 
+      << ") is greater than the allwed limit (" << Cudd_Counting_Limit << ")";
+    throw std::runtime_error(ss.str());
+  } 
+  else
+    return Cudd_LdblCountMintermMulti(dd, funcs, numVars);
+}
+

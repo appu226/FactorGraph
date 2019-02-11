@@ -219,8 +219,6 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
 
 int getNumSolutions(DdManager * manager, bdd_ptr_set const & bdds, int numVars)
 {
-  auto conj = bdd_and_multi(manager, bdds);
-  auto numSln = bdd_count_minterm(manager, conj, numVars);
-  bdd_free(manager, conj);
+  auto numSln = bdd_count_minterm_multi(manager, bdds, numVars);
   return numSln;
 }

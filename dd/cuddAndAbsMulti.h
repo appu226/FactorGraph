@@ -32,14 +32,15 @@ SOFTWARE.
 /* Function prototypes                                                       */
 /*---------------------------------------------------------------------------*/
 
-DdNode * Cudd_bddAndAbstractMulti(DdManager *manager, std::set<DdNode *> const & f, DdNode *cube);
-DdNode * Cudd_bddAndMulti(DdManager *manager, std::set<DdNode *> const & f);
+DdNode * Cudd_bddAndAbstractMulti(DdManager *manager, const std::set<DdNode *> & f, DdNode *cube);
+DdNode * Cudd_bddAndMulti(DdManager *manager, const std::set<DdNode *> & f);
 DdNode * Cudd_bddClippingAndMulti(DdManager *manager, 
-                                  std::set<DdNode *> const & f, 
+                                  const std::set<DdNode *> & f, 
                                   int maxDepth, 
                                   int direction);
 DdNode * Cudd_bddClippingAndAbstractMulti(DdManager *manager, 
-                                          std::set<DdNode *> const & f, 
+                                          const std::set<DdNode *> & f, 
                                           DdNode *cube, 
                                           int maxDepth, 
                                           int Direction);
+long double Cudd_LdblCountMintermMulti(DdManager * dd, const std::set<DdNode *> & funcs , int numVars);

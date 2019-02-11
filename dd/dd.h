@@ -75,3 +75,4 @@ bdd_ptr  bdd_and_exists_multi(DdManager *dd, bdd_ptr_set const & funcs, bdd_ptr 
 bdd_ptr  bdd_clipping_and_multi(DdManager *dd, bdd_ptr_set const & funcs, int max_depth, int direction);
 bdd_ptr  bdd_clipping_and_exists_multi(DdManager *d, bdd_ptr_set const & funcs, bdd_ptr var_cube, int max_depth, int direction);
 long double bdd_count_minterm(DdManager * dd, bdd_ptr f, int numVars);
+long double bdd_count_minterm_multi(DdManager * dd, const bdd_ptr_set & fset, int numVars);

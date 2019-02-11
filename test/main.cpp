@@ -30,6 +30,7 @@ SOFTWARE.
 #include <vector>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <factor_graph.h>
 
@@ -38,6 +39,7 @@ SOFTWARE.
 void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
 void testIsConnectedComponent(DdManager * manager);
+void testCuddBddCountMintermsMulti(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -47,6 +49,7 @@ int main()
     DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
     common_error(manager, "test/main.cpp : Could not initialize DdManager\n");
 
+    testCuddBddCountMintermsMulti(manager);
     testCuddBddAndAbstractMulti(manager);
     testCnfDump(manager);
     testIsConnectedComponent(manager);
@@ -199,6 +202,57 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
     bdd_free(manager, resultClipDown);
   }
   return;
+} // end testCuddBddAndAbstractMulti
+
+void testCuddBddCountMintermsMulti(DdManager * manager)
+{
+  const int numVars = 3;
+  const int numTests = 5000;
+  const int numFuncsPerTest = 3;
+  const long double relativeTolerance = 1e-10;
+  std::vector<DdNode *> vars;
+  for (int vi = 0; vi < numVars; ++vi)
+    vars.push_back(bdd_new_var_with_index(manager, vi));
+  int const totalMinTerms = 1 << numVars;
+  int const totalFuncs = 1 << totalMinTerms;
+  for (int itest = 0; itest < numTests; ++itest)
+  {
+    std::set<DdNode *> funcs;
+    for (int ifunc = 0; ifunc < numFuncsPerTest; ++ifunc)
+    {
+      int const funcAsInteger = rand() % totalFuncs;
+      auto f = makeFunc(manager, numVars, funcAsInteger);
+      funcs.insert(f);
+    }
+
+    const auto computedAnswer = bdd_count_minterm_multi(manager, funcs, numVars);
+    //std::cout << "number of solutions is " << computedAnswer << std::endl; // DeleteMe
+
+    bdd_ptr conj = bdd_and_multi(manager, funcs);
+    const auto expectedAnswer = bdd_count_minterm(manager, conj, numVars);
+    bdd_free(manager, conj);
+    for (auto f: funcs)
+      bdd_free(manager, f);
+
+
+    const auto absoluteTolerance = std::abs(expectedAnswer * .5) + std::abs(computedAnswer * .5);
+    const auto absoluteDiff = std::abs(expectedAnswer - computedAnswer);
+    if (absoluteDiff > absoluteTolerance)
+    {
+      for(const auto f: funcs)
+      {
+        std::cout << "--\n";
+        bdd_print_minterms(manager, f);
+      }
+      std::stringstream ss;
+      ss << "bdd_count_minterm_multi gave an answer (" << computedAnswer
+         << ") different from the expected answer (" << expectedAnswer
+         << ") where relative tolerance is " << relativeTolerance;
+      throw std::runtime_error(ss.str());
+    }
+  }
+    
+ 
 }
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsInteger)
