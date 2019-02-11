@@ -11,6 +11,7 @@
 [INFO] Executing over approximating method FactorGraphApprox
 [INFO] varNodeSize:0, funcNodeSize:1, seed:0, numConvergence:1
 [INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
 [INFO] Over approximating method FactorGraphApprox finished with 3 solutions.
 [INFO] Executing under approximating method ExactAndAccumulate
 [INFO] Under approximating method ExactAndAccumulate finished with 3 solutions.

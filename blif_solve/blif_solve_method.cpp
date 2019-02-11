@@ -335,7 +335,9 @@ namespace {
           // pass messages till convergence
           start = now();
           blif_solve_log(INFO, "Initiating message passing");
-          factor_graph_converge(fg);
+          int numIterations = factor_graph_converge(fg);
+          blif_solve_log(INFO, "Factor graph messages have converged in "
+              << numIterations << " iterations");
           blif_solve_log(INFO, "Factor graph messages have converged in "
               << duration(start) << " secs");
 
