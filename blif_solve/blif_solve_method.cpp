@@ -247,14 +247,14 @@ namespace {
         auto nonPiVars = blifFactors.getNonPiVars();
         auto ddm = blifFactors.getDdManager();
         bdd_ptr_set result; // the set of results
+        int last_result_size = -1; // do not iterate if number of results is not increasing
         std::mt19937 randGen(m_seed); // randomizer
 
 
 
         // run message passing multiple times and collect results
-        for (int nc = 0; nc < m_numConvergence; ++nc)
+        for (int nc = 0; nc < m_numConvergence && static_cast<int>(result.size()) > last_result_size; ++nc)
         {
-          
           // randomly group the funcs in the factor graph
           auto start = now();
           auto shuffledFuncs = *funcs;
@@ -345,6 +345,7 @@ namespace {
 
 
           // compute the result by conjoining all incoming messages
+          last_result_size = result.size();
           for (auto nonPiVarCube: nonPiVarGroups)
           {
             fgnode * V = factor_graph_get_varnode(fg, nonPiVarCube);
@@ -352,7 +353,10 @@ namespace {
             bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
             for (int mi = 0; mi < num_messages; ++mi)
             {
-              result.insert(messages[mi]);
+              if (result.count(messages[mi]) == 0)
+                result.insert(messages[mi]);
+              else 
+                bdd_free(ddm, messages[mi]);
             }
             free(messages);
           }

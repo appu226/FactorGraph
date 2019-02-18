@@ -235,7 +235,7 @@ void testCuddBddCountMintermsMulti(DdManager * manager)
       bdd_free(manager, f);
 
 
-    const auto absoluteTolerance = std::abs(expectedAnswer * .5) + std::abs(computedAnswer * .5);
+    const auto absoluteTolerance = (std::abs(expectedAnswer * .5) + std::abs(computedAnswer * .5)) * relativeTolerance;
     const auto absoluteDiff = std::abs(expectedAnswer - computedAnswer);
     if (absoluteDiff > absoluteTolerance)
     {

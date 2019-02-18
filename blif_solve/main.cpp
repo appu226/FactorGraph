@@ -57,7 +57,7 @@ std::string const quantification_answer_prefix = "ans_qpi";
 int                             main                 (int argc, char ** argv);
 blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr,
                                                       blif_solve::CommandLineOptions const & clo);
-int                             getNumSolutions      (DdManager * ddm,
+long double                     getNumSolutions      (DdManager * ddm,
                                                       bdd_ptr_set const & bdd,
                                                       int numVars);
 
@@ -217,7 +217,7 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
 }
 
 
-int getNumSolutions(DdManager * manager, bdd_ptr_set const & bdds, int numVars)
+long double getNumSolutions(DdManager * manager, bdd_ptr_set const & bdds, int numVars)
 {
   auto numSln = bdd_count_minterm_multi(manager, bdds, numVars);
   return numSln;
