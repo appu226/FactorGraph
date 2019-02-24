@@ -146,7 +146,7 @@ int main(int argc, char ** argv)
 
 
     // dump the diff
-    if (upperLimit.size() > 0 && lowerLimit.size() > 0)
+    if (upperLimit.size() > 0 && lowerLimit.size() > 0 && clo->diffOutputPath.size() > 0)
     {
       blif_solve_log(DEBUG, "Writing diff to " << clo->diffOutputPath);
       auto nonPiVars = blifFactors->getNonPiVars();
