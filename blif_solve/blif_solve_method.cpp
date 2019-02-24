@@ -253,7 +253,8 @@ namespace {
 
 
         // run message passing multiple times and collect results
-        for (int nc = 0; nc < m_numConvergence && static_cast<int>(result.size()) > last_result_size; ++nc)
+        int nc = 0;
+        for ( ; nc < m_numConvergence && static_cast<int>(result.size()) > last_result_size; ++nc)
         {
           // randomly group the funcs in the factor graph
           auto start = now();
@@ -380,6 +381,7 @@ namespace {
 
 
         } // end loop on number of iterations
+        blif_solve_log(INFO, "Ran " << nc << " FactorGraph convergences");
 
 
         return result;
