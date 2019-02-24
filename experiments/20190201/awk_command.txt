@@ -1,1 +1,0 @@
-awk -F "[/ ]" -f experiments/20190201/process_logs.awk -- 6s365r_bdd.blif.log  | column -t -s, | less
