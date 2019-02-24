@@ -1,0 +1,10 @@
+Index: sno            :    serial number
+       var node size      : number of variable nodes randomly merged together
+       func node size     : number of func nodes randomly merged together
+       total reruns       : number of times Factor Graph was supposed to be rerun by adding previous results as new factors
+       actual reruns      : number of times Factor Graph was actually rerun, before it converged completely
+       factor graph iters : total number of message passing iterations across all convergences
+       avg iters          : factor graph iters / total reruns
+       num soln           : number of minterms in final solution
+       file name          : test case name
+
