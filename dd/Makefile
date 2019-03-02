@@ -22,7 +22,7 @@ ntrHeap.o : ntrHeap.c ntr.h
 ntrMflow.o : ntrMflow.c ntr.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} ntrMflow.c -o ntrMflow.o
 
-cuddAndAbsMulti.o : cuddAndAbsMulti.cpp cuddAndAbsMulti.h
+cuddAndAbsMulti.o : cuddAndAbsMulti.cpp cuddAndAbsMulti.h lru_cache.h optional.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} cuddAndAbsMulti.cpp -o cuddAndAbsMulti.o
 
 tags : 			*.cpp *.h

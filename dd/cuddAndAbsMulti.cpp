@@ -26,10 +26,38 @@ SOFTWARE.
 
 #include <stdexcept>
 #include "cuddAndAbsMulti.h"
+#include "lru_cache.h"
 #include <util.h>
 #include <cuddInt.h>
 #include <algorithm>
 #include <float.h>
+
+// *********************************************
+// *** std hash definition for unordered_map ***
+// *********************************************
+namespace std {
+  template<> struct hash<std::set<DdNode *> >
+  {
+    typedef set<DdNode *> argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type & bddset) const
+    {
+      result_type h = 0;
+      for (const auto bdd: bddset) {
+        result_type bh = (result_type)bdd;
+        h ^= bh + 0x9e3779b9 + (h << 6) + (h >> 2);
+      }
+      return h;
+    }
+  };
+} // end namespace std
+
+
+
+
+
+
+
 
 
 // **************************************
@@ -83,7 +111,8 @@ DdNode * cuddBddClippingAndAbstractMultiRecur(
 long double cuddBddCountMintermMultiAux(
     DdManager * manager,
     const std::set<DdNode *> & f,
-    long double max);
+    long double max,
+    const parakram::LruCache<std::set<DdNode *>, long double> cache);
 
 
 
@@ -257,14 +286,16 @@ long double
 Cudd_LdblCountMintermMulti(
     DdManager * manager,
     const std::set<DdNode *> & funcs,
-    int numVars)
+    int numVars,
+    int multiCacheCapacity)
 {
   long double max = powl(2.0L, (long double) (numVars+LDBL_MIN_EXP));
   if (HUGE_VALL == max)
     throw new std::runtime_error("OOM while counting minterms");
 
+  parakram::LruCache<std::set<DdNode *>, long double> cache(multiCacheCapacity);
 
-  long double count = cuddBddCountMintermMultiAux(manager, funcs, max);
+  long double count = cuddBddCountMintermMultiAux(manager, funcs, max, cache);
 
   if (count >= powl(2.0L, (long double)(LDBL_MAX_EXP + LDBL_MIN_EXP)))
     throw std::runtime_error("min term count is too large to be scaled back");
@@ -902,7 +933,8 @@ cuddBddClippingAndAbstractMultiRecur(
 long double cuddBddCountMintermMultiAux(
     DdManager * manager,
     const std::set<DdNode *> & f,
-    long double max)
+    long double max,
+    parakram::LruCache<std::set<DdNode *>, long double> cache)
 {
   const auto one = DD_ONE(manager);
   const auto zero = Cudd_Not(one);
@@ -923,6 +955,10 @@ long double cuddBddCountMintermMultiAux(
   if (funcs.empty())
     return max;
 
+  // check cache
+  auto cacheResult = cache.tryGet(funcs);
+  if (cacheResult.isPresent())
+    return cacheResult.get();
 
   // find the earliest variable
   int minIndex = Cudd_Regular(*funcs.cbegin())->index;
@@ -960,7 +996,7 @@ long double cuddBddCountMintermMultiAux(
       children.insert(func);
     }
   }
-  const long double tCount = cuddBddCountMintermMultiAux(manager, children, max);
+  const long double tCount = cuddBddCountMintermMultiAux(manager, children, max, cache);
 
 
   // process the "else" children
@@ -981,9 +1017,12 @@ long double cuddBddCountMintermMultiAux(
       children.insert(func);
     }
   }
-  const long double eCount = cuddBddCountMintermMultiAux(manager, children, max);
+  const long double eCount = cuddBddCountMintermMultiAux(manager, children, max, cache);
 
-  return (tCount * .5) + (eCount * .5);
+  // compute result, put into cache, and return
+  const long double fullCount = (tCount * .5) + (eCount * .5);
+  cache.insert(funcs, fullCount);
+  return fullCount;
 
 
 } // end of cuddBddCountMintermMultiAux

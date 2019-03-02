@@ -97,8 +97,10 @@ namespace parakram {
         m_priorityMap.erase(lruId);
         m_priorityQueue.pop_back();
         m_valueMap.erase(lruId);
-        m_keyStoreMap.erase(lruId);
-        m_keyStore.erase(lruId);
+        auto ksmit = m_keyStoreMap.find(lruId);
+        auto ksit = ksmit->second;
+        m_keyStoreMap.erase(ksmit);
+        m_keyStore.erase(ksit);
       }
     }
 

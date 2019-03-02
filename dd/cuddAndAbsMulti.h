@@ -43,4 +43,4 @@ DdNode * Cudd_bddClippingAndAbstractMulti(DdManager *manager,
                                           DdNode *cube, 
                                           int maxDepth, 
                                           int Direction);
-long double Cudd_LdblCountMintermMulti(DdManager * dd, const std::set<DdNode *> & funcs , int numVars);
+long double Cudd_LdblCountMintermMulti(DdManager * dd, const std::set<DdNode *> & funcs, int numVars, int multiCacheCapacity);

@@ -764,6 +764,6 @@ long double bdd_count_minterm_multi(DdManager * dd, const bdd_ptr_set & funcs, i
     throw std::runtime_error(ss.str());
   } 
   else
-    return Cudd_LdblCountMintermMulti(dd, funcs, numVars);
+    return Cudd_LdblCountMintermMulti(dd, funcs, numVars, 100 * 1000);
 }
 
