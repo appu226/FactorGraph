@@ -25,6 +25,8 @@ SOFTWARE.
 
 #include <dd.h>
 #include <cnf_dump.h>
+#include <optional.h>
+#include <lru_cache.h>
 
 #include <memory>
 #include <vector>
@@ -40,6 +42,8 @@ void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
 void testIsConnectedComponent(DdManager * manager);
 void testCuddBddCountMintermsMulti(DdManager * manager);
+void testOptional();
+void testLruCache();
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -53,6 +57,8 @@ int main()
     testCuddBddAndAbstractMulti(manager);
     testCnfDump(manager);
     testIsConnectedComponent(manager);
+    testOptional();
+    testLruCache();
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -63,6 +69,109 @@ int main()
     std::cout << "[ERROR] " << e.what() << std::endl;
     return -1;
   }
+}
+
+struct DestructorCounter {
+  static int count;
+  ~DestructorCounter() {
+    ++count;
+  }
+};
+
+int DestructorCounter::count = 0;
+
+
+void testLruCache()
+{
+  using namespace parakram;
+  LruCache<int, std::string> lc(3);
+  lc.insert(1, "a");
+  auto o = lc.tryGet(1);
+  assert(o.isPresent());
+  assert(o.get() == "a");
+  o = lc.tryGet(2);
+  assert(!o.isPresent());
+
+  lc.insert(2, "b");
+  lc.insert(3, "c");
+
+  assert(lc.tryGet(1).get() == "a");
+  assert(lc.tryGet(2).get() == "b");
+  assert(lc.tryGet(3).get() == "c");
+
+  auto ctos = [](char c){ return std::string(&c, &c + 1); };
+
+  for (int i = 0; i < 26; ++i)
+  {
+    lc.insert(i + 1, ctos('a' + i));
+    if (i > 1) assert(lc.tryGet(i - 1).get() == ctos('a' + i - 2));
+    if (i > 0) assert(lc.tryGet(i).get() == ctos('a' + i - 1));
+    assert(lc.tryGet(i + 1).get() == ctos('a' + i));
+  }
+}
+
+void testOptional() {
+  using namespace parakram;
+  Optional<int> oi;
+  assert(!oi.isPresent());
+  oi.reset(55);
+  assert(oi.isPresent());
+  assert(oi.get() == 55);
+  oi.reset();
+  assert(!oi.isPresent());
+
+  assert(DestructorCounter::count == 0);
+
+  DestructorCounter dc;
+  
+  Optional<DestructorCounter> odc(dc);
+  assert(DestructorCounter::count == 0);
+  assert(odc.isPresent());
+  
+  odc.reset();
+  assert(DestructorCounter::count == 1);
+  assert(!odc.isPresent());
+
+  odc.reset();
+  assert(DestructorCounter::count == 1);
+  assert(!odc.isPresent());
+
+  odc.reset(dc);
+  assert(DestructorCounter::count == 1);
+  assert(odc.isPresent());
+
+  odc.reset(dc);
+  assert(DestructorCounter::count == 2);
+  assert(odc.isPresent());
+
+  if (odc.isPresent())
+  {
+    Optional<DestructorCounter> odc2;
+  }
+  assert(DestructorCounter::count == 2);
+
+  if (odc.isPresent())
+  {
+    Optional<DestructorCounter> odc2(odc);
+  }
+  assert(DestructorCounter::count == 3);
+
+  oi.reset();
+  Optional<int> oi2(oi);
+  assert(!oi2.isPresent());
+  oi.reset(5);
+  Optional<int> oi3(oi);
+  assert(oi3.isPresent());
+  assert(oi3.get() == 5);
+
+  oi.reset();
+  oi3 = oi;
+  assert(!oi3.isPresent());
+  
+  oi.reset(50);
+  oi2 = oi;
+  assert(oi2.isPresent());
+  assert(oi2.get() == 50);
 }
 
 void testCnfDump(DdManager * manager)
