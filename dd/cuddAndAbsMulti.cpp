@@ -112,7 +112,7 @@ long double cuddBddCountMintermMultiAux(
     DdManager * manager,
     const std::set<DdNode *> & f,
     long double max,
-    const parakram::LruCache<std::set<DdNode *>, long double> cache);
+    parakram::LruCache<std::set<DdNode *>, long double> & cache);
 
 
 
@@ -934,7 +934,7 @@ long double cuddBddCountMintermMultiAux(
     DdManager * manager,
     const std::set<DdNode *> & f,
     long double max,
-    parakram::LruCache<std::set<DdNode *>, long double> cache)
+    parakram::LruCache<std::set<DdNode *>, long double> & cache)
 {
   const auto one = DD_ONE(manager);
   const auto zero = Cudd_Not(one);
