@@ -1,0 +1,55 @@
+*********************************************
+*** Running ClippingAndAbstractMulti      ***
+*** on the bdd blif bench mark test cases ***
+*********************************************
+
+1. How to run
+   Go to the root source folder and run:
+     experiments/Clipping/run_all_test_cases.sh
+
+2. Test cases
+   The test has been run on the bdd_blif data set, which consist of
+     a set of digital circuits in th blif format.
+   The location of the input data can be customized as a parameter 
+     to the blif_solve command in run_one_test_case.sh.
+   Each circuit has, at the base level, 4 types of variables:
+   - primary input variables v_pi
+   - primary output variables
+   - latch input variables
+   - latch output variables
+   Along with these, there are many Tseitin helper variables which connect these variables
+     to give a sequence of bdds (which we call "factors" F), 
+     the conjunction of which describes the overall circuit.
+   In order to prove properties about the state of the circuit 
+     regardless of the values of the primary input variables,
+     we want to existentially quantify out these variables.
+   I.e., we are try to compute:
+     \exists v_pi (F_1 \and F_2 \and ... \and F_n)
+
+   *************************************************
+   *** In other words, we are projecting         ***
+   *** the conjunction of all the factors        ***
+   *** onto all the non primary input variables. ***
+   *************************************************
+
+3. Tests for each case
+   For each data set, (starting from the smallest by file size to the largest),
+     we loop over many clipping depths.
+   The conjunction and projection is implemented
+     as a single depth first traversal of all the factors.
+   The result is computed exactly until a maximum depth (the clipping depth),
+     after which it is over-approximated to "true".
+   For each data set, for each value of the clipping depth,
+     the computations were bounded by 2 mins.
+   The computations were run with -O3 flag on a Intel(R) Core(TM) i3-4030U CPU @ 1.90GHz chip
+   with 3.8G RAM plus 3.7G Swap memory.
+
+4. Results
+   The results are summarized in a table in
+     experiments/Clipping/summary.txt
+   The index of this table, explaining the meaning of various columns:
+     experiments/Clipping/index.txt
+   Detailed logs from which results have been scraped are compressed in:
+     experiments/Clipping/results.tgz
+
+

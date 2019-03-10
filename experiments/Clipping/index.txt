@@ -1,0 +1,6 @@
+Index: sno                : serial number
+       clip depth         : The clipping depth used for approximating the computation
+       time taken (sec)   : total time taken to finish all the iterations of factor graph
+       num soln           : number of minterms in final solution
+       file name          : test case name
+
