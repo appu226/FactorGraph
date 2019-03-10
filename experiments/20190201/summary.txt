@@ -1,1015 +1,1015 @@
-sno   var   func  total   actual  factor  avg    num           file
-      node  node  reruns  reruns  graph   iters  soln          name
-      size  size                  iters              
----   ---   ---   ---     ---     ---     ---    ---           ---
-1     1     1     1       1       3       3      2.31343e+223  6s186_bdd.blif
-2     1     1     2       2       6       3      2.31343e+223  6s186_bdd.blif
-3     1     1     3       2       6       3      2.31343e+223  6s186_bdd.blif
-4     1     1     4       2       6       3      2.31343e+223  6s186_bdd.blif
-5     1     1     5       2       6       3      2.31343e+223  6s186_bdd.blif
-6     1     1     10      2       6       3      2.31343e+223  6s186_bdd.blif
-7     1     1     20      2       6       3      2.31343e+223  6s186_bdd.blif
-8     1     5     1       1       3       3      2.31343e+223  6s186_bdd.blif
-9     1     5     2       2       6       3      2.31343e+223  6s186_bdd.blif
-10    1     5     3       2       6       3      2.31343e+223  6s186_bdd.blif
-11    1     5     4       2       6       3      2.31343e+223  6s186_bdd.blif
-12    1     5     5       2       6       3      2.31343e+223  6s186_bdd.blif
-13    1     5     10      2       6       3      2.31343e+223  6s186_bdd.blif
-14    1     5     20      2       6       3      2.31343e+223  6s186_bdd.blif
-15    1     10    1       1       3       3      2.31343e+223  6s186_bdd.blif
-16    1     10    2       2       6       3      2.31343e+223  6s186_bdd.blif
-17    1     10    3       2       6       3      2.31343e+223  6s186_bdd.blif
-18    1     10    4       2       6       3      2.31343e+223  6s186_bdd.blif
-19    1     10    5       2       6       3      2.31343e+223  6s186_bdd.blif
-20    1     10    10      2       6       3      2.31343e+223  6s186_bdd.blif
-21    1     10    20      2       6       3      2.31343e+223  6s186_bdd.blif
-22    5     1     1       1       4       4      2.31343e+223  6s186_bdd.blif
-23    5     1     2       2       8       4      2.31343e+223  6s186_bdd.blif
-24    5     1     3       2       8       4      2.31343e+223  6s186_bdd.blif
-25    5     1     4       2       8       4      2.31343e+223  6s186_bdd.blif
-26    5     1     5       2       8       4      2.31343e+223  6s186_bdd.blif
-27    5     1     10      2       8       4      2.31343e+223  6s186_bdd.blif
-28    5     1     20      2       8       4      2.31343e+223  6s186_bdd.blif
-29    5     5     1       1       4       4      2.31343e+223  6s186_bdd.blif
-30    5     5     2       2       8       4      2.31343e+223  6s186_bdd.blif
-31    5     5     3       2       8       4      2.31343e+223  6s186_bdd.blif
-32    5     5     4       2       8       4      2.31343e+223  6s186_bdd.blif
-33    5     5     5       2       8       4      2.31343e+223  6s186_bdd.blif
-34    5     5     10      2       8       4      2.31343e+223  6s186_bdd.blif
-35    5     5     20      2       8       4      2.31343e+223  6s186_bdd.blif
-36    5     10    1       1       4       4      2.31343e+223  6s186_bdd.blif
-37    5     10    2       0       4       0      NA            6s186_bdd.blif
-38    5     10    3       0       4       0      NA            6s186_bdd.blif
-39    5     10    4       0       4       0      NA            6s186_bdd.blif
-40    5     10    5       0       4       0      NA            6s186_bdd.blif
-41    5     10    10      0       4       0      NA            6s186_bdd.blif
-42    5     10    20      0       4       0      NA            6s186_bdd.blif
-43    10    1     1       1       4       4      2.31343e+223  6s186_bdd.blif
-44    10    1     2       2       8       4      2.31343e+223  6s186_bdd.blif
-45    10    1     3       2       8       4      2.31343e+223  6s186_bdd.blif
-46    10    1     4       2       8       4      2.31343e+223  6s186_bdd.blif
-47    10    1     5       2       8       4      2.31343e+223  6s186_bdd.blif
-48    10    1     10      2       8       4      2.31343e+223  6s186_bdd.blif
-49    10    1     20      2       8       4      2.31343e+223  6s186_bdd.blif
-50    10    5     1       1       4       4      2.31343e+223  6s186_bdd.blif
-51    10    5     2       2       8       4      2.31343e+223  6s186_bdd.blif
-52    10    5     3       2       8       4      2.31343e+223  6s186_bdd.blif
-53    10    5     4       2       8       4      2.31343e+223  6s186_bdd.blif
-54    10    5     5       2       8       4      2.31343e+223  6s186_bdd.blif
-55    10    5     10      2       8       4      2.31343e+223  6s186_bdd.blif
-56    10    5     20      2       8       4      2.31343e+223  6s186_bdd.blif
-57    10    10    1       1       4       4      2.31343e+223  6s186_bdd.blif
-58    10    10    2       0       4       0      NA            6s186_bdd.blif
-59    10    10    3       0       4       0      NA            6s186_bdd.blif
-60    10    10    4       0       4       0      NA            6s186_bdd.blif
-61    10    10    5       0       4       0      NA            6s186_bdd.blif
-62    10    10    10      0       4       0      NA            6s186_bdd.blif
-63    10    10    20      0       4       0      NA            6s186_bdd.blif
-64    20    1     1       1       4       4      2.31343e+223  6s186_bdd.blif
-65    20    1     2       2       8       4      2.31343e+223  6s186_bdd.blif
-66    20    1     3       2       8       4      2.31343e+223  6s186_bdd.blif
-67    20    1     4       2       8       4      2.31343e+223  6s186_bdd.blif
-68    20    1     5       2       8       4      2.31343e+223  6s186_bdd.blif
-69    20    1     10      2       8       4      2.31343e+223  6s186_bdd.blif
-70    20    1     20      2       8       4      2.31343e+223  6s186_bdd.blif
-71    20    5     1       1       4       4      2.31343e+223  6s186_bdd.blif
-72    20    5     2       2       8       4      2.31343e+223  6s186_bdd.blif
-73    20    5     3       2       8       4      2.31343e+223  6s186_bdd.blif
-74    20    5     4       2       8       4      2.31343e+223  6s186_bdd.blif
-75    20    5     5       2       8       4      2.31343e+223  6s186_bdd.blif
-76    20    5     10      2       8       4      2.31343e+223  6s186_bdd.blif
-77    20    5     20      2       8       4      2.31343e+223  6s186_bdd.blif
-78    20    10    1       1       4       4      2.31343e+223  6s186_bdd.blif
-79    20    10    2       2       8       4      2.31343e+223  6s186_bdd.blif
-80    20    10    3       2       8       4      2.31343e+223  6s186_bdd.blif
-81    20    10    4       2       8       4      2.31343e+223  6s186_bdd.blif
-82    20    10    5       0       4       0      NA            6s186_bdd.blif
-83    20    10    10      2       8       4      2.31343e+223  6s186_bdd.blif
-84    20    10    20      2       8       4      2.31343e+223  6s186_bdd.blif
-85    30    1     1       1       4       4      2.31343e+223  6s186_bdd.blif
-86    30    1     2       2       8       4      2.31343e+223  6s186_bdd.blif
-87    30    1     3       2       8       4      2.31343e+223  6s186_bdd.blif
-88    30    1     4       2       8       4      2.31343e+223  6s186_bdd.blif
-89    30    1     5       2       8       4      2.31343e+223  6s186_bdd.blif
-90    30    1     10      2       8       4      2.31343e+223  6s186_bdd.blif
-91    30    1     20      2       8       4      2.31343e+223  6s186_bdd.blif
-92    30    5     1       1       4       4      2.24114e+223  6s186_bdd.blif
-93    30    5     2       2       8       4      2.24114e+223  6s186_bdd.blif
-94    30    5     3       2       8       4      2.24114e+223  6s186_bdd.blif
-95    30    5     4       2       8       4      2.24114e+223  6s186_bdd.blif
-96    30    5     5       2       8       4      2.24114e+223  6s186_bdd.blif
-97    30    5     10      2       8       4      2.24114e+223  6s186_bdd.blif
-98    30    5     20      2       8       4      2.24114e+223  6s186_bdd.blif
-99    30    10    1       1       4       4      2.24114e+223  6s186_bdd.blif
-100   30    10    2       0       4       0      NA            6s186_bdd.blif
-101   30    10    3       0       4       0      NA            6s186_bdd.blif
-102   30    10    4       0       4       0      NA            6s186_bdd.blif
-103   30    10    5       0       4       0      NA            6s186_bdd.blif
-104   30    10    10      0       4       0      NA            6s186_bdd.blif
-105   30    10    20      0       4       0      NA            6s186_bdd.blif
-106   40    1     1       1       4       4      2.31343e+223  6s186_bdd.blif
-107   40    1     2       2       8       4      1.73507e+223  6s186_bdd.blif
-108   40    1     3       3       12      4      1.4459e+223   6s186_bdd.blif
-109   40    1     4       4       16      4      1.4459e+223   6s186_bdd.blif
-110   40    1     5       4       16      4      1.4459e+223   6s186_bdd.blif
-111   40    1     10      4       16      4      1.4459e+223   6s186_bdd.blif
-112   40    1     20      4       16      4      1.4459e+223   6s186_bdd.blif
-113   40    5     1       1       4       4      2.24114e+223  6s186_bdd.blif
-114   40    5     2       2       8       4      1.68085e+223  6s186_bdd.blif
-115   40    5     3       3       12      4      9.4548e+222   6s186_bdd.blif
-116   40    5     4       4       16      4      6.56583e+222  6s186_bdd.blif
-117   40    5     5       5       20      4      6.36886e+222  6s186_bdd.blif
-118   40    5     10      6       24      4      6.36886e+222  6s186_bdd.blif
-119   40    5     20      6       24      4      6.36886e+222  6s186_bdd.blif
-120   40    10    1       0       0       0      NA            6s186_bdd.blif
-121   40    10    2       2       8       4      1.68085e+223  6s186_bdd.blif
-122   40    10    3       0       8       0      NA            6s186_bdd.blif
-123   40    10    4       0       8       0      NA            6s186_bdd.blif
-124   40    10    5       0       8       0      NA            6s186_bdd.blif
-125   40    10    10      0       8       0      NA            6s186_bdd.blif
-126   40    10    20      0       8       0      NA            6s186_bdd.blif
-127   1     1     1       1       3       3      2.31343e+223  6s187_bdd.blif
-128   1     1     2       2       6       3      2.31343e+223  6s187_bdd.blif
-129   1     1     3       2       6       3      2.31343e+223  6s187_bdd.blif
-130   1     1     4       2       6       3      2.31343e+223  6s187_bdd.blif
-131   1     1     5       2       6       3      2.31343e+223  6s187_bdd.blif
-132   1     1     10      2       6       3      2.31343e+223  6s187_bdd.blif
-133   1     1     20      2       6       3      2.31343e+223  6s187_bdd.blif
-134   1     5     1       1       3       3      2.31343e+223  6s187_bdd.blif
-135   1     5     2       2       6       3      2.31343e+223  6s187_bdd.blif
-136   1     5     3       2       6       3      2.31343e+223  6s187_bdd.blif
-137   1     5     4       2       6       3      2.31343e+223  6s187_bdd.blif
-138   1     5     5       2       6       3      2.31343e+223  6s187_bdd.blif
-139   1     5     10      2       6       3      2.31343e+223  6s187_bdd.blif
-140   1     5     20      2       6       3      2.31343e+223  6s187_bdd.blif
-141   1     10    1       1       3       3      2.31343e+223  6s187_bdd.blif
-142   1     10    2       2       6       3      2.31343e+223  6s187_bdd.blif
-143   1     10    3       2       6       3      2.31343e+223  6s187_bdd.blif
-144   1     10    4       2       6       3      2.31343e+223  6s187_bdd.blif
-145   1     10    5       2       6       3      2.31343e+223  6s187_bdd.blif
-146   1     10    10      2       6       3      2.31343e+223  6s187_bdd.blif
-147   1     10    20      2       6       3      2.31343e+223  6s187_bdd.blif
-148   5     1     1       1       4       4      2.31343e+223  6s187_bdd.blif
-149   5     1     2       2       8       4      2.31343e+223  6s187_bdd.blif
-150   5     1     3       2       8       4      2.31343e+223  6s187_bdd.blif
-151   5     1     4       2       8       4      2.31343e+223  6s187_bdd.blif
-152   5     1     5       2       8       4      2.31343e+223  6s187_bdd.blif
-153   5     1     10      2       8       4      2.31343e+223  6s187_bdd.blif
-154   5     1     20      2       8       4      2.31343e+223  6s187_bdd.blif
-155   5     5     1       1       4       4      2.31343e+223  6s187_bdd.blif
-156   5     5     2       2       8       4      2.31343e+223  6s187_bdd.blif
-157   5     5     3       2       8       4      2.31343e+223  6s187_bdd.blif
-158   5     5     4       2       8       4      2.31343e+223  6s187_bdd.blif
-159   5     5     5       2       8       4      2.31343e+223  6s187_bdd.blif
-160   5     5     10      2       8       4      2.31343e+223  6s187_bdd.blif
-161   5     5     20      2       8       4      2.31343e+223  6s187_bdd.blif
-162   5     10    1       1       4       4      2.31343e+223  6s187_bdd.blif
-163   5     10    2       2       8       4      2.31343e+223  6s187_bdd.blif
-164   5     10    3       2       8       4      2.31343e+223  6s187_bdd.blif
-165   5     10    4       2       8       4      2.31343e+223  6s187_bdd.blif
-166   5     10    5       2       8       4      2.31343e+223  6s187_bdd.blif
-167   5     10    10      2       8       4      2.31343e+223  6s187_bdd.blif
-168   5     10    20      2       8       4      2.31343e+223  6s187_bdd.blif
-169   10    1     1       1       4       4      2.31343e+223  6s187_bdd.blif
-170   10    1     2       2       8       4      2.31343e+223  6s187_bdd.blif
-171   10    1     3       2       8       4      2.31343e+223  6s187_bdd.blif
-172   10    1     4       2       8       4      2.31343e+223  6s187_bdd.blif
-173   10    1     5       2       8       4      2.31343e+223  6s187_bdd.blif
-174   10    1     10      2       8       4      2.31343e+223  6s187_bdd.blif
-175   10    1     20      2       8       4      2.31343e+223  6s187_bdd.blif
-176   10    5     1       1       4       4      2.31343e+223  6s187_bdd.blif
-177   10    5     2       2       8       4      2.31343e+223  6s187_bdd.blif
-178   10    5     3       2       8       4      2.31343e+223  6s187_bdd.blif
-179   10    5     4       2       8       4      2.31343e+223  6s187_bdd.blif
-180   10    5     5       2       8       4      2.31343e+223  6s187_bdd.blif
-181   10    5     10      2       8       4      2.31343e+223  6s187_bdd.blif
-182   10    5     20      2       8       4      2.31343e+223  6s187_bdd.blif
-183   10    10    1       1       4       4      2.31343e+223  6s187_bdd.blif
-184   10    10    2       0       4       0      NA            6s187_bdd.blif
-185   10    10    3       0       4       0      NA            6s187_bdd.blif
-186   10    10    4       0       4       0      NA            6s187_bdd.blif
-187   10    10    5       0       4       0      NA            6s187_bdd.blif
-188   10    10    10      0       4       0      NA            6s187_bdd.blif
-189   10    10    20      0       4       0      NA            6s187_bdd.blif
-190   20    1     1       1       4       4      2.31343e+223  6s187_bdd.blif
-191   20    1     2       2       8       4      2.31343e+223  6s187_bdd.blif
-192   20    1     3       2       8       4      2.31343e+223  6s187_bdd.blif
-193   20    1     4       2       8       4      2.31343e+223  6s187_bdd.blif
-194   20    1     5       2       8       4      2.31343e+223  6s187_bdd.blif
-195   20    1     10      2       8       4      2.31343e+223  6s187_bdd.blif
-196   20    1     20      2       8       4      2.31343e+223  6s187_bdd.blif
-197   20    5     1       1       4       4      2.31343e+223  6s187_bdd.blif
-198   20    5     2       2       8       4      2.31343e+223  6s187_bdd.blif
-199   20    5     3       2       8       4      2.31343e+223  6s187_bdd.blif
-200   20    5     4       2       8       4      2.31343e+223  6s187_bdd.blif
-201   20    5     5       2       8       4      2.31343e+223  6s187_bdd.blif
-202   20    5     10      2       8       4      2.31343e+223  6s187_bdd.blif
-203   20    5     20      2       8       4      2.31343e+223  6s187_bdd.blif
-204   20    10    1       1       4       4      2.31343e+223  6s187_bdd.blif
-205   20    10    2       2       8       4      2.31343e+223  6s187_bdd.blif
-206   20    10    3       2       8       4      2.31343e+223  6s187_bdd.blif
-207   20    10    4       2       8       4      2.31343e+223  6s187_bdd.blif
-208   20    10    5       2       8       4      2.31343e+223  6s187_bdd.blif
-209   20    10    10      2       8       4      2.31343e+223  6s187_bdd.blif
-210   20    10    20      2       8       4      2.31343e+223  6s187_bdd.blif
-211   30    1     1       1       4       4      2.31343e+223  6s187_bdd.blif
-212   30    1     2       2       8       4      2.31343e+223  6s187_bdd.blif
-213   30    1     3       2       8       4      2.31343e+223  6s187_bdd.blif
-214   30    1     4       2       8       4      2.31343e+223  6s187_bdd.blif
-215   30    1     5       2       8       4      2.31343e+223  6s187_bdd.blif
-216   30    1     10      2       8       4      2.31343e+223  6s187_bdd.blif
-217   30    1     20      2       8       4      2.31343e+223  6s187_bdd.blif
-218   30    5     1       1       4       4      2.31343e+223  6s187_bdd.blif
-219   30    5     2       2       8       4      2.31343e+223  6s187_bdd.blif
-220   30    5     3       2       8       4      2.31343e+223  6s187_bdd.blif
-221   30    5     4       2       8       4      2.31343e+223  6s187_bdd.blif
-222   30    5     5       2       8       4      2.31343e+223  6s187_bdd.blif
-223   30    5     10      2       8       4      2.31343e+223  6s187_bdd.blif
-224   30    5     20      2       8       4      2.31343e+223  6s187_bdd.blif
-225   30    10    1       1       4       4      2.31343e+223  6s187_bdd.blif
-226   30    10    2       2       8       4      2.31343e+223  6s187_bdd.blif
-227   30    10    3       2       8       4      2.31343e+223  6s187_bdd.blif
-228   30    10    4       2       8       4      2.31343e+223  6s187_bdd.blif
-229   30    10    5       2       8       4      2.31343e+223  6s187_bdd.blif
-230   30    10    10      2       8       4      2.31343e+223  6s187_bdd.blif
-231   30    10    20      2       8       4      2.31343e+223  6s187_bdd.blif
-232   40    1     1       1       4       4      1.77122e+223  6s187_bdd.blif
-233   40    1     2       2       8       4      8.85611e+222  6s187_bdd.blif
-234   40    1     3       3       12      4      8.85611e+222  6s187_bdd.blif
-235   40    1     4       3       12      4      8.85611e+222  6s187_bdd.blif
-236   40    1     5       3       12      4      8.85611e+222  6s187_bdd.blif
-237   40    1     10      3       12      4      8.85611e+222  6s187_bdd.blif
-238   40    1     20      3       12      4      8.85611e+222  6s187_bdd.blif
-239   40    5     1       1       4       4      1.77122e+223  6s187_bdd.blif
-240   40    5     2       2       8       4      8.85611e+222  6s187_bdd.blif
-241   40    5     3       3       12      4      8.85611e+222  6s187_bdd.blif
-242   40    5     4       3       12      4      8.85611e+222  6s187_bdd.blif
-243   40    5     5       3       12      4      8.85611e+222  6s187_bdd.blif
-244   40    5     10      3       12      4      8.85611e+222  6s187_bdd.blif
-245   40    5     20      3       12      4      8.85611e+222  6s187_bdd.blif
-246   40    10    1       1       4       4      1.77122e+223  6s187_bdd.blif
-247   40    10    2       0       4       0      NA            6s187_bdd.blif
-248   40    10    3       0       4       0      NA            6s187_bdd.blif
-249   40    10    4       0       4       0      NA            6s187_bdd.blif
-250   40    10    5       0       4       0      NA            6s187_bdd.blif
-251   40    10    10      0       4       0      NA            6s187_bdd.blif
-252   40    10    20      0       4       0      NA            6s187_bdd.blif
-253   1     1     1       0       0       0      NA            6s280r_bdd.blif
-254   1     1     2       0       0       0      NA            6s280r_bdd.blif
-255   1     1     3       0       0       0      NA            6s280r_bdd.blif
-256   1     1     4       0       0       0      NA            6s280r_bdd.blif
-257   1     1     5       0       0       0      NA            6s280r_bdd.blif
-258   1     1     10      0       0       0      NA            6s280r_bdd.blif
-259   1     1     20      0       0       0      NA            6s280r_bdd.blif
-260   1     5     1       0       0       0      NA            6s280r_bdd.blif
-261   1     5     2       0       0       0      NA            6s280r_bdd.blif
-262   1     5     3       0       0       0      NA            6s280r_bdd.blif
-263   1     5     4       0       0       0      NA            6s280r_bdd.blif
-264   1     5     5       0       0       0      NA            6s280r_bdd.blif
-265   1     5     10      0       0       0      NA            6s280r_bdd.blif
-266   1     5     20      0       0       0      NA            6s280r_bdd.blif
-267   1     10    1       0       0       0      NA            6s280r_bdd.blif
-268   1     10    2       0       0       0      NA            6s280r_bdd.blif
-269   1     10    3       0       0       0      NA            6s280r_bdd.blif
-270   1     10    4       0       0       0      NA            6s280r_bdd.blif
-271   1     10    5       0       0       0      NA            6s280r_bdd.blif
-272   1     10    10      0       0       0      NA            6s280r_bdd.blif
-273   1     10    20      0       0       0      NA            6s280r_bdd.blif
-274   5     1     1       0       0       0      NA            6s280r_bdd.blif
-275   5     1     2       0       0       0      NA            6s280r_bdd.blif
-276   5     1     3       0       0       0      NA            6s280r_bdd.blif
-277   5     1     4       0       0       0      NA            6s280r_bdd.blif
-278   5     1     5       0       0       0      NA            6s280r_bdd.blif
-279   5     1     10      0       0       0      NA            6s280r_bdd.blif
-280   5     1     20      0       0       0      NA            6s280r_bdd.blif
-281   5     5     1       0       0       0      NA            6s280r_bdd.blif
-282   5     5     2       0       0       0      NA            6s280r_bdd.blif
-283   5     5     3       0       0       0      NA            6s280r_bdd.blif
-284   5     5     4       0       0       0      NA            6s280r_bdd.blif
-285   5     5     5       0       0       0      NA            6s280r_bdd.blif
-286   5     5     10      0       0       0      NA            6s280r_bdd.blif
-287   5     5     20      0       0       0      NA            6s280r_bdd.blif
-288   5     10    1       0       0       0      NA            6s280r_bdd.blif
-289   5     10    2       0       0       0      NA            6s280r_bdd.blif
-290   5     10    3       0       0       0      NA            6s280r_bdd.blif
-291   5     10    4       0       0       0      NA            6s280r_bdd.blif
-292   5     10    5       0       0       0      NA            6s280r_bdd.blif
-293   5     10    10      0       0       0      NA            6s280r_bdd.blif
-294   5     10    20      0       0       0      NA            6s280r_bdd.blif
-295   10    1     1       0       0       0      NA            6s280r_bdd.blif
-296   10    1     2       0       0       0      NA            6s280r_bdd.blif
-297   10    1     3       0       0       0      NA            6s280r_bdd.blif
-298   10    1     4       0       0       0      NA            6s280r_bdd.blif
-299   10    1     5       0       0       0      NA            6s280r_bdd.blif
-300   10    1     10      0       0       0      NA            6s280r_bdd.blif
-301   10    1     20      0       0       0      NA            6s280r_bdd.blif
-302   10    5     1       0       0       0      NA            6s280r_bdd.blif
-303   10    5     2       0       0       0      NA            6s280r_bdd.blif
-304   10    5     3       0       0       0      NA            6s280r_bdd.blif
-305   10    5     4       0       0       0      NA            6s280r_bdd.blif
-306   10    5     5       0       0       0      NA            6s280r_bdd.blif
-307   10    5     10      0       0       0      NA            6s280r_bdd.blif
-308   10    5     20      0       0       0      NA            6s280r_bdd.blif
-309   10    10    1       0       0       0      NA            6s280r_bdd.blif
-310   10    10    2       0       0       0      NA            6s280r_bdd.blif
-311   10    10    3       0       0       0      NA            6s280r_bdd.blif
-312   10    10    4       0       0       0      NA            6s280r_bdd.blif
-313   10    10    5       0       0       0      NA            6s280r_bdd.blif
-314   10    10    10      0       0       0      NA            6s280r_bdd.blif
-315   10    10    20      0       0       0      NA            6s280r_bdd.blif
-316   20    1     1       0       0       0      NA            6s280r_bdd.blif
-317   20    1     2       0       0       0      NA            6s280r_bdd.blif
-318   20    1     3       0       0       0      NA            6s280r_bdd.blif
-319   20    1     4       0       0       0      NA            6s280r_bdd.blif
-320   20    1     5       0       0       0      NA            6s280r_bdd.blif
-321   20    1     10      0       0       0      NA            6s280r_bdd.blif
-322   20    1     20      0       0       0      NA            6s280r_bdd.blif
-323   20    5     1       0       0       0      NA            6s280r_bdd.blif
-324   20    5     2       0       0       0      NA            6s280r_bdd.blif
-325   20    5     3       0       0       0      NA            6s280r_bdd.blif
-326   20    5     4       0       0       0      NA            6s280r_bdd.blif
-327   20    5     5       0       0       0      NA            6s280r_bdd.blif
-328   20    5     10      0       0       0      NA            6s280r_bdd.blif
-329   20    5     20      0       0       0      NA            6s280r_bdd.blif
-330   20    10    1       0       0       0      NA            6s280r_bdd.blif
-331   20    10    2       0       0       0      NA            6s280r_bdd.blif
-332   20    10    3       0       0       0      NA            6s280r_bdd.blif
-333   20    10    4       0       0       0      NA            6s280r_bdd.blif
-334   20    10    5       0       0       0      NA            6s280r_bdd.blif
-335   20    10    10      0       0       0      NA            6s280r_bdd.blif
-336   20    10    20      0       0       0      NA            6s280r_bdd.blif
-337   30    1     1       0       0       0      NA            6s280r_bdd.blif
-338   30    1     2       0       0       0      NA            6s280r_bdd.blif
-339   30    1     3       0       0       0      NA            6s280r_bdd.blif
-340   30    1     4       0       0       0      NA            6s280r_bdd.blif
-341   30    1     5       0       0       0      NA            6s280r_bdd.blif
-342   30    1     10      0       0       0      NA            6s280r_bdd.blif
-343   30    1     20      0       0       0      NA            6s280r_bdd.blif
-344   30    5     1       0       0       0      NA            6s280r_bdd.blif
-345   30    5     2       0       0       0      NA            6s280r_bdd.blif
-346   30    5     3       0       0       0      NA            6s280r_bdd.blif
-347   30    5     4       0       0       0      NA            6s280r_bdd.blif
-348   30    5     5       0       0       0      NA            6s280r_bdd.blif
-349   30    5     10      0       0       0      NA            6s280r_bdd.blif
-350   30    5     20      0       0       0      NA            6s280r_bdd.blif
-351   30    10    1       0       0       0      NA            6s280r_bdd.blif
-352   30    10    2       0       0       0      NA            6s280r_bdd.blif
-353   30    10    3       0       0       0      NA            6s280r_bdd.blif
-354   30    10    4       0       0       0      NA            6s280r_bdd.blif
-355   30    10    5       0       0       0      NA            6s280r_bdd.blif
-356   30    10    10      0       0       0      NA            6s280r_bdd.blif
-357   30    10    20      0       0       0      NA            6s280r_bdd.blif
-358   40    1     1       0       0       0      NA            6s280r_bdd.blif
-359   40    1     2       0       0       0      NA            6s280r_bdd.blif
-360   40    1     3       0       0       0      NA            6s280r_bdd.blif
-361   40    1     4       0       0       0      NA            6s280r_bdd.blif
-362   40    1     5       0       0       0      NA            6s280r_bdd.blif
-363   40    1     10      0       0       0      NA            6s280r_bdd.blif
-364   40    1     20      0       0       0      NA            6s280r_bdd.blif
-365   40    5     1       0       0       0      NA            6s280r_bdd.blif
-366   40    5     2       0       0       0      NA            6s280r_bdd.blif
-367   40    5     3       0       0       0      NA            6s280r_bdd.blif
-368   40    5     4       0       0       0      NA            6s280r_bdd.blif
-369   40    5     5       0       0       0      NA            6s280r_bdd.blif
-370   40    5     10      0       0       0      NA            6s280r_bdd.blif
-371   40    5     20      0       0       0      NA            6s280r_bdd.blif
-372   40    10    1       0       0       0      NA            6s280r_bdd.blif
-373   40    10    2       0       0       0      NA            6s280r_bdd.blif
-374   40    10    3       0       0       0      NA            6s280r_bdd.blif
-375   40    10    4       0       0       0      NA            6s280r_bdd.blif
-376   40    10    5       0       0       0      NA            6s280r_bdd.blif
-377   40    10    10      0       0       0      NA            6s280r_bdd.blif
-378   40    10    20      0       0       0      NA            6s280r_bdd.blif
-379   1     1     1       0       3       0      NA            6s319r_bdd.blif
-380   1     1     2       0       3       0      NA            6s319r_bdd.blif
-381   1     1     3       0       3       0      NA            6s319r_bdd.blif
-382   1     1     4       0       3       0      NA            6s319r_bdd.blif
-383   1     1     5       0       3       0      NA            6s319r_bdd.blif
-384   1     1     10      0       3       0      NA            6s319r_bdd.blif
-385   1     1     20      0       3       0      NA            6s319r_bdd.blif
-386   1     5     1       0       0       0      NA            6s319r_bdd.blif
-387   1     5     2       0       0       0      NA            6s319r_bdd.blif
-388   1     5     3       0       0       0      NA            6s319r_bdd.blif
-389   1     5     4       0       0       0      NA            6s319r_bdd.blif
-390   1     5     5       0       0       0      NA            6s319r_bdd.blif
-391   1     5     10      0       0       0      NA            6s319r_bdd.blif
-392   1     5     20      0       0       0      NA            6s319r_bdd.blif
-393   1     10    1       0       0       0      NA            6s319r_bdd.blif
-394   1     10    2       0       0       0      NA            6s319r_bdd.blif
-395   1     10    3       0       0       0      NA            6s319r_bdd.blif
-396   1     10    4       0       0       0      NA            6s319r_bdd.blif
-397   1     10    5       0       0       0      NA            6s319r_bdd.blif
-398   1     10    10      0       0       0      NA            6s319r_bdd.blif
-399   1     10    20      0       0       0      NA            6s319r_bdd.blif
-400   5     1     1       0       4       0      NA            6s319r_bdd.blif
-401   5     1     2       0       4       0      NA            6s319r_bdd.blif
-402   5     1     3       0       4       0      NA            6s319r_bdd.blif
-403   5     1     4       0       4       0      NA            6s319r_bdd.blif
-404   5     1     5       0       4       0      NA            6s319r_bdd.blif
-405   5     1     10      0       4       0      NA            6s319r_bdd.blif
-406   5     1     20      0       4       0      NA            6s319r_bdd.blif
-407   5     5     1       0       0       0      NA            6s319r_bdd.blif
-408   5     5     2       0       0       0      NA            6s319r_bdd.blif
-409   5     5     3       0       0       0      NA            6s319r_bdd.blif
-410   5     5     4       0       0       0      NA            6s319r_bdd.blif
-411   5     5     5       0       0       0      NA            6s319r_bdd.blif
-412   5     5     10      0       0       0      NA            6s319r_bdd.blif
-413   5     5     20      0       0       0      NA            6s319r_bdd.blif
-414   5     10    1       0       0       0      NA            6s319r_bdd.blif
-415   5     10    2       0       0       0      NA            6s319r_bdd.blif
-416   5     10    3       0       0       0      NA            6s319r_bdd.blif
-417   5     10    4       0       0       0      NA            6s319r_bdd.blif
-418   5     10    5       0       0       0      NA            6s319r_bdd.blif
-419   5     10    10      0       0       0      NA            6s319r_bdd.blif
-420   5     10    20      0       0       0      NA            6s319r_bdd.blif
-421   10    1     1       0       4       0      NA            6s319r_bdd.blif
-422   10    1     2       0       4       0      NA            6s319r_bdd.blif
-423   10    1     3       0       4       0      NA            6s319r_bdd.blif
-424   10    1     4       0       4       0      NA            6s319r_bdd.blif
-425   10    1     5       0       4       0      NA            6s319r_bdd.blif
-426   10    1     10      0       4       0      NA            6s319r_bdd.blif
-427   10    1     20      0       4       0      NA            6s319r_bdd.blif
-428   10    5     1       0       0       0      NA            6s319r_bdd.blif
-429   10    5     2       0       0       0      NA            6s319r_bdd.blif
-430   10    5     3       0       0       0      NA            6s319r_bdd.blif
-431   10    5     4       0       0       0      NA            6s319r_bdd.blif
-432   10    5     5       0       0       0      NA            6s319r_bdd.blif
-433   10    5     10      0       0       0      NA            6s319r_bdd.blif
-434   10    5     20      0       0       0      NA            6s319r_bdd.blif
-435   10    10    1       0       0       0      NA            6s319r_bdd.blif
-436   10    10    2       0       0       0      NA            6s319r_bdd.blif
-437   10    10    3       0       0       0      NA            6s319r_bdd.blif
-438   10    10    4       0       0       0      NA            6s319r_bdd.blif
-439   10    10    5       0       0       0      NA            6s319r_bdd.blif
-440   10    10    10      0       0       0      NA            6s319r_bdd.blif
-441   10    10    20      0       0       0      NA            6s319r_bdd.blif
-442   20    1     1       0       0       0      NA            6s319r_bdd.blif
-443   20    1     2       0       0       0      NA            6s319r_bdd.blif
-444   20    1     3       0       0       0      NA            6s319r_bdd.blif
-445   20    1     4       0       0       0      NA            6s319r_bdd.blif
-446   20    1     5       0       0       0      NA            6s319r_bdd.blif
-447   20    1     10      0       0       0      NA            6s319r_bdd.blif
-448   20    1     20      0       0       0      NA            6s319r_bdd.blif
-449   20    5     1       0       0       0      NA            6s319r_bdd.blif
-450   20    5     2       0       0       0      NA            6s319r_bdd.blif
-451   20    5     3       0       0       0      NA            6s319r_bdd.blif
-452   20    5     4       0       0       0      NA            6s319r_bdd.blif
-453   20    5     5       0       0       0      NA            6s319r_bdd.blif
-454   20    5     10      0       0       0      NA            6s319r_bdd.blif
-455   20    5     20      0       0       0      NA            6s319r_bdd.blif
-456   20    10    1       0       0       0      NA            6s319r_bdd.blif
-457   20    10    2       0       0       0      NA            6s319r_bdd.blif
-458   20    10    3       0       0       0      NA            6s319r_bdd.blif
-459   20    10    4       0       0       0      NA            6s319r_bdd.blif
-460   20    10    5       0       0       0      NA            6s319r_bdd.blif
-461   20    10    10      0       0       0      NA            6s319r_bdd.blif
-462   20    10    20      0       0       0      NA            6s319r_bdd.blif
-463   30    1     1       0       0       0      NA            6s319r_bdd.blif
-464   30    1     2       0       0       0      NA            6s319r_bdd.blif
-465   30    1     3       0       0       0      NA            6s319r_bdd.blif
-466   30    1     4       0       0       0      NA            6s319r_bdd.blif
-467   30    1     5       0       0       0      NA            6s319r_bdd.blif
-468   30    1     10      0       0       0      NA            6s319r_bdd.blif
-469   30    1     20      0       0       0      NA            6s319r_bdd.blif
-470   30    5     1       0       0       0      NA            6s319r_bdd.blif
-471   30    5     2       0       0       0      NA            6s319r_bdd.blif
-472   30    5     3       0       0       0      NA            6s319r_bdd.blif
-473   30    5     4       0       0       0      NA            6s319r_bdd.blif
-474   30    5     5       0       0       0      NA            6s319r_bdd.blif
-475   30    5     10      0       0       0      NA            6s319r_bdd.blif
-476   30    5     20      0       0       0      NA            6s319r_bdd.blif
-477   30    10    1       0       0       0      NA            6s319r_bdd.blif
-478   30    10    2       0       0       0      NA            6s319r_bdd.blif
-479   30    10    3       0       0       0      NA            6s319r_bdd.blif
-480   30    10    4       0       0       0      NA            6s319r_bdd.blif
-481   30    10    5       0       0       0      NA            6s319r_bdd.blif
-482   30    10    10      0       0       0      NA            6s319r_bdd.blif
-483   30    10    20      0       0       0      NA            6s319r_bdd.blif
-484   40    1     1       0       0       0      NA            6s319r_bdd.blif
-485   40    1     2       0       0       0      NA            6s319r_bdd.blif
-486   40    1     3       0       0       0      NA            6s319r_bdd.blif
-487   40    1     4       0       0       0      NA            6s319r_bdd.blif
-488   40    1     5       0       0       0      NA            6s319r_bdd.blif
-489   40    1     10      0       0       0      NA            6s319r_bdd.blif
-490   40    1     20      0       0       0      NA            6s319r_bdd.blif
-491   40    5     1       0       0       0      NA            6s319r_bdd.blif
-492   40    5     2       0       0       0      NA            6s319r_bdd.blif
-493   40    5     3       0       0       0      NA            6s319r_bdd.blif
-494   40    5     4       0       0       0      NA            6s319r_bdd.blif
-495   40    5     5       0       0       0      NA            6s319r_bdd.blif
-496   40    5     10      0       0       0      NA            6s319r_bdd.blif
-497   40    5     20      0       0       0      NA            6s319r_bdd.blif
-498   40    10    1       0       0       0      NA            6s319r_bdd.blif
-499   40    10    2       0       0       0      NA            6s319r_bdd.blif
-500   40    10    3       0       0       0      NA            6s319r_bdd.blif
-501   40    10    4       0       0       0      NA            6s319r_bdd.blif
-502   40    10    5       0       0       0      NA            6s319r_bdd.blif
-503   40    10    10      0       0       0      NA            6s319r_bdd.blif
-504   40    10    20      0       0       0      NA            6s319r_bdd.blif
-505   1     1     1       1       3       3      3.30528e+122  6s365r_bdd.blif
-506   1     1     2       2       6       3      3.30528e+122  6s365r_bdd.blif
-507   1     1     3       2       6       3      3.30528e+122  6s365r_bdd.blif
-508   1     1     4       2       6       3      3.30528e+122  6s365r_bdd.blif
-509   1     1     5       2       6       3      3.30528e+122  6s365r_bdd.blif
-510   1     1     10      2       6       3      3.30528e+122  6s365r_bdd.blif
-511   1     1     20      2       6       3      3.30528e+122  6s365r_bdd.blif
-512   1     5     1       1       3       3      3.30528e+122  6s365r_bdd.blif
-513   1     5     2       2       6       3      3.30528e+122  6s365r_bdd.blif
-514   1     5     3       2       6       3      3.30528e+122  6s365r_bdd.blif
-515   1     5     4       2       6       3      3.30528e+122  6s365r_bdd.blif
-516   1     5     5       2       6       3      3.30528e+122  6s365r_bdd.blif
-517   1     5     10      2       6       3      3.30528e+122  6s365r_bdd.blif
-518   1     5     20      2       6       3      3.30528e+122  6s365r_bdd.blif
-519   1     10    1       1       3       3      3.30528e+122  6s365r_bdd.blif
-520   1     10    2       2       6       3      3.30528e+122  6s365r_bdd.blif
-521   1     10    3       2       6       3      3.30528e+122  6s365r_bdd.blif
-522   1     10    4       2       6       3      3.30528e+122  6s365r_bdd.blif
-523   1     10    5       2       6       3      3.30528e+122  6s365r_bdd.blif
-524   1     10    10      2       6       3      3.30528e+122  6s365r_bdd.blif
-525   1     10    20      2       6       3      3.30528e+122  6s365r_bdd.blif
-526   5     1     1       1       4       4      2.47896e+122  6s365r_bdd.blif
-527   5     1     2       2       8       4      9.2961e+121   6s365r_bdd.blif
-528   5     1     3       3       12      4      9.2961e+121   6s365r_bdd.blif
-529   5     1     4       3       12      4      9.2961e+121   6s365r_bdd.blif
-530   5     1     5       3       12      4      9.2961e+121   6s365r_bdd.blif
-531   5     1     10      3       12      4      9.2961e+121   6s365r_bdd.blif
-532   5     1     20      3       12      4      9.2961e+121   6s365r_bdd.blif
-533   5     5     1       1       4       4      2.47896e+122  6s365r_bdd.blif
-534   5     5     2       2       8       4      9.2961e+121   6s365r_bdd.blif
-535   5     5     3       3       12      4      9.2961e+121   6s365r_bdd.blif
-536   5     5     4       3       12      4      9.2961e+121   6s365r_bdd.blif
-537   5     5     5       3       12      4      9.2961e+121   6s365r_bdd.blif
-538   5     5     10      3       12      4      9.2961e+121   6s365r_bdd.blif
-539   5     5     20      3       12      4      9.2961e+121   6s365r_bdd.blif
-540   5     10    1       1       4       4      2.47896e+122  6s365r_bdd.blif
-541   5     10    2       2       8       4      9.2961e+121   6s365r_bdd.blif
-542   5     10    3       3       12      4      9.2961e+121   6s365r_bdd.blif
-543   5     10    4       3       12      4      9.2961e+121   6s365r_bdd.blif
-544   5     10    5       3       12      4      9.2961e+121   6s365r_bdd.blif
-545   5     10    10      3       12      4      9.2961e+121   6s365r_bdd.blif
-546   5     10    20      3       12      4      9.2961e+121   6s365r_bdd.blif
-547   10    1     1       1       4       4      1.85922e+122  6s365r_bdd.blif
-548   10    1     2       2       8       4      6.97207e+121  6s365r_bdd.blif
-549   10    1     3       3       12      4      5.22906e+121  6s365r_bdd.blif
-550   10    1     4       4       16      4      1.93026e+121  6s365r_bdd.blif
-551   10    1     5       5       20      4      7.23846e+120  6s365r_bdd.blif
-552   10    1     10      10      40      4      NA            6s365r_bdd.blif
-553   10    1     20      20      80      4      NA            6s365r_bdd.blif
-554   10    5     1       1       4       4      1.85922e+122  6s365r_bdd.blif
-555   10    5     2       2       8       4      6.97207e+121  6s365r_bdd.blif
-556   10    5     3       3       12      4      5.22906e+121  6s365r_bdd.blif
-557   10    5     4       4       16      4      1.93026e+121  6s365r_bdd.blif
-558   10    5     5       5       20      4      7.23846e+120  6s365r_bdd.blif
-559   10    5     10      10      40      4      NA            6s365r_bdd.blif
-560   10    5     20      20      80      4      NA            6s365r_bdd.blif
-561   10    10    1       1       4       4      1.85922e+122  6s365r_bdd.blif
-562   10    10    2       2       8       4      6.97207e+121  6s365r_bdd.blif
-563   10    10    3       3       12      4      5.22906e+121  6s365r_bdd.blif
-564   10    10    4       4       16      4      1.93026e+121  6s365r_bdd.blif
-565   10    10    5       5       20      4      7.23846e+120  6s365r_bdd.blif
-566   10    10    10      10      40      4      NA            6s365r_bdd.blif
-567   10    10    20      18      72      4      NA            6s365r_bdd.blif
-568   20    1     1       1       4       4      1.18622e+122  6s365r_bdd.blif
-569   20    1     2       2       8       4      2.12686e+121  6s365r_bdd.blif
-570   20    1     3       3       12      4      5.23406e+120  6s365r_bdd.blif
-571   20    1     4       4       16      4      9.78036e+119  6s365r_bdd.blif
-572   20    1     5       5       20      4      2.8447e+119   6s365r_bdd.blif
-573   20    1     10      10      40      4      NA            6s365r_bdd.blif
-574   20    1     20      18      72      4      NA            6s365r_bdd.blif
-575   20    5     1       1       4       4      1.18622e+122  6s365r_bdd.blif
-576   20    5     2       2       8       4      2.12686e+121  6s365r_bdd.blif
-577   20    5     3       3       12      4      5.23406e+120  6s365r_bdd.blif
-578   20    5     4       4       16      4      9.78036e+119  6s365r_bdd.blif
-579   20    5     5       5       20      4      2.8447e+119   6s365r_bdd.blif
-580   20    5     10      10      40      4      NA            6s365r_bdd.blif
-581   20    5     20      20      80      4      NA            6s365r_bdd.blif
-582   20    10    1       1       4       4      1.18622e+122  6s365r_bdd.blif
-583   20    10    2       2       8       4      2.12686e+121  6s365r_bdd.blif
-584   20    10    3       3       12      4      5.23406e+120  6s365r_bdd.blif
-585   20    10    4       4       16      4      8.55782e+119  6s365r_bdd.blif
-586   20    10    5       5       20      4      NA            6s365r_bdd.blif
-587   20    10    10      0       24      0      NA            6s365r_bdd.blif
-588   20    10    20      0       24      0      NA            6s365r_bdd.blif
-589   30    1     1       1       4       4      1.64206e+121  6s365r_bdd.blif
-590   30    1     2       2       8       4      7.66708e+119  6s365r_bdd.blif
-591   30    1     3       3       12      4      NA            6s365r_bdd.blif
-592   30    1     4       4       16      4      NA            6s365r_bdd.blif
-593   30    1     5       5       20      4      NA            6s365r_bdd.blif
-594   30    1     10      10      40      4      NA            6s365r_bdd.blif
-595   30    1     20      20      80      4      NA            6s365r_bdd.blif
-596   30    5     1       1       4       4      1.64206e+121  6s365r_bdd.blif
-597   30    5     2       2       8       4      5.75031e+119  6s365r_bdd.blif
-598   30    5     3       3       12      4      NA            6s365r_bdd.blif
-599   30    5     4       4       16      4      NA            6s365r_bdd.blif
-600   30    5     5       5       20      4      NA            6s365r_bdd.blif
-601   30    5     10      0       32      0      NA            6s365r_bdd.blif
-602   30    5     20      0       32      0      NA            6s365r_bdd.blif
-603   30    10    1       0       0       0      NA            6s365r_bdd.blif
-604   30    10    2       0       0       0      NA            6s365r_bdd.blif
-605   30    10    3       0       0       0      NA            6s365r_bdd.blif
-606   30    10    4       0       0       0      NA            6s365r_bdd.blif
-607   30    10    5       0       0       0      NA            6s365r_bdd.blif
-608   30    10    10      0       0       0      NA            6s365r_bdd.blif
-609   30    10    20      0       0       0      NA            6s365r_bdd.blif
-610   40    1     1       1       4       4      3.19289e+121  6s365r_bdd.blif
-611   40    1     2       0       4       0      NA            6s365r_bdd.blif
-612   40    1     3       0       4       0      NA            6s365r_bdd.blif
-613   40    1     4       0       4       0      NA            6s365r_bdd.blif
-614   40    1     5       0       4       0      NA            6s365r_bdd.blif
-615   40    1     10      0       4       0      NA            6s365r_bdd.blif
-616   40    1     20      0       4       0      NA            6s365r_bdd.blif
-617   40    5     1       1       4       4      3.19289e+121  6s365r_bdd.blif
-618   40    5     2       0       4       0      NA            6s365r_bdd.blif
-619   40    5     3       0       4       0      NA            6s365r_bdd.blif
-620   40    5     4       0       4       0      NA            6s365r_bdd.blif
-621   40    5     5       0       4       0      NA            6s365r_bdd.blif
-622   40    5     10      0       4       0      NA            6s365r_bdd.blif
-623   40    5     20      0       4       0      NA            6s365r_bdd.blif
-624   40    10    1       0       0       0      NA            6s365r_bdd.blif
-625   40    10    2       0       0       0      NA            6s365r_bdd.blif
-626   40    10    3       0       0       0      NA            6s365r_bdd.blif
-627   40    10    4       0       0       0      NA            6s365r_bdd.blif
-628   40    10    5       0       0       0      NA            6s365r_bdd.blif
-629   40    10    10      0       0       0      NA            6s365r_bdd.blif
-630   40    10    20      0       0       0      NA            6s365r_bdd.blif
-631   1     1     1       1       3       3      1.0329e+121   6s4_bdd.blif
-632   1     1     2       2       6       3      1.0329e+121   6s4_bdd.blif
-633   1     1     3       2       6       3      1.0329e+121   6s4_bdd.blif
-634   1     1     4       2       6       3      1.0329e+121   6s4_bdd.blif
-635   1     1     5       2       6       3      1.0329e+121   6s4_bdd.blif
-636   1     1     10      2       6       3      1.0329e+121   6s4_bdd.blif
-637   1     1     20      2       6       3      1.0329e+121   6s4_bdd.blif
-638   1     5     1       1       3       3      1.0329e+121   6s4_bdd.blif
-639   1     5     2       0       3       0      NA            6s4_bdd.blif
-640   1     5     3       0       3       0      NA            6s4_bdd.blif
-641   1     5     4       0       3       0      NA            6s4_bdd.blif
-642   1     5     5       0       3       0      NA            6s4_bdd.blif
-643   1     5     10      0       3       0      NA            6s4_bdd.blif
-644   1     5     20      0       3       0      NA            6s4_bdd.blif
-645   1     10    1       0       0       0      NA            6s4_bdd.blif
-646   1     10    2       0       0       0      NA            6s4_bdd.blif
-647   1     10    3       0       0       0      NA            6s4_bdd.blif
-648   1     10    4       0       0       0      NA            6s4_bdd.blif
-649   1     10    5       0       0       0      NA            6s4_bdd.blif
-650   1     10    10      0       0       0      NA            6s4_bdd.blif
-651   1     10    20      0       0       0      NA            6s4_bdd.blif
-652   5     1     1       1       4       4      1.0329e+121   6s4_bdd.blif
-653   5     1     2       2       8       4      1.0329e+121   6s4_bdd.blif
-654   5     1     3       2       8       4      1.0329e+121   6s4_bdd.blif
-655   5     1     4       2       8       4      1.0329e+121   6s4_bdd.blif
-656   5     1     5       2       8       4      1.0329e+121   6s4_bdd.blif
-657   5     1     10      2       8       4      1.0329e+121   6s4_bdd.blif
-658   5     1     20      2       8       4      1.0329e+121   6s4_bdd.blif
-659   5     5     1       0       0       0      NA            6s4_bdd.blif
-660   5     5     2       0       0       0      NA            6s4_bdd.blif
-661   5     5     3       0       0       0      NA            6s4_bdd.blif
-662   5     5     4       0       0       0      NA            6s4_bdd.blif
-663   5     5     5       0       0       0      NA            6s4_bdd.blif
-664   5     5     10      0       0       0      NA            6s4_bdd.blif
-665   5     5     20      0       0       0      NA            6s4_bdd.blif
-666   5     10    1       0       0       0      NA            6s4_bdd.blif
-667   5     10    2       0       0       0      NA            6s4_bdd.blif
-668   5     10    3       0       0       0      NA            6s4_bdd.blif
-669   5     10    4       0       0       0      NA            6s4_bdd.blif
-670   5     10    5       0       0       0      NA            6s4_bdd.blif
-671   5     10    10      0       0       0      NA            6s4_bdd.blif
-672   5     10    20      0       0       0      NA            6s4_bdd.blif
-673   10    1     1       1       4       4      1.0329e+121   6s4_bdd.blif
-674   10    1     2       2       8       4      5.1645e+120   6s4_bdd.blif
-675   10    1     3       3       12      4      3.87337e+120  6s4_bdd.blif
-676   10    1     4       4       16      4      3.87337e+120  6s4_bdd.blif
-677   10    1     5       4       16      4      3.87337e+120  6s4_bdd.blif
-678   10    1     10      4       16      4      3.87337e+120  6s4_bdd.blif
-679   10    1     20      4       16      4      3.87337e+120  6s4_bdd.blif
-680   10    5     1       0       0       0      NA            6s4_bdd.blif
-681   10    5     2       0       0       0      NA            6s4_bdd.blif
-682   10    5     3       0       0       0      NA            6s4_bdd.blif
-683   10    5     4       0       0       0      NA            6s4_bdd.blif
-684   10    5     5       0       0       0      NA            6s4_bdd.blif
-685   10    5     10      0       0       0      NA            6s4_bdd.blif
-686   10    5     20      0       0       0      NA            6s4_bdd.blif
-687   10    10    1       0       0       0      NA            6s4_bdd.blif
-688   10    10    2       0       0       0      NA            6s4_bdd.blif
-689   10    10    3       0       0       0      NA            6s4_bdd.blif
-690   10    10    4       0       0       0      NA            6s4_bdd.blif
-691   10    10    5       0       0       0      NA            6s4_bdd.blif
-692   10    10    10      0       0       0      NA            6s4_bdd.blif
-693   10    10    20      0       0       0      NA            6s4_bdd.blif
-694   20    1     1       1       4       4      1.0329e+121   6s4_bdd.blif
-695   20    1     2       2       8       4      3.3892e+120   6s4_bdd.blif
-696   20    1     3       3       12      4      3.02607e+120  6s4_bdd.blif
-697   20    1     4       4       16      4      3.02607e+120  6s4_bdd.blif
-698   20    1     5       4       16      4      3.02607e+120  6s4_bdd.blif
-699   20    1     10      4       16      4      3.02607e+120  6s4_bdd.blif
-700   20    1     20      4       16      4      3.02607e+120  6s4_bdd.blif
-701   20    5     1       0       0       0      NA            6s4_bdd.blif
-702   20    5     2       0       0       0      NA            6s4_bdd.blif
-703   20    5     3       0       0       0      NA            6s4_bdd.blif
-704   20    5     4       0       0       0      NA            6s4_bdd.blif
-705   20    5     5       0       0       0      NA            6s4_bdd.blif
-706   20    5     10      0       0       0      NA            6s4_bdd.blif
-707   20    5     20      0       0       0      NA            6s4_bdd.blif
-708   20    10    1       0       0       0      NA            6s4_bdd.blif
-709   20    10    2       0       0       0      NA            6s4_bdd.blif
-710   20    10    3       0       0       0      NA            6s4_bdd.blif
-711   20    10    4       0       0       0      NA            6s4_bdd.blif
-712   20    10    5       0       0       0      NA            6s4_bdd.blif
-713   20    10    10      0       0       0      NA            6s4_bdd.blif
-714   20    10    20      0       0       0      NA            6s4_bdd.blif
-715   30    1     1       1       4       4      1.0329e+121   6s4_bdd.blif
-716   30    1     2       2       8       4      3.87337e+120  6s4_bdd.blif
-717   30    1     3       3       12      4      1.8913e+120   6s4_bdd.blif
-718   30    1     4       4       16      4      1.8913e+120   6s4_bdd.blif
-719   30    1     5       4       16      4      1.8913e+120   6s4_bdd.blif
-720   30    1     10      4       16      4      1.8913e+120   6s4_bdd.blif
-721   30    1     20      4       16      4      1.8913e+120   6s4_bdd.blif
-722   30    5     1       0       0       0      NA            6s4_bdd.blif
-723   30    5     2       0       0       0      NA            6s4_bdd.blif
-724   30    5     3       0       0       0      NA            6s4_bdd.blif
-725   30    5     4       0       0       0      NA            6s4_bdd.blif
-726   30    5     5       0       0       0      NA            6s4_bdd.blif
-727   30    5     10      0       0       0      NA            6s4_bdd.blif
-728   30    5     20      0       0       0      NA            6s4_bdd.blif
-729   30    10    1       0       0       0      NA            6s4_bdd.blif
-730   30    10    2       0       0       0      NA            6s4_bdd.blif
-731   30    10    3       0       0       0      NA            6s4_bdd.blif
-732   30    10    4       0       0       0      NA            6s4_bdd.blif
-733   30    10    5       0       0       0      NA            6s4_bdd.blif
-734   30    10    10      0       0       0      NA            6s4_bdd.blif
-735   30    10    20      0       0       0      NA            6s4_bdd.blif
-736   40    1     1       1       4       4      7.74675e+120  6s4_bdd.blif
-737   40    1     2       2       8       4      7.74675e+120  6s4_bdd.blif
-738   40    1     3       3       12      4      4.35755e+120  6s4_bdd.blif
-739   40    1     4       4       16      4      4.35755e+120  6s4_bdd.blif
-740   40    1     5       4       16      4      4.35755e+120  6s4_bdd.blif
-741   40    1     10      4       16      4      4.35755e+120  6s4_bdd.blif
-742   40    1     20      4       16      4      4.35755e+120  6s4_bdd.blif
-743   40    5     1       0       0       0      NA            6s4_bdd.blif
-744   40    5     2       0       0       0      NA            6s4_bdd.blif
-745   40    5     3       0       0       0      NA            6s4_bdd.blif
-746   40    5     4       0       0       0      NA            6s4_bdd.blif
-747   40    5     5       0       0       0      NA            6s4_bdd.blif
-748   40    5     10      0       0       0      NA            6s4_bdd.blif
-749   40    5     20      0       0       0      NA            6s4_bdd.blif
-750   40    10    1       0       0       0      NA            6s4_bdd.blif
-751   40    10    2       0       0       0      NA            6s4_bdd.blif
-752   40    10    3       0       0       0      NA            6s4_bdd.blif
-753   40    10    4       0       0       0      NA            6s4_bdd.blif
-754   40    10    5       0       0       0      NA            6s4_bdd.blif
-755   40    10    10      0       0       0      NA            6s4_bdd.blif
-756   40    10    20      0       0       0      NA            6s4_bdd.blif
-757   1     1     1       0       0       0      NA            6s514r_bdd.blif
-758   1     1     2       0       0       0      NA            6s514r_bdd.blif
-759   1     1     3       0       0       0      NA            6s514r_bdd.blif
-760   1     1     4       0       0       0      NA            6s514r_bdd.blif
-761   1     1     5       0       0       0      NA            6s514r_bdd.blif
-762   1     1     10      0       0       0      NA            6s514r_bdd.blif
-763   1     1     20      0       0       0      NA            6s514r_bdd.blif
-764   1     5     1       0       0       0      NA            6s514r_bdd.blif
-765   1     5     2       0       0       0      NA            6s514r_bdd.blif
-766   1     5     3       0       0       0      NA            6s514r_bdd.blif
-767   1     5     4       0       0       0      NA            6s514r_bdd.blif
-768   1     5     5       0       0       0      NA            6s514r_bdd.blif
-769   1     5     10      0       0       0      NA            6s514r_bdd.blif
-770   1     5     20      0       0       0      NA            6s514r_bdd.blif
-771   1     10    1       0       0       0      NA            6s514r_bdd.blif
-772   1     10    2       0       0       0      NA            6s514r_bdd.blif
-773   1     10    3       0       0       0      NA            6s514r_bdd.blif
-774   1     10    4       0       0       0      NA            6s514r_bdd.blif
-775   1     10    5       0       0       0      NA            6s514r_bdd.blif
-776   1     10    10      0       0       0      NA            6s514r_bdd.blif
-777   1     10    20      0       0       0      NA            6s514r_bdd.blif
-778   5     1     1       0       0       0      NA            6s514r_bdd.blif
-779   5     1     2       0       0       0      NA            6s514r_bdd.blif
-780   5     1     3       0       0       0      NA            6s514r_bdd.blif
-781   5     1     4       0       0       0      NA            6s514r_bdd.blif
-782   5     1     5       0       0       0      NA            6s514r_bdd.blif
-783   5     1     10      0       0       0      NA            6s514r_bdd.blif
-784   5     1     20      0       0       0      NA            6s514r_bdd.blif
-785   5     5     1       0       0       0      NA            6s514r_bdd.blif
-786   5     5     2       0       0       0      NA            6s514r_bdd.blif
-787   5     5     3       0       0       0      NA            6s514r_bdd.blif
-788   5     5     4       0       0       0      NA            6s514r_bdd.blif
-789   5     5     5       0       0       0      NA            6s514r_bdd.blif
-790   5     5     10      0       0       0      NA            6s514r_bdd.blif
-791   5     5     20      0       0       0      NA            6s514r_bdd.blif
-792   5     10    1       0       0       0      NA            6s514r_bdd.blif
-793   5     10    2       0       0       0      NA            6s514r_bdd.blif
-794   5     10    3       0       0       0      NA            6s514r_bdd.blif
-795   5     10    4       0       0       0      NA            6s514r_bdd.blif
-796   5     10    5       0       0       0      NA            6s514r_bdd.blif
-797   5     10    10      0       0       0      NA            6s514r_bdd.blif
-798   5     10    20      0       0       0      NA            6s514r_bdd.blif
-799   10    1     1       0       0       0      NA            6s514r_bdd.blif
-800   10    1     2       0       0       0      NA            6s514r_bdd.blif
-801   10    1     3       0       0       0      NA            6s514r_bdd.blif
-802   10    1     4       0       0       0      NA            6s514r_bdd.blif
-803   10    1     5       0       0       0      NA            6s514r_bdd.blif
-804   10    1     10      0       0       0      NA            6s514r_bdd.blif
-805   10    1     20      0       0       0      NA            6s514r_bdd.blif
-806   10    5     1       0       0       0      NA            6s514r_bdd.blif
-807   10    5     2       0       0       0      NA            6s514r_bdd.blif
-808   10    5     3       0       0       0      NA            6s514r_bdd.blif
-809   10    5     4       0       0       0      NA            6s514r_bdd.blif
-810   10    5     5       0       0       0      NA            6s514r_bdd.blif
-811   10    5     10      0       0       0      NA            6s514r_bdd.blif
-812   10    5     20      0       0       0      NA            6s514r_bdd.blif
-813   10    10    1       0       0       0      NA            6s514r_bdd.blif
-814   10    10    2       0       0       0      NA            6s514r_bdd.blif
-815   10    10    3       0       0       0      NA            6s514r_bdd.blif
-816   10    10    4       0       0       0      NA            6s514r_bdd.blif
-817   10    10    5       0       0       0      NA            6s514r_bdd.blif
-818   10    10    10      0       0       0      NA            6s514r_bdd.blif
-819   10    10    20      0       0       0      NA            6s514r_bdd.blif
-820   20    1     1       0       0       0      NA            6s514r_bdd.blif
-821   20    1     2       0       0       0      NA            6s514r_bdd.blif
-822   20    1     3       0       0       0      NA            6s514r_bdd.blif
-823   20    1     4       0       0       0      NA            6s514r_bdd.blif
-824   20    1     5       0       0       0      NA            6s514r_bdd.blif
-825   20    1     10      0       0       0      NA            6s514r_bdd.blif
-826   20    1     20      0       0       0      NA            6s514r_bdd.blif
-827   20    5     1       0       0       0      NA            6s514r_bdd.blif
-828   20    5     2       0       0       0      NA            6s514r_bdd.blif
-829   20    5     3       0       0       0      NA            6s514r_bdd.blif
-830   20    5     4       0       0       0      NA            6s514r_bdd.blif
-831   20    5     5       0       0       0      NA            6s514r_bdd.blif
-832   20    5     10      0       0       0      NA            6s514r_bdd.blif
-833   20    5     20      0       0       0      NA            6s514r_bdd.blif
-834   20    10    1       0       0       0      NA            6s514r_bdd.blif
-835   20    10    2       0       0       0      NA            6s514r_bdd.blif
-836   20    10    3       0       0       0      NA            6s514r_bdd.blif
-837   20    10    4       0       0       0      NA            6s514r_bdd.blif
-838   20    10    5       0       0       0      NA            6s514r_bdd.blif
-839   20    10    10      0       0       0      NA            6s514r_bdd.blif
-840   20    10    20      0       0       0      NA            6s514r_bdd.blif
-841   30    1     1       0       0       0      NA            6s514r_bdd.blif
-842   30    1     2       0       0       0      NA            6s514r_bdd.blif
-843   30    1     3       0       0       0      NA            6s514r_bdd.blif
-844   30    1     4       0       0       0      NA            6s514r_bdd.blif
-845   30    1     5       0       0       0      NA            6s514r_bdd.blif
-846   30    1     10      0       0       0      NA            6s514r_bdd.blif
-847   30    1     20      0       0       0      NA            6s514r_bdd.blif
-848   30    5     1       0       0       0      NA            6s514r_bdd.blif
-849   30    5     2       0       0       0      NA            6s514r_bdd.blif
-850   30    5     3       0       0       0      NA            6s514r_bdd.blif
-851   30    5     4       0       0       0      NA            6s514r_bdd.blif
-852   30    5     5       0       0       0      NA            6s514r_bdd.blif
-853   30    5     10      0       0       0      NA            6s514r_bdd.blif
-854   30    5     20      0       0       0      NA            6s514r_bdd.blif
-855   30    10    1       0       0       0      NA            6s514r_bdd.blif
-856   30    10    2       0       0       0      NA            6s514r_bdd.blif
-857   30    10    3       0       0       0      NA            6s514r_bdd.blif
-858   30    10    4       0       0       0      NA            6s514r_bdd.blif
-859   30    10    5       0       0       0      NA            6s514r_bdd.blif
-860   30    10    10      0       0       0      NA            6s514r_bdd.blif
-861   30    10    20      0       0       0      NA            6s514r_bdd.blif
-862   40    1     1       0       0       0      NA            6s514r_bdd.blif
-863   40    1     2       0       0       0      NA            6s514r_bdd.blif
-864   40    1     3       0       0       0      NA            6s514r_bdd.blif
-865   40    1     4       0       0       0      NA            6s514r_bdd.blif
-866   40    1     5       0       0       0      NA            6s514r_bdd.blif
-867   40    1     10      0       0       0      NA            6s514r_bdd.blif
-868   40    1     20      0       0       0      NA            6s514r_bdd.blif
-869   40    5     1       0       0       0      NA            6s514r_bdd.blif
-870   40    5     2       0       0       0      NA            6s514r_bdd.blif
-871   40    5     3       0       0       0      NA            6s514r_bdd.blif
-872   40    5     4       0       0       0      NA            6s514r_bdd.blif
-873   40    5     5       0       0       0      NA            6s514r_bdd.blif
-874   40    5     10      0       0       0      NA            6s514r_bdd.blif
-875   40    5     20      0       0       0      NA            6s514r_bdd.blif
-876   40    10    1       0       0       0      NA            6s514r_bdd.blif
-877   40    10    2       0       0       0      NA            6s514r_bdd.blif
-878   40    10    3       0       0       0      NA            6s514r_bdd.blif
-879   40    10    4       0       0       0      NA            6s514r_bdd.blif
-880   40    10    5       0       0       0      NA            6s514r_bdd.blif
-881   40    10    10      0       0       0      NA            6s514r_bdd.blif
-882   40    10    20      0       0       0      NA            6s514r_bdd.blif
-883   1     1     1       1       3       3      2.01528e+264  6s515rb1_bdd.blif
-884   1     1     2       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-885   1     1     3       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-886   1     1     4       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-887   1     1     5       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-888   1     1     10      2       6       3      2.01528e+264  6s515rb1_bdd.blif
-889   1     1     20      2       6       3      2.01528e+264  6s515rb1_bdd.blif
-890   1     5     1       1       3       3      2.01528e+264  6s515rb1_bdd.blif
-891   1     5     2       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-892   1     5     3       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-893   1     5     4       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-894   1     5     5       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-895   1     5     10      2       6       3      2.01528e+264  6s515rb1_bdd.blif
-896   1     5     20      2       6       3      2.01528e+264  6s515rb1_bdd.blif
-897   1     10    1       1       3       3      2.01528e+264  6s515rb1_bdd.blif
-898   1     10    2       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-899   1     10    3       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-900   1     10    4       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-901   1     10    5       2       6       3      2.01528e+264  6s515rb1_bdd.blif
-902   1     10    10      2       6       3      2.01528e+264  6s515rb1_bdd.blif
-903   1     10    20      2       6       3      2.01528e+264  6s515rb1_bdd.blif
-904   5     1     1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-905   5     1     2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-906   5     1     3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-907   5     1     4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-908   5     1     5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-909   5     1     10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-910   5     1     20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-911   5     5     1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-912   5     5     2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-913   5     5     3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-914   5     5     4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-915   5     5     5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-916   5     5     10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-917   5     5     20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-918   5     10    1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-919   5     10    2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-920   5     10    3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-921   5     10    4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-922   5     10    5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-923   5     10    10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-924   5     10    20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-925   10    1     1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-926   10    1     2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-927   10    1     3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-928   10    1     4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-929   10    1     5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-930   10    1     10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-931   10    1     20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-932   10    5     1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-933   10    5     2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-934   10    5     3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-935   10    5     4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-936   10    5     5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-937   10    5     10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-938   10    5     20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-939   10    10    1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-940   10    10    2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-941   10    10    3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-942   10    10    4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-943   10    10    5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-944   10    10    10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-945   10    10    20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-946   20    1     1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-947   20    1     2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-948   20    1     3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-949   20    1     4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-950   20    1     5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-951   20    1     10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-952   20    1     20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-953   20    5     1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-954   20    5     2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-955   20    5     3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-956   20    5     4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-957   20    5     5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-958   20    5     10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-959   20    5     20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-960   20    10    1       1       4       4      2.01528e+264  6s515rb1_bdd.blif
-961   20    10    2       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-962   20    10    3       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-963   20    10    4       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-964   20    10    5       2       8       4      2.01528e+264  6s515rb1_bdd.blif
-965   20    10    10      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-966   20    10    20      2       8       4      2.01528e+264  6s515rb1_bdd.blif
-967   30    1     1       1       4       4      1.51146e+264  6s515rb1_bdd.blif
-968   30    1     2       2       8       4      1.1336e+264   6s515rb1_bdd.blif
-969   30    1     3       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-970   30    1     4       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-971   30    1     5       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-972   30    1     10      3       12      4      1.1336e+264   6s515rb1_bdd.blif
-973   30    1     20      3       12      4      1.1336e+264   6s515rb1_bdd.blif
-974   30    5     1       1       4       4      1.51146e+264  6s515rb1_bdd.blif
-975   30    5     2       2       8       4      1.1336e+264   6s515rb1_bdd.blif
-976   30    5     3       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-977   30    5     4       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-978   30    5     5       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-979   30    5     10      3       12      4      1.1336e+264   6s515rb1_bdd.blif
-980   30    5     20      3       12      4      1.1336e+264   6s515rb1_bdd.blif
-981   30    10    1       1       4       4      1.51146e+264  6s515rb1_bdd.blif
-982   30    10    2       2       8       4      1.1336e+264   6s515rb1_bdd.blif
-983   30    10    3       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-984   30    10    4       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-985   30    10    5       3       12      4      1.1336e+264   6s515rb1_bdd.blif
-986   30    10    10      3       12      4      1.1336e+264   6s515rb1_bdd.blif
-987   30    10    20      3       12      4      1.1336e+264   6s515rb1_bdd.blif
-988   40    1     1       1       4       4      1.51146e+264  6s515rb1_bdd.blif
-989   40    1     2       2       8       4      9.44664e+263  6s515rb1_bdd.blif
-990   40    1     3       3       12      4      4.42811e+263  6s515rb1_bdd.blif
-991   40    1     4       4       16      4      1.99265e+263  6s515rb1_bdd.blif
-992   40    1     5       5       20      4      5.60433e+262  6s515rb1_bdd.blif
-993   40    1     10      10      40      4      NA            6s515rb1_bdd.blif
-994   40    1     20      20      80      4      NA            6s515rb1_bdd.blif
-995   40    5     1       1       4       4      1.51146e+264  6s515rb1_bdd.blif
-996   40    5     2       2       8       4      9.44664e+263  6s515rb1_bdd.blif
-997   40    5     3       3       12      4      3.32109e+263  6s515rb1_bdd.blif
-998   40    5     4       4       16      4      1.0586e+263   6s515rb1_bdd.blif
-999   40    5     5       5       20      4      5.40325e+262  6s515rb1_bdd.blif
-1000  40    5     10      10      40      4      NA            6s515rb1_bdd.blif
-1001  40    5     20      20      80      4      NA            6s515rb1_bdd.blif
-1002  40    10    1       1       4       4      1.51146e+264  6s515rb1_bdd.blif
-1003  40    10    2       2       8       4      7.08498e+263  6s515rb1_bdd.blif
-1004  40    10    3       3       12      4      7.08498e+263  6s515rb1_bdd.blif
-1005  40    10    4       3       12      4      7.08498e+263  6s515rb1_bdd.blif
-1006  40    10    5       3       12      4      7.08498e+263  6s515rb1_bdd.blif
-1007  40    10    10      3       12      4      7.08498e+263  6s515rb1_bdd.blif
-1008  40    10    20      3       12      4      7.08498e+263  6s515rb1_bdd.blif
-1009  1     1     1       0       0       0      NA            6s516r_bdd.blif
-1010  1     1     2       0       0       0      NA            6s516r_bdd.blif
-1011  1     1     3       0       0       0      NA            6s516r_bdd.blif
+sno   var   func  total   actual  factor  avg    time       num           file
+      node  node  reruns  reruns  graph   iters  taken      soln          name
+      size  size                  iters          (sec)           
+---   ---   ---   ---     ---     ---     ---    ---        ---           ---
+1     1     1     1       1       3       3      0.677896   2.31343e+223  6s186_bdd.blif
+2     1     1     2       2       6       3      1.17718    2.31343e+223  6s186_bdd.blif
+3     1     1     3       2       6       3      1.17829    2.31343e+223  6s186_bdd.blif
+4     1     1     4       2       6       3      1.17012    2.31343e+223  6s186_bdd.blif
+5     1     1     5       2       6       3      1.16713    2.31343e+223  6s186_bdd.blif
+6     1     1     10      2       6       3      1.17585    2.31343e+223  6s186_bdd.blif
+7     1     1     20      2       6       3      1.17732    2.31343e+223  6s186_bdd.blif
+8     1     5     1       1       3       3      2.72199    2.31343e+223  6s186_bdd.blif
+9     1     5     2       2       6       3      5.55956    2.31343e+223  6s186_bdd.blif
+10    1     5     3       2       6       3      5.68751    2.31343e+223  6s186_bdd.blif
+11    1     5     4       2       6       3      5.50863    2.31343e+223  6s186_bdd.blif
+12    1     5     5       2       6       3      5.50663    2.31343e+223  6s186_bdd.blif
+13    1     5     10      2       6       3      5.73143    2.31343e+223  6s186_bdd.blif
+14    1     5     20      2       6       3      5.5139     2.31343e+223  6s186_bdd.blif
+15    1     10    1       1       3       3      51.9342    2.31343e+223  6s186_bdd.blif
+16    1     10    2       2       6       3      118.021    2.31343e+223  6s186_bdd.blif
+17    1     10    3       2       6       3      117.874    2.31343e+223  6s186_bdd.blif
+18    1     10    4       2       6       3      118.058    2.31343e+223  6s186_bdd.blif
+19    1     10    5       2       6       3      117.61     2.31343e+223  6s186_bdd.blif
+20    1     10    10      2       6       3      117.96     2.31343e+223  6s186_bdd.blif
+21    1     10    20      2       6       3      117.993    2.31343e+223  6s186_bdd.blif
+22    5     1     1       1       4       4      0.8088     2.31343e+223  6s186_bdd.blif
+23    5     1     2       2       8       4      1.4102     2.31343e+223  6s186_bdd.blif
+24    5     1     3       2       8       4      1.42236    2.31343e+223  6s186_bdd.blif
+25    5     1     4       2       8       4      1.42202    2.31343e+223  6s186_bdd.blif
+26    5     1     5       2       8       4      1.43306    2.31343e+223  6s186_bdd.blif
+27    5     1     10      2       8       4      1.42496    2.31343e+223  6s186_bdd.blif
+28    5     1     20      2       8       4      1.41785    2.31343e+223  6s186_bdd.blif
+29    5     5     1       1       4       4      3.28637    2.31343e+223  6s186_bdd.blif
+30    5     5     2       2       8       4      5.93532    2.31343e+223  6s186_bdd.blif
+31    5     5     3       2       8       4      6.09707    2.31343e+223  6s186_bdd.blif
+32    5     5     4       2       8       4      5.99196    2.31343e+223  6s186_bdd.blif
+33    5     5     5       2       8       4      5.91512    2.31343e+223  6s186_bdd.blif
+34    5     5     10      2       8       4      6.14509    2.31343e+223  6s186_bdd.blif
+35    5     5     20      2       8       4      6.03018    2.31343e+223  6s186_bdd.blif
+36    5     10    1       1       4       4      65.7607    2.31343e+223  6s186_bdd.blif
+37    5     10    2       0       4       0      NA         NA            6s186_bdd.blif
+38    5     10    3       0       4       0      NA         NA            6s186_bdd.blif
+39    5     10    4       0       4       0      NA         NA            6s186_bdd.blif
+40    5     10    5       0       4       0      NA         NA            6s186_bdd.blif
+41    5     10    10      0       4       0      NA         NA            6s186_bdd.blif
+42    5     10    20      0       4       0      NA         NA            6s186_bdd.blif
+43    10    1     1       1       4       4      0.752332   2.31343e+223  6s186_bdd.blif
+44    10    1     2       2       8       4      1.3744     2.31343e+223  6s186_bdd.blif
+45    10    1     3       2       8       4      1.39772    2.31343e+223  6s186_bdd.blif
+46    10    1     4       2       8       4      1.36122    2.31343e+223  6s186_bdd.blif
+47    10    1     5       2       8       4      1.37664    2.31343e+223  6s186_bdd.blif
+48    10    1     10      2       8       4      1.35862    2.31343e+223  6s186_bdd.blif
+49    10    1     20      2       8       4      1.36449    2.31343e+223  6s186_bdd.blif
+50    10    5     1       1       4       4      3.15749    2.31343e+223  6s186_bdd.blif
+51    10    5     2       2       8       4      6.86398    2.31343e+223  6s186_bdd.blif
+52    10    5     3       2       8       4      6.85824    2.31343e+223  6s186_bdd.blif
+53    10    5     4       2       8       4      6.82321    2.31343e+223  6s186_bdd.blif
+54    10    5     5       2       8       4      6.868      2.31343e+223  6s186_bdd.blif
+55    10    5     10      2       8       4      6.899      2.31343e+223  6s186_bdd.blif
+56    10    5     20      2       8       4      6.80985    2.31343e+223  6s186_bdd.blif
+57    10    10    1       1       4       4      59.7165    2.31343e+223  6s186_bdd.blif
+58    10    10    2       0       4       0      NA         NA            6s186_bdd.blif
+59    10    10    3       0       4       0      NA         NA            6s186_bdd.blif
+60    10    10    4       0       4       0      NA         NA            6s186_bdd.blif
+61    10    10    5       0       4       0      NA         NA            6s186_bdd.blif
+62    10    10    10      0       4       0      NA         NA            6s186_bdd.blif
+63    10    10    20      0       4       0      NA         NA            6s186_bdd.blif
+64    20    1     1       1       4       4      0.749173   2.31343e+223  6s186_bdd.blif
+65    20    1     2       2       8       4      1.30736    2.31343e+223  6s186_bdd.blif
+66    20    1     3       2       8       4      1.31287    2.31343e+223  6s186_bdd.blif
+67    20    1     4       2       8       4      1.3063     2.31343e+223  6s186_bdd.blif
+68    20    1     5       2       8       4      1.30894    2.31343e+223  6s186_bdd.blif
+69    20    1     10      2       8       4      1.31312    2.31343e+223  6s186_bdd.blif
+70    20    1     20      2       8       4      1.31583    2.31343e+223  6s186_bdd.blif
+71    20    5     1       1       4       4      2.93296    2.31343e+223  6s186_bdd.blif
+72    20    5     2       2       8       4      6.0451     2.31343e+223  6s186_bdd.blif
+73    20    5     3       2       8       4      6.10623    2.31343e+223  6s186_bdd.blif
+74    20    5     4       2       8       4      6.0946     2.31343e+223  6s186_bdd.blif
+75    20    5     5       2       8       4      6.04617    2.31343e+223  6s186_bdd.blif
+76    20    5     10      2       8       4      6.0563     2.31343e+223  6s186_bdd.blif
+77    20    5     20      2       8       4      6.08364    2.31343e+223  6s186_bdd.blif
+78    20    10    1       1       4       4      54.3343    2.31343e+223  6s186_bdd.blif
+79    20    10    2       2       8       4      119.108    2.31343e+223  6s186_bdd.blif
+80    20    10    3       2       8       4      119.447    2.31343e+223  6s186_bdd.blif
+81    20    10    4       2       8       4      119.295    2.31343e+223  6s186_bdd.blif
+82    20    10    5       0       4       0      NA         NA            6s186_bdd.blif
+83    20    10    10      2       8       4      119.262    2.31343e+223  6s186_bdd.blif
+84    20    10    20      2       8       4      119.523    2.31343e+223  6s186_bdd.blif
+85    30    1     1       1       4       4      0.733407   2.31343e+223  6s186_bdd.blif
+86    30    1     2       2       8       4      1.28892    2.31343e+223  6s186_bdd.blif
+87    30    1     3       2       8       4      1.28559    2.31343e+223  6s186_bdd.blif
+88    30    1     4       2       8       4      1.28508    2.31343e+223  6s186_bdd.blif
+89    30    1     5       2       8       4      1.2821     2.31343e+223  6s186_bdd.blif
+90    30    1     10      2       8       4      1.28293    2.31343e+223  6s186_bdd.blif
+91    30    1     20      2       8       4      1.27927    2.31343e+223  6s186_bdd.blif
+92    30    5     1       1       4       4      3.44496    2.24114e+223  6s186_bdd.blif
+93    30    5     2       2       8       4      6.40756    2.24114e+223  6s186_bdd.blif
+94    30    5     3       2       8       4      6.3011     2.24114e+223  6s186_bdd.blif
+95    30    5     4       2       8       4      6.35714    2.24114e+223  6s186_bdd.blif
+96    30    5     5       2       8       4      6.38356    2.24114e+223  6s186_bdd.blif
+97    30    5     10      2       8       4      6.46193    2.24114e+223  6s186_bdd.blif
+98    30    5     20      2       8       4      6.32714    2.24114e+223  6s186_bdd.blif
+99    30    10    1       1       4       4      63.6685    2.24114e+223  6s186_bdd.blif
+100   30    10    2       0       4       0      NA         NA            6s186_bdd.blif
+101   30    10    3       0       4       0      NA         NA            6s186_bdd.blif
+102   30    10    4       0       4       0      NA         NA            6s186_bdd.blif
+103   30    10    5       0       4       0      NA         NA            6s186_bdd.blif
+104   30    10    10      0       4       0      NA         NA            6s186_bdd.blif
+105   30    10    20      0       4       0      NA         NA            6s186_bdd.blif
+106   40    1     1       1       4       4      0.765769   2.31343e+223  6s186_bdd.blif
+107   40    1     2       2       8       4      1.34473    1.73507e+223  6s186_bdd.blif
+108   40    1     3       3       12      4      1.8676     1.4459e+223   6s186_bdd.blif
+109   40    1     4       4       16      4      2.4282     1.4459e+223   6s186_bdd.blif
+110   40    1     5       4       16      4      2.43517    1.4459e+223   6s186_bdd.blif
+111   40    1     10      4       16      4      2.43927    1.4459e+223   6s186_bdd.blif
+112   40    1     20      4       16      4      2.42503    1.4459e+223   6s186_bdd.blif
+113   40    5     1       1       4       4      3.20559    2.24114e+223  6s186_bdd.blif
+114   40    5     2       2       8       4      5.92446    1.68085e+223  6s186_bdd.blif
+115   40    5     3       3       12      4      9.47011    9.4548e+222   6s186_bdd.blif
+116   40    5     4       4       16      4      12.0412    6.56583e+222  6s186_bdd.blif
+117   40    5     5       5       20      4      15.1158    6.36886e+222  6s186_bdd.blif
+118   40    5     10      6       24      4      18.2139    6.36886e+222  6s186_bdd.blif
+119   40    5     20      6       24      4      18.4336    6.36886e+222  6s186_bdd.blif
+120   40    10    1       0       0       0      NA         NA            6s186_bdd.blif
+121   40    10    2       2       8       4      115.958    1.68085e+223  6s186_bdd.blif
+122   40    10    3       0       8       0      NA         NA            6s186_bdd.blif
+123   40    10    4       0       8       0      NA         NA            6s186_bdd.blif
+124   40    10    5       0       8       0      NA         NA            6s186_bdd.blif
+125   40    10    10      0       8       0      NA         NA            6s186_bdd.blif
+126   40    10    20      0       8       0      NA         NA            6s186_bdd.blif
+127   1     1     1       1       3       3      0.676592   2.31343e+223  6s187_bdd.blif
+128   1     1     2       2       6       3      1.16167    2.31343e+223  6s187_bdd.blif
+129   1     1     3       2       6       3      1.17183    2.31343e+223  6s187_bdd.blif
+130   1     1     4       2       6       3      1.16246    2.31343e+223  6s187_bdd.blif
+131   1     1     5       2       6       3      1.16435    2.31343e+223  6s187_bdd.blif
+132   1     1     10      2       6       3      1.16188    2.31343e+223  6s187_bdd.blif
+133   1     1     20      2       6       3      1.16606    2.31343e+223  6s187_bdd.blif
+134   1     5     1       1       3       3      2.62942    2.31343e+223  6s187_bdd.blif
+135   1     5     2       2       6       3      4.87948    2.31343e+223  6s187_bdd.blif
+136   1     5     3       2       6       3      4.84215    2.31343e+223  6s187_bdd.blif
+137   1     5     4       2       6       3      4.9221     2.31343e+223  6s187_bdd.blif
+138   1     5     5       2       6       3      4.87427    2.31343e+223  6s187_bdd.blif
+139   1     5     10      2       6       3      4.86835    2.31343e+223  6s187_bdd.blif
+140   1     5     20      2       6       3      4.93861    2.31343e+223  6s187_bdd.blif
+141   1     10    1       1       3       3      59.0354    2.31343e+223  6s187_bdd.blif
+142   1     10    2       2       6       3      110.976    2.31343e+223  6s187_bdd.blif
+143   1     10    3       2       6       3      111.743    2.31343e+223  6s187_bdd.blif
+144   1     10    4       2       6       3      111.845    2.31343e+223  6s187_bdd.blif
+145   1     10    5       2       6       3      111.018    2.31343e+223  6s187_bdd.blif
+146   1     10    10      2       6       3      111.318    2.31343e+223  6s187_bdd.blif
+147   1     10    20      2       6       3      110.939    2.31343e+223  6s187_bdd.blif
+148   5     1     1       1       4       4      0.781297   2.31343e+223  6s187_bdd.blif
+149   5     1     2       2       8       4      1.38223    2.31343e+223  6s187_bdd.blif
+150   5     1     3       2       8       4      1.39777    2.31343e+223  6s187_bdd.blif
+151   5     1     4       2       8       4      1.38293    2.31343e+223  6s187_bdd.blif
+152   5     1     5       2       8       4      1.39722    2.31343e+223  6s187_bdd.blif
+153   5     1     10      2       8       4      1.3871     2.31343e+223  6s187_bdd.blif
+154   5     1     20      2       8       4      1.38402    2.31343e+223  6s187_bdd.blif
+155   5     5     1       1       4       4      2.37856    2.31343e+223  6s187_bdd.blif
+156   5     5     2       2       8       4      4.59082    2.31343e+223  6s187_bdd.blif
+157   5     5     3       2       8       4      4.60136    2.31343e+223  6s187_bdd.blif
+158   5     5     4       2       8       4      4.66494    2.31343e+223  6s187_bdd.blif
+159   5     5     5       2       8       4      4.62352    2.31343e+223  6s187_bdd.blif
+160   5     5     10      2       8       4      4.55458    2.31343e+223  6s187_bdd.blif
+161   5     5     20      2       8       4      4.6529     2.31343e+223  6s187_bdd.blif
+162   5     10    1       1       4       4      49.4748    2.31343e+223  6s187_bdd.blif
+163   5     10    2       2       8       4      97.3689    2.31343e+223  6s187_bdd.blif
+164   5     10    3       2       8       4      98.0039    2.31343e+223  6s187_bdd.blif
+165   5     10    4       2       8       4      98.0252    2.31343e+223  6s187_bdd.blif
+166   5     10    5       2       8       4      97.5194    2.31343e+223  6s187_bdd.blif
+167   5     10    10      2       8       4      97.5484    2.31343e+223  6s187_bdd.blif
+168   5     10    20      2       8       4      97.3536    2.31343e+223  6s187_bdd.blif
+169   10    1     1       1       4       4      0.72398    2.31343e+223  6s187_bdd.blif
+170   10    1     2       2       8       4      1.31925    2.31343e+223  6s187_bdd.blif
+171   10    1     3       2       8       4      1.31317    2.31343e+223  6s187_bdd.blif
+172   10    1     4       2       8       4      1.32188    2.31343e+223  6s187_bdd.blif
+173   10    1     5       2       8       4      1.30933    2.31343e+223  6s187_bdd.blif
+174   10    1     10      2       8       4      1.31959    2.31343e+223  6s187_bdd.blif
+175   10    1     20      2       8       4      1.31463    2.31343e+223  6s187_bdd.blif
+176   10    5     1       1       4       4      2.61461    2.31343e+223  6s187_bdd.blif
+177   10    5     2       2       8       4      5.84762    2.31343e+223  6s187_bdd.blif
+178   10    5     3       2       8       4      5.81968    2.31343e+223  6s187_bdd.blif
+179   10    5     4       2       8       4      5.70499    2.31343e+223  6s187_bdd.blif
+180   10    5     5       2       8       4      5.70675    2.31343e+223  6s187_bdd.blif
+181   10    5     10      2       8       4      5.72427    2.31343e+223  6s187_bdd.blif
+182   10    5     20      2       8       4      5.75824    2.31343e+223  6s187_bdd.blif
+183   10    10    1       1       4       4      57.6712    2.31343e+223  6s187_bdd.blif
+184   10    10    2       0       4       0      NA         NA            6s187_bdd.blif
+185   10    10    3       0       4       0      NA         NA            6s187_bdd.blif
+186   10    10    4       0       4       0      NA         NA            6s187_bdd.blif
+187   10    10    5       0       4       0      NA         NA            6s187_bdd.blif
+188   10    10    10      0       4       0      NA         NA            6s187_bdd.blif
+189   10    10    20      0       4       0      NA         NA            6s187_bdd.blif
+190   20    1     1       1       4       4      0.696551   2.31343e+223  6s187_bdd.blif
+191   20    1     2       2       8       4      1.24676    2.31343e+223  6s187_bdd.blif
+192   20    1     3       2       8       4      1.24615    2.31343e+223  6s187_bdd.blif
+193   20    1     4       2       8       4      1.24472    2.31343e+223  6s187_bdd.blif
+194   20    1     5       2       8       4      1.24383    2.31343e+223  6s187_bdd.blif
+195   20    1     10      2       8       4      1.25007    2.31343e+223  6s187_bdd.blif
+196   20    1     20      2       8       4      1.25043    2.31343e+223  6s187_bdd.blif
+197   20    5     1       1       4       4      2.59185    2.31343e+223  6s187_bdd.blif
+198   20    5     2       2       8       4      5.19438    2.31343e+223  6s187_bdd.blif
+199   20    5     3       2       8       4      5.16234    2.31343e+223  6s187_bdd.blif
+200   20    5     4       2       8       4      5.16571    2.31343e+223  6s187_bdd.blif
+201   20    5     5       2       8       4      5.18874    2.31343e+223  6s187_bdd.blif
+202   20    5     10      2       8       4      5.21249    2.31343e+223  6s187_bdd.blif
+203   20    5     20      2       8       4      5.19715    2.31343e+223  6s187_bdd.blif
+204   20    10    1       1       4       4      57.6064    2.31343e+223  6s187_bdd.blif
+205   20    10    2       2       8       4      110.034    2.31343e+223  6s187_bdd.blif
+206   20    10    3       2       8       4      110.037    2.31343e+223  6s187_bdd.blif
+207   20    10    4       2       8       4      109.987    2.31343e+223  6s187_bdd.blif
+208   20    10    5       2       8       4      110.107    2.31343e+223  6s187_bdd.blif
+209   20    10    10      2       8       4      109.186    2.31343e+223  6s187_bdd.blif
+210   20    10    20      2       8       4      110.099    2.31343e+223  6s187_bdd.blif
+211   30    1     1       1       4       4      0.702076   2.31343e+223  6s187_bdd.blif
+212   30    1     2       2       8       4      1.2396     2.31343e+223  6s187_bdd.blif
+213   30    1     3       2       8       4      1.24509    2.31343e+223  6s187_bdd.blif
+214   30    1     4       2       8       4      1.24031    2.31343e+223  6s187_bdd.blif
+215   30    1     5       2       8       4      1.243      2.31343e+223  6s187_bdd.blif
+216   30    1     10      2       8       4      1.24258    2.31343e+223  6s187_bdd.blif
+217   30    1     20      2       8       4      1.24899    2.31343e+223  6s187_bdd.blif
+218   30    5     1       1       4       4      2.48472    2.31343e+223  6s187_bdd.blif
+219   30    5     2       2       8       4      4.81586    2.31343e+223  6s187_bdd.blif
+220   30    5     3       2       8       4      4.85653    2.31343e+223  6s187_bdd.blif
+221   30    5     4       2       8       4      4.88286    2.31343e+223  6s187_bdd.blif
+222   30    5     5       2       8       4      4.87517    2.31343e+223  6s187_bdd.blif
+223   30    5     10      2       8       4      4.83161    2.31343e+223  6s187_bdd.blif
+224   30    5     20      2       8       4      4.81838    2.31343e+223  6s187_bdd.blif
+225   30    10    1       1       4       4      53.8933    2.31343e+223  6s187_bdd.blif
+226   30    10    2       2       8       4      98.4803    2.31343e+223  6s187_bdd.blif
+227   30    10    3       2       8       4      98.3853    2.31343e+223  6s187_bdd.blif
+228   30    10    4       2       8       4      97.6976    2.31343e+223  6s187_bdd.blif
+229   30    10    5       2       8       4      97.687     2.31343e+223  6s187_bdd.blif
+230   30    10    10      2       8       4      98.5151    2.31343e+223  6s187_bdd.blif
+231   30    10    20      2       8       4      97.7572    2.31343e+223  6s187_bdd.blif
+232   40    1     1       1       4       4      0.80469    1.77122e+223  6s187_bdd.blif
+233   40    1     2       2       8       4      1.41972    8.85611e+222  6s187_bdd.blif
+234   40    1     3       3       12      4      1.96985    8.85611e+222  6s187_bdd.blif
+235   40    1     4       3       12      4      1.96809    8.85611e+222  6s187_bdd.blif
+236   40    1     5       3       12      4      1.96313    8.85611e+222  6s187_bdd.blif
+237   40    1     10      3       12      4      1.97285    8.85611e+222  6s187_bdd.blif
+238   40    1     20      3       12      4      1.97195    8.85611e+222  6s187_bdd.blif
+239   40    5     1       1       4       4      3.64492    1.77122e+223  6s187_bdd.blif
+240   40    5     2       2       8       4      5.86452    8.85611e+222  6s187_bdd.blif
+241   40    5     3       3       12      4      8.4533     8.85611e+222  6s187_bdd.blif
+242   40    5     4       3       12      4      8.46637    8.85611e+222  6s187_bdd.blif
+243   40    5     5       3       12      4      8.41584    8.85611e+222  6s187_bdd.blif
+244   40    5     10      3       12      4      8.41087    8.85611e+222  6s187_bdd.blif
+245   40    5     20      3       12      4      8.49556    8.85611e+222  6s187_bdd.blif
+246   40    10    1       1       4       4      86.3576    1.77122e+223  6s187_bdd.blif
+247   40    10    2       0       4       0      NA         NA            6s187_bdd.blif
+248   40    10    3       0       4       0      NA         NA            6s187_bdd.blif
+249   40    10    4       0       4       0      NA         NA            6s187_bdd.blif
+250   40    10    5       0       4       0      NA         NA            6s187_bdd.blif
+251   40    10    10      0       4       0      NA         NA            6s187_bdd.blif
+252   40    10    20      0       4       0      NA         NA            6s187_bdd.blif
+253   1     1     1       0       0       0      NA         NA            6s280r_bdd.blif
+254   1     1     2       0       0       0      NA         NA            6s280r_bdd.blif
+255   1     1     3       0       0       0      NA         NA            6s280r_bdd.blif
+256   1     1     4       0       0       0      NA         NA            6s280r_bdd.blif
+257   1     1     5       0       0       0      NA         NA            6s280r_bdd.blif
+258   1     1     10      0       0       0      NA         NA            6s280r_bdd.blif
+259   1     1     20      0       0       0      NA         NA            6s280r_bdd.blif
+260   1     5     1       0       0       0      NA         NA            6s280r_bdd.blif
+261   1     5     2       0       0       0      NA         NA            6s280r_bdd.blif
+262   1     5     3       0       0       0      NA         NA            6s280r_bdd.blif
+263   1     5     4       0       0       0      NA         NA            6s280r_bdd.blif
+264   1     5     5       0       0       0      NA         NA            6s280r_bdd.blif
+265   1     5     10      0       0       0      NA         NA            6s280r_bdd.blif
+266   1     5     20      0       0       0      NA         NA            6s280r_bdd.blif
+267   1     10    1       0       0       0      NA         NA            6s280r_bdd.blif
+268   1     10    2       0       0       0      NA         NA            6s280r_bdd.blif
+269   1     10    3       0       0       0      NA         NA            6s280r_bdd.blif
+270   1     10    4       0       0       0      NA         NA            6s280r_bdd.blif
+271   1     10    5       0       0       0      NA         NA            6s280r_bdd.blif
+272   1     10    10      0       0       0      NA         NA            6s280r_bdd.blif
+273   1     10    20      0       0       0      NA         NA            6s280r_bdd.blif
+274   5     1     1       0       0       0      NA         NA            6s280r_bdd.blif
+275   5     1     2       0       0       0      NA         NA            6s280r_bdd.blif
+276   5     1     3       0       0       0      NA         NA            6s280r_bdd.blif
+277   5     1     4       0       0       0      NA         NA            6s280r_bdd.blif
+278   5     1     5       0       0       0      NA         NA            6s280r_bdd.blif
+279   5     1     10      0       0       0      NA         NA            6s280r_bdd.blif
+280   5     1     20      0       0       0      NA         NA            6s280r_bdd.blif
+281   5     5     1       0       0       0      NA         NA            6s280r_bdd.blif
+282   5     5     2       0       0       0      NA         NA            6s280r_bdd.blif
+283   5     5     3       0       0       0      NA         NA            6s280r_bdd.blif
+284   5     5     4       0       0       0      NA         NA            6s280r_bdd.blif
+285   5     5     5       0       0       0      NA         NA            6s280r_bdd.blif
+286   5     5     10      0       0       0      NA         NA            6s280r_bdd.blif
+287   5     5     20      0       0       0      NA         NA            6s280r_bdd.blif
+288   5     10    1       0       0       0      NA         NA            6s280r_bdd.blif
+289   5     10    2       0       0       0      NA         NA            6s280r_bdd.blif
+290   5     10    3       0       0       0      NA         NA            6s280r_bdd.blif
+291   5     10    4       0       0       0      NA         NA            6s280r_bdd.blif
+292   5     10    5       0       0       0      NA         NA            6s280r_bdd.blif
+293   5     10    10      0       0       0      NA         NA            6s280r_bdd.blif
+294   5     10    20      0       0       0      NA         NA            6s280r_bdd.blif
+295   10    1     1       0       0       0      NA         NA            6s280r_bdd.blif
+296   10    1     2       0       0       0      NA         NA            6s280r_bdd.blif
+297   10    1     3       0       0       0      NA         NA            6s280r_bdd.blif
+298   10    1     4       0       0       0      NA         NA            6s280r_bdd.blif
+299   10    1     5       0       0       0      NA         NA            6s280r_bdd.blif
+300   10    1     10      0       0       0      NA         NA            6s280r_bdd.blif
+301   10    1     20      0       0       0      NA         NA            6s280r_bdd.blif
+302   10    5     1       0       0       0      NA         NA            6s280r_bdd.blif
+303   10    5     2       0       0       0      NA         NA            6s280r_bdd.blif
+304   10    5     3       0       0       0      NA         NA            6s280r_bdd.blif
+305   10    5     4       0       0       0      NA         NA            6s280r_bdd.blif
+306   10    5     5       0       0       0      NA         NA            6s280r_bdd.blif
+307   10    5     10      0       0       0      NA         NA            6s280r_bdd.blif
+308   10    5     20      0       0       0      NA         NA            6s280r_bdd.blif
+309   10    10    1       0       0       0      NA         NA            6s280r_bdd.blif
+310   10    10    2       0       0       0      NA         NA            6s280r_bdd.blif
+311   10    10    3       0       0       0      NA         NA            6s280r_bdd.blif
+312   10    10    4       0       0       0      NA         NA            6s280r_bdd.blif
+313   10    10    5       0       0       0      NA         NA            6s280r_bdd.blif
+314   10    10    10      0       0       0      NA         NA            6s280r_bdd.blif
+315   10    10    20      0       0       0      NA         NA            6s280r_bdd.blif
+316   20    1     1       0       0       0      NA         NA            6s280r_bdd.blif
+317   20    1     2       0       0       0      NA         NA            6s280r_bdd.blif
+318   20    1     3       0       0       0      NA         NA            6s280r_bdd.blif
+319   20    1     4       0       0       0      NA         NA            6s280r_bdd.blif
+320   20    1     5       0       0       0      NA         NA            6s280r_bdd.blif
+321   20    1     10      0       0       0      NA         NA            6s280r_bdd.blif
+322   20    1     20      0       0       0      NA         NA            6s280r_bdd.blif
+323   20    5     1       0       0       0      NA         NA            6s280r_bdd.blif
+324   20    5     2       0       0       0      NA         NA            6s280r_bdd.blif
+325   20    5     3       0       0       0      NA         NA            6s280r_bdd.blif
+326   20    5     4       0       0       0      NA         NA            6s280r_bdd.blif
+327   20    5     5       0       0       0      NA         NA            6s280r_bdd.blif
+328   20    5     10      0       0       0      NA         NA            6s280r_bdd.blif
+329   20    5     20      0       0       0      NA         NA            6s280r_bdd.blif
+330   20    10    1       0       0       0      NA         NA            6s280r_bdd.blif
+331   20    10    2       0       0       0      NA         NA            6s280r_bdd.blif
+332   20    10    3       0       0       0      NA         NA            6s280r_bdd.blif
+333   20    10    4       0       0       0      NA         NA            6s280r_bdd.blif
+334   20    10    5       0       0       0      NA         NA            6s280r_bdd.blif
+335   20    10    10      0       0       0      NA         NA            6s280r_bdd.blif
+336   20    10    20      0       0       0      NA         NA            6s280r_bdd.blif
+337   30    1     1       0       0       0      NA         NA            6s280r_bdd.blif
+338   30    1     2       0       0       0      NA         NA            6s280r_bdd.blif
+339   30    1     3       0       0       0      NA         NA            6s280r_bdd.blif
+340   30    1     4       0       0       0      NA         NA            6s280r_bdd.blif
+341   30    1     5       0       0       0      NA         NA            6s280r_bdd.blif
+342   30    1     10      0       0       0      NA         NA            6s280r_bdd.blif
+343   30    1     20      0       0       0      NA         NA            6s280r_bdd.blif
+344   30    5     1       0       0       0      NA         NA            6s280r_bdd.blif
+345   30    5     2       0       0       0      NA         NA            6s280r_bdd.blif
+346   30    5     3       0       0       0      NA         NA            6s280r_bdd.blif
+347   30    5     4       0       0       0      NA         NA            6s280r_bdd.blif
+348   30    5     5       0       0       0      NA         NA            6s280r_bdd.blif
+349   30    5     10      0       0       0      NA         NA            6s280r_bdd.blif
+350   30    5     20      0       0       0      NA         NA            6s280r_bdd.blif
+351   30    10    1       0       0       0      NA         NA            6s280r_bdd.blif
+352   30    10    2       0       0       0      NA         NA            6s280r_bdd.blif
+353   30    10    3       0       0       0      NA         NA            6s280r_bdd.blif
+354   30    10    4       0       0       0      NA         NA            6s280r_bdd.blif
+355   30    10    5       0       0       0      NA         NA            6s280r_bdd.blif
+356   30    10    10      0       0       0      NA         NA            6s280r_bdd.blif
+357   30    10    20      0       0       0      NA         NA            6s280r_bdd.blif
+358   40    1     1       0       0       0      NA         NA            6s280r_bdd.blif
+359   40    1     2       0       0       0      NA         NA            6s280r_bdd.blif
+360   40    1     3       0       0       0      NA         NA            6s280r_bdd.blif
+361   40    1     4       0       0       0      NA         NA            6s280r_bdd.blif
+362   40    1     5       0       0       0      NA         NA            6s280r_bdd.blif
+363   40    1     10      0       0       0      NA         NA            6s280r_bdd.blif
+364   40    1     20      0       0       0      NA         NA            6s280r_bdd.blif
+365   40    5     1       0       0       0      NA         NA            6s280r_bdd.blif
+366   40    5     2       0       0       0      NA         NA            6s280r_bdd.blif
+367   40    5     3       0       0       0      NA         NA            6s280r_bdd.blif
+368   40    5     4       0       0       0      NA         NA            6s280r_bdd.blif
+369   40    5     5       0       0       0      NA         NA            6s280r_bdd.blif
+370   40    5     10      0       0       0      NA         NA            6s280r_bdd.blif
+371   40    5     20      0       0       0      NA         NA            6s280r_bdd.blif
+372   40    10    1       0       0       0      NA         NA            6s280r_bdd.blif
+373   40    10    2       0       0       0      NA         NA            6s280r_bdd.blif
+374   40    10    3       0       0       0      NA         NA            6s280r_bdd.blif
+375   40    10    4       0       0       0      NA         NA            6s280r_bdd.blif
+376   40    10    5       0       0       0      NA         NA            6s280r_bdd.blif
+377   40    10    10      0       0       0      NA         NA            6s280r_bdd.blif
+378   40    10    20      0       0       0      NA         NA            6s280r_bdd.blif
+379   1     1     1       0       3       0      NA         NA            6s319r_bdd.blif
+380   1     1     2       0       3       0      NA         NA            6s319r_bdd.blif
+381   1     1     3       0       3       0      NA         NA            6s319r_bdd.blif
+382   1     1     4       0       3       0      NA         NA            6s319r_bdd.blif
+383   1     1     5       0       3       0      NA         NA            6s319r_bdd.blif
+384   1     1     10      0       3       0      NA         NA            6s319r_bdd.blif
+385   1     1     20      0       3       0      NA         NA            6s319r_bdd.blif
+386   1     5     1       0       0       0      NA         NA            6s319r_bdd.blif
+387   1     5     2       0       0       0      NA         NA            6s319r_bdd.blif
+388   1     5     3       0       0       0      NA         NA            6s319r_bdd.blif
+389   1     5     4       0       0       0      NA         NA            6s319r_bdd.blif
+390   1     5     5       0       0       0      NA         NA            6s319r_bdd.blif
+391   1     5     10      0       0       0      NA         NA            6s319r_bdd.blif
+392   1     5     20      0       0       0      NA         NA            6s319r_bdd.blif
+393   1     10    1       0       0       0      NA         NA            6s319r_bdd.blif
+394   1     10    2       0       0       0      NA         NA            6s319r_bdd.blif
+395   1     10    3       0       0       0      NA         NA            6s319r_bdd.blif
+396   1     10    4       0       0       0      NA         NA            6s319r_bdd.blif
+397   1     10    5       0       0       0      NA         NA            6s319r_bdd.blif
+398   1     10    10      0       0       0      NA         NA            6s319r_bdd.blif
+399   1     10    20      0       0       0      NA         NA            6s319r_bdd.blif
+400   5     1     1       0       4       0      NA         NA            6s319r_bdd.blif
+401   5     1     2       0       4       0      NA         NA            6s319r_bdd.blif
+402   5     1     3       0       4       0      NA         NA            6s319r_bdd.blif
+403   5     1     4       0       4       0      NA         NA            6s319r_bdd.blif
+404   5     1     5       0       4       0      NA         NA            6s319r_bdd.blif
+405   5     1     10      0       4       0      NA         NA            6s319r_bdd.blif
+406   5     1     20      0       4       0      NA         NA            6s319r_bdd.blif
+407   5     5     1       0       0       0      NA         NA            6s319r_bdd.blif
+408   5     5     2       0       0       0      NA         NA            6s319r_bdd.blif
+409   5     5     3       0       0       0      NA         NA            6s319r_bdd.blif
+410   5     5     4       0       0       0      NA         NA            6s319r_bdd.blif
+411   5     5     5       0       0       0      NA         NA            6s319r_bdd.blif
+412   5     5     10      0       0       0      NA         NA            6s319r_bdd.blif
+413   5     5     20      0       0       0      NA         NA            6s319r_bdd.blif
+414   5     10    1       0       0       0      NA         NA            6s319r_bdd.blif
+415   5     10    2       0       0       0      NA         NA            6s319r_bdd.blif
+416   5     10    3       0       0       0      NA         NA            6s319r_bdd.blif
+417   5     10    4       0       0       0      NA         NA            6s319r_bdd.blif
+418   5     10    5       0       0       0      NA         NA            6s319r_bdd.blif
+419   5     10    10      0       0       0      NA         NA            6s319r_bdd.blif
+420   5     10    20      0       0       0      NA         NA            6s319r_bdd.blif
+421   10    1     1       0       4       0      NA         NA            6s319r_bdd.blif
+422   10    1     2       0       4       0      NA         NA            6s319r_bdd.blif
+423   10    1     3       0       4       0      NA         NA            6s319r_bdd.blif
+424   10    1     4       0       4       0      NA         NA            6s319r_bdd.blif
+425   10    1     5       0       4       0      NA         NA            6s319r_bdd.blif
+426   10    1     10      0       4       0      NA         NA            6s319r_bdd.blif
+427   10    1     20      0       4       0      NA         NA            6s319r_bdd.blif
+428   10    5     1       0       0       0      NA         NA            6s319r_bdd.blif
+429   10    5     2       0       0       0      NA         NA            6s319r_bdd.blif
+430   10    5     3       0       0       0      NA         NA            6s319r_bdd.blif
+431   10    5     4       0       0       0      NA         NA            6s319r_bdd.blif
+432   10    5     5       0       0       0      NA         NA            6s319r_bdd.blif
+433   10    5     10      0       0       0      NA         NA            6s319r_bdd.blif
+434   10    5     20      0       0       0      NA         NA            6s319r_bdd.blif
+435   10    10    1       0       0       0      NA         NA            6s319r_bdd.blif
+436   10    10    2       0       0       0      NA         NA            6s319r_bdd.blif
+437   10    10    3       0       0       0      NA         NA            6s319r_bdd.blif
+438   10    10    4       0       0       0      NA         NA            6s319r_bdd.blif
+439   10    10    5       0       0       0      NA         NA            6s319r_bdd.blif
+440   10    10    10      0       0       0      NA         NA            6s319r_bdd.blif
+441   10    10    20      0       0       0      NA         NA            6s319r_bdd.blif
+442   20    1     1       0       0       0      NA         NA            6s319r_bdd.blif
+443   20    1     2       0       0       0      NA         NA            6s319r_bdd.blif
+444   20    1     3       0       0       0      NA         NA            6s319r_bdd.blif
+445   20    1     4       0       0       0      NA         NA            6s319r_bdd.blif
+446   20    1     5       0       0       0      NA         NA            6s319r_bdd.blif
+447   20    1     10      0       0       0      NA         NA            6s319r_bdd.blif
+448   20    1     20      0       0       0      NA         NA            6s319r_bdd.blif
+449   20    5     1       0       0       0      NA         NA            6s319r_bdd.blif
+450   20    5     2       0       0       0      NA         NA            6s319r_bdd.blif
+451   20    5     3       0       0       0      NA         NA            6s319r_bdd.blif
+452   20    5     4       0       0       0      NA         NA            6s319r_bdd.blif
+453   20    5     5       0       0       0      NA         NA            6s319r_bdd.blif
+454   20    5     10      0       0       0      NA         NA            6s319r_bdd.blif
+455   20    5     20      0       0       0      NA         NA            6s319r_bdd.blif
+456   20    10    1       0       0       0      NA         NA            6s319r_bdd.blif
+457   20    10    2       0       0       0      NA         NA            6s319r_bdd.blif
+458   20    10    3       0       0       0      NA         NA            6s319r_bdd.blif
+459   20    10    4       0       0       0      NA         NA            6s319r_bdd.blif
+460   20    10    5       0       0       0      NA         NA            6s319r_bdd.blif
+461   20    10    10      0       0       0      NA         NA            6s319r_bdd.blif
+462   20    10    20      0       0       0      NA         NA            6s319r_bdd.blif
+463   30    1     1       0       0       0      NA         NA            6s319r_bdd.blif
+464   30    1     2       0       0       0      NA         NA            6s319r_bdd.blif
+465   30    1     3       0       0       0      NA         NA            6s319r_bdd.blif
+466   30    1     4       0       0       0      NA         NA            6s319r_bdd.blif
+467   30    1     5       0       0       0      NA         NA            6s319r_bdd.blif
+468   30    1     10      0       0       0      NA         NA            6s319r_bdd.blif
+469   30    1     20      0       0       0      NA         NA            6s319r_bdd.blif
+470   30    5     1       0       0       0      NA         NA            6s319r_bdd.blif
+471   30    5     2       0       0       0      NA         NA            6s319r_bdd.blif
+472   30    5     3       0       0       0      NA         NA            6s319r_bdd.blif
+473   30    5     4       0       0       0      NA         NA            6s319r_bdd.blif
+474   30    5     5       0       0       0      NA         NA            6s319r_bdd.blif
+475   30    5     10      0       0       0      NA         NA            6s319r_bdd.blif
+476   30    5     20      0       0       0      NA         NA            6s319r_bdd.blif
+477   30    10    1       0       0       0      NA         NA            6s319r_bdd.blif
+478   30    10    2       0       0       0      NA         NA            6s319r_bdd.blif
+479   30    10    3       0       0       0      NA         NA            6s319r_bdd.blif
+480   30    10    4       0       0       0      NA         NA            6s319r_bdd.blif
+481   30    10    5       0       0       0      NA         NA            6s319r_bdd.blif
+482   30    10    10      0       0       0      NA         NA            6s319r_bdd.blif
+483   30    10    20      0       0       0      NA         NA            6s319r_bdd.blif
+484   40    1     1       0       0       0      NA         NA            6s319r_bdd.blif
+485   40    1     2       0       0       0      NA         NA            6s319r_bdd.blif
+486   40    1     3       0       0       0      NA         NA            6s319r_bdd.blif
+487   40    1     4       0       0       0      NA         NA            6s319r_bdd.blif
+488   40    1     5       0       0       0      NA         NA            6s319r_bdd.blif
+489   40    1     10      0       0       0      NA         NA            6s319r_bdd.blif
+490   40    1     20      0       0       0      NA         NA            6s319r_bdd.blif
+491   40    5     1       0       0       0      NA         NA            6s319r_bdd.blif
+492   40    5     2       0       0       0      NA         NA            6s319r_bdd.blif
+493   40    5     3       0       0       0      NA         NA            6s319r_bdd.blif
+494   40    5     4       0       0       0      NA         NA            6s319r_bdd.blif
+495   40    5     5       0       0       0      NA         NA            6s319r_bdd.blif
+496   40    5     10      0       0       0      NA         NA            6s319r_bdd.blif
+497   40    5     20      0       0       0      NA         NA            6s319r_bdd.blif
+498   40    10    1       0       0       0      NA         NA            6s319r_bdd.blif
+499   40    10    2       0       0       0      NA         NA            6s319r_bdd.blif
+500   40    10    3       0       0       0      NA         NA            6s319r_bdd.blif
+501   40    10    4       0       0       0      NA         NA            6s319r_bdd.blif
+502   40    10    5       0       0       0      NA         NA            6s319r_bdd.blif
+503   40    10    10      0       0       0      NA         NA            6s319r_bdd.blif
+504   40    10    20      0       0       0      NA         NA            6s319r_bdd.blif
+505   1     1     1       1       3       3      0.0754174  3.30528e+122  6s365r_bdd.blif
+506   1     1     2       2       6       3      0.137013   3.30528e+122  6s365r_bdd.blif
+507   1     1     3       2       6       3      0.132819   3.30528e+122  6s365r_bdd.blif
+508   1     1     4       2       6       3      0.134322   3.30528e+122  6s365r_bdd.blif
+509   1     1     5       2       6       3      0.135421   3.30528e+122  6s365r_bdd.blif
+510   1     1     10      2       6       3      0.136703   3.30528e+122  6s365r_bdd.blif
+511   1     1     20      2       6       3      0.135891   3.30528e+122  6s365r_bdd.blif
+512   1     5     1       1       3       3      0.104289   3.30528e+122  6s365r_bdd.blif
+513   1     5     2       2       6       3      0.216926   3.30528e+122  6s365r_bdd.blif
+514   1     5     3       2       6       3      0.219674   3.30528e+122  6s365r_bdd.blif
+515   1     5     4       2       6       3      0.214903   3.30528e+122  6s365r_bdd.blif
+516   1     5     5       2       6       3      0.210425   3.30528e+122  6s365r_bdd.blif
+517   1     5     10      2       6       3      0.219308   3.30528e+122  6s365r_bdd.blif
+518   1     5     20      2       6       3      0.213303   3.30528e+122  6s365r_bdd.blif
+519   1     10    1       1       3       3      1.70944    3.30528e+122  6s365r_bdd.blif
+520   1     10    2       2       6       3      3.69172    3.30528e+122  6s365r_bdd.blif
+521   1     10    3       2       6       3      3.68445    3.30528e+122  6s365r_bdd.blif
+522   1     10    4       2       6       3      3.6771     3.30528e+122  6s365r_bdd.blif
+523   1     10    5       2       6       3      3.69593    3.30528e+122  6s365r_bdd.blif
+524   1     10    10      2       6       3      3.6985     3.30528e+122  6s365r_bdd.blif
+525   1     10    20      2       6       3      3.71648    3.30528e+122  6s365r_bdd.blif
+526   5     1     1       1       4       4      0.0801438  2.47896e+122  6s365r_bdd.blif
+527   5     1     2       2       8       4      0.152686   9.2961e+121   6s365r_bdd.blif
+528   5     1     3       3       12      4      0.220878   9.2961e+121   6s365r_bdd.blif
+529   5     1     4       3       12      4      0.218145   9.2961e+121   6s365r_bdd.blif
+530   5     1     5       3       12      4      0.216743   9.2961e+121   6s365r_bdd.blif
+531   5     1     10      3       12      4      0.214388   9.2961e+121   6s365r_bdd.blif
+532   5     1     20      3       12      4      0.231197   9.2961e+121   6s365r_bdd.blif
+533   5     5     1       1       4       4      0.141468   2.47896e+122  6s365r_bdd.blif
+534   5     5     2       2       8       4      0.293575   9.2961e+121   6s365r_bdd.blif
+535   5     5     3       3       12      4      0.419146   9.2961e+121   6s365r_bdd.blif
+536   5     5     4       3       12      4      0.422765   9.2961e+121   6s365r_bdd.blif
+537   5     5     5       3       12      4      0.426526   9.2961e+121   6s365r_bdd.blif
+538   5     5     10      3       12      4      0.432799   9.2961e+121   6s365r_bdd.blif
+539   5     5     20      3       12      4      0.438813   9.2961e+121   6s365r_bdd.blif
+540   5     10    1       1       4       4      3.55363    2.47896e+122  6s365r_bdd.blif
+541   5     10    2       2       8       4      5.32635    9.2961e+121   6s365r_bdd.blif
+542   5     10    3       3       12      4      9.36165    9.2961e+121   6s365r_bdd.blif
+543   5     10    4       3       12      4      9.37707    9.2961e+121   6s365r_bdd.blif
+544   5     10    5       3       12      4      9.35455    9.2961e+121   6s365r_bdd.blif
+545   5     10    10      3       12      4      9.35712    9.2961e+121   6s365r_bdd.blif
+546   5     10    20      3       12      4      9.38589    9.2961e+121   6s365r_bdd.blif
+547   10    1     1       1       4       4      0.0747585  1.85922e+122  6s365r_bdd.blif
+548   10    1     2       2       8       4      0.132575   6.97207e+121  6s365r_bdd.blif
+549   10    1     3       3       12      4      0.193726   5.22906e+121  6s365r_bdd.blif
+550   10    1     4       4       16      4      0.265733   1.93026e+121  6s365r_bdd.blif
+551   10    1     5       5       20      4      0.323214   7.23846e+120  6s365r_bdd.blif
+552   10    1     10      10      40      4      0.636847   NA            6s365r_bdd.blif
+553   10    1     20      20      80      4      1.331      NA            6s365r_bdd.blif
+554   10    5     1       1       4       4      0.141256   1.85922e+122  6s365r_bdd.blif
+555   10    5     2       2       8       4      0.315847   6.97207e+121  6s365r_bdd.blif
+556   10    5     3       3       12      4      0.444781   5.22906e+121  6s365r_bdd.blif
+557   10    5     4       4       16      4      0.713667   1.93026e+121  6s365r_bdd.blif
+558   10    5     5       5       20      4      0.857586   7.23846e+120  6s365r_bdd.blif
+559   10    5     10      10      40      4      1.78882    NA            6s365r_bdd.blif
+560   10    5     20      20      80      4      3.86002    NA            6s365r_bdd.blif
+561   10    10    1       1       4       4      4.36946    1.85922e+122  6s365r_bdd.blif
+562   10    10    2       2       8       4      8.24129    6.97207e+121  6s365r_bdd.blif
+563   10    10    3       3       12      4      10.3539    5.22906e+121  6s365r_bdd.blif
+564   10    10    4       4       16      4      31.8799    1.93026e+121  6s365r_bdd.blif
+565   10    10    5       5       20      4      37.2636    7.23846e+120  6s365r_bdd.blif
+566   10    10    10      10      40      4      65.726     NA            6s365r_bdd.blif
+567   10    10    20      18      72      4      115.443    NA            6s365r_bdd.blif
+568   20    1     1       1       4       4      0.0675227  1.18622e+122  6s365r_bdd.blif
+569   20    1     2       2       8       4      0.125512   2.12686e+121  6s365r_bdd.blif
+570   20    1     3       3       12      4      0.189197   5.23406e+120  6s365r_bdd.blif
+571   20    1     4       4       16      4      0.255277   9.78036e+119  6s365r_bdd.blif
+572   20    1     5       5       20      4      0.32008    2.8447e+119   6s365r_bdd.blif
+573   20    1     10      10      40      4      0.88815    NA            6s365r_bdd.blif
+574   20    1     20      18      72      4      1.82866    NA            6s365r_bdd.blif
+575   20    5     1       1       4       4      0.209973   1.18622e+122  6s365r_bdd.blif
+576   20    5     2       2       8       4      0.673153   2.12686e+121  6s365r_bdd.blif
+577   20    5     3       3       12      4      1.06555    5.23406e+120  6s365r_bdd.blif
+578   20    5     4       4       16      4      1.59442    9.78036e+119  6s365r_bdd.blif
+579   20    5     5       5       20      4      2.03897    2.8447e+119   6s365r_bdd.blif
+580   20    5     10      10      40      4      18.4988    NA            6s365r_bdd.blif
+581   20    5     20      20      80      4      27.0214    NA            6s365r_bdd.blif
+582   20    10    1       1       4       4      6.33308    1.18622e+122  6s365r_bdd.blif
+583   20    10    2       2       8       4      21.1541    2.12686e+121  6s365r_bdd.blif
+584   20    10    3       3       12      4      29.6875    5.23406e+120  6s365r_bdd.blif
+585   20    10    4       4       16      4      56.4408    8.55782e+119  6s365r_bdd.blif
+586   20    10    5       5       20      4      63.9852    NA            6s365r_bdd.blif
+587   20    10    10      0       24      0      NA         NA            6s365r_bdd.blif
+588   20    10    20      0       24      0      NA         NA            6s365r_bdd.blif
+589   30    1     1       1       4       4      0.191051   1.64206e+121  6s365r_bdd.blif
+590   30    1     2       2       8       4      0.391279   7.66708e+119  6s365r_bdd.blif
+591   30    1     3       3       12      4      0.522728   NA            6s365r_bdd.blif
+592   30    1     4       4       16      4      0.750494   NA            6s365r_bdd.blif
+593   30    1     5       5       20      4      0.727962   NA            6s365r_bdd.blif
+594   30    1     10      10      40      4      1.99205    NA            6s365r_bdd.blif
+595   30    1     20      20      80      4      8.99597    NA            6s365r_bdd.blif
+596   30    5     1       1       4       4      8.91293    1.64206e+121  6s365r_bdd.blif
+597   30    5     2       2       8       4      19.2676    5.75031e+119  6s365r_bdd.blif
+598   30    5     3       3       12      4      26.3828    NA            6s365r_bdd.blif
+599   30    5     4       4       16      4      28.442     NA            6s365r_bdd.blif
+600   30    5     5       5       20      4      29.1563    NA            6s365r_bdd.blif
+601   30    5     10      0       32      0      NA         NA            6s365r_bdd.blif
+602   30    5     20      0       32      0      NA         NA            6s365r_bdd.blif
+603   30    10    1       0       0       0      NA         NA            6s365r_bdd.blif
+604   30    10    2       0       0       0      NA         NA            6s365r_bdd.blif
+605   30    10    3       0       0       0      NA         NA            6s365r_bdd.blif
+606   30    10    4       0       0       0      NA         NA            6s365r_bdd.blif
+607   30    10    5       0       0       0      NA         NA            6s365r_bdd.blif
+608   30    10    10      0       0       0      NA         NA            6s365r_bdd.blif
+609   30    10    20      0       0       0      NA         NA            6s365r_bdd.blif
+610   40    1     1       1       4       4      0.178242   3.19289e+121  6s365r_bdd.blif
+611   40    1     2       0       4       0      NA         NA            6s365r_bdd.blif
+612   40    1     3       0       4       0      NA         NA            6s365r_bdd.blif
+613   40    1     4       0       4       0      NA         NA            6s365r_bdd.blif
+614   40    1     5       0       4       0      NA         NA            6s365r_bdd.blif
+615   40    1     10      0       4       0      NA         NA            6s365r_bdd.blif
+616   40    1     20      0       4       0      NA         NA            6s365r_bdd.blif
+617   40    5     1       1       4       4      4.18055    3.19289e+121  6s365r_bdd.blif
+618   40    5     2       0       4       0      NA         NA            6s365r_bdd.blif
+619   40    5     3       0       4       0      NA         NA            6s365r_bdd.blif
+620   40    5     4       0       4       0      NA         NA            6s365r_bdd.blif
+621   40    5     5       0       4       0      NA         NA            6s365r_bdd.blif
+622   40    5     10      0       4       0      NA         NA            6s365r_bdd.blif
+623   40    5     20      0       4       0      NA         NA            6s365r_bdd.blif
+624   40    10    1       0       0       0      NA         NA            6s365r_bdd.blif
+625   40    10    2       0       0       0      NA         NA            6s365r_bdd.blif
+626   40    10    3       0       0       0      NA         NA            6s365r_bdd.blif
+627   40    10    4       0       0       0      NA         NA            6s365r_bdd.blif
+628   40    10    5       0       0       0      NA         NA            6s365r_bdd.blif
+629   40    10    10      0       0       0      NA         NA            6s365r_bdd.blif
+630   40    10    20      0       0       0      NA         NA            6s365r_bdd.blif
+631   1     1     1       1       3       3      1.59562    1.0329e+121   6s4_bdd.blif
+632   1     1     2       2       6       3      2.76435    1.0329e+121   6s4_bdd.blif
+633   1     1     3       2       6       3      2.67799    1.0329e+121   6s4_bdd.blif
+634   1     1     4       2       6       3      2.93223    1.0329e+121   6s4_bdd.blif
+635   1     1     5       2       6       3      2.80009    1.0329e+121   6s4_bdd.blif
+636   1     1     10      2       6       3      2.86608    1.0329e+121   6s4_bdd.blif
+637   1     1     20      2       6       3      2.86516    1.0329e+121   6s4_bdd.blif
+638   1     5     1       1       3       3      93.5242    1.0329e+121   6s4_bdd.blif
+639   1     5     2       0       3       0      NA         NA            6s4_bdd.blif
+640   1     5     3       0       3       0      NA         NA            6s4_bdd.blif
+641   1     5     4       0       3       0      NA         NA            6s4_bdd.blif
+642   1     5     5       0       3       0      NA         NA            6s4_bdd.blif
+643   1     5     10      0       3       0      NA         NA            6s4_bdd.blif
+644   1     5     20      0       3       0      NA         NA            6s4_bdd.blif
+645   1     10    1       0       0       0      NA         NA            6s4_bdd.blif
+646   1     10    2       0       0       0      NA         NA            6s4_bdd.blif
+647   1     10    3       0       0       0      NA         NA            6s4_bdd.blif
+648   1     10    4       0       0       0      NA         NA            6s4_bdd.blif
+649   1     10    5       0       0       0      NA         NA            6s4_bdd.blif
+650   1     10    10      0       0       0      NA         NA            6s4_bdd.blif
+651   1     10    20      0       0       0      NA         NA            6s4_bdd.blif
+652   5     1     1       1       4       4      1.67654    1.0329e+121   6s4_bdd.blif
+653   5     1     2       2       8       4      4.55603    1.0329e+121   6s4_bdd.blif
+654   5     1     3       2       8       4      4.39104    1.0329e+121   6s4_bdd.blif
+655   5     1     4       2       8       4      4.11108    1.0329e+121   6s4_bdd.blif
+656   5     1     5       2       8       4      4.12506    1.0329e+121   6s4_bdd.blif
+657   5     1     10      2       8       4      4.23724    1.0329e+121   6s4_bdd.blif
+658   5     1     20      2       8       4      4.23855    1.0329e+121   6s4_bdd.blif
+659   5     5     1       0       0       0      NA         NA            6s4_bdd.blif
+660   5     5     2       0       0       0      NA         NA            6s4_bdd.blif
+661   5     5     3       0       0       0      NA         NA            6s4_bdd.blif
+662   5     5     4       0       0       0      NA         NA            6s4_bdd.blif
+663   5     5     5       0       0       0      NA         NA            6s4_bdd.blif
+664   5     5     10      0       0       0      NA         NA            6s4_bdd.blif
+665   5     5     20      0       0       0      NA         NA            6s4_bdd.blif
+666   5     10    1       0       0       0      NA         NA            6s4_bdd.blif
+667   5     10    2       0       0       0      NA         NA            6s4_bdd.blif
+668   5     10    3       0       0       0      NA         NA            6s4_bdd.blif
+669   5     10    4       0       0       0      NA         NA            6s4_bdd.blif
+670   5     10    5       0       0       0      NA         NA            6s4_bdd.blif
+671   5     10    10      0       0       0      NA         NA            6s4_bdd.blif
+672   5     10    20      0       0       0      NA         NA            6s4_bdd.blif
+673   10    1     1       1       4       4      1.59198    1.0329e+121   6s4_bdd.blif
+674   10    1     2       2       8       4      3.99284    5.1645e+120   6s4_bdd.blif
+675   10    1     3       3       12      4      8.09336    3.87337e+120  6s4_bdd.blif
+676   10    1     4       4       16      4      10.1807    3.87337e+120  6s4_bdd.blif
+677   10    1     5       4       16      4      10.2761    3.87337e+120  6s4_bdd.blif
+678   10    1     10      4       16      4      10.3424    3.87337e+120  6s4_bdd.blif
+679   10    1     20      4       16      4      10.1465    3.87337e+120  6s4_bdd.blif
+680   10    5     1       0       0       0      NA         NA            6s4_bdd.blif
+681   10    5     2       0       0       0      NA         NA            6s4_bdd.blif
+682   10    5     3       0       0       0      NA         NA            6s4_bdd.blif
+683   10    5     4       0       0       0      NA         NA            6s4_bdd.blif
+684   10    5     5       0       0       0      NA         NA            6s4_bdd.blif
+685   10    5     10      0       0       0      NA         NA            6s4_bdd.blif
+686   10    5     20      0       0       0      NA         NA            6s4_bdd.blif
+687   10    10    1       0       0       0      NA         NA            6s4_bdd.blif
+688   10    10    2       0       0       0      NA         NA            6s4_bdd.blif
+689   10    10    3       0       0       0      NA         NA            6s4_bdd.blif
+690   10    10    4       0       0       0      NA         NA            6s4_bdd.blif
+691   10    10    5       0       0       0      NA         NA            6s4_bdd.blif
+692   10    10    10      0       0       0      NA         NA            6s4_bdd.blif
+693   10    10    20      0       0       0      NA         NA            6s4_bdd.blif
+694   20    1     1       1       4       4      2.45711    1.0329e+121   6s4_bdd.blif
+695   20    1     2       2       8       4      6.15959    3.3892e+120   6s4_bdd.blif
+696   20    1     3       3       12      4      8.91347    3.02607e+120  6s4_bdd.blif
+697   20    1     4       4       16      4      10.9257    3.02607e+120  6s4_bdd.blif
+698   20    1     5       4       16      4      11.2184    3.02607e+120  6s4_bdd.blif
+699   20    1     10      4       16      4      10.9196    3.02607e+120  6s4_bdd.blif
+700   20    1     20      4       16      4      10.9468    3.02607e+120  6s4_bdd.blif
+701   20    5     1       0       0       0      NA         NA            6s4_bdd.blif
+702   20    5     2       0       0       0      NA         NA            6s4_bdd.blif
+703   20    5     3       0       0       0      NA         NA            6s4_bdd.blif
+704   20    5     4       0       0       0      NA         NA            6s4_bdd.blif
+705   20    5     5       0       0       0      NA         NA            6s4_bdd.blif
+706   20    5     10      0       0       0      NA         NA            6s4_bdd.blif
+707   20    5     20      0       0       0      NA         NA            6s4_bdd.blif
+708   20    10    1       0       0       0      NA         NA            6s4_bdd.blif
+709   20    10    2       0       0       0      NA         NA            6s4_bdd.blif
+710   20    10    3       0       0       0      NA         NA            6s4_bdd.blif
+711   20    10    4       0       0       0      NA         NA            6s4_bdd.blif
+712   20    10    5       0       0       0      NA         NA            6s4_bdd.blif
+713   20    10    10      0       0       0      NA         NA            6s4_bdd.blif
+714   20    10    20      0       0       0      NA         NA            6s4_bdd.blif
+715   30    1     1       1       4       4      2.17002    1.0329e+121   6s4_bdd.blif
+716   30    1     2       2       8       4      5.77655    3.87337e+120  6s4_bdd.blif
+717   30    1     3       3       12      4      8.91057    1.8913e+120   6s4_bdd.blif
+718   30    1     4       4       16      4      10.8593    1.8913e+120   6s4_bdd.blif
+719   30    1     5       4       16      4      10.7976    1.8913e+120   6s4_bdd.blif
+720   30    1     10      4       16      4      11.1532    1.8913e+120   6s4_bdd.blif
+721   30    1     20      4       16      4      12.7344    1.8913e+120   6s4_bdd.blif
+722   30    5     1       0       0       0      NA         NA            6s4_bdd.blif
+723   30    5     2       0       0       0      NA         NA            6s4_bdd.blif
+724   30    5     3       0       0       0      NA         NA            6s4_bdd.blif
+725   30    5     4       0       0       0      NA         NA            6s4_bdd.blif
+726   30    5     5       0       0       0      NA         NA            6s4_bdd.blif
+727   30    5     10      0       0       0      NA         NA            6s4_bdd.blif
+728   30    5     20      0       0       0      NA         NA            6s4_bdd.blif
+729   30    10    1       0       0       0      NA         NA            6s4_bdd.blif
+730   30    10    2       0       0       0      NA         NA            6s4_bdd.blif
+731   30    10    3       0       0       0      NA         NA            6s4_bdd.blif
+732   30    10    4       0       0       0      NA         NA            6s4_bdd.blif
+733   30    10    5       0       0       0      NA         NA            6s4_bdd.blif
+734   30    10    10      0       0       0      NA         NA            6s4_bdd.blif
+735   30    10    20      0       0       0      NA         NA            6s4_bdd.blif
+736   40    1     1       1       4       4      2.2786     7.74675e+120  6s4_bdd.blif
+737   40    1     2       2       8       4      4.26165    7.74675e+120  6s4_bdd.blif
+738   40    1     3       3       12      4      6.72565    4.35755e+120  6s4_bdd.blif
+739   40    1     4       4       16      4      8.7155     4.35755e+120  6s4_bdd.blif
+740   40    1     5       4       16      4      8.8932     4.35755e+120  6s4_bdd.blif
+741   40    1     10      4       16      4      8.82641    4.35755e+120  6s4_bdd.blif
+742   40    1     20      4       16      4      8.66142    4.35755e+120  6s4_bdd.blif
+743   40    5     1       0       0       0      NA         NA            6s4_bdd.blif
+744   40    5     2       0       0       0      NA         NA            6s4_bdd.blif
+745   40    5     3       0       0       0      NA         NA            6s4_bdd.blif
+746   40    5     4       0       0       0      NA         NA            6s4_bdd.blif
+747   40    5     5       0       0       0      NA         NA            6s4_bdd.blif
+748   40    5     10      0       0       0      NA         NA            6s4_bdd.blif
+749   40    5     20      0       0       0      NA         NA            6s4_bdd.blif
+750   40    10    1       0       0       0      NA         NA            6s4_bdd.blif
+751   40    10    2       0       0       0      NA         NA            6s4_bdd.blif
+752   40    10    3       0       0       0      NA         NA            6s4_bdd.blif
+753   40    10    4       0       0       0      NA         NA            6s4_bdd.blif
+754   40    10    5       0       0       0      NA         NA            6s4_bdd.blif
+755   40    10    10      0       0       0      NA         NA            6s4_bdd.blif
+756   40    10    20      0       0       0      NA         NA            6s4_bdd.blif
+757   1     1     1       0       0       0      NA         NA            6s514r_bdd.blif
+758   1     1     2       0       0       0      NA         NA            6s514r_bdd.blif
+759   1     1     3       0       0       0      NA         NA            6s514r_bdd.blif
+760   1     1     4       0       0       0      NA         NA            6s514r_bdd.blif
+761   1     1     5       0       0       0      NA         NA            6s514r_bdd.blif
+762   1     1     10      0       0       0      NA         NA            6s514r_bdd.blif
+763   1     1     20      0       0       0      NA         NA            6s514r_bdd.blif
+764   1     5     1       0       0       0      NA         NA            6s514r_bdd.blif
+765   1     5     2       0       0       0      NA         NA            6s514r_bdd.blif
+766   1     5     3       0       0       0      NA         NA            6s514r_bdd.blif
+767   1     5     4       0       0       0      NA         NA            6s514r_bdd.blif
+768   1     5     5       0       0       0      NA         NA            6s514r_bdd.blif
+769   1     5     10      0       0       0      NA         NA            6s514r_bdd.blif
+770   1     5     20      0       0       0      NA         NA            6s514r_bdd.blif
+771   1     10    1       0       0       0      NA         NA            6s514r_bdd.blif
+772   1     10    2       0       0       0      NA         NA            6s514r_bdd.blif
+773   1     10    3       0       0       0      NA         NA            6s514r_bdd.blif
+774   1     10    4       0       0       0      NA         NA            6s514r_bdd.blif
+775   1     10    5       0       0       0      NA         NA            6s514r_bdd.blif
+776   1     10    10      0       0       0      NA         NA            6s514r_bdd.blif
+777   1     10    20      0       0       0      NA         NA            6s514r_bdd.blif
+778   5     1     1       0       0       0      NA         NA            6s514r_bdd.blif
+779   5     1     2       0       0       0      NA         NA            6s514r_bdd.blif
+780   5     1     3       0       0       0      NA         NA            6s514r_bdd.blif
+781   5     1     4       0       0       0      NA         NA            6s514r_bdd.blif
+782   5     1     5       0       0       0      NA         NA            6s514r_bdd.blif
+783   5     1     10      0       0       0      NA         NA            6s514r_bdd.blif
+784   5     1     20      0       0       0      NA         NA            6s514r_bdd.blif
+785   5     5     1       0       0       0      NA         NA            6s514r_bdd.blif
+786   5     5     2       0       0       0      NA         NA            6s514r_bdd.blif
+787   5     5     3       0       0       0      NA         NA            6s514r_bdd.blif
+788   5     5     4       0       0       0      NA         NA            6s514r_bdd.blif
+789   5     5     5       0       0       0      NA         NA            6s514r_bdd.blif
+790   5     5     10      0       0       0      NA         NA            6s514r_bdd.blif
+791   5     5     20      0       0       0      NA         NA            6s514r_bdd.blif
+792   5     10    1       0       0       0      NA         NA            6s514r_bdd.blif
+793   5     10    2       0       0       0      NA         NA            6s514r_bdd.blif
+794   5     10    3       0       0       0      NA         NA            6s514r_bdd.blif
+795   5     10    4       0       0       0      NA         NA            6s514r_bdd.blif
+796   5     10    5       0       0       0      NA         NA            6s514r_bdd.blif
+797   5     10    10      0       0       0      NA         NA            6s514r_bdd.blif
+798   5     10    20      0       0       0      NA         NA            6s514r_bdd.blif
+799   10    1     1       0       0       0      NA         NA            6s514r_bdd.blif
+800   10    1     2       0       0       0      NA         NA            6s514r_bdd.blif
+801   10    1     3       0       0       0      NA         NA            6s514r_bdd.blif
+802   10    1     4       0       0       0      NA         NA            6s514r_bdd.blif
+803   10    1     5       0       0       0      NA         NA            6s514r_bdd.blif
+804   10    1     10      0       0       0      NA         NA            6s514r_bdd.blif
+805   10    1     20      0       0       0      NA         NA            6s514r_bdd.blif
+806   10    5     1       0       0       0      NA         NA            6s514r_bdd.blif
+807   10    5     2       0       0       0      NA         NA            6s514r_bdd.blif
+808   10    5     3       0       0       0      NA         NA            6s514r_bdd.blif
+809   10    5     4       0       0       0      NA         NA            6s514r_bdd.blif
+810   10    5     5       0       0       0      NA         NA            6s514r_bdd.blif
+811   10    5     10      0       0       0      NA         NA            6s514r_bdd.blif
+812   10    5     20      0       0       0      NA         NA            6s514r_bdd.blif
+813   10    10    1       0       0       0      NA         NA            6s514r_bdd.blif
+814   10    10    2       0       0       0      NA         NA            6s514r_bdd.blif
+815   10    10    3       0       0       0      NA         NA            6s514r_bdd.blif
+816   10    10    4       0       0       0      NA         NA            6s514r_bdd.blif
+817   10    10    5       0       0       0      NA         NA            6s514r_bdd.blif
+818   10    10    10      0       0       0      NA         NA            6s514r_bdd.blif
+819   10    10    20      0       0       0      NA         NA            6s514r_bdd.blif
+820   20    1     1       0       0       0      NA         NA            6s514r_bdd.blif
+821   20    1     2       0       0       0      NA         NA            6s514r_bdd.blif
+822   20    1     3       0       0       0      NA         NA            6s514r_bdd.blif
+823   20    1     4       0       0       0      NA         NA            6s514r_bdd.blif
+824   20    1     5       0       0       0      NA         NA            6s514r_bdd.blif
+825   20    1     10      0       0       0      NA         NA            6s514r_bdd.blif
+826   20    1     20      0       0       0      NA         NA            6s514r_bdd.blif
+827   20    5     1       0       0       0      NA         NA            6s514r_bdd.blif
+828   20    5     2       0       0       0      NA         NA            6s514r_bdd.blif
+829   20    5     3       0       0       0      NA         NA            6s514r_bdd.blif
+830   20    5     4       0       0       0      NA         NA            6s514r_bdd.blif
+831   20    5     5       0       0       0      NA         NA            6s514r_bdd.blif
+832   20    5     10      0       0       0      NA         NA            6s514r_bdd.blif
+833   20    5     20      0       0       0      NA         NA            6s514r_bdd.blif
+834   20    10    1       0       0       0      NA         NA            6s514r_bdd.blif
+835   20    10    2       0       0       0      NA         NA            6s514r_bdd.blif
+836   20    10    3       0       0       0      NA         NA            6s514r_bdd.blif
+837   20    10    4       0       0       0      NA         NA            6s514r_bdd.blif
+838   20    10    5       0       0       0      NA         NA            6s514r_bdd.blif
+839   20    10    10      0       0       0      NA         NA            6s514r_bdd.blif
+840   20    10    20      0       0       0      NA         NA            6s514r_bdd.blif
+841   30    1     1       0       0       0      NA         NA            6s514r_bdd.blif
+842   30    1     2       0       0       0      NA         NA            6s514r_bdd.blif
+843   30    1     3       0       0       0      NA         NA            6s514r_bdd.blif
+844   30    1     4       0       0       0      NA         NA            6s514r_bdd.blif
+845   30    1     5       0       0       0      NA         NA            6s514r_bdd.blif
+846   30    1     10      0       0       0      NA         NA            6s514r_bdd.blif
+847   30    1     20      0       0       0      NA         NA            6s514r_bdd.blif
+848   30    5     1       0       0       0      NA         NA            6s514r_bdd.blif
+849   30    5     2       0       0       0      NA         NA            6s514r_bdd.blif
+850   30    5     3       0       0       0      NA         NA            6s514r_bdd.blif
+851   30    5     4       0       0       0      NA         NA            6s514r_bdd.blif
+852   30    5     5       0       0       0      NA         NA            6s514r_bdd.blif
+853   30    5     10      0       0       0      NA         NA            6s514r_bdd.blif
+854   30    5     20      0       0       0      NA         NA            6s514r_bdd.blif
+855   30    10    1       0       0       0      NA         NA            6s514r_bdd.blif
+856   30    10    2       0       0       0      NA         NA            6s514r_bdd.blif
+857   30    10    3       0       0       0      NA         NA            6s514r_bdd.blif
+858   30    10    4       0       0       0      NA         NA            6s514r_bdd.blif
+859   30    10    5       0       0       0      NA         NA            6s514r_bdd.blif
+860   30    10    10      0       0       0      NA         NA            6s514r_bdd.blif
+861   30    10    20      0       0       0      NA         NA            6s514r_bdd.blif
+862   40    1     1       0       0       0      NA         NA            6s514r_bdd.blif
+863   40    1     2       0       0       0      NA         NA            6s514r_bdd.blif
+864   40    1     3       0       0       0      NA         NA            6s514r_bdd.blif
+865   40    1     4       0       0       0      NA         NA            6s514r_bdd.blif
+866   40    1     5       0       0       0      NA         NA            6s514r_bdd.blif
+867   40    1     10      0       0       0      NA         NA            6s514r_bdd.blif
+868   40    1     20      0       0       0      NA         NA            6s514r_bdd.blif
+869   40    5     1       0       0       0      NA         NA            6s514r_bdd.blif
+870   40    5     2       0       0       0      NA         NA            6s514r_bdd.blif
+871   40    5     3       0       0       0      NA         NA            6s514r_bdd.blif
+872   40    5     4       0       0       0      NA         NA            6s514r_bdd.blif
+873   40    5     5       0       0       0      NA         NA            6s514r_bdd.blif
+874   40    5     10      0       0       0      NA         NA            6s514r_bdd.blif
+875   40    5     20      0       0       0      NA         NA            6s514r_bdd.blif
+876   40    10    1       0       0       0      NA         NA            6s514r_bdd.blif
+877   40    10    2       0       0       0      NA         NA            6s514r_bdd.blif
+878   40    10    3       0       0       0      NA         NA            6s514r_bdd.blif
+879   40    10    4       0       0       0      NA         NA            6s514r_bdd.blif
+880   40    10    5       0       0       0      NA         NA            6s514r_bdd.blif
+881   40    10    10      0       0       0      NA         NA            6s514r_bdd.blif
+882   40    10    20      0       0       0      NA         NA            6s514r_bdd.blif
+883   1     1     1       1       3       3      0.708112   2.01528e+264  6s515rb1_bdd.blif
+884   1     1     2       2       6       3      1.25368    2.01528e+264  6s515rb1_bdd.blif
+885   1     1     3       2       6       3      1.2559     2.01528e+264  6s515rb1_bdd.blif
+886   1     1     4       2       6       3      1.25591    2.01528e+264  6s515rb1_bdd.blif
+887   1     1     5       2       6       3      1.25629    2.01528e+264  6s515rb1_bdd.blif
+888   1     1     10      2       6       3      1.25162    2.01528e+264  6s515rb1_bdd.blif
+889   1     1     20      2       6       3      1.25305    2.01528e+264  6s515rb1_bdd.blif
+890   1     5     1       1       3       3      0.630188   2.01528e+264  6s515rb1_bdd.blif
+891   1     5     2       2       6       3      1.24057    2.01528e+264  6s515rb1_bdd.blif
+892   1     5     3       2       6       3      1.23731    2.01528e+264  6s515rb1_bdd.blif
+893   1     5     4       2       6       3      1.25922    2.01528e+264  6s515rb1_bdd.blif
+894   1     5     5       2       6       3      1.23156    2.01528e+264  6s515rb1_bdd.blif
+895   1     5     10      2       6       3      1.24263    2.01528e+264  6s515rb1_bdd.blif
+896   1     5     20      2       6       3      1.23976    2.01528e+264  6s515rb1_bdd.blif
+897   1     10    1       1       3       3      3.00942    2.01528e+264  6s515rb1_bdd.blif
+898   1     10    2       2       6       3      5.91156    2.01528e+264  6s515rb1_bdd.blif
+899   1     10    3       2       6       3      5.92568    2.01528e+264  6s515rb1_bdd.blif
+900   1     10    4       2       6       3      5.96135    2.01528e+264  6s515rb1_bdd.blif
+901   1     10    5       2       6       3      5.91469    2.01528e+264  6s515rb1_bdd.blif
+902   1     10    10      2       6       3      5.91606    2.01528e+264  6s515rb1_bdd.blif
+903   1     10    20      2       6       3      5.92654    2.01528e+264  6s515rb1_bdd.blif
+904   5     1     1       1       4       4      0.887633   2.01528e+264  6s515rb1_bdd.blif
+905   5     1     2       2       8       4      1.58114    2.01528e+264  6s515rb1_bdd.blif
+906   5     1     3       2       8       4      1.57147    2.01528e+264  6s515rb1_bdd.blif
+907   5     1     4       2       8       4      1.57307    2.01528e+264  6s515rb1_bdd.blif
+908   5     1     5       2       8       4      1.5585     2.01528e+264  6s515rb1_bdd.blif
+909   5     1     10      2       8       4      1.5684     2.01528e+264  6s515rb1_bdd.blif
+910   5     1     20      2       8       4      1.57847    2.01528e+264  6s515rb1_bdd.blif
+911   5     5     1       1       4       4      0.863404   2.01528e+264  6s515rb1_bdd.blif
+912   5     5     2       2       8       4      1.59347    2.01528e+264  6s515rb1_bdd.blif
+913   5     5     3       2       8       4      1.59914    2.01528e+264  6s515rb1_bdd.blif
+914   5     5     4       2       8       4      1.60097    2.01528e+264  6s515rb1_bdd.blif
+915   5     5     5       2       8       4      1.5928     2.01528e+264  6s515rb1_bdd.blif
+916   5     5     10      2       8       4      1.58923    2.01528e+264  6s515rb1_bdd.blif
+917   5     5     20      2       8       4      1.59593    2.01528e+264  6s515rb1_bdd.blif
+918   5     10    1       1       4       4      4.68082    2.01528e+264  6s515rb1_bdd.blif
+919   5     10    2       2       8       4      7.88765    2.01528e+264  6s515rb1_bdd.blif
+920   5     10    3       2       8       4      7.95967    2.01528e+264  6s515rb1_bdd.blif
+921   5     10    4       2       8       4      7.91714    2.01528e+264  6s515rb1_bdd.blif
+922   5     10    5       2       8       4      7.98364    2.01528e+264  6s515rb1_bdd.blif
+923   5     10    10      2       8       4      7.94621    2.01528e+264  6s515rb1_bdd.blif
+924   5     10    20      2       8       4      7.93171    2.01528e+264  6s515rb1_bdd.blif
+925   10    1     1       1       4       4      0.791427   2.01528e+264  6s515rb1_bdd.blif
+926   10    1     2       2       8       4      1.38511    2.01528e+264  6s515rb1_bdd.blif
+927   10    1     3       2       8       4      1.38558    2.01528e+264  6s515rb1_bdd.blif
+928   10    1     4       2       8       4      1.38109    2.01528e+264  6s515rb1_bdd.blif
+929   10    1     5       2       8       4      1.38933    2.01528e+264  6s515rb1_bdd.blif
+930   10    1     10      2       8       4      1.39195    2.01528e+264  6s515rb1_bdd.blif
+931   10    1     20      2       8       4      1.39232    2.01528e+264  6s515rb1_bdd.blif
+932   10    5     1       1       4       4      0.811227   2.01528e+264  6s515rb1_bdd.blif
+933   10    5     2       2       8       4      1.54355    2.01528e+264  6s515rb1_bdd.blif
+934   10    5     3       2       8       4      1.53978    2.01528e+264  6s515rb1_bdd.blif
+935   10    5     4       2       8       4      1.54905    2.01528e+264  6s515rb1_bdd.blif
+936   10    5     5       2       8       4      1.55933    2.01528e+264  6s515rb1_bdd.blif
+937   10    5     10      2       8       4      1.55688    2.01528e+264  6s515rb1_bdd.blif
+938   10    5     20      2       8       4      1.53996    2.01528e+264  6s515rb1_bdd.blif
+939   10    10    1       1       4       4      4.44263    2.01528e+264  6s515rb1_bdd.blif
+940   10    10    2       2       8       4      8.1678     2.01528e+264  6s515rb1_bdd.blif
+941   10    10    3       2       8       4      8.19581    2.01528e+264  6s515rb1_bdd.blif
+942   10    10    4       2       8       4      8.16147    2.01528e+264  6s515rb1_bdd.blif
+943   10    10    5       2       8       4      8.13205    2.01528e+264  6s515rb1_bdd.blif
+944   10    10    10      2       8       4      8.11536    2.01528e+264  6s515rb1_bdd.blif
+945   10    10    20      2       8       4      8.13993    2.01528e+264  6s515rb1_bdd.blif
+946   20    1     1       1       4       4      0.757854   2.01528e+264  6s515rb1_bdd.blif
+947   20    1     2       2       8       4      1.30858    2.01528e+264  6s515rb1_bdd.blif
+948   20    1     3       2       8       4      1.31208    2.01528e+264  6s515rb1_bdd.blif
+949   20    1     4       2       8       4      1.30481    2.01528e+264  6s515rb1_bdd.blif
+950   20    1     5       2       8       4      1.31799    2.01528e+264  6s515rb1_bdd.blif
+951   20    1     10      2       8       4      1.30928    2.01528e+264  6s515rb1_bdd.blif
+952   20    1     20      2       8       4      1.3222     2.01528e+264  6s515rb1_bdd.blif
+953   20    5     1       1       4       4      0.777796   2.01528e+264  6s515rb1_bdd.blif
+954   20    5     2       2       8       4      1.53748    2.01528e+264  6s515rb1_bdd.blif
+955   20    5     3       2       8       4      1.53294    2.01528e+264  6s515rb1_bdd.blif
+956   20    5     4       2       8       4      1.53503    2.01528e+264  6s515rb1_bdd.blif
+957   20    5     5       2       8       4      1.5261     2.01528e+264  6s515rb1_bdd.blif
+958   20    5     10      2       8       4      1.52879    2.01528e+264  6s515rb1_bdd.blif
+959   20    5     20      2       8       4      1.52229    2.01528e+264  6s515rb1_bdd.blif
+960   20    10    1       1       4       4      4.19146    2.01528e+264  6s515rb1_bdd.blif
+961   20    10    2       2       8       4      7.82102    2.01528e+264  6s515rb1_bdd.blif
+962   20    10    3       2       8       4      7.81609    2.01528e+264  6s515rb1_bdd.blif
+963   20    10    4       2       8       4      7.8379     2.01528e+264  6s515rb1_bdd.blif
+964   20    10    5       2       8       4      7.83588    2.01528e+264  6s515rb1_bdd.blif
+965   20    10    10      2       8       4      7.83418    2.01528e+264  6s515rb1_bdd.blif
+966   20    10    20      2       8       4      7.85761    2.01528e+264  6s515rb1_bdd.blif
+967   30    1     1       1       4       4      0.760814   1.51146e+264  6s515rb1_bdd.blif
+968   30    1     2       2       8       4      1.33926    1.1336e+264   6s515rb1_bdd.blif
+969   30    1     3       3       12      4      1.89937    1.1336e+264   6s515rb1_bdd.blif
+970   30    1     4       3       12      4      1.91102    1.1336e+264   6s515rb1_bdd.blif
+971   30    1     5       3       12      4      1.90576    1.1336e+264   6s515rb1_bdd.blif
+972   30    1     10      3       12      4      1.91425    1.1336e+264   6s515rb1_bdd.blif
+973   30    1     20      3       12      4      1.90512    1.1336e+264   6s515rb1_bdd.blif
+974   30    5     1       1       4       4      0.882592   1.51146e+264  6s515rb1_bdd.blif
+975   30    5     2       2       8       4      1.71378    1.1336e+264   6s515rb1_bdd.blif
+976   30    5     3       3       12      4      2.45542    1.1336e+264   6s515rb1_bdd.blif
+977   30    5     4       3       12      4      2.45252    1.1336e+264   6s515rb1_bdd.blif
+978   30    5     5       3       12      4      2.45722    1.1336e+264   6s515rb1_bdd.blif
+979   30    5     10      3       12      4      2.44779    1.1336e+264   6s515rb1_bdd.blif
+980   30    5     20      3       12      4      2.44849    1.1336e+264   6s515rb1_bdd.blif
+981   30    10    1       1       4       4      5.78345    1.51146e+264  6s515rb1_bdd.blif
+982   30    10    2       2       8       4      10.5324    1.1336e+264   6s515rb1_bdd.blif
+983   30    10    3       3       12      4      13.9141    1.1336e+264   6s515rb1_bdd.blif
+984   30    10    4       3       12      4      13.9662    1.1336e+264   6s515rb1_bdd.blif
+985   30    10    5       3       12      4      13.9812    1.1336e+264   6s515rb1_bdd.blif
+986   30    10    10      3       12      4      13.9299    1.1336e+264   6s515rb1_bdd.blif
+987   30    10    20      3       12      4      13.9893    1.1336e+264   6s515rb1_bdd.blif
+988   40    1     1       1       4       4      0.767128   1.51146e+264  6s515rb1_bdd.blif
+989   40    1     2       2       8       4      1.39002    9.44664e+263  6s515rb1_bdd.blif
+990   40    1     3       3       12      4      1.97772    4.42811e+263  6s515rb1_bdd.blif
+991   40    1     4       4       16      4      2.54165    1.99265e+263  6s515rb1_bdd.blif
+992   40    1     5       5       20      4      3.28055    5.60433e+262  6s515rb1_bdd.blif
+993   40    1     10      10      40      4      6.64365    NA            6s515rb1_bdd.blif
+994   40    1     20      20      80      4      13.5785    NA            6s515rb1_bdd.blif
+995   40    5     1       1       4       4      0.854143   1.51146e+264  6s515rb1_bdd.blif
+996   40    5     2       2       8       4      1.99484    9.44664e+263  6s515rb1_bdd.blif
+997   40    5     3       3       12      4      3.28592    3.32109e+263  6s515rb1_bdd.blif
+998   40    5     4       4       16      4      4.99924    1.0586e+263   6s515rb1_bdd.blif
+999   40    5     5       5       20      4      6.89251    5.40325e+262  6s515rb1_bdd.blif
+1000  40    5     10      10      40      4      19.1927    NA            6s515rb1_bdd.blif
+1001  40    5     20      20      80      4      53.52      NA            6s515rb1_bdd.blif
+1002  40    10    1       1       4       4      5.38755    1.51146e+264  6s515rb1_bdd.blif
+1003  40    10    2       2       8       4      17.3437    7.08498e+263  6s515rb1_bdd.blif
+1004  40    10    3       3       12      4      20.9762    7.08498e+263  6s515rb1_bdd.blif
+1005  40    10    4       3       12      4      20.9967    7.08498e+263  6s515rb1_bdd.blif
+1006  40    10    5       3       12      4      20.9764    7.08498e+263  6s515rb1_bdd.blif
+1007  40    10    10      3       12      4      21.1471    7.08498e+263  6s515rb1_bdd.blif
+1008  40    10    20      3       12      4      21.0035    7.08498e+263  6s515rb1_bdd.blif
+1009  1     1     1       0       0       0      NA         NA            6s516r_bdd.blif
+1010  1     1     2       0       0       0      NA         NA            6s516r_bdd.blif
+1011  1     1     3       0       0       0      NA         NA            6s516r_bdd.blif

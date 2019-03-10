@@ -1,7 +1,7 @@
-BEGIN { print "sno,var ,func,total ,actual,factor,avg  ,num ,file";
-        print "   ,node,node,reruns,reruns,graph ,iters,soln,name";
-        print "   ,size,size,      ,      ,iters ,     ,    ,";
-        print "---,---,---,---,---,---,---,---,---";
+BEGIN { print "sno,var ,func,total ,actual,factor,avg  ,time ,num ,file";
+        print "   ,node,node,reruns,reruns,graph ,iters,taken,soln,name";
+        print "   ,size,size,      ,      ,iters ,     ,(sec),     ,";
+        print "---,---,---,---,---,---,---,---,---,---";
         sno=0;
         is_first=1;
         c=",";
@@ -15,7 +15,7 @@ function print_row()
           avg_iters = factor_graph_iters / actual_iterations;
         else
           avg_iters = 0;
-        print sno c var_node_size c func_node_size c total_iterations c actual_iterations c factor_graph_iters c avg_iters c num_solutions c file_name;
+        print sno c var_node_size c func_node_size c total_iterations c actual_iterations c factor_graph_iters c avg_iters c time_taken c num_solutions c file_name;
     }
 }
 
@@ -30,6 +30,7 @@ function print_row()
     factor_graph_iters=0;
     num_solutions="NA"
     is_first=0;
+    time_taken="NA";
 }
 
 /^\[INFO\] Factor graph messages have converged in [0-9]* iterations/ {
@@ -41,6 +42,10 @@ function print_row()
 /^\[INFO\] Ran [0-9]* FactorGraph convergences/ {
                                                   actual_iterations = $3;
                                                 }
+
+/^\[INFO\] Finised over approximating method FactorGraphApprox in/ {
+                                                                     time_taken = $8;
+                                                                   }
 
 END {
     print_row();

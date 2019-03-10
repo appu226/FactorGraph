@@ -5,6 +5,7 @@ Index: sno            :    serial number
        actual reruns      : number of times Factor Graph was actually rerun, before it converged completely
        factor graph iters : total number of message passing iterations across all convergences
        avg iters          : factor graph iters / total reruns
+       time taken (sec)   : total time taken to finish all the iterations of factor graph
        num soln           : number of minterms in final solution
        file name          : test case name
 
