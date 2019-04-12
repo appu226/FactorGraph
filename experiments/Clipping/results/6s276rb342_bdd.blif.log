@@ -1,0 +1,96 @@
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 10 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.509988 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 1.63467 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 4.236e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 20 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.441733 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 3.2654 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 2.737e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 30 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.437672 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 4.92872 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 2.276e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 40 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.435551 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 6.4821 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 3.053e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 50 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.431597 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 8.13966 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 1.853e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 75 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.437901 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 12.1702 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 2.843e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 100 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.43758 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 16.2893 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 3.397e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 200 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.433521 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 32.4092 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 3.085e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 300 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.437449 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 48.8303 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 2.501e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 400 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.438506 sec
+[INFO] Executing over approximating method ClippingOverApprox
+[INFO] Finised over approximating method ClippingOverApprox in 65.1245 sec
+[INFO] Over approximating method ClippingOverApprox finished with 5.03461e+1695 solutions.
+[INFO] Executing under approximating method False
+[INFO] Finished under approximating method False in 3.666e-06 sec
+[INFO] Under approximating method False finished with 0 solutions.
+[INFO] SUCCESS 6s276rb342_bdd.blif
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 800 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.437115 sec
+[INFO] Executing over approximating method ClippingOverApprox
+blif_solve/blif_solve --must_count_solutions --under_approximating_method False --clipping_depth 1600 --over_approximating_method ClippingOverApprox --verbosity INFO ../../data_sets/bddblif/6s276rb342_bdd.blif
+[INFO] created 3201 factors with 6476 vars (843 primary inputs + 5633 others) in 0.440087 sec
+[INFO] Executing over approximating method ClippingOverApprox

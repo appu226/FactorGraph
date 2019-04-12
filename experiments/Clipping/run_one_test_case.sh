@@ -13,7 +13,8 @@ completed_list=$outdir/completed_list.txt
 touch $completed_list
 
 # loop across all sub tests
-for clipping_depth in 10 20 30 40 50 60 70 80 90 100; do
+for clipping_depth in 10 20 30 40 50 75 100 200 300 400 800 1600; do
+# for clipping_depth in 10 20; do
 
   # run sub test case only if the completed list does not have this sub test
   test_case_marker=${test_case}_${clipping_depth}
