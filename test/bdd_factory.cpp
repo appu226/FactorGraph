@@ -73,6 +73,15 @@ namespace test
     return BddWrapper(bdd_not(m_manager, m_bdd), m_manager);
   }
 
+  bdd_ptr BddWrapper::operator ! () const
+  {
+    return m_bdd;
+  }
+
+  bdd_ptr BddWrapper::operator * () const
+  {
+    return bdd_dup(m_bdd);
+  }
 
   bdd_ptr BddWrapper::getUncountedBdd() const
   {

@@ -39,6 +39,7 @@ namespace blif_solve {
     public:
 
       typedef std::shared_ptr<std::vector<bdd_ptr>> FactorVec;
+      typedef std::vector<std::shared_ptr<BlifFactors>> PtrVec;
 
       // ****** Constructor ******
       // parse the structures in a blif file
@@ -58,6 +59,11 @@ namespace blif_solve {
       // Note: this function is a pre-requisite for some of the
       //   accessor methods in this class.
       void createBdds();
+
+      // ****** Function ******
+      // partitions this problem into many disconnected
+      //   sub-problems
+      PtrVec partitionFactors() const;
 
       // ****** Accessor Function ******
       // return the factors described in the circuit
@@ -88,6 +94,13 @@ namespace blif_solve {
       static std::string latch_output_prefix;
 
     private:
+      BlifFactors(BnetNetwork * network,
+                  DdManager * ddm,
+                  FactorVec factors,
+                  bdd_ptr piVars,
+                  FactorVec nonPiVars);
+
+
       BnetNetwork * m_network;
       DdManager * m_ddm;
       FactorVec m_factors;

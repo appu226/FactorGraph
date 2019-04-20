@@ -24,6 +24,8 @@ SOFTWARE.
 
 #include "blif_factors.h"
 
+#include <bdd_partition.h>
+
 #include <log.h>
 
 #include <ntr.h>
@@ -173,22 +175,45 @@ namespace blif_solve {
   }
 
 
+  // private constructor
+  BlifFactors::BlifFactors(BnetNetwork * network,
+                           DdManager * ddm,
+                           FactorVec factors,
+                           bdd_ptr piVars,
+                           FactorVec nonPiVars) :
+    m_network(network),
+    m_ddm(ddm),
+    m_factors(factors),
+    m_piVars(piVars),
+    m_nonPiVars(nonPiVars)
+  { }
+
+
 
 
   // destructor
   BlifFactors::~BlifFactors()
   {
-    for (BnetNode_ptr node = m_network->nodes; node != NULL; node = node->next)
+    if (m_network)
     {
-      if (node->dd != NULL &&
-          node->type != BNET_INPUT_NODE &&
-          node->type != BNET_PRESENT_STATE_NODE) {
-        Cudd_IterDerefBdd(m_ddm, node->dd);
-        node->dd= NULL;
+      for (BnetNode_ptr node = m_network->nodes; node != NULL; node = node->next)
+      {
+        if (node->dd != NULL &&
+            node->type != BNET_INPUT_NODE &&
+            node->type != BNET_PRESENT_STATE_NODE) {
+          Cudd_IterDerefBdd(m_ddm, node->dd);
+          node->dd= NULL;
+        }
       }
+      // free network
+      Bnet_FreeNetwork(m_network);
     }
-    // free network
-    Bnet_FreeNetwork(m_network);
+
+    bdd_free(m_ddm, m_piVars);
+    for (auto factor: *m_factors)
+      bdd_free(m_ddm, factor);
+    for (auto nonPiVar: *m_nonPiVars)
+      bdd_free(m_ddm, nonPiVar);
 
   }
 
@@ -260,6 +285,46 @@ namespace blif_solve {
 
     } // end loop over all network nodes
   } //end BlifFactors::createBdds
+
+
+
+  BlifFactors::PtrVec BlifFactors::partitionFactors() const
+  {
+    std::vector<std::vector<bdd_ptr>> partitions = bddPartition(m_ddm, *m_factors);
+    BlifFactors::PtrVec result;
+    for (auto partition: partitions)
+    {
+      auto partitionFactors = std::make_shared<std::vector<bdd_ptr> >(partition);
+      bdd_ptr partitionSupport = bdd_one(m_ddm);
+      for (auto factor: partition)
+      {
+        bdd_ptr factorSupport = bdd_support(m_ddm, factor);
+        bdd_ptr unionSupport = bdd_cube_union(m_ddm, partitionSupport, factorSupport);
+        bdd_free(m_ddm, factorSupport);
+        bdd_free(m_ddm, partitionSupport);
+        partitionSupport = unionSupport;
+      }
+
+      bdd_ptr partitionPiVars = bdd_cube_intersection(m_ddm, partitionSupport, m_piVars);
+
+      auto partitionNonPiVars = std::make_shared<std::vector<bdd_ptr> >();
+      bdd_ptr one = bdd_one(m_ddm);
+      for (auto nonPiVar: *m_nonPiVars)
+      {
+        bdd_ptr partitionNonPiVar = bdd_cube_intersection(m_ddm, partitionSupport, nonPiVar);
+        if (partitionNonPiVar == one)
+          bdd_free(m_ddm, partitionNonPiVar);
+        else
+          partitionNonPiVars->push_back(partitionNonPiVar);
+      }
+
+      
+      result.push_back(std::shared_ptr<BlifFactors>(new BlifFactors(NULL, m_ddm, partitionFactors, partitionPiVars, partitionNonPiVars)));
+      bdd_free(m_ddm, partitionSupport);
+      bdd_free(m_ddm, one);
+    }
+    return result;
+  }
 
 
 

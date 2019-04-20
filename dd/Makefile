@@ -3,8 +3,8 @@ LFLAGS_dd = ${EXPORT_LFLAGS_cudd}
 
 all : 			libDd.a
 
-libDd.a :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o
-			ar r libDd.a dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o
+libDd.a :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o
+			ar r libDd.a dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o
 			ranlib libDd.a
 	
 dd.o :			dd.cpp dd.h bnet.h ntr.h cuddAndAbsMulti.h
@@ -21,6 +21,9 @@ ntrHeap.o : ntrHeap.c ntr.h
 
 ntrMflow.o : ntrMflow.c ntr.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} ntrMflow.c -o ntrMflow.o
+
+bdd_partition.o : bdd_partition.cpp bdd_partition.h dd.h
+	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} bdd_partition.cpp -o bdd_partition.o
 
 cuddAndAbsMulti.o : cuddAndAbsMulti.cpp cuddAndAbsMulti.h lru_cache.h optional.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} cuddAndAbsMulti.cpp -o cuddAndAbsMulti.o

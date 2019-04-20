@@ -35,6 +35,7 @@ SOFTWARE.
 #include <sstream>
 #include <stdexcept>
 #include <factor_graph.h>
+#include <bdd_partition.h>
 
 #include "bdd_factory.h"
 
@@ -44,6 +45,7 @@ void testIsConnectedComponent(DdManager * manager);
 void testCuddBddCountMintermsMulti(DdManager * manager);
 void testOptional();
 void testLruCache();
+void testDisjointSet(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -59,6 +61,7 @@ int main()
     testIsConnectedComponent(manager);
     testOptional();
     testLruCache();
+    testDisjointSet(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -79,6 +82,68 @@ struct DestructorCounter {
 };
 
 int DestructorCounter::count = 0;
+
+
+void testDisjointSet(DdManager * manager)
+{
+  using namespace test;
+
+  std::vector<BddWrapper> v;
+  for (int i = 0; i < 10; ++i)
+    v.push_back(BddWrapper(bdd_new_var_with_index(manager, i), manager));
+  
+  //  f3  f4 -- f5 -- f6    f0
+  //    \  |         
+  // f1-- f2    f7 -- f8 -- f9
+  //
+  // f0 = v9
+  // f1 = v0 . v1
+  // f2 = v1.v2 + v1.v3
+  // f3 = v2 + !v3
+  // f4 = !v1 + v2.v4
+  // f5 = v4 + !v5
+  // f6 = v5
+  //
+  // f7 = v6 + v7
+  // f8 = v7 . !v8
+  // f9 = v8
+
+  BddWrapper f0 = v[9];
+  BddWrapper f1 = v[0] * v[1];
+  BddWrapper f2 = v[1] * v[2] + v[1] * v[3];
+  BddWrapper f3 = v[2] + (-v[3]);
+  BddWrapper f4 = (-v[1]) + v[2] * v[4];
+  BddWrapper f5 = v[4] + (-v[5]);
+  BddWrapper f6 = v[5];
+  BddWrapper f7 = v[6] + v[7];
+  BddWrapper f8 = v[7] + (-v[8]);
+  BddWrapper f9 = v[8];
+
+  std::vector<bdd_ptr> factors{!f0, !f1, !f2, !f3, !f4, !f5, !f6, !f7, !f8, !f9};
+  auto partitions = bddPartition(manager, factors);
+
+  assert(partitions.size() == 3);
+  std::vector<bdd_ptr> p1, p3, p6;
+  for (auto partition: partitions)
+  {
+    if (partition.size() == 1)
+      p1 = partition;
+    else if (partition.size() == 3)
+      p3 = partition;
+    else if (partition.size() == 6)
+      p6 = partition;
+  }
+
+  // expected sets
+  std::set<bdd_ptr> p1x{!f0};
+  std::set<bdd_ptr> p3x{!f7, !f8, !f9};
+  std::set<bdd_ptr> p6x{!f1, !f2, !f3, !f4, !f5, !f6};
+
+  assert(std::set<bdd_ptr>(p1.begin(), p1.end()) == p1x);
+  assert(std::set<bdd_ptr>(p3.begin(), p3.end()) == p3x);
+  assert(std::set<bdd_ptr>(p6.begin(), p6.end()) == p6x);
+
+}
 
 
 void testLruCache()
