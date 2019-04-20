@@ -60,6 +60,8 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
 long double                     getNumSolutions      (DdManager * ddm,
                                                       bdd_ptr_set const & bdd,
                                                       int numVars);
+bdd_ptr_set                     divideAndConquer     (blif_solve::BlifFactors::PtrVec const & partitions,
+                                                      blif_solve::BlifSolveMethod::Cptr const & method);
 
 
 using blif_solve::now;
@@ -105,6 +107,7 @@ int main(int argc, char ** argv)
                           << (numPiVars + numNonPiVars) << " vars ("
                           << numPiVars << " primary inputs + " << numNonPiVars << " others) in "
                           << duration(start) << " sec");
+    auto partitions = blifFactors->partitionFactors();
 
 
 
@@ -115,7 +118,7 @@ int main(int argc, char ** argv)
       blif_solve_log(INFO, "Executing over approximating method " << clo->overApproximatingMethod);
       start = now();
       auto upperMethod = createBlifSolveMethod(clo->overApproximatingMethod, *clo);
-      upperLimit = upperMethod->solve(*blifFactors);
+      upperLimit = divideAndConquer(partitions, upperMethod);
       blif_solve_log(INFO, "Finised over approximating method " 
                            << clo->overApproximatingMethod << " in " 
                            << duration(start) << " sec");
@@ -134,7 +137,7 @@ int main(int argc, char ** argv)
       blif_solve_log(INFO, "Executing under approximating method " << clo->underApproximatingMethod);
       start = now();
       auto lowerMethod = createBlifSolveMethod(clo->underApproximatingMethod, *clo);
-      lowerLimit = lowerMethod->solve(*blifFactors);
+      lowerLimit = divideAndConquer(partitions, lowerMethod);
       blif_solve_log(INFO, "Finished under approximating method " << clo->underApproximatingMethod
                            << " in " << duration(start) << " sec");
       if (clo->mustCountSolutions)
@@ -221,4 +224,17 @@ long double getNumSolutions(DdManager * manager, bdd_ptr_set const & bdds, int n
 {
   auto numSln = bdd_count_minterm_multi(manager, bdds, numVars);
   return numSln;
+}
+
+
+bdd_ptr_set divideAndConquer(blif_solve::BlifFactors::PtrVec const & partitions,
+                             blif_solve::BlifSolveMethod::Cptr const & method)
+{
+  bdd_ptr_set result;
+  for (auto partition: partitions)
+  {
+    bdd_ptr_set subresult = method->solve(*partition);
+    result.insert(subresult.begin(), subresult.end());
+  }
+  return result;
 }
