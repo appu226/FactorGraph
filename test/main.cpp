@@ -27,6 +27,7 @@ SOFTWARE.
 #include <cnf_dump.h>
 #include <optional.h>
 #include <lru_cache.h>
+#include <max_heap.h>
 
 #include <memory>
 #include <vector>
@@ -46,6 +47,7 @@ void testCuddBddCountMintermsMulti(DdManager * manager);
 void testOptional();
 void testLruCache();
 void testDisjointSet(DdManager * manager);
+void testMaxHeap();
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -62,6 +64,7 @@ int main()
     testOptional();
     testLruCache();
     testDisjointSet(manager);
+    testMaxHeap();
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -73,6 +76,64 @@ int main()
     return -1;
   }
 }
+
+
+void testMaxHeap()
+{
+  typedef parakram::MaxHeap<std::string, int> MH;
+  std::vector<std::pair<std::string, int> > values;
+  values.push_back(std::make_pair("five", 5));
+  values.push_back(std::make_pair("two", 2));
+  values.push_back(std::make_pair("one", 1));
+  values.push_back(std::make_pair("four", 4));
+  values.push_back(std::make_pair("four", 4));
+  values.push_back(std::make_pair("three", 3));
+  MH max_heap(values);
+  assert(max_heap.top() == "five");
+  max_heap.pop();
+  assert(max_heap.top() == "four");
+  auto seven = max_heap.insert("seven", 3);
+  assert(max_heap.top() == "four");
+  max_heap.updatePriority(seven, 7);
+  assert(max_heap.top() == "seven");
+  auto five = max_heap.insert("five", 8);
+  assert(max_heap.top() == "five");
+  max_heap.updatePriority(five, 5);
+  assert(max_heap.top() == "seven");
+  max_heap.pop();
+  assert(max_heap.top() == "five");
+  max_heap.pop();
+  assert(max_heap.top() == "four");
+  max_heap.pop();
+  assert(max_heap.top() == "four");
+  max_heap.pop();
+  assert(max_heap.top() == "three");
+  max_heap.pop();
+  assert(max_heap.top() == "two");
+  assert(max_heap.size() == 2);
+  max_heap.pop();
+  assert(max_heap.top() == "one");
+  max_heap.pop();
+  assert(max_heap.size() == 0);
+
+  max_heap.insert("one", 1);
+  seven = max_heap.insert("seven", 7);
+  assert(max_heap.top() == "seven");
+  max_heap.updatePriority(seven, 0);
+  assert(max_heap.top() == "one");
+  max_heap.updatePriority(seven, 7);
+  assert(max_heap.top() == "seven");
+  max_heap.updatePriority(seven, 0);
+  assert(max_heap.top() == "one");
+  max_heap.pop();
+  assert(max_heap.top() == "seven");
+  max_heap.updatePriority(seven, 7);
+  assert(max_heap.top() == "seven");
+  max_heap.updatePriority(seven, 0);
+  assert(max_heap.top() == "seven");
+}
+
+
 
 struct DestructorCounter {
   static int count;
