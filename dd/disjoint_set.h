@@ -47,7 +47,7 @@ namespace parakram {
       DisjointSet(int id, const TElement & elem):
         m_id(id),
         m_elem(elem),
-        m_size(0),
+        m_size(1),
         m_parent(this)
       { }
 
@@ -68,6 +68,10 @@ namespace parakram {
       // ***** id *****
       // get the id of this set
       int id() const { return m_id; }
+
+      // ***** size *****
+      // return the size of the partition
+      int size() const { return m_size; }
 
       // ***** computeUnion *****
       // https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Union
