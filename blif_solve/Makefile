@@ -4,8 +4,8 @@ LFLAGS_blif_solve = ${EXPORT_LFLAGS_factor_graph} ${EXPORT_LFLAGS_blif_solve_lib
 
 all : blif_solve
 
-blif_solve:	main.o command_line_options.o blif_factors.o blif_solve_method.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
-	${CC} main.o command_line_options.o blif_factors.o blif_solve_method.o ${LFLAGS_blif_solve} -o blif_solve
+blif_solve:	main.o command_line_options.o blif_factors.o blif_solve_method.o approx_merge.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
+	${CC} main.o command_line_options.o blif_factors.o blif_solve_method.o approx_merge.o ${LFLAGS_blif_solve} -o blif_solve
 
 main.o:	main.cpp command_line_options.h blif_solve_method.h blif_factors.h ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib} ${EXPORT_ARTIFACTS_blif_solve_lib}
 	${CC} ${CC_FLAGS} ${IFLAGS_blif_solve} ${IFLAGS_blif_solve_lib} main.cpp -o main.o
@@ -18,6 +18,9 @@ blif_factors.o: blif_factors.cpp blif_factors.h ${EXPORT_ARTIFACTS_factor_graph}
 
 blif_solve_method.o:	blif_solve_method.cpp blif_solve_method.h blif_factors.h command_line_options.h
 	${CC} ${CC_FLAGS} ${IFLAGS_blif_solve} blif_solve_method.cpp -o blif_solve_method.o
+
+approx_merge.o:	approx_merge.cpp approx_merge.h
+	${CC} ${CC_FLAGS} ${IFLAGS_blif_solve} approx_merge.cpp -o approx_merge.o
 
 clean :
 	rm -f blif_solve *.o

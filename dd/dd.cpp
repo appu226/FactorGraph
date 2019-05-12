@@ -542,7 +542,7 @@ void bdd_or_accumulate(DdManager * dd, bdd_ptr * a, bdd_ptr b)
   SeeAlso     [bdd_count_minterm]
 
 ******************************************************************************/
-int bdd_size(DdManager * dd, bdd_ptr fn)
+int bdd_size(bdd_ptr fn)
 {
   return(Cudd_DagSize((DdNode *)fn));
 }

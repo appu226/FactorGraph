@@ -248,7 +248,7 @@ int compute_cost(factor_graph *fg,fgnode *n1,fgnode *n2){
     assert(n2->type == VAR_NODE && "Computing the cost of unmatched nodes\n");
     bdd_ptr temp;
     temp = bdd_and(fg->m, n1->f[0], n2->f[0]);
-    int ret = bdd_size(fg->m, temp) - 1;
+    int ret = bdd_size(temp) - 1;
     bdd_free(fg->m, temp);
     return ret;
   }
@@ -263,7 +263,7 @@ int compute_cost(factor_graph *fg,fgnode *n1,fgnode *n2){
   for(i = 0; i < n2->fs; i++)
     bdd_and_accumulate(fg->m, &ss, n2->ss[i]);
 
-  int ret = bdd_size(fg->m, ss) - 1;
+  int ret = bdd_size(ss) - 1;
   bdd_free(fg->m, ss);
   return ret;
 }
@@ -294,7 +294,7 @@ int merge_heur1(factor_graph *fg,fgnode *n1,fgnode *n2,int l){
 
     if(n1->type==VAR_NODE){
       temp=bdd_and(fg->m,n1->f[0],n2->f[0]);
-      i=bdd_size(fg->m,temp)-1;
+      i=bdd_size(temp)-1;
       bdd_free(fg->m, temp);
       if(i>l){
         return 0;
@@ -1710,7 +1710,7 @@ void fgnode_printname(fgnode *n)
 int fgnode_support_size(DdManager *m, fgnode *n)
 {
   if(n->type == VAR_NODE)
-    return (bdd_size(m, n->ss[0]) - 1);
+    return (bdd_size(n->ss[0]) - 1);
 
   assert(n->type == FUNC_NODE);
 
@@ -1718,7 +1718,7 @@ int fgnode_support_size(DdManager *m, fgnode *n)
   int i;
   for(i = 0; i < n->fs; i++)
     bdd_and_accumulate(m, &temp, n->ss[i]);
-  i = (bdd_size(m, temp) - 1);
+  i = (bdd_size(temp) - 1);
   bdd_free(m, temp);
   return i;
 }

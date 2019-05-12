@@ -67,7 +67,7 @@ bdd_ptr  bdd_not  (DdManager *, bdd_ptr);
 int      bdd_is_one (DdManager *, bdd_ptr);
 int      bdd_is_zero (DdManager *, bdd_ptr);
 void     bdd_or_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
-int      bdd_size (DdManager *, bdd_ptr);
+int      bdd_size (bdd_ptr);
 void     bdd_print_minterms(DdManager *dd, bdd_ptr f);
 bdd_ptr  bdd_xnor(DdManager *dd, bdd_ptr f1, bdd_ptr f2);
 bdd_ptr  bdd_and_multi(DdManager *dd, bdd_ptr_set const & funcs);
