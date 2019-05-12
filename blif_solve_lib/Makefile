@@ -3,8 +3,8 @@ LFLAGS_blif_solve_lib = ${EXPORT_LFLAGS_factor_graph}
 
 all : 			libBlifSolveLib.a
 
-libBlifSolveLib.a :	cnf_dump.o log.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACS_dd}
-			ar r libBlifSolveLib.a cnf_dump.o log.o
+libBlifSolveLib.a :	cnf_dump.o log.o approx_merge.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACS_dd}
+			ar r libBlifSolveLib.a cnf_dump.o log.o approx_merge.o
 			ranlib libBlifSolveLib.a
 	
 cnf_dump.o :	cnf_dump.cpp ${EXPORT_ARTIFACTS_dd}
@@ -12,6 +12,9 @@ cnf_dump.o :	cnf_dump.cpp ${EXPORT_ARTIFACTS_dd}
 
 log.o :	log.cpp log.h
 			${CC} ${CC_FLAGS} log.cpp -o log.o
+
+approx_merge.o:	approx_merge.cpp approx_merge.h ${EXPORT_ARTIFACTS_dd}
+	${CC} ${CC_FLAGS} ${IFLAGS_blif_solve_lib} approx_merge.cpp -o approx_merge.o
 
 tags : 			*.cpp *.h
 			touch tag
