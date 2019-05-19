@@ -48,6 +48,14 @@ namespace test
       bdd_ptr operator ! () const;
       bdd_ptr operator * () const;
 
+      BddWrapper cubeIntersection(const BddWrapper & that) const;
+      BddWrapper cubeUnion(const BddWrapper & that) const;
+      BddWrapper cubeDiff(const BddWrapper & that) const;
+
+      BddWrapper support() const;
+
+      BddWrapper existentialQuantification(const BddWrapper & variables) const;
+
       bdd_ptr getUncountedBdd() const;
       bdd_ptr getCountedBdd() const;
 

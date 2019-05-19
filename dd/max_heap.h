@@ -209,7 +209,7 @@ namespace parakram {
     MaxHeap<TElement, TPriority, TCompare>::remove( 
         const typename MaxHeap<TElement, TPriority, TCompare>::DataCellCptr & dataCell )
     {
-      if( m_data.size() == 1 )
+      if( dataCell->position == m_data.size() - 1 )
         m_data.pop_back();
       else
       {

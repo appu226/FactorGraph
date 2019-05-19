@@ -1,6 +1,6 @@
 export CC = g++
 
-export DBG_FLAGS =
+export DBG_FLAGS = 
 export CC_FLAGS = -std=c++17 -c -O3 -Werror ${DBG_FLAGS}
 
 # set up variables for using cudd as a dependency

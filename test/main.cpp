@@ -39,6 +39,7 @@ SOFTWARE.
 #include <bdd_partition.h>
 
 #include "bdd_factory.h"
+#include "testApproxMerge.h"
 
 void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
@@ -65,6 +66,7 @@ int main()
     testLruCache();
     testDisjointSet(manager);
     testMaxHeap();
+    testApproxMerge(manager);
 
     std::cout << "SUCCESS" << std::endl;
 

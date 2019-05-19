@@ -83,6 +83,31 @@ namespace test
     return bdd_dup(m_bdd);
   }
 
+  BddWrapper BddWrapper::support() const
+  {
+    return BddWrapper(bdd_support(m_manager, m_bdd), m_manager);
+  }
+
+  BddWrapper BddWrapper::cubeIntersection(const BddWrapper & that) const
+  {
+    return BddWrapper(bdd_cube_intersection(m_manager, m_bdd, that.m_bdd), m_manager);
+  }
+
+  BddWrapper BddWrapper::cubeUnion(const BddWrapper & that) const
+  {
+    return BddWrapper(bdd_cube_union(m_manager, m_bdd, that.m_bdd), m_manager);
+  }
+
+  BddWrapper BddWrapper::cubeDiff(const BddWrapper & that) const
+  {
+    return BddWrapper(bdd_cube_diff(m_manager, m_bdd, that.m_bdd), m_manager);
+  }
+
+  BddWrapper BddWrapper::existentialQuantification(const BddWrapper & variables) const
+  {
+    return BddWrapper(bdd_forsome(m_manager, m_bdd, variables.m_bdd), m_manager);
+  }
+
   bdd_ptr BddWrapper::getUncountedBdd() const
   {
     return m_bdd;

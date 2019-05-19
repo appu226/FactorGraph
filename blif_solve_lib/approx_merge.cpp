@@ -1,3 +1,28 @@
+/*
+
+Copyright 2019 Parakram Majumdar
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
 #include "approx_merge.h"
 
 #include <disjoint_set.h>
@@ -123,11 +148,13 @@ namespace blif_solve
   {
     // create func nodes
     std::vector<std::unique_ptr<AmNode> > funcNodes;
+    std::set<bdd_ptr> mergedFactors(factors.cbegin(), factors.cend());
     for (auto factor: factors)
       funcNodes.push_back(std::make_unique<AmNode>(AmNode::Func, manager, factor));
 
     // create var nodes
     std::vector<std::unique_ptr<AmNode> > varNodes;
+    std::set<bdd_ptr> mergedVariables(variables.cbegin(), variables.cend());
     for (auto variable: variables)
       varNodes.push_back(std::make_unique<AmNode>(AmNode::Var, manager, variable));
 
@@ -152,7 +179,7 @@ namespace blif_solve
             mergers.push_back(std::make_unique<AmMerger>(f1.get(), f2.get()));
             auto merger = mergers.back().get();
             merger->heap_entry = heap.insert(merger, *optPriority);
-          }
+          } 
         }
       }
     }
@@ -188,6 +215,10 @@ namespace blif_solve
       nodeVec.push_back(std::make_unique<AmNode>(AmNode::Func, manager, mergedBdd));
       bdd_free(manager, mergedBdd);
       auto mergedNode = nodeVec.back().get();
+      auto & mergeSet = merger->node1->type == AmNode::Func ? mergedFactors : mergedVariables;
+      mergeSet.erase(merger->node1->node);
+      mergeSet.erase(merger->node2->node);
+      mergeSet.insert(mergedNode->node);
 
       // merge the neighbour lists
       {
@@ -209,9 +240,9 @@ namespace blif_solve
         for (auto oldMerger: oldMergers)
         {
           AmNode * otherNode = pullOutOtherNode(oldMerger, merger->node1, merger->node2);
-          heap.remove(oldMerger->heap_entry);
           if (otherNode == NULL)
             continue;
+          heap.remove(oldMerger->heap_entry);
           if (oldMergerSet.count(otherNode) != 0)
             continue;
           oldMergerSet.insert(otherNode);
@@ -220,11 +251,17 @@ namespace blif_solve
           {
             mergers.push_back(std::make_unique<AmMerger>(mergedNode, otherNode));
             auto newMerger = mergers.back().get();
-            merger->heap_entry = heap.insert(merger, *optPriority);
+            newMerger->heap_entry = heap.insert(newMerger, *optPriority);
           }
         }
       }
     }
+    MergeResults result;
+    result.factors = std::make_shared<std::vector<bdd_ptr> >(mergedFactors.cbegin(), mergedFactors.cend());
+    result.variables = std::make_shared<std::vector<bdd_ptr> >(mergedVariables.cbegin(), mergedVariables.cend());
+    for (auto factor: *result.factors) bdd_dup(factor);
+    for (auto variable: *result.variables) bdd_dup(variable);
+    return result;
 
   }
 

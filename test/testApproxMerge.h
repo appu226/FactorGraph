@@ -24,25 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <dd.h>
+#include <approx_merge.h>
 
-#include <vector>
-#include <memory>
+void testApproxMerge(DdManager * manager);
 
-namespace blif_solve
-{
-
-  struct MergeResults
-  {
-    typedef std::shared_ptr<std::vector<bdd_ptr> > FactorVec;
-    FactorVec factors;
-    FactorVec variables;
-  };
-
-  MergeResults 
-    merge(DdManager * manager,
-          const std::vector<bdd_ptr> & factors, 
-          const std::vector<bdd_ptr> & variables, 
-          int largestSupportSet);
-
-} // end namespace blif_solve
