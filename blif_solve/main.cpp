@@ -119,7 +119,7 @@ int main(int argc, char ** argv)
       start = now();
       auto upperMethod = createBlifSolveMethod(clo->overApproximatingMethod, *clo);
       upperLimit = divideAndConquer(partitions, upperMethod);
-      blif_solve_log(INFO, "Finised over approximating method " 
+      blif_solve_log(INFO, "Finished over approximating method " 
                            << clo->overApproximatingMethod << " in " 
                            << duration(start) << " sec");
       if(clo->mustCountSolutions)
@@ -196,9 +196,7 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
     return blif_solve::BlifSolveMethod::createExactAndAbstractMulti();
   else if ("FactorGraphApprox" == bsmStr)
     return blif_solve::BlifSolveMethod::createFactorGraphApprox(
-        clo.varNodeSize,
-        clo.funcNodeSize,
-        clo.seed,
+        clo.largestSupportSet,
         clo.numConvergence,
         clo.dotDumpPath);
   else if ("AcyclicViaForAll" == bsmStr)

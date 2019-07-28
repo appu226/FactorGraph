@@ -25,6 +25,9 @@ SOFTWARE.
 // blif_solve includes
 #include "blif_solve_method.h"
 
+// blif_solve_lib includes
+#include <approx_merge.h>
+
 // FactorGraph includes
 #include <dd.h>
 #include <factor_graph.h>
@@ -227,14 +230,10 @@ namespace {
     public BlifSolveMethod
   {
     public:
-      FactorGraphApprox(int varNodeSize, 
-                        int funcNodeSize, 
-                        int seed, 
+      FactorGraphApprox(int largestSupportSet,
                         int numConvergence, 
                         std::string dotDumpPath):
-        m_varNodeSize(varNodeSize),
-        m_funcNodeSize(funcNodeSize),
-        m_seed(seed),
+        m_largestSupportSet(largestSupportSet),
         m_numConvergence(numConvergence),
         m_dotDumpPath(dotDumpPath)
       { }
@@ -242,38 +241,22 @@ namespace {
       bdd_ptr_set solve(BlifFactors const & blifFactors) const override
       {
         // setup
-        blif_solve_log(INFO, "varNodeSize:" << m_varNodeSize << ", funcNodeSize:" << m_funcNodeSize << ", seed:" << m_seed << ", numConvergence:" << m_numConvergence);
+        blif_solve_log(INFO, "largestSupportSet " << m_largestSupportSet << ", numConvergence:" << m_numConvergence);
         auto funcs = blifFactors.getFactors();      // the set of functions
         auto nonPiVars = blifFactors.getNonPiVars();
         auto ddm = blifFactors.getDdManager();
         bdd_ptr_set result; // the set of results
         int last_result_size = -1; // do not iterate if number of results is not increasing
-        std::mt19937 randGen(m_seed); // randomizer
-
 
 
         // run message passing multiple times and collect results
         int nc = 0;
         for ( ; nc < m_numConvergence && static_cast<int>(result.size()) > last_result_size; ++nc)
         {
-          // randomly group the funcs in the factor graph
+          // group the funcs in the factor graph
           auto start = now();
-          auto shuffledFuncs = *funcs;
-          std::copy(result.begin(), result.end(), std::back_inserter(shuffledFuncs));
-
-          std::shuffle(shuffledFuncs.begin(), shuffledFuncs.end(), randGen);
-          std::vector<bdd_ptr> funcGroups;
-          int lastSize = m_funcNodeSize;
-          for (auto func: shuffledFuncs)
-          {
-            if (lastSize >= m_funcNodeSize)
-            {
-              funcGroups.push_back(bdd_one(ddm));
-              lastSize = 0;
-            }
-            bdd_and_accumulate(ddm, &funcGroups.back(), func);
-            ++lastSize;
-          }
+          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet);
+          auto & funcGroups = *mergeResults.factors;
           blif_solve_log(INFO, "Grouped func nodes in " << duration(start) << " secs");
           start = now();
           factor_graph * fg = factor_graph_new(ddm, &funcGroups.front(), funcGroups.size()); // the factor graph
@@ -293,30 +276,10 @@ namespace {
           }
 
 
-          // randomly group the non-pi variables in the factor graph
-          int varNodeSize = m_varNodeSize;
-          if (0 >= varNodeSize)
-            varNodeSize = fg->num_vars;
-          start = now();
-          auto shuffledVars = *nonPiVars;
-          std::shuffle(shuffledVars.begin(), shuffledVars.end(), randGen);
-          std::vector<bdd_ptr> nonPiVarGroups;
-          lastSize = varNodeSize;
-          for (auto npv: shuffledVars)
-          {
-            if (lastSize >= varNodeSize)
-            {
-              nonPiVarGroups.push_back(bdd_one(ddm));
-              lastSize = 0;
-            }
-            bdd_and_accumulate(ddm, &nonPiVarGroups.back(), npv);
-            ++lastSize;
-          }
-          for (auto nonPiVarGroup: nonPiVarGroups)
-          {
-            factor_graph_group_vars(fg, nonPiVarGroup);
-            bdd_free(ddm, nonPiVarGroup);
-          }
+          // group the non-pi variables in the factor graph
+          auto & nonPiVarGroups = *mergeResults.variables;
+          for (auto varGroup: nonPiVarGroups)
+            factor_graph_group_vars(fg, varGroup);
           blif_solve_log(INFO, "Grouped non-pi variables in "
               << duration(start) << " secs"); 
 
@@ -364,6 +327,8 @@ namespace {
           factor_graph_delete(fg);
 
 
+          for (auto nonPiVarGroup: nonPiVarGroups)
+            bdd_free(ddm, nonPiVarGroup);
 
           // dump results for debugging
           if (m_dotDumpPath.size() > 0 && blif_solve::getVerbosity() >= blif_solve::DEBUG)
@@ -372,7 +337,6 @@ namespace {
             zero.insert(bdd_zero(ddm));
             //bdd_ptr_set allVars(nonPiVars->cbegin(), nonPiVars->cend());
             bdd_ptr_set allVars;
-            std::cout << "number of vars = " << nonPiVars->size() << std::endl;
             std::stringstream outputPath;
             outputPath << m_dotDumpPath << "/result_iter_" << nc << ".dimacs";
             blif_solve::dumpCnfForModelCounting(ddm, allVars, result, zero, outputPath.str());
@@ -388,9 +352,7 @@ namespace {
       } // end 
 
     private:
-      int m_varNodeSize;
-      int m_funcNodeSize;
-      int m_seed;
+      int m_largestSupportSet;
       int m_numConvergence;
       std::string m_dotDumpPath;
   }; // end of class FactorGraphApprox
@@ -508,13 +470,11 @@ namespace blif_solve
   }
 
   BlifSolveMethodCptr BlifSolveMethod::createFactorGraphApprox(
-      int varNodeSize,
-      int funcNodeSize,
-      int seed,
+      int largestSupportSet,
       int numConvergence,
       std::string const & dotDumpPath)
   {
-    return std::make_shared<FactorGraphApprox>(varNodeSize, funcNodeSize, seed, numConvergence, dotDumpPath);
+    return std::make_shared<FactorGraphApprox>(largestSupportSet, numConvergence, dotDumpPath);
   }
 
   BlifSolveMethodCptr BlifSolveMethod::createAcyclicViaForAll()

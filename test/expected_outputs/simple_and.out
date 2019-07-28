@@ -9,7 +9,7 @@
 [DEBUG] parsing circuit for li00 as:
 111-  1
 [INFO] Executing over approximating method FactorGraphApprox
-[INFO] varNodeSize:0, funcNodeSize:1, seed:0, numConvergence:1
+[INFO] largestSupportSet 30, numConvergence:1
 [INFO] Initiating message passing
 [INFO] Factor graph messages have converged in 3 iterations
 [INFO] Ran 1 FactorGraph convergences

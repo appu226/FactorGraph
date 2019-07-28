@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include <list>
 #include <stdexcept>
+#include <iostream>
 
 namespace {
 
@@ -91,7 +92,10 @@ namespace {
       node1_entry(node1->mergers.insert(node1->mergers.end(), this)),
       node2_entry(node2->mergers.insert(node2->mergers.end(), this)),
       heap_entry()
-    { }
+    {
+      if (node1->type != node2->type)
+        throw std::runtime_error("AmMerger::AmMerger: node1 and node2 types must match");
+    }
 
   };
 
@@ -188,7 +192,7 @@ namespace blif_solve
     // create var-var connections
     for (auto & v1: varNodes) {
       for (auto & v2: varNodes) {
-        if (v1 < v2 && v1->isConnectedTo(*v2)) {
+        if (v1 < v2) {
           auto optPriority = getCompatibility(v1.get(), v2.get(), largestSupportSet);
           if (optPriority) {
             mergers.push_back(std::make_unique<AmMerger>(v1.get(), v2.get()));
@@ -212,7 +216,7 @@ namespace blif_solve
       // create merged node
       bdd_ptr mergedBdd = bdd_and(manager, merger->node1->node, merger->node2->node);
       auto & nodeVec = merger->node1->type == AmNode::Func ? funcNodes : varNodes;
-      nodeVec.push_back(std::make_unique<AmNode>(AmNode::Func, manager, mergedBdd));
+      nodeVec.push_back(std::make_unique<AmNode>(merger->node1->type, manager, mergedBdd));
       bdd_free(manager, mergedBdd);
       auto mergedNode = nodeVec.back().get();
       auto & mergeSet = merger->node1->type == AmNode::Func ? mergedFactors : mergedVariables;

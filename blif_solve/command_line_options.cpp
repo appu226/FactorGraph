@@ -36,9 +36,7 @@ namespace blif_solve {
     underApproximatingMethod("AcyclicViaForAll"),
     verbosity(WARNING),
     diffOutputPath(),
-    varNodeSize(0),
-    funcNodeSize(1),
-    seed(0),
+    largestSupportSet(30),
     numConvergence(1),
     clippingDepth(100),
     dotDumpPath(),
@@ -93,26 +91,12 @@ namespace blif_solve {
           usage("Output path not specified after --diff_output_path flag");
         diffOutputPath= argv[argi];
       }
-      else if(arg == "--var_node_size")
+      else if(arg == "--largest_support_set")
       {
         ++argi;
         if (argi >= argc)
-          usage("var node size missing after --var_node_size flag");
-        varNodeSize = std::atoi(argv[argi]);
-      }
-      else if(arg == "--func_node_size")
-      {
-        ++argi;
-        if (argi >= argc)
-          usage("func node size missing after --func_node_size flag");
-        funcNodeSize = std::atoi(argv[argi]);
-      }
-      else if (arg == "--seed")
-      {
-        ++argi;
-        if (argi >= argc)
-          usage("numeric seed missing after --seed flag");
-        seed = std::atoi(argv[argi]);
+          usage("size of largest support set  missing after --largest_support_set flag");
+        largestSupportSet = std::atoi(argv[argi]);
       }
       else if (arg == "--num_convergence")
       {
@@ -164,11 +148,8 @@ namespace blif_solve {
               << "\t\t--diff_output_path           : path to dump the diff bdd\n"
               << "\t\t                                 (upper_limit and not(lower_limit)) \n"
               << "\t\t                               in dimacs files (header and clauses separate)\n"
-              << "\t\t--var_node_size              : maximum number of variables to merge into a single node \n"
-              << "\t\t                               in the factor graph; default is 0 which means infinity\n"
-              << "\t\t--func_node_sze              : maximum number of functions to merge into a single node \n"
-              << "\t\t                               in the factor graph; default is 1 which means no merging\n"
-              << "\t\t--seed                       : seed to use for randomized merging of var and func nodes\n"
+              << "\t\t--largest_support_set        : size of the largest support set allowed while\n"
+              << "\t\t                                 grouping variables\n"
               << "\t\t--num_convergence            : number of times to run message passing algorithm\n"
               << "\t\t--verbosity v                : set verbosity level to v;\n"
               << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"

@@ -45,12 +45,8 @@ namespace blif_solve {
     Verbosity verbosity;
     // path to dump the diff cnf and header files
     std::string diffOutputPath;
-    // maximum number of variable nodes to merge into a single node in the factor graph
-    int varNodeSize;
-    // maximum number of function nodes to merge into a single node in the factor graph
-    int funcNodeSize;
-    // seed for randomized message passing
-    int seed;
+    // largest allowed support set while grouping vars
+    int largestSupportSet;
     // number of convergences to perform
     int numConvergence;
     // maximum depth to use while clipping

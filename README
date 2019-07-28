@@ -4,6 +4,8 @@ How to build:
 How to rebuild:
 	scripts/rebuild.sh
 
+How to test:
+  scrips/smoke_launch.sh
 
 Components:
   dd : A wrapper around cudd, exposing select functionality to cpp
