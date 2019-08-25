@@ -1,6 +1,10 @@
 **/*.swp
 **/*.o
 **/*.a
+verilog_to_bdd/*.hh
+verilog_to_bdd/verilog_parser.cpp
+verilog_to_bdd/verilog_parser.hpp
+verilog_to_bdd/verilog_scanner.cpp
 factor_graph_main/factor_graph_main
 qbf_solve/qbf_solve
 blif_solve/blif_solve
