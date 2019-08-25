@@ -1,12 +1,12 @@
 IFLAGS_verilog_to_bdd = ${EXPORT_IFLAGS_dd}
 LFLAGS_verilog_to_bdd = ${EXPORT_LFLAGS_dd}
 
-all :                libVerilogParser.a
+all :                libVerilogToBdd.a
 
 
-libVerilogParser.a : parser.o scanner.o interpreter.o ${EXPORT_ARTIFACTS_dd}
-			ar r libVerilogParser.a parser.o scanner.o interpreter.o
-			ranlib libVerilogParser.a
+libVerilogToBdd.a : parser.o scanner.o interpreter.o ${EXPORT_ARTIFACTS_dd}
+			ar r libVerilogToBdd.a parser.o scanner.o interpreter.o
+			ranlib libVerilogToBdd.a
 
 
 parser.o :           parser.cpp verilog_types.h scanner.h parser.hpp interpreter.h location.hh
@@ -35,4 +35,4 @@ clean:
 			rm -rf scanner.cpp
 			rm -rf parser.cpp parser.hpp location.hh position.hh stack.hh
 			rm -rf *.o
-			rm -rf libVerilogParser
+			rm -rf libVerilogToBdd.a
