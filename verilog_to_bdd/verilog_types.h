@@ -30,7 +30,7 @@ SOFTWARE.
 #include <memory>
 #include <vector>
 
-namespace verilog_parser {
+namespace verilog_to_bdd {
 
   struct Module;
   struct Assignment;

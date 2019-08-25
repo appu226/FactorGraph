@@ -25,7 +25,7 @@ SOFTWARE.
 %skeleton "lalr1.cc" /* use C++  */
 %defines             /* generate verilog_bison.h */
 %define parser_class_name {Parser}
-%define api.namespace {verilog_parser}
+%define api.namespace {verilog_to_bdd}
 %define api.prefix {vp}
 
 %define api.token.constructor
@@ -37,12 +37,12 @@ SOFTWARE.
   #include "verilog_types.h"
   #include <sstream>
 
-  namespace verilog_parser {
+  namespace verilog_to_bdd {
 
     class Scanner;
     class Interpreter;
 
-  } // end namespace verilog_parser
+  } // end namespace verilog_to_bdd
 }
 
 
@@ -53,18 +53,18 @@ SOFTWARE.
   #include "interpreter.h"
   #include "location.hh"
 
-static verilog_parser::Parser::symbol_type 
-  vplex(verilog_parser::Scanner & scanner, 
-        verilog_parser::Interpreter & driver)
+static verilog_to_bdd::Parser::symbol_type 
+  vplex(verilog_to_bdd::Scanner & scanner, 
+        verilog_to_bdd::Interpreter & driver)
   {
     return scanner.get_next_token();
   }
 }
 
-%lex-param { verilog_parser::Scanner & scanner }
-%lex-param { verilog_parser::Interpreter & driver }
-%parse-param { verilog_parser::Scanner & scanner }
-%parse-param { verilog_parser::Interpreter & driver }
+%lex-param { verilog_to_bdd::Scanner & scanner }
+%lex-param { verilog_to_bdd::Interpreter & driver }
+%parse-param { verilog_to_bdd::Scanner & scanner }
+%parse-param { verilog_to_bdd::Interpreter & driver }
 %locations
 %define parse.trace
 %define parse.error verbose
@@ -91,8 +91,8 @@ static verilog_parser::Parser::symbol_type
 %left TILDA
 
 %type <std::shared_ptr<std::vector<std::string> > > wire_name_list;
-%type <std::shared_ptr<std::vector<std::shared_ptr<verilog_parser::Assignment> > > > assignment_list;
-%type <std::shared_ptr<verilog_parser::Expression> > expression;
+%type <std::shared_ptr<std::vector<std::shared_ptr<verilog_to_bdd::Assignment> > > > assignment_list;
+%type <std::shared_ptr<verilog_to_bdd::Expression> > expression;
 
 %start module
 
@@ -130,7 +130,7 @@ wire_name_list : {
                ;
 
 assignment_list : {
-                    $$ = std::make_shared<std::vector<verilog_parser::AssignmentPtr> >();
+                    $$ = std::make_shared<std::vector<verilog_to_bdd::AssignmentPtr> >();
                   }
                 |  assignment_list ASSIGN IDENTIFIER EQUALS expression SEMICOLON
                    {
@@ -172,7 +172,7 @@ expression : IDENTIFIER
 
 %%
 
-void verilog_parser::Parser::error(const location & loc, const std::string & message)
+void verilog_to_bdd::Parser::error(const location & loc, const std::string & message)
 {
   std::stringstream ss;
   ss << "Error parsing verilog: " << message << "\nLocation: " << driver.getLocation() << std::endl;

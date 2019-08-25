@@ -24,40 +24,29 @@ SOFTWARE.
 
 #pragma once
 
-#include "scanner.h"
-#include "verilog_types.h"
+#if !defined(yyFlexLexerOnce)
+#define yyFlexLexer vpFlexLexer // bug in flex
+#include <FlexLexer.h>
+#endif
+
+#undef YY_DECL
+#define YY_DECL verilog_to_bdd::Parser::symbol_type verilog_to_bdd::Scanner::get_next_token()
+
 #include "parser.hpp"
-#include "location.hh"
 
-namespace verilog_parser {
 
- class Interpreter
- {
-   public:
-     static
-       std::shared_ptr<Module> 
-       parse(std::istream * is, const std::string & filename);
+namespace verilog_to_bdd {
 
-   private:
-     Interpreter(std::istream * is, const std::string & filename);
-     std::shared_ptr<Module> parse();
+  class Interpreter;
 
-   private:
-     friend class Parser;
-     friend class Scanner;
-     void setModule(const std::shared_ptr<Module> & module);
-     void columns(unsigned int offset);
-     void lines(unsigned int offset);
-     void step();
-     void resetLocation();
-     location getLocation() const;
+  class Scanner : public yyFlexLexer {
+    public:
+      Scanner(Interpreter & driver) : m_driver(driver) {}
+      virtual ~Scanner() {}
+      virtual verilog_to_bdd::Parser::symbol_type get_next_token();
 
-   private:
-     Scanner m_scanner;
-     Parser m_parser;
-     std::shared_ptr<Module> m_module;
-     std::string m_filename;
-     location m_location;
- };
+    private:
+      Interpreter & m_driver;
+  };
 
-} // end namespace verilog_parser
+} // end namespace verilog_to_bdd

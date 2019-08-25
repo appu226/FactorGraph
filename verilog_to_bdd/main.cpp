@@ -29,7 +29,7 @@ SOFTWARE.
 #include "interpreter.h"
 
 int main(int argc, char **argv) {
-  verilog_parser::Interpreter i;
+  verilog_to_bdd::Interpreter i;
   int res = i.parse();
   std::cout << "Parse complete. Result = " << res << std::endl;
   return res;

@@ -28,7 +28,7 @@ SOFTWARE.
 #include "parser.hpp"
 #include "location.hh"
 
-#define vpterminate() verilog_parser::Parser::make_END(m_driver.getLocation());
+#define vpterminate() verilog_to_bdd::Parser::make_END(m_driver.getLocation());
 
 #define YY_USER_ACTION { m_driver.step(); \
                          m_driver.columns(yyleng); \
@@ -47,35 +47,35 @@ SOFTWARE.
 %%
 
 
-module                 { return verilog_parser::Parser::make_MODULE(m_driver.getLocation()); }
+module                 { return verilog_to_bdd::Parser::make_MODULE(m_driver.getLocation()); }
 
-endmodule              { return verilog_parser::Parser::make_ENDMODULE(m_driver.getLocation()); }
+endmodule              { return verilog_to_bdd::Parser::make_ENDMODULE(m_driver.getLocation()); }
 
-wire                   { return verilog_parser::Parser::make_WIRE(m_driver.getLocation()); }
+wire                   { return verilog_to_bdd::Parser::make_WIRE(m_driver.getLocation()); }
 
-input                  { return verilog_parser::Parser::make_INPUT(m_driver.getLocation()); }
+input                  { return verilog_to_bdd::Parser::make_INPUT(m_driver.getLocation()); }
 
-output                 { return verilog_parser::Parser::make_OUTPUT(m_driver.getLocation()); }
+output                 { return verilog_to_bdd::Parser::make_OUTPUT(m_driver.getLocation()); }
 
-assign                 { return verilog_parser::Parser::make_ASSIGN(m_driver.getLocation()); }
+assign                 { return verilog_to_bdd::Parser::make_ASSIGN(m_driver.getLocation()); }
 
-[a-zA-Z0-9_]+          { return verilog_parser::Parser::make_IDENTIFIER(yytext, m_driver.getLocation()); }
+[a-zA-Z0-9_]+          { return verilog_to_bdd::Parser::make_IDENTIFIER(yytext, m_driver.getLocation()); }
 
-\(                     { return verilog_parser::Parser::make_LPAR(m_driver.getLocation()); }
+\(                     { return verilog_to_bdd::Parser::make_LPAR(m_driver.getLocation()); }
 
-\)                     { return verilog_parser::Parser::make_RPAR(m_driver.getLocation()); }
+\)                     { return verilog_to_bdd::Parser::make_RPAR(m_driver.getLocation()); }
 
-=                      { return verilog_parser::Parser::make_EQUALS(m_driver.getLocation()); }
+=                      { return verilog_to_bdd::Parser::make_EQUALS(m_driver.getLocation()); }
 
-~                      { return verilog_parser::Parser::make_TILDA(m_driver.getLocation()); }
+~                      { return verilog_to_bdd::Parser::make_TILDA(m_driver.getLocation()); }
 
-\|                     { return verilog_parser::Parser::make_OR(m_driver.getLocation()); }
+\|                     { return verilog_to_bdd::Parser::make_OR(m_driver.getLocation()); }
 
-&                      { return verilog_parser::Parser::make_AND(m_driver.getLocation()); }
+&                      { return verilog_to_bdd::Parser::make_AND(m_driver.getLocation()); }
 
-;                      { return verilog_parser::Parser::make_SEMICOLON(m_driver.getLocation()); }
+;                      { return verilog_to_bdd::Parser::make_SEMICOLON(m_driver.getLocation()); }
 
-,                      { return verilog_parser::Parser::make_COMMA(m_driver.getLocation()); }
+,                      { return verilog_to_bdd::Parser::make_COMMA(m_driver.getLocation()); }
 
 [ \t]                  { /* ignore whitespace */ }
 

@@ -99,7 +99,7 @@ void testVerilogParser()
      << "assign wire3 = wire1 & ~wire2;\n"
      << "assign wire4 = ~wire3 | wire1;\n"
      << "endmodule\n";
-  auto module = verilog_parser::Interpreter::parse(&ss, "manual input");
+  auto module = verilog_to_bdd::Interpreter::parse(&ss, "manual input");
   assert(module.get());
   assert(module->name == moduleName);
   assert(*module->inputs == moduleInputs);
@@ -110,40 +110,40 @@ void testVerilogParser()
   auto a1 = module->assignments->at(0);
   assert(a1->lhs == "wire3");
   auto e1 = a1->rhs;
-  assert(e1->getExpressionType() == verilog_parser::Expression::AndType);
-  auto e1And = std::dynamic_pointer_cast<verilog_parser::AndExpression>(e1);
+  assert(e1->getExpressionType() == verilog_to_bdd::Expression::AndType);
+  auto e1And = std::dynamic_pointer_cast<verilog_to_bdd::AndExpression>(e1);
   assert(e1And.get());
   auto e1Lhs = e1And->lhs, e1Rhs = e1And->rhs;
-  assert(e1Lhs->getExpressionType() == verilog_parser::Expression::WireType);
-  auto e1LhsWire = std::dynamic_pointer_cast<verilog_parser::WireExpression>(e1Lhs);
+  assert(e1Lhs->getExpressionType() == verilog_to_bdd::Expression::WireType);
+  auto e1LhsWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e1Lhs);
   assert(e1LhsWire.get());
   assert(e1LhsWire->wireName == "wire1");
-  assert(e1Rhs->getExpressionType() == verilog_parser::Expression::NegType);
-  auto e1RhsNeg = std::dynamic_pointer_cast<verilog_parser::NegExpression>(e1Rhs);
+  assert(e1Rhs->getExpressionType() == verilog_to_bdd::Expression::NegType);
+  auto e1RhsNeg = std::dynamic_pointer_cast<verilog_to_bdd::NegExpression>(e1Rhs);
   assert(e1RhsNeg);
   auto e1RhsUl = e1RhsNeg->underlying;
-  assert(e1RhsUl->getExpressionType() == verilog_parser::Expression::WireType);
-  auto e1RhsUlWire = std::dynamic_pointer_cast<verilog_parser::WireExpression>(e1RhsUl);
+  assert(e1RhsUl->getExpressionType() == verilog_to_bdd::Expression::WireType);
+  auto e1RhsUlWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e1RhsUl);
   assert(e1RhsUlWire.get());
   assert(e1RhsUlWire->wireName == "wire2");
 
   auto a2 = module->assignments->at(1);
   assert(a2->lhs == "wire4");
   auto e2 = a2->rhs;
-  assert(e2->getExpressionType() == verilog_parser::Expression::OrType);
-  auto e2Or = std::dynamic_pointer_cast<verilog_parser::OrExpression>(e2);
+  assert(e2->getExpressionType() == verilog_to_bdd::Expression::OrType);
+  auto e2Or = std::dynamic_pointer_cast<verilog_to_bdd::OrExpression>(e2);
   assert(e2Or.get());
   auto e2Lhs = e2Or->lhs, e2Rhs = e2Or->rhs;
-  assert(e2Lhs->getExpressionType() == verilog_parser::Expression::NegType);
-  auto e2LhsNot = std::dynamic_pointer_cast<verilog_parser::NegExpression>(e2Lhs);
+  assert(e2Lhs->getExpressionType() == verilog_to_bdd::Expression::NegType);
+  auto e2LhsNot = std::dynamic_pointer_cast<verilog_to_bdd::NegExpression>(e2Lhs);
   assert(e2LhsNot.get());
   auto e2LhsUl = e2LhsNot->underlying;
-  assert(e2LhsUl->getExpressionType() == verilog_parser::Expression::WireType);
-  auto e2LhsUlWire = std::dynamic_pointer_cast<verilog_parser::WireExpression>(e2LhsUl);
+  assert(e2LhsUl->getExpressionType() == verilog_to_bdd::Expression::WireType);
+  auto e2LhsUlWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e2LhsUl);
   assert(e2LhsUlWire.get());
   assert(e2LhsUlWire->wireName == "wire3");
-  assert(e2Rhs->getExpressionType() == verilog_parser::Expression::WireType);
-  auto e2RhsWire = std::dynamic_pointer_cast<verilog_parser::WireExpression>(e2Rhs);
+  assert(e2Rhs->getExpressionType() == verilog_to_bdd::Expression::WireType);
+  auto e2RhsWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e2Rhs);
   assert(e2RhsWire.get());
   assert(e2RhsWire->wireName == "wire1");
 }

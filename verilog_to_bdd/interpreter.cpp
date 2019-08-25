@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include <sstream>
 
-namespace verilog_parser {
+namespace verilog_to_bdd {
 
   std::shared_ptr<Module>
     Interpreter::parse(std::istream *is, const std::string & filename)
@@ -83,4 +83,4 @@ namespace verilog_parser {
     return m_location;
   }
 
-} // end namespace verilog_parser
+} // end namespace verilog_to_bdd

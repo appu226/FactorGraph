@@ -1,5 +1,5 @@
-IFLAGS_test = ${EXPORT_IFLAGS_dd} ${EXPORT_IFLAGS_blif_solve_lib} ${EXPORT_IFLAGS_verilog_parser}
-LFLAGS_test = ${EXPORT_LFLAGS_dd} ${EXPORT_LFLAGS_blif_solve_lib} ${EXPORT_LFLAGS_verilog_parser}
+IFLAGS_test = ${EXPORT_IFLAGS_dd} ${EXPORT_IFLAGS_blif_solve_lib} ${EXPORT_IFLAGS_verilog_to_bdd}
+LFLAGS_test = ${EXPORT_LFLAGS_dd} ${EXPORT_LFLAGS_blif_solve_lib} ${EXPORT_LFLAGS_verilog_to_bdd}
 
 
 all : test
