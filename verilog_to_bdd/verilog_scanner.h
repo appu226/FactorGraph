@@ -30,20 +30,20 @@ SOFTWARE.
 #endif
 
 #undef YY_DECL
-#define YY_DECL verilog_to_bdd::Parser::symbol_type verilog_to_bdd::Scanner::get_next_token()
+#define YY_DECL verilog_to_bdd::VerilogParser::symbol_type verilog_to_bdd::VerilogScanner::get_next_token()
 
-#include "parser.hpp"
+#include "verilog_parser.hpp"
 
 
 namespace verilog_to_bdd {
 
   class Interpreter;
 
-  class Scanner : public yyFlexLexer {
+  class VerilogScanner : public yyFlexLexer {
     public:
-      Scanner(Interpreter & driver) : m_driver(driver) {}
-      virtual ~Scanner() {}
-      virtual verilog_to_bdd::Parser::symbol_type get_next_token();
+      VerilogScanner(Interpreter & driver) : m_driver(driver) {}
+      virtual ~VerilogScanner() {}
+      virtual verilog_to_bdd::VerilogParser::symbol_type get_next_token();
 
     private:
       Interpreter & m_driver;

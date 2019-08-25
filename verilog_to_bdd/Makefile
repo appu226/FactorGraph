@@ -4,27 +4,27 @@ LFLAGS_verilog_to_bdd = ${EXPORT_LFLAGS_dd}
 all :                libVerilogToBdd.a
 
 
-libVerilogToBdd.a : parser.o scanner.o interpreter.o ${EXPORT_ARTIFACTS_dd}
-			ar r libVerilogToBdd.a parser.o scanner.o interpreter.o
+libVerilogToBdd.a : verilog_parser.o verilog_scanner.o interpreter.o ${EXPORT_ARTIFACTS_dd}
+			ar r libVerilogToBdd.a verilog_parser.o verilog_scanner.o interpreter.o
 			ranlib libVerilogToBdd.a
 
 
-parser.o :           parser.cpp verilog_types.h scanner.h parser.hpp interpreter.h location.hh
-			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} parser.cpp -o parser.o
+verilog_parser.o :           verilog_parser.cpp verilog_types.h verilog_scanner.h verilog_parser.hpp interpreter.h location.hh
+			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_parser.cpp -o verilog_parser.o
 	   
-scanner.o :          scanner.cpp interpreter.h parser.hpp location.hh
-			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} scanner.cpp -o scanner.o
+verilog_scanner.o :          verilog_scanner.cpp interpreter.h verilog_parser.hpp location.hh
+			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_scanner.cpp -o verilog_scanner.o
 	   
 interpreter.o :      interpreter.cpp interpreter.h verilog_types.h location.hh position.hh
 			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} interpreter.cpp -o interpreter.o
 
-scanner.cpp :        scanner.l
-			flex -o scanner.cpp -d scanner.l
+verilog_scanner.cpp :        verilog_scanner.l
+			flex -o verilog_scanner.cpp -d verilog_scanner.l
 
-parser.hpp location.hh position.hh stack.hh :	parser.cpp
+verilog_parser.hpp location.hh position.hh stack.hh :	verilog_parser.cpp
 	
-parser.cpp :				parser.y
-			bison -o parser.cpp -d parser.y
+verilog_parser.cpp :				verilog_parser.y
+			bison -o verilog_parser.cpp -d verilog_parser.y
 
 tags :							*.h *.cpp *.hpp *.hh
 			touch tag
@@ -32,7 +32,7 @@ tags :							*.h *.cpp *.hpp *.hh
 			ctags-exuberant ./*.cpp ./*.h ../${CUDD}/cudd/cuddAPI.c
 
 clean:
-			rm -rf scanner.cpp
-			rm -rf parser.cpp parser.hpp location.hh position.hh stack.hh
+			rm -rf verilog_scanner.cpp
+			rm -rf verilog_parser.cpp verilog_parser.hpp location.hh position.hh stack.hh
 			rm -rf *.o
 			rm -rf libVerilogToBdd.a

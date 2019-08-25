@@ -24,9 +24,9 @@ SOFTWARE.
 
 #pragma once
 
-#include "scanner.h"
+#include "verilog_scanner.h"
 #include "verilog_types.h"
-#include "parser.hpp"
+#include "verilog_parser.hpp"
 #include "location.hh"
 
 namespace verilog_to_bdd {
@@ -43,8 +43,8 @@ namespace verilog_to_bdd {
      std::shared_ptr<Module> parse();
 
    private:
-     friend class Parser;
-     friend class Scanner;
+     friend class VerilogParser;
+     friend class VerilogScanner;
      void setModule(const std::shared_ptr<Module> & module);
      void columns(unsigned int offset);
      void lines(unsigned int offset);
@@ -53,8 +53,8 @@ namespace verilog_to_bdd {
      location getLocation() const;
 
    private:
-     Scanner m_scanner;
-     Parser m_parser;
+     VerilogScanner m_verilog_scanner;
+     VerilogParser m_verilog_parser;
      std::shared_ptr<Module> m_module;
      std::string m_filename;
      location m_location;

@@ -24,7 +24,7 @@ SOFTWARE.
 
 %skeleton "lalr1.cc" /* use C++  */
 %defines             /* generate verilog_bison.h */
-%define parser_class_name {Parser}
+%define parser_class_name {VerilogParser}
 %define api.namespace {verilog_to_bdd}
 %define api.prefix {vp}
 
@@ -39,7 +39,7 @@ SOFTWARE.
 
   namespace verilog_to_bdd {
 
-    class Scanner;
+    class VerilogScanner;
     class Interpreter;
 
   } // end namespace verilog_to_bdd
@@ -48,22 +48,22 @@ SOFTWARE.
 
 %code top
 {
-  #include "scanner.h"
-  #include "parser.hpp"
+  #include "verilog_scanner.h"
+  #include "verilog_parser.hpp"
   #include "interpreter.h"
   #include "location.hh"
 
-static verilog_to_bdd::Parser::symbol_type 
-  vplex(verilog_to_bdd::Scanner & scanner, 
+static verilog_to_bdd::VerilogParser::symbol_type 
+  vplex(verilog_to_bdd::VerilogScanner & verilog_scanner, 
         verilog_to_bdd::Interpreter & driver)
   {
-    return scanner.get_next_token();
+    return verilog_scanner.get_next_token();
   }
 }
 
-%lex-param { verilog_to_bdd::Scanner & scanner }
+%lex-param { verilog_to_bdd::VerilogScanner & verilog_scanner }
 %lex-param { verilog_to_bdd::Interpreter & driver }
-%parse-param { verilog_to_bdd::Scanner & scanner }
+%parse-param { verilog_to_bdd::VerilogScanner & verilog_scanner }
 %parse-param { verilog_to_bdd::Interpreter & driver }
 %locations
 %define parse.trace
@@ -172,7 +172,7 @@ expression : IDENTIFIER
 
 %%
 
-void verilog_to_bdd::Parser::error(const location & loc, const std::string & message)
+void verilog_to_bdd::VerilogParser::error(const location & loc, const std::string & message)
 {
   std::stringstream ss;
   ss << "Error parsing verilog: " << message << "\nLocation: " << driver.getLocation() << std::endl;

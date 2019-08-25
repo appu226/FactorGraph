@@ -39,17 +39,17 @@ namespace verilog_to_bdd {
     }
 
   Interpreter::Interpreter(std::istream * is, const std::string & filename) :
-    m_scanner(*this),
-    m_parser(m_scanner, *this),
+    m_verilog_scanner(*this),
+    m_verilog_parser(m_verilog_scanner, *this),
     m_module(),
     m_filename(filename),
     m_location(&m_filename, 1, 1)
   {
-    m_scanner.switch_streams(is, NULL);
+    m_verilog_scanner.switch_streams(is, NULL);
   }
 
   std::shared_ptr<Module> Interpreter::parse() {
-    m_parser.parse();
+    m_verilog_parser.parse();
     return m_module;
   }
 

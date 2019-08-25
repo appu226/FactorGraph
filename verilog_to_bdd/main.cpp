@@ -24,8 +24,8 @@ SOFTWARE.
 
 #include <iostream>
 
-#include "scanner.h"
-#include "parser.hpp"
+#include "verilog_scanner.h"
+#include "verilog_parser.hpp"
 #include "interpreter.h"
 
 int main(int argc, char **argv) {
