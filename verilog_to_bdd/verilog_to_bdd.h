@@ -31,33 +31,53 @@ SOFTWARE.
 
 namespace verilog_to_bdd {
 
- class VerilogToBdd
- {
-   public:
-     static
-       std::shared_ptr<Module> 
-       parse(std::istream * is, const std::string & filename);
+  /** class VerilogToBdd
+   * A class to encapsulate the functionality for
+   *   parsing a verilog file containing skolem functions
+   *   and substituting those functions into the main function.
+   * See: http://mathworld.wolfram.com/SkolemFunction.html
+   */
+  class VerilogToBdd
+  {
+    // The main public api
+    public:
+      /** function VerilogToBdd::parse
+       * A static function to encapsulate the class creation, stateful parsing, 
+       *   and extraction of parsed structure.
+       * input args:
+       *   is: the input stream containing the text to be parsed
+       *   filename: a filename used only for reporting errors during parsing
+       */
+      static
+        std::shared_ptr<Module> 
+        parse(std::istream * is, const std::string & filename);
 
-   private:
-     VerilogToBdd(std::istream * is, const std::string & filename);
-     std::shared_ptr<Module> parse();
 
-   private:
-     friend class VerilogParser;
-     friend class VerilogScanner;
-     void setModule(const std::shared_ptr<Module> & module);
-     void columns(unsigned int offset);
-     void lines(unsigned int offset);
-     void step();
-     void resetLocation();
-     location getLocation() const;
+    // private stateful api used only in the top level static functions
+    private:
+      VerilogToBdd(std::istream * is, const std::string & filename);
+      std::shared_ptr<Module> parse();
 
-   private:
-     VerilogScanner m_verilog_scanner;
-     VerilogParser m_verilog_parser;
-     std::shared_ptr<Module> m_module;
-     std::string m_filename;
-     location m_location;
- };
+
+    // private api used by friend classes during parsing
+    private:
+      friend class VerilogParser;
+      friend class VerilogScanner;
+      void setModule(const std::shared_ptr<Module> & module);
+      void columns(unsigned int offset);
+      void lines(unsigned int offset);
+      void step();
+      void resetLocation();
+      location getLocation() const;
+
+
+    // private member variables
+    private:
+      VerilogScanner m_verilog_scanner;
+      VerilogParser m_verilog_parser;
+      std::shared_ptr<Module> m_module;
+      std::string m_filename;
+      location m_location;
+  };
 
 } // end namespace verilog_to_bdd

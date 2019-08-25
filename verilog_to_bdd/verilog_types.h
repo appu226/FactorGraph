@@ -32,6 +32,15 @@ SOFTWARE.
 
 namespace verilog_to_bdd {
 
+  /** classes
+   * A set of types to represent a parsed module file.
+   * Note that this is NOT intended to be a full parser for the verilog format.
+   * Instead it is a very limit sub-set,
+   *   designed purely to be able to parse
+   *   a very specific set of files that I care about.
+   */
+
+
   struct Module;
   struct Assignment;
   struct Expression;
@@ -103,6 +112,11 @@ namespace verilog_to_bdd {
   };
 
 
+
+  /** struct ExpressionVisitor
+   * A Visitor designed to be able to traverse the Expression hierarchy.
+   * See: https://en.wikipedia.org/wiki/Visitor_pattern
+   */
   template<typename ReturnType, typename AccumulatorType>
   struct ExpressionVisitor {
     ReturnType visitExpression(const Expression & e, AccumulatorType acc) const {
@@ -126,4 +140,4 @@ namespace verilog_to_bdd {
 
 
 
-};
+} // end namespace verilog_to_bdd
