@@ -40,7 +40,7 @@ SOFTWARE.
   namespace verilog_to_bdd {
 
     class VerilogScanner;
-    class Interpreter;
+    class VerilogToBdd;
 
   } // end namespace verilog_to_bdd
 }
@@ -50,21 +50,21 @@ SOFTWARE.
 {
   #include "verilog_scanner.h"
   #include "verilog_parser.hpp"
-  #include "interpreter.h"
+  #include "verilog_to_bdd.h"
   #include "location.hh"
 
 static verilog_to_bdd::VerilogParser::symbol_type 
   vplex(verilog_to_bdd::VerilogScanner & verilog_scanner, 
-        verilog_to_bdd::Interpreter & driver)
+        verilog_to_bdd::VerilogToBdd & driver)
   {
     return verilog_scanner.get_next_token();
   }
 }
 
 %lex-param { verilog_to_bdd::VerilogScanner & verilog_scanner }
-%lex-param { verilog_to_bdd::Interpreter & driver }
+%lex-param { verilog_to_bdd::VerilogToBdd & driver }
 %parse-param { verilog_to_bdd::VerilogScanner & verilog_scanner }
-%parse-param { verilog_to_bdd::Interpreter & driver }
+%parse-param { verilog_to_bdd::VerilogToBdd & driver }
 %locations
 %define parse.trace
 %define parse.error verbose

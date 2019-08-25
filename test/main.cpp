@@ -28,7 +28,7 @@ SOFTWARE.
 #include <optional.h>
 #include <lru_cache.h>
 #include <max_heap.h>
-#include <interpreter.h>
+#include <verilog_to_bdd.h>
 
 #include <memory>
 #include <vector>
@@ -99,7 +99,7 @@ void testVerilogParser()
      << "assign wire3 = wire1 & ~wire2;\n"
      << "assign wire4 = ~wire3 | wire1;\n"
      << "endmodule\n";
-  auto module = verilog_to_bdd::Interpreter::parse(&ss, "manual input");
+  auto module = verilog_to_bdd::VerilogToBdd::parse(&ss, "manual input");
   assert(module.get());
   assert(module->name == moduleName);
   assert(*module->inputs == moduleInputs);

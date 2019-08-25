@@ -24,7 +24,7 @@ SOFTWARE.
 
 %{
 
-#include "interpreter.h"
+#include "verilog_to_bdd.h"
 #include "verilog_parser.hpp"
 #include "location.hh"
 

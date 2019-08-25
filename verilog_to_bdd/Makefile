@@ -4,19 +4,19 @@ LFLAGS_verilog_to_bdd = ${EXPORT_LFLAGS_dd}
 all :                libVerilogToBdd.a
 
 
-libVerilogToBdd.a : verilog_parser.o verilog_scanner.o interpreter.o ${EXPORT_ARTIFACTS_dd}
-			ar r libVerilogToBdd.a verilog_parser.o verilog_scanner.o interpreter.o
+libVerilogToBdd.a : verilog_parser.o verilog_scanner.o verilog_to_bdd.o ${EXPORT_ARTIFACTS_dd}
+			ar r libVerilogToBdd.a verilog_parser.o verilog_scanner.o verilog_to_bdd.o
 			ranlib libVerilogToBdd.a
 
 
-verilog_parser.o :           verilog_parser.cpp verilog_types.h verilog_scanner.h verilog_parser.hpp interpreter.h location.hh
+verilog_parser.o :           verilog_parser.cpp verilog_types.h verilog_scanner.h verilog_parser.hpp verilog_to_bdd.h location.hh
 			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_parser.cpp -o verilog_parser.o
 	   
-verilog_scanner.o :          verilog_scanner.cpp interpreter.h verilog_parser.hpp location.hh
+verilog_scanner.o :          verilog_scanner.cpp verilog_to_bdd.h verilog_parser.hpp location.hh
 			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_scanner.cpp -o verilog_scanner.o
 	   
-interpreter.o :      interpreter.cpp interpreter.h verilog_types.h location.hh position.hh
-			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} interpreter.cpp -o interpreter.o
+verilog_to_bdd.o :      verilog_to_bdd.cpp verilog_to_bdd.h verilog_types.h location.hh position.hh
+			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_to_bdd.cpp -o verilog_to_bdd.o
 
 verilog_scanner.cpp :        verilog_scanner.l
 			flex -o verilog_scanner.cpp -d verilog_scanner.l

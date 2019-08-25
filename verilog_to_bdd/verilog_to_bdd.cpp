@@ -22,7 +22,7 @@ SOFTWARE.
 
 */
 
-#include "interpreter.h"
+#include "verilog_to_bdd.h"
 #include "verilog_types.h"
 #include "location.hh"
 #include "position.hh"
@@ -32,13 +32,13 @@ SOFTWARE.
 namespace verilog_to_bdd {
 
   std::shared_ptr<Module>
-    Interpreter::parse(std::istream *is, const std::string & filename)
+    VerilogToBdd::parse(std::istream *is, const std::string & filename)
     {
-      Interpreter ipt(is, filename);
+      VerilogToBdd ipt(is, filename);
       return ipt.parse();
     }
 
-  Interpreter::Interpreter(std::istream * is, const std::string & filename) :
+  VerilogToBdd::VerilogToBdd(std::istream * is, const std::string & filename) :
     m_verilog_scanner(*this),
     m_verilog_parser(m_verilog_scanner, *this),
     m_module(),
@@ -48,37 +48,37 @@ namespace verilog_to_bdd {
     m_verilog_scanner.switch_streams(is, NULL);
   }
 
-  std::shared_ptr<Module> Interpreter::parse() {
+  std::shared_ptr<Module> VerilogToBdd::parse() {
     m_verilog_parser.parse();
     return m_module;
   }
 
-  void Interpreter::setModule(const std::shared_ptr<Module> & module)
+  void VerilogToBdd::setModule(const std::shared_ptr<Module> & module)
   {
     m_module = module;
   }
 
-  void Interpreter::columns(unsigned int offset)
+  void VerilogToBdd::columns(unsigned int offset)
   {
     m_location.columns(offset);
   }
 
-  void Interpreter::lines(unsigned int offset)
+  void VerilogToBdd::lines(unsigned int offset)
   {
     m_location.lines(offset);
   }
 
-  void Interpreter::step()
+  void VerilogToBdd::step()
   {
     m_location.step();
   }
 
-  void Interpreter::resetLocation()
+  void VerilogToBdd::resetLocation()
   {
     m_location.initialize(&m_filename, 1, 1);
   }
 
-  location Interpreter::getLocation() const
+  location VerilogToBdd::getLocation() const
   {
     return m_location;
   }

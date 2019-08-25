@@ -37,16 +37,16 @@ SOFTWARE.
 
 namespace verilog_to_bdd {
 
-  class Interpreter;
+  class VerilogToBdd;
 
   class VerilogScanner : public yyFlexLexer {
     public:
-      VerilogScanner(Interpreter & driver) : m_driver(driver) {}
+      VerilogScanner(VerilogToBdd & driver) : m_driver(driver) {}
       virtual ~VerilogScanner() {}
       virtual verilog_to_bdd::VerilogParser::symbol_type get_next_token();
 
     private:
-      Interpreter & m_driver;
+      VerilogToBdd & m_driver;
   };
 
 } // end namespace verilog_to_bdd

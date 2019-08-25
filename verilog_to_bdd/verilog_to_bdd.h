@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace verilog_to_bdd {
 
- class Interpreter
+ class VerilogToBdd
  {
    public:
      static
@@ -39,7 +39,7 @@ namespace verilog_to_bdd {
        parse(std::istream * is, const std::string & filename);
 
    private:
-     Interpreter(std::istream * is, const std::string & filename);
+     VerilogToBdd(std::istream * is, const std::string & filename);
      std::shared_ptr<Module> parse();
 
    private:
