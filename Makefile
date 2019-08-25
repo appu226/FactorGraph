@@ -24,6 +24,8 @@ all clean :
 
 factor_graph : dd
 
+verilog_parser : dd
+
 factor_graph_main :	factor_graph
 
 qbf_solve :		factor_graph

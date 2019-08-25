@@ -21,7 +21,9 @@ interpreter.o :      interpreter.cpp interpreter.h verilog_types.h location.hh p
 scanner.cpp :        scanner.l
 			flex -o scanner.cpp -d scanner.l
 
-parser.cpp parser.hpp location.hh position.hh stack.hh :	parser.y
+parser.hpp location.hh position.hh stack.hh :	parser.cpp
+	
+parser.cpp :				parser.y
 			bison -o parser.cpp -d parser.y
 
 tags :							*.h *.cpp *.hpp *.hh

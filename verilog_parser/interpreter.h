@@ -34,24 +34,22 @@ namespace verilog_parser {
  class Interpreter
  {
    public:
-     Interpreter();
+     static
+       std::shared_ptr<Module> 
+       parse(std::istream * is, const std::string & filename);
 
-     int parse();
+   private:
+     Interpreter(std::istream * is, const std::string & filename);
+     std::shared_ptr<Module> parse();
 
-     void clear();
-
-     void switchInputStream(std::istream * is, const std::string & filename);
-
+   private:
      friend class Parser;
      friend class Scanner;
-
-   public:
      void setModule(const std::shared_ptr<Module> & module);
      void columns(unsigned int offset);
      void lines(unsigned int offset);
      void step();
      void resetLocation();
-
      location getLocation() const;
 
    private:

@@ -31,24 +31,26 @@ SOFTWARE.
 
 namespace verilog_parser {
 
-  Interpreter::Interpreter() :
+  std::shared_ptr<Module>
+    Interpreter::parse(std::istream *is, const std::string & filename)
+    {
+      Interpreter ipt(is, filename);
+      return ipt.parse();
+    }
+
+  Interpreter::Interpreter(std::istream * is, const std::string & filename) :
     m_scanner(*this),
     m_parser(m_scanner, *this),
     m_module(),
-    m_filename(),
+    m_filename(filename),
     m_location(&m_filename, 1, 1)
-  { }
-
-  int Interpreter::parse() {
-    m_location.initialize(&m_filename, 1, 1);
-    return m_parser.parse();
+  {
+    m_scanner.switch_streams(is, NULL);
   }
 
-  void Interpreter::switchInputStream(std::istream * is, const std::string & filename) {
-    m_scanner.switch_streams(is,NULL);
-    m_filename = filename;
-    m_location.initialize(&m_filename, 1, 1);
-    m_module.reset();
+  std::shared_ptr<Module> Interpreter::parse() {
+    m_parser.parse();
+    return m_module;
   }
 
   void Interpreter::setModule(const std::shared_ptr<Module> & module)
