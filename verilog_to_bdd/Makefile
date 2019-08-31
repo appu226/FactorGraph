@@ -9,13 +9,13 @@ libVerilogToBdd.a : verilog_parser.o verilog_scanner.o verilog_to_bdd.o ${EXPORT
 			ranlib libVerilogToBdd.a
 
 
-verilog_parser.o :           verilog_parser.cpp verilog_types.h verilog_scanner.h verilog_parser.hpp verilog_to_bdd.h location.hh
+verilog_parser.o :           verilog_parser.cpp verilog_scanner.h verilog_parser.hpp verilog_to_bdd.h location.hh
 			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_parser.cpp -o verilog_parser.o
 	   
 verilog_scanner.o :          verilog_scanner.cpp verilog_to_bdd.h verilog_parser.hpp location.hh
 			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_scanner.cpp -o verilog_scanner.o
 	   
-verilog_to_bdd.o :      verilog_to_bdd.cpp verilog_to_bdd.h verilog_types.h location.hh position.hh
+verilog_to_bdd.o :      verilog_to_bdd.cpp verilog_to_bdd.h location.hh position.hh
 			${CC} ${CC_FLAGS} ${IFLAGS_verilog_to_bdd} verilog_to_bdd.cpp -o verilog_to_bdd.o
 
 verilog_scanner.cpp :        verilog_scanner.l

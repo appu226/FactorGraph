@@ -23,39 +23,54 @@ SOFTWARE.
 */
 
 #include "verilog_to_bdd.h"
-#include "verilog_types.h"
 #include "location.hh"
 #include "position.hh"
 
-#include <sstream>
+#include <stdexcept>
 
 namespace verilog_to_bdd {
 
-  std::shared_ptr<Module>
-    VerilogToBdd::parse(std::istream *is, const std::string & filename)
+  void
+    VerilogToBdd::parse(std::istream *is, 
+                        const std::string & filename,
+                        const BddVarMapPtr & vars,
+                        DdManager * manager)
     {
-      VerilogToBdd ipt(is, filename);
+      VerilogToBdd ipt(is, filename, vars, manager);
       return ipt.parse();
     }
 
-  VerilogToBdd::VerilogToBdd(std::istream * is, const std::string & filename) :
+  VerilogToBdd::VerilogToBdd(std::istream * is, 
+                             const std::string & filename,
+                             const BddVarMapPtr & vars,
+                             DdManager * manager) :
     m_verilog_scanner(*this),
     m_verilog_parser(m_verilog_scanner, *this),
-    m_module(),
     m_filename(filename),
-    m_location(&m_filename, 1, 1)
+    m_location(&m_filename, 1, 1),
+    m_vars(vars),
+    m_manager(manager)
   {
     m_verilog_scanner.switch_streams(is, NULL);
   }
 
-  std::shared_ptr<Module> VerilogToBdd::parse() {
+  void VerilogToBdd::parse() {
     m_verilog_parser.parse();
-    return m_module;
   }
 
-  void VerilogToBdd::setModule(const std::shared_ptr<Module> & module)
+  void VerilogToBdd::addBddPtr(const std::string & name, bdd_ptr func)
   {
-    m_module = module;
+    if (m_vars->count(name))
+      throw std::runtime_error("Found definition for already defined bdd variable " + name);
+    m_vars->insert(std::make_pair(name, func));
+  }
+
+  bdd_ptr VerilogToBdd::getBddPtr(const std::string & name) const
+  {
+    auto vit = m_vars->find(name);
+    if (vit == m_vars->end())
+      throw std::runtime_error("Count not find variable " + name);
+    return bdd_dup(vit->second);
   }
 
   void VerilogToBdd::columns(unsigned int offset)

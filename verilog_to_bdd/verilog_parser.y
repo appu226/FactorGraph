@@ -34,8 +34,8 @@ SOFTWARE.
 
 %code requires
 {
-  #include "verilog_types.h"
   #include <sstream>
+  #include <dd.h>
 
   namespace verilog_to_bdd {
 
@@ -43,6 +43,7 @@ SOFTWARE.
     class VerilogToBdd;
 
   } // end namespace verilog_to_bdd
+
 }
 
 
@@ -55,16 +56,16 @@ SOFTWARE.
 
 static verilog_to_bdd::VerilogParser::symbol_type 
   vplex(verilog_to_bdd::VerilogScanner & verilog_scanner, 
-        verilog_to_bdd::VerilogToBdd & driver)
+        verilog_to_bdd::VerilogToBdd & verilogToBdd)
   {
     return verilog_scanner.get_next_token();
   }
 }
 
 %lex-param { verilog_to_bdd::VerilogScanner & verilog_scanner }
-%lex-param { verilog_to_bdd::VerilogToBdd & driver }
+%lex-param { verilog_to_bdd::VerilogToBdd & verilogToBdd }
 %parse-param { verilog_to_bdd::VerilogScanner & verilog_scanner }
-%parse-param { verilog_to_bdd::VerilogToBdd & driver }
+%parse-param { verilog_to_bdd::VerilogToBdd & verilogToBdd }
 %locations
 %define parse.trace
 %define parse.error verbose
@@ -90,9 +91,7 @@ static verilog_to_bdd::VerilogParser::symbol_type
 %left OR AND
 %left TILDA
 
-%type <std::shared_ptr<std::vector<std::string> > > wire_name_list;
-%type <std::shared_ptr<std::vector<std::shared_ptr<verilog_to_bdd::Assignment> > > > assignment_list;
-%type <std::shared_ptr<verilog_to_bdd::Expression> > expression;
+%type <bdd_ptr> expression;
 
 %start module
 
@@ -103,70 +102,38 @@ module : MODULE IDENTIFIER LPAR wire_name_list RPAR SEMICOLON
                 OUTPUT wire_name_list SEMICOLON
                 WIRE wire_name_list SEMICOLON
                 assignment_list
-         ENDMODULE {
-                     auto module = std::make_shared<Module>();
-                     module->name = $2;
-                     module->interface = $4;
-                     module->inputs = $8;
-                     module->outputs = $11;
-                     module->wires = $14;
-                     module->assignments = $16;
-                     driver.setModule(module);
-                   }
+         ENDMODULE { }
          ;
 
-wire_name_list : {
-                   $$ = std::make_shared<std::vector<std::string> >();
-                 }
+wire_name_list : { }
                | IDENTIFIER
-                 {
-                   $$ = std::make_shared<std::vector<std::string> >(1, $1);
-                 }
+                 { }
                | wire_name_list COMMA IDENTIFIER
-                 {
-                   $1->push_back($3);
-                   $$ = $1;
-                 }
+                 { }
                ;
 
-assignment_list : {
-                    $$ = std::make_shared<std::vector<verilog_to_bdd::AssignmentPtr> >();
-                  }
+assignment_list : { }
                 |  assignment_list ASSIGN IDENTIFIER EQUALS expression SEMICOLON
                    {
-                     auto assignment = std::make_shared<Assignment>();
-                     assignment->lhs = $3;
-                     assignment->rhs = $5;
-                     $1->push_back(assignment);
-                     $$ = $1;
+                     verilogToBdd.addBddPtr($3, $5);
                    }
                 ;
 
 expression : IDENTIFIER
              {
-               auto ret = std::make_shared<WireExpression>();
-               ret->wireName = $1;
-               $$ = std::static_pointer_cast<Expression>(ret);
+               $$ = verilogToBdd.getBddPtr($1);
              }
              | TILDA expression
                {
-                 auto ret = std::make_shared<NegExpression>();
-                 ret->underlying = $2;
-                 $$ = std::static_pointer_cast<Expression>(ret);
+                 $$ = verilogToBdd.bddUnaryAndClear($2, &bdd_not);
                }
              | expression AND expression
                {
-                 auto ret = std::make_shared<AndExpression>();
-                 ret->lhs = $1;
-                 ret->rhs = $3;
-                 $$ = std::static_pointer_cast<Expression>(ret);
+                 $$ = verilogToBdd.bddBinaryAndClear($1, $3, &bdd_and);
                }
              | expression OR expression
                {
-                 auto ret = std::make_shared<OrExpression>();
-                 ret->lhs = $1;
-                 ret->rhs = $3;
-                 $$ = std::static_pointer_cast<Expression>(ret);
+                 $$ = verilogToBdd.bddBinaryAndClear($1, $3, &bdd_or);
                }
              ;
 
@@ -175,7 +142,7 @@ expression : IDENTIFIER
 void verilog_to_bdd::VerilogParser::error(const location & loc, const std::string & message)
 {
   std::stringstream ss;
-  ss << "Error parsing verilog: " << message << "\nLocation: " << driver.getLocation() << std::endl;
+  ss << "Error parsing verilog: " << message << "\nLocation: " << verilogToBdd.getLocation() << std::endl;
   throw std::runtime_error(ss.str());
 }
 

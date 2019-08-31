@@ -25,9 +25,13 @@ SOFTWARE.
 #pragma once
 
 #include "verilog_scanner.h"
-#include "verilog_types.h"
 #include "verilog_parser.hpp"
 #include "location.hh"
+
+#include <string>
+#include <map>
+#include <memory>
+#include <dd.h>
 
 namespace verilog_to_bdd {
 
@@ -41,6 +45,10 @@ namespace verilog_to_bdd {
   {
     // The main public api
     public:
+
+      typedef std::map<std::string, bdd_ptr> BddVarMap;
+      typedef std::shared_ptr<BddVarMap> BddVarMapPtr;
+
       /** function VerilogToBdd::parse
        * A static function to encapsulate the class creation, stateful parsing, 
        *   and extraction of parsed structure.
@@ -49,21 +57,47 @@ namespace verilog_to_bdd {
        *   filename: a filename used only for reporting errors during parsing
        */
       static
-        std::shared_ptr<Module> 
-        parse(std::istream * is, const std::string & filename);
+        void
+        parse(std::istream * is, 
+              const std::string & filename, 
+              const BddVarMapPtr & vars,
+              DdManager * manager);
 
 
     // private stateful api used only in the top level static functions
     private:
-      VerilogToBdd(std::istream * is, const std::string & filename);
-      std::shared_ptr<Module> parse();
+      VerilogToBdd(std::istream * is,
+                   const std::string & filename, 
+                   const BddVarMapPtr & vars,
+                   DdManager * manager);
+      void parse();
+
+      template<typename Operator>
+        bdd_ptr 
+        bddBinaryAndClear(bdd_ptr lhs, bdd_ptr rhs, Operator op)
+        {
+          bdd_ptr result = (*op)(m_manager, lhs, rhs);
+          bdd_free(m_manager, lhs);
+          bdd_free(m_manager, rhs);
+          return result;
+        }
+
+      template<typename Operator>
+        bdd_ptr
+        bddUnaryAndClear(bdd_ptr underlying, Operator op)
+        {
+          bdd_ptr result = (*op)(m_manager, underlying);
+          bdd_free(m_manager, underlying);
+          return result;
+        }
 
 
     // private api used by friend classes during parsing
     private:
       friend class VerilogParser;
       friend class VerilogScanner;
-      void setModule(const std::shared_ptr<Module> & module);
+      void addBddPtr(const std::string & name, bdd_ptr func);
+      bdd_ptr getBddPtr(const std::string & name) const;
       void columns(unsigned int offset);
       void lines(unsigned int offset);
       void step();
@@ -75,9 +109,10 @@ namespace verilog_to_bdd {
     private:
       VerilogScanner m_verilog_scanner;
       VerilogParser m_verilog_parser;
-      std::shared_ptr<Module> m_module;
       std::string m_filename;
       location m_location;
+      BddVarMapPtr m_vars;
+      DdManager * m_manager;
   };
 
 } // end namespace verilog_to_bdd

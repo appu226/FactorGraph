@@ -42,7 +42,7 @@ SOFTWARE.
 #include "bdd_factory.h"
 #include "testApproxMerge.h"
 
-void testVerilogParser();
+void testVerilogParser(DdManager * manager);
 void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
 void testIsConnectedComponent(DdManager * manager);
@@ -61,7 +61,7 @@ int main()
     DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
     common_error(manager, "test/main.cpp : Could not initialize DdManager\n");
 
-    testVerilogParser();
+    testVerilogParser(manager);
     testCuddBddCountMintermsMulti(manager);
     testCuddBddAndAbstractMulti(manager);
     testCnfDump(manager);
@@ -83,7 +83,7 @@ int main()
   }
 }
 
-void testVerilogParser()
+void testVerilogParser(DdManager * manager)
 {
   std::stringstream ss;
   std::string moduleName = "module1";
@@ -99,53 +99,21 @@ void testVerilogParser()
      << "assign wire3 = wire1 & ~wire2;\n"
      << "assign wire4 = ~wire3 | wire1;\n"
      << "endmodule\n";
-  auto module = verilog_to_bdd::VerilogToBdd::parse(&ss, "manual input");
-  assert(module.get());
-  assert(module->name == moduleName);
-  assert(*module->inputs == moduleInputs);
-  assert(*module->outputs == moduleOutputs);
-  assert(*module->wires == moduleWires);
-  assert(module->assignments->size() == 2);
-  
-  auto a1 = module->assignments->at(0);
-  assert(a1->lhs == "wire3");
-  auto e1 = a1->rhs;
-  assert(e1->getExpressionType() == verilog_to_bdd::Expression::AndType);
-  auto e1And = std::dynamic_pointer_cast<verilog_to_bdd::AndExpression>(e1);
-  assert(e1And.get());
-  auto e1Lhs = e1And->lhs, e1Rhs = e1And->rhs;
-  assert(e1Lhs->getExpressionType() == verilog_to_bdd::Expression::WireType);
-  auto e1LhsWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e1Lhs);
-  assert(e1LhsWire.get());
-  assert(e1LhsWire->wireName == "wire1");
-  assert(e1Rhs->getExpressionType() == verilog_to_bdd::Expression::NegType);
-  auto e1RhsNeg = std::dynamic_pointer_cast<verilog_to_bdd::NegExpression>(e1Rhs);
-  assert(e1RhsNeg);
-  auto e1RhsUl = e1RhsNeg->underlying;
-  assert(e1RhsUl->getExpressionType() == verilog_to_bdd::Expression::WireType);
-  auto e1RhsUlWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e1RhsUl);
-  assert(e1RhsUlWire.get());
-  assert(e1RhsUlWire->wireName == "wire2");
+  test::BddWrapper wire1(bdd_new_var_with_index(manager, 1), manager);
+  test::BddWrapper wire2(bdd_new_var_with_index(manager, 2), manager);
+  auto bddVarMap = std::make_shared<verilog_to_bdd::VerilogToBdd::BddVarMap>();
+  bddVarMap->insert(std::make_pair(std::string("wire1"), wire1.getCountedBdd()));
+  bddVarMap->insert(std::make_pair(std::string("wire2"), wire2.getCountedBdd()));
+  verilog_to_bdd::VerilogToBdd::parse(&ss, "manual input", bddVarMap, manager);
+  test::BddWrapper wire3(bdd_dup(bddVarMap->find("wire3")->second), manager),
+                   wire4(bdd_dup(bddVarMap->find("wire4")->second), manager);
+  test::BddWrapper wire3_expected = wire1 * -wire2;
+  test::BddWrapper wire4_expected = (-wire3_expected) + wire1;
 
-  auto a2 = module->assignments->at(1);
-  assert(a2->lhs == "wire4");
-  auto e2 = a2->rhs;
-  assert(e2->getExpressionType() == verilog_to_bdd::Expression::OrType);
-  auto e2Or = std::dynamic_pointer_cast<verilog_to_bdd::OrExpression>(e2);
-  assert(e2Or.get());
-  auto e2Lhs = e2Or->lhs, e2Rhs = e2Or->rhs;
-  assert(e2Lhs->getExpressionType() == verilog_to_bdd::Expression::NegType);
-  auto e2LhsNot = std::dynamic_pointer_cast<verilog_to_bdd::NegExpression>(e2Lhs);
-  assert(e2LhsNot.get());
-  auto e2LhsUl = e2LhsNot->underlying;
-  assert(e2LhsUl->getExpressionType() == verilog_to_bdd::Expression::WireType);
-  auto e2LhsUlWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e2LhsUl);
-  assert(e2LhsUlWire.get());
-  assert(e2LhsUlWire->wireName == "wire3");
-  assert(e2Rhs->getExpressionType() == verilog_to_bdd::Expression::WireType);
-  auto e2RhsWire = std::dynamic_pointer_cast<verilog_to_bdd::WireExpression>(e2Rhs);
-  assert(e2RhsWire.get());
-  assert(e2RhsWire->wireName == "wire1");
+  assert(wire3.getUncountedBdd() == wire3_expected.getUncountedBdd());
+  assert(wire4.getUncountedBdd() == wire4_expected.getUncountedBdd());
+  for (auto bvmit = bddVarMap->begin(); bvmit != bddVarMap->end(); ++bvmit)
+    bdd_free(manager, bvmit->second);
 }
 
 
