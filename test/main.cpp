@@ -101,19 +101,17 @@ void testVerilogParser(DdManager * manager)
      << "endmodule\n";
   test::BddWrapper wire1(bdd_new_var_with_index(manager, 1), manager);
   test::BddWrapper wire2(bdd_new_var_with_index(manager, 2), manager);
-  auto bddVarMap = std::make_shared<verilog_to_bdd::VerilogToBdd::BddVarMap>();
-  bddVarMap->insert(std::make_pair(std::string("wire1"), wire1.getCountedBdd()));
-  bddVarMap->insert(std::make_pair(std::string("wire2"), wire2.getCountedBdd()));
+  auto bddVarMap = std::make_shared<verilog_to_bdd::BddVarMap>(manager);
+  bddVarMap->addBddPtr("wire1", wire1.getCountedBdd());
+  bddVarMap->addBddPtr("wire2", wire2.getCountedBdd());
   verilog_to_bdd::VerilogToBdd::parse(&ss, "manual input", bddVarMap, manager);
-  test::BddWrapper wire3(bdd_dup(bddVarMap->find("wire3")->second), manager),
-                   wire4(bdd_dup(bddVarMap->find("wire4")->second), manager);
+  test::BddWrapper wire3(bdd_dup(bddVarMap->getBddPtr("wire3")), manager),
+                   wire4(bdd_dup(bddVarMap->getBddPtr("wire4")), manager);
   test::BddWrapper wire3_expected = wire1 * -wire2;
   test::BddWrapper wire4_expected = (-wire3_expected) + wire1;
 
   assert(wire3.getUncountedBdd() == wire3_expected.getUncountedBdd());
   assert(wire4.getUncountedBdd() == wire4_expected.getUncountedBdd());
-  for (auto bvmit = bddVarMap->begin(); bvmit != bddVarMap->end(); ++bvmit)
-    bdd_free(manager, bvmit->second);
 }
 
 

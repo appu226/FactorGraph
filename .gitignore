@@ -8,6 +8,7 @@ verilog_to_bdd/verilog_scanner.cpp
 factor_graph_main/factor_graph_main
 qbf_solve/qbf_solve
 blif_solve/blif_solve
+blif_solve/verilog_solve
 test/test
 temp
 tags

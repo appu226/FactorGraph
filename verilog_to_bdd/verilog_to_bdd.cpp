@@ -30,6 +30,37 @@ SOFTWARE.
 
 namespace verilog_to_bdd {
 
+
+  //------------------------------------------------------------
+  // BddVarMap definitions
+  BddVarMap::BddVarMap(DdManager * manager)
+    : m_manager(manager)
+  { }
+
+  BddVarMap::~BddVarMap()
+  {
+    for (auto di = m_data.begin(); di != m_data.end(); ++di)
+      bdd_free(m_manager, di->second);
+  }
+
+  bdd_ptr BddVarMap::getBddPtr(const std::string & varName) const
+  {
+    auto di = m_data.find(varName);
+    if (di == m_data.end()) throw std::runtime_error("Could not find variable " + varName);
+    return bdd_dup(di->second);
+  }
+
+  void BddVarMap::addBddPtr(const std::string & varName, bdd_ptr varBdd)
+  {
+    if (m_data.count(varName)) throw std::runtime_error("Variable " + varName + " already present");
+    m_data[varName] = varBdd;
+  }
+
+
+
+
+  // -----------------------------------------------------------
+  // VerilogToBdd definitions
   void
     VerilogToBdd::parse(std::istream *is, 
                         const std::string & filename,
@@ -60,17 +91,12 @@ namespace verilog_to_bdd {
 
   void VerilogToBdd::addBddPtr(const std::string & name, bdd_ptr func)
   {
-    if (m_vars->count(name))
-      throw std::runtime_error("Found definition for already defined bdd variable " + name);
-    m_vars->insert(std::make_pair(name, func));
+    m_vars->addBddPtr(name, func);
   }
 
   bdd_ptr VerilogToBdd::getBddPtr(const std::string & name) const
   {
-    auto vit = m_vars->find(name);
-    if (vit == m_vars->end())
-      throw std::runtime_error("Count not find variable " + name);
-    return bdd_dup(vit->second);
+    return m_vars->getBddPtr(name);
   }
 
   void VerilogToBdd::columns(unsigned int offset)

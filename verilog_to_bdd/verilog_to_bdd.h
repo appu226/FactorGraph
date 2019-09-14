@@ -35,6 +35,37 @@ SOFTWARE.
 
 namespace verilog_to_bdd {
 
+  /** class BddVarMap
+   * A class to represent a map from variable names to their bdds
+   */
+  class BddVarMap
+  {
+    public:
+      // constructor
+      BddVarMap(DdManager * manager);
+
+      // destructor : calls bdd_free on all stored bdds
+      ~BddVarMap();
+
+      // getter : calls bdd_dup before returing result
+      //          throws if varName not found
+      bdd_ptr getBddPtr(const std::string & varName) const;
+      
+      // setter : stores the input bdd without calling bdd_dup
+      //          throws if varName already exists
+      void addBddPtr(const std::string & varName, bdd_ptr varBdd); 
+    
+    private:
+      DdManager * m_manager;
+      std::map<std::string, bdd_ptr> m_data;
+      
+      // disable copying
+      BddVarMap(const BddVarMap & that);
+      BddVarMap & operator=(const BddVarMap & that);
+  };
+  typedef std::shared_ptr<BddVarMap> BddVarMapPtr;
+
+
   /** class VerilogToBdd
    * A class to encapsulate the functionality for
    *   parsing a verilog file containing skolem functions
@@ -46,15 +77,23 @@ namespace verilog_to_bdd {
     // The main public api
     public:
 
-      typedef std::map<std::string, bdd_ptr> BddVarMap;
-      typedef std::shared_ptr<BddVarMap> BddVarMapPtr;
-
       /** function VerilogToBdd::parse
        * A static function to encapsulate the class creation, stateful parsing, 
        *   and extraction of parsed structure.
        * input args:
        *   is: the input stream containing the text to be parsed
        *   filename: a filename used only for reporting errors during parsing
+       *   vars: a BddVarMap mapping variable names to their bdd's.
+       *         The input variables must already be set in the BddVarMap.
+       *         The output variables will be set by the parse function.
+       *         (Note that the argument is a 
+       *           const ref, to a shared pointer, of a non-const BddVarMap.
+       *           And hence, the contents of the BddVarMap can be modified.)
+       *   manager: the cudd manager.
+       * outputs:
+       *   No explicit outputs, 
+       *   but the resulting newly created variables
+       *   will be present in the input argument "vars".
        */
       static
         void
