@@ -28,6 +28,87 @@ SOFTWARE.
 
 #include <stdexcept>
 
+namespace {
+  struct ExpressionToBddConverter: verilog_to_bdd::ExpressionVisitor<bdd_ptr>
+  {
+    public:
+      typedef verilog_to_bdd::Module::AssignmentMapPtr AssignmentMapPtr;
+      ExpressionToBddConverter(const verilog_to_bdd::BddVarMapPtr & vars,
+                               const AssignmentMapPtr & assignments,
+                               DdManager * manager) :
+        m_vars(vars),
+        m_assignments(assignments),
+        m_manager(manager),
+        m_creatingVars()
+      { }
+      
+      virtual bdd_ptr visitNegExpression(const verilog_to_bdd::NegExpression & nexp) override
+      {
+        auto underlying = visitExpression(*nexp.underlying);
+        auto result = bdd_not(m_manager, underlying);
+        bdd_free(m_manager, underlying);
+        return result;
+      }
+      virtual bdd_ptr visitAndExpression(const verilog_to_bdd::AndExpression & aexp) override
+      {
+        auto lhs = visitExpression(*aexp.lhs);
+        auto rhs = visitExpression(*aexp.rhs);
+        auto result = bdd_and(m_manager, lhs, rhs);
+        bdd_free(m_manager, lhs);
+        bdd_free(m_manager, rhs);
+        return result;
+      }
+      virtual bdd_ptr visitOrExpression(const verilog_to_bdd::OrExpression & oexp) override
+      {
+        auto lhs = visitExpression(*oexp.lhs);
+        auto rhs = visitExpression(*oexp.rhs);
+        auto result = bdd_or(m_manager, lhs, rhs);
+        bdd_free(m_manager, lhs);
+        bdd_free(m_manager, rhs);
+        return result;
+      }
+      virtual bdd_ptr visitWireExpression(const verilog_to_bdd::WireExpression & wexp) override
+      {
+        const std::string & wn = wexp.wireName;
+        if (m_creatingVars.count(wexp.wireName) != 0)
+        {
+          std::stringstream ss;
+          ss << "Found cyclic assignments { ";
+          for (auto vn : m_creatingVars)
+            ss << vn << ", ";
+          ss << " } while parsing module";
+          throw std::runtime_error(ss.str());
+        }
+        if (m_vars->containsBddPtr(wn))
+          return m_vars->getBddPtr(wn);
+        
+        auto ai = m_assignments->find(wn);
+        if (ai == m_assignments->end())
+          throw std::runtime_error(std::string("Wire ") + wexp.wireName
+                                   + " is neither an input nor an assignment");
+        return convertVar(wn, ai->second);
+      }
+      bdd_ptr convertVar(const std::string & v, const verilog_to_bdd::ExpressionPtr & e)
+      {
+        if (m_vars->containsBddPtr(v))
+          return m_vars->getBddPtr(v);
+        m_creatingVars.insert(v);
+        auto result = visitExpression(*e);
+        m_vars->addBddPtr(v, result);
+        m_creatingVars.erase(v);
+        return bdd_dup(result);
+      }
+
+    private:
+      verilog_to_bdd::BddVarMapPtr m_vars;
+      AssignmentMapPtr m_assignments;
+      DdManager * m_manager;
+      std::set<std::string> m_creatingVars;
+  };
+} // end anonymous namepsace
+
+
+
 namespace verilog_to_bdd {
 
 
@@ -56,6 +137,11 @@ namespace verilog_to_bdd {
     m_data[varName] = varBdd;
   }
 
+  bool BddVarMap::containsBddPtr(const std::string & varName) const
+  {
+    return m_data.count(varName);
+  }
+
 
 
 
@@ -79,6 +165,7 @@ namespace verilog_to_bdd {
     m_verilog_parser(m_verilog_scanner, *this),
     m_filename(filename),
     m_location(&m_filename, 1, 1),
+    m_module(),
     m_vars(vars),
     m_manager(manager)
   {
@@ -87,16 +174,16 @@ namespace verilog_to_bdd {
 
   void VerilogToBdd::parse() {
     m_verilog_parser.parse();
+    if (!m_module)
+      throw std::runtime_error("Could not find a module in " + m_filename);
+    ExpressionToBddConverter expToBdd(m_vars, m_module->assignments, m_manager);
+    for (auto assignment : *(m_module->assignments))
+      bdd_free(m_manager, expToBdd.convertVar(assignment.first, assignment.second));
   }
 
-  void VerilogToBdd::addBddPtr(const std::string & name, bdd_ptr func)
+  void VerilogToBdd::setModule(const ModulePtr & module)
   {
-    m_vars->addBddPtr(name, func);
-  }
-
-  bdd_ptr VerilogToBdd::getBddPtr(const std::string & name) const
-  {
-    return m_vars->getBddPtr(name);
+    m_module = module;
   }
 
   void VerilogToBdd::columns(unsigned int offset)

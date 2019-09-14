@@ -53,7 +53,11 @@ namespace verilog_to_bdd {
       
       // setter : stores the input bdd without calling bdd_dup
       //          throws if varName already exists
-      void addBddPtr(const std::string & varName, bdd_ptr varBdd); 
+      void addBddPtr(const std::string & varName, bdd_ptr varBdd);
+
+      // checker : checks whether varName is contained 
+      //           in the var map
+      bool containsBddPtr(const std::string & varName) const;
     
     private:
       DdManager * m_manager;
@@ -111,32 +115,11 @@ namespace verilog_to_bdd {
                    DdManager * manager);
       void parse();
 
-      template<typename Operator>
-        bdd_ptr 
-        bddBinaryAndClear(bdd_ptr lhs, bdd_ptr rhs, Operator op)
-        {
-          bdd_ptr result = (*op)(m_manager, lhs, rhs);
-          bdd_free(m_manager, lhs);
-          bdd_free(m_manager, rhs);
-          return result;
-        }
-
-      template<typename Operator>
-        bdd_ptr
-        bddUnaryAndClear(bdd_ptr underlying, Operator op)
-        {
-          bdd_ptr result = (*op)(m_manager, underlying);
-          bdd_free(m_manager, underlying);
-          return result;
-        }
-
-
     // private api used by friend classes during parsing
     private:
       friend class VerilogParser;
       friend class VerilogScanner;
-      void addBddPtr(const std::string & name, bdd_ptr func);
-      bdd_ptr getBddPtr(const std::string & name) const;
+      void setModule(const ModulePtr & module);
       void columns(unsigned int offset);
       void lines(unsigned int offset);
       void step();
@@ -150,6 +133,7 @@ namespace verilog_to_bdd {
       VerilogParser m_verilog_parser;
       std::string m_filename;
       location m_location;
+      ModulePtr m_module;
       BddVarMapPtr m_vars;
       DdManager * m_manager;
   };
