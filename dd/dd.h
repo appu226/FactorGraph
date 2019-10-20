@@ -59,6 +59,7 @@ bdd_ptr  bdd_dup (bdd_ptr);
 bdd_ptr  bdd_support (DdManager *, bdd_ptr);
 bdd_ptr  bdd_new_var_with_index (DdManager *, int);
 bdd_ptr  bdd_vector_support (DdManager *, bdd_ptr*, int);
+bdd_ptr  bdd_compose (DdManager *, bdd_ptr f, bdd_ptr new_x_value, int x_index);
 bdd_ptr  bdd_cofactor (DdManager *, bdd_ptr, bdd_ptr);
 void     bdd_and_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
 int      bdd_get_lowest_index (DdManager *, bdd_ptr);

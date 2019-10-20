@@ -100,6 +100,29 @@ bdd_ptr bdd_vector_support(DdManager *dd, bdd_ptr *fn, int n)
 }
 
 /**Function********************************************************************
+  @brief Substitutes g for x_v in the %BDD for f.
+
+  @details v is the index of the variable to be substituted.
+  Cudd_bddCompose passes the corresponding projection function to the
+  recursive procedure, so that the cache may be used.
+
+  @return the composed %BDD if successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see Cudd_addCompose
+
+******************************************************************************/
+bdd_ptr bdd_compose(DdManager *manager, bdd_ptr f, bdd_ptr new_x_value, int x_index)
+{
+  DdNode * result;
+  result = Cudd_bddCompose(manager, f, new_x_value, x_index);
+  common_error(result, "bdd_compose: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
+/**Function********************************************************************
 
   Synopsis           [Returns the BDD variable with index <code>index</code>.]
 

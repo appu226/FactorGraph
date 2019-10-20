@@ -54,6 +54,7 @@ namespace verilog_solve {
   // global variables
   std::string g_latch_input_prefix = "li";
   std::string g_latch_output_prefix = "lo";
+  std::string g_primary_input_prefix = "pi";
 
   // ***** Struct CommandLineOptions *****
   // structure for capturing the command line options for this executable
@@ -74,6 +75,8 @@ namespace verilog_solve {
     ~BlifNetwork();
 
     verilog_to_bdd::BddVarMapPtr createNonPiVarMap() const;
+    bdd_ptr getSubstitutedFactors(const verilog_to_bdd::BddVarMapPtr & bddVarMap) const;
+    int getNumNonPiVars() const;
   };
 
   
@@ -100,11 +103,11 @@ int main(int argc, char ** argv)
                                       srt->ddm);
   
   // substitute skolem functions into factors
-  //bdd_ptr result = blifNetwork->getSubstitutedFactors(bddVarMap);
+  bdd_ptr result = blifNetwork->getSubstitutedFactors(bddVarMap);
 
   // count results
-  //size_t numSolutions = getNumSolutions(srt->ddm, result, blifNetwork->numNonPiVars);
-  //std::cout << "Number of solutions = " << numSolutions << std::endl;
+  size_t numSolutions = bdd_count_minterm(srt->ddm, result, blifNetwork->getNumNonPiVars());
+  std::cout << "Number of solutions = " << numSolutions << std::endl;
 
   std::cout << "SUCCESS" << std::endl;
 
@@ -241,6 +244,81 @@ verilog_to_bdd::BddVarMapPtr verilog_solve::BlifNetwork::createNonPiVarMap() con
 
   }
   return result;
+}
+
+bdd_ptr verilog_solve::BlifNetwork::getSubstitutedFactors(const verilog_to_bdd::BddVarMapPtr & bddVarMap) const
+{
+  // vector to store all primary variables, and their skolem functions
+  std::vector<std::pair<int, bdd_ptr> > varAssignments;
+  // vector to store all the original un-substituted factors
+  std::vector<bdd_ptr> factors;
+
+
+  // collect factors and primary input variables
+  for (auto node = network->nodes; node != NULL; node = node->next)
+  {
+    if (NULL == node->dd)
+      continue;
+    std::string name = node->name;
+    // if primary input, collect it, else count it
+    if (name.find(g_primary_input_prefix) == 0)
+      varAssignments.push_back(std::make_pair(node->var, bddVarMap->getBddPtr(name)));
+    // if latch input, create factor from it and store it
+    else if(name.find(g_latch_input_prefix) == 0)
+    {
+      bdd_ptr li = bdd_new_var_with_index(manager, -1);
+      bdd_ptr li_circuit = node->dd;
+      bdd_ptr factor = bdd_xnor(manager, li, li_circuit);
+      factors.push_back(factor);
+      bdd_free(manager, li);
+    }
+  }
+
+  // create result
+  bdd_ptr result = bdd_one(manager);
+
+
+  // for each factor
+  for (auto factor: factors)
+  {
+
+    // compute subst factor
+    auto substitutedFactor = bdd_dup(factor);
+    for (auto va: varAssignments) // for each varAssignment, subst into factor
+    {
+      auto subst_temp = bdd_compose(manager, substitutedFactor, va.second, va.first);
+      bdd_free(manager, substitutedFactor);
+      substitutedFactor = subst_temp;
+    }
+
+    // conjoin subst factor to result
+    auto and_temp = bdd_and(manager, substitutedFactor, result);
+    bdd_free(manager, result);
+    result = and_temp;
+    bdd_free(manager, substitutedFactor);
+  }
+
+  // clean up and return result
+  for (auto va: varAssignments) 
+    bdd_free(manager, va.second);
+  for (auto factor: factors)
+    bdd_free(manager, factor);
+  return result;
+}
+
+int verilog_solve::BlifNetwork::getNumNonPiVars() const
+{
+  int numNonPiVars = 0;
+  for (auto node = network->nodes; node != NULL; node = node->next)
+  {
+    if (NULL == node->dd)
+      continue;
+    std::string name = node->name;
+    // if primary input, collect it, else count it
+    if (name.find(g_primary_input_prefix) != 0)
+      ++numNonPiVars;
+  }
+  return numNonPiVars;
 }
 
 // -------------------------------------------------
