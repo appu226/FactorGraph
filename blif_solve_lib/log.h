@@ -42,6 +42,7 @@ namespace blif_solve {
 
   Verbosity getVerbosity();
   void setVerbosity(Verbosity verbosity);
+  Verbosity parseVerbosity(const std::string & verbosity_string);
 
 #define blif_solve_log(verbosity, message) \
   if (blif_solve::getVerbosity() >= blif_solve::verbosity) \

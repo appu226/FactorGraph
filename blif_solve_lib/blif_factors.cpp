@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <bdd_partition.h>
 
-#include <log.h>
+#include "log.h"
 
 #include <ntr.h>
 #include <cuddInt.h>

@@ -25,6 +25,7 @@ SOFTWARE.
 
 
 #include "log.h"
+#include <stdexcept>
 
 namespace {
   blif_solve::Verbosity g_verbosity = blif_solve::INFO;
@@ -40,6 +41,24 @@ namespace blif_solve {
   void setVerbosity(Verbosity v)
   {
     g_verbosity = v;
+  }
+
+  Verbosity parseVerbosity(const std::string & verbosity_string)
+  {
+    if (verbosity_string == "QUIET")
+      return QUIET;
+    else if (verbosity_string == "ERROR")
+      return ERROR;
+    else if (verbosity_string == "WARNING")
+      return WARNING;
+    else if (verbosity_string == "INFO")
+      return INFO;
+    else if (verbosity_string == "DEBUG")
+      return DEBUG;
+    else
+      throw std::invalid_argument("Unexpected verbosity string '"
+                                  + verbosity_string
+                                  + "', must be one of QUIET/ERROR/WARNING/INFO/DEBUG");
   }
 
 } // end namespace blif_solve
