@@ -50,17 +50,13 @@ namespace cnf_dump {
       std::string blif_file;           // the input blif file path
       std::string output_cnf_file;     // the output cnf file path
       blif_solve::Verbosity verbosity; // log verbosity
+      int num_lo_vars_to_quantify;
       bool help;                       // whether the help flag was mentioned or not
 
       static 
         void printHelpMessage();       // print the help message
       
-    private:
-      static std::string s_blif_file_flag;
-      static std::string s_output_cnf_file_flag;
-      static std::string s_verbosity_flag;
-      static std::string s_help_flag;
-     
+    
     public:
       // constructor to parse command line options
       CnfDumpClo(int argc, char const * const * const argv);

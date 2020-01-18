@@ -9,7 +9,8 @@ export EXPORT_IFLAGS_cudd = -I${PATH_cudd}/include -I${PATH_cudd}/util -I${PATH_
 export EXPORT_LFLAGS_cudd = -L${PATH_cudd}/include -L${PATH_cudd}/cudd/.libs -Wl,-rpath,${PATH_cudd}/cudd/.libs -lcudd
 
 # set of underlying components
-COMPONENTS = dd factor_graph factor_graph_main qbf_solve blif_solve_lib blif_solve cnf_dump test
+build.list ?= dd factor_graph factor_graph_main qbf_solve blif_solve_lib blif_solve cnf_dump test
+COMPONENTS = ${build.list} 
 
 include dd/exports.mk
 include factor_graph/exports.mk

@@ -164,7 +164,7 @@ namespace blif_solve {
 
   // constructor
   // parses the network file, WITHOUT creating the actual bdds
-  BlifFactors::BlifFactors(std::string const & fileName, DdManager * const ddm)
+  BlifFactors::BlifFactors(std::string const & fileName, int numLoVarsToQuantify, DdManager * const ddm)
   {
     FILE * const fp = fopen(fileName.c_str(), "r");
     if (NULL == fp)
@@ -172,6 +172,7 @@ namespace blif_solve {
     m_network = Bnet_ReadNetwork(fp, 0);
     fclose(fp);
     m_ddm = ddm;
+    m_numLoVarsToQuantify = numLoVarsToQuantify;
   }
 
 
@@ -259,11 +260,24 @@ namespace blif_solve {
 
       else if (name.find(latch_output_prefix) == 0)
       {
-        // if lo variable
-        // store in nonPiVars
-        bdd_ptr nonPiVar = bdd_new_var_with_index(m_ddm, node->var);
-        blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, nonPiVar);
-        m_nonPiVars->push_back(nonPiVar);
+        int loVarNum;
+        std::string loVarFormat = latch_output_prefix + "%d";
+        sscanf(name.c_str(), loVarFormat.c_str(), &loVarNum);
+        if (loVarNum >= m_numLoVarsToQuantify)
+        {
+          // if lo variable and not to be quantified
+          // store in nonPiVars
+          bdd_ptr nonPiVar = bdd_new_var_with_index(m_ddm, node->var);
+          blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, nonPiVar);
+          m_nonPiVars->push_back(nonPiVar);
+        }
+        else
+        {
+          // else treat as Pi Var
+          bdd_ptr piVar = bdd_new_var_with_index(m_ddm, node->var);
+          blif_solve_log_bdd(DEBUG, "parsing var " << name << " (treated as PI var) as:", m_ddm, piVar);
+          reassignToUnion(m_ddm, m_piVars, piVar);
+        }
       }
 
 

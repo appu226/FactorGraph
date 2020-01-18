@@ -63,7 +63,7 @@ int main(int argc, char const * const * const argv)
   DdManager *ddm = Cudd_Init(0, 0, 256, 262144, 0);
   if (ddm == NULL)
     throw std::runtime_error("Could not initialize DdManager.");
-  auto blif_factors = std::make_shared<blif_solve::BlifFactors> (clo->blif_file, ddm);
+  auto blif_factors = std::make_shared<blif_solve::BlifFactors> (clo->blif_file, clo->num_lo_vars_to_quantify, ddm);
   blif_factors->createBdds();
 
   // dump cnf
@@ -76,6 +76,7 @@ int main(int argc, char const * const * const argv)
   lower_limit.insert(bdd_zero(ddm));
   blif_solve::dumpCnfForModelCounting(blif_factors->getDdManager(),
                                       non_pi_vars,
+                                      bdd_ptr_set(),
                                       factors,
                                       lower_limit,
                                       clo->output_cnf_file);

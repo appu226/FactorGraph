@@ -44,7 +44,7 @@ namespace blif_solve {
       // ****** Constructor ******
       // parse the structures in a blif file
       // but don't create the bdd's yet
-      BlifFactors(std::string const & fileName, DdManager * ddm);
+      BlifFactors(std::string const & fileName, int numNumLoVarsToQuantify, DdManager * ddm);
 
       // ****** Destructor ******
       // clean up
@@ -105,7 +105,8 @@ namespace blif_solve {
       DdManager * m_ddm;
       FactorVec m_factors;
       bdd_ptr m_piVars;
-      FactorVec m_nonPiVars; 
+      FactorVec m_nonPiVars;
+      int m_numLoVarsToQuantify;
   }; // end class BlifFactors
 
 } // end namespace blif_solve

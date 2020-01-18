@@ -54,12 +54,12 @@ namespace cnf_dump {
               << "  Utility for converting a blif file into a cnf_dump\n"
               << "\n"
               << "Usage:\n"
-              << "  cnf_dump --blif_file <blif file> --cnf_file <output cnf file>\n"
-              << "           [--verbosity <verbosity>] [--help]\n"
+              << "  cnf_dump <options>\n"
               << "\n"
               << "Options:\n"
-              << "  --blif_file <input blif file>\n"
-              << "  --cnf_file <output bliffile>\n"
+              << "  --blif_file <input blif file> (MANDATORY)\n"
+              << "  --cnf_file <output blif file> (MANDATORY)\n"
+              << "  --num_lo_vars_to_quantify <number of latch output vars to quantify out>, defaults to 0\n"
               << "  --verbosity <verbosity> : one of QUIET/ERROR/WARNING/INFO/DEBUG, defaults to ERROR\n"
               << "  --help: prints this help message and exits\n"
               << std::endl;
@@ -73,6 +73,7 @@ namespace cnf_dump {
     blif_file(),
     output_cnf_file(),
     verbosity(blif_solve::ERROR),
+    num_lo_vars_to_quantify(0),
     help(false)
   {
     char const * const * current_argv = argv + 1;
@@ -105,6 +106,15 @@ namespace cnf_dump {
       }
       else if (current_arg == "--help")
         help = true;
+      else if (current_arg == "--num_lo_vars_to_quantify")
+      {
+        ++argnum;
+        ++current_argv;
+        if (argnum >= argc)
+          throw std::invalid_argument("Missing <number> after argument --num_lo_vars_to_quantify");
+        num_lo_vars_to_quantify = atoi(*current_argv);
+      }
+
       else
         throw std::invalid_argument(std::string("Unexpected argument '") + *current_argv + "'");
     }

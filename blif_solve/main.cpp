@@ -97,7 +97,7 @@ int main(int argc, char ** argv)
 
     // parse network
     auto start = now();
-    auto blifFactors = std::make_shared<blif_solve::BlifFactors>(clo->blif_file_path, srt->ddm);
+    auto blifFactors = std::make_shared<blif_solve::BlifFactors>(clo->blif_file_path, 0, srt->ddm);
     blif_solve_log(DEBUG, "parsed blif file in " << duration(start) << " sec");
     start = now();
     blifFactors->createBdds();
@@ -156,6 +156,7 @@ int main(int argc, char ** argv)
       bdd_ptr_set allVars(nonPiVars->cbegin(), nonPiVars->cend());
       blif_solve::dumpCnfForModelCounting(blifFactors->getDdManager(),
                                           allVars,
+                                          bdd_ptr_set(),
                                           upperLimit,
                                           lowerLimit,
                                           clo->diffOutputPath);

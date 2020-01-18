@@ -37,6 +37,9 @@ SOFTWARE.
 #include <iostream>
 #include <fstream>
 
+// dd includes
+#include <dd.h>
+
 
 namespace {
 
@@ -76,7 +79,7 @@ namespace {
     m_tseytinVars()
   { 
     for (auto var: allVars)
-      getCnfVarForIndependentVar(ddm->perm[Cudd_Regular(var)->index]);
+      getCnfVarForIndependentVar(Cudd_Regular(var)->index);
   }
 
   int CnfDumpCache::getCnfVarForIndependentVar(int bdd_var_index)
@@ -151,7 +154,8 @@ namespace {
   DumpCnfResult dumpCnf(DdManager * manager,
               bdd_ptr func,
               std::ostream & outputStream,
-              CnfDumpCache & cnfDumpCache)
+              CnfDumpCache & cnfDumpCache,
+              const bdd_ptr_set & existentiallyQuantifiedVars)
   {
     if (cnfDumpCache.isAlreadyWritten(func))
       return DumpCnfResult(cnfDumpCache.getCnfVarForTseytinVar(func), 0);
@@ -179,27 +183,52 @@ namespace {
     auto funcRegular = Cudd_Regular(func);
     if (func != funcRegular)
     {
-      auto regularDcr = dumpCnf(manager, funcRegular, outputStream, cnfDumpCache);
+      auto regularDcr = dumpCnf(manager, funcRegular, outputStream, cnfDumpCache, existentiallyQuantifiedVars);
       return DumpCnfResult(regularDcr.tseytinVar * -1, regularDcr.numClauses);
     }
 
-    
-    
 
     // ---------- Case 3 ----------
     // recursive case: IfThenElse(v, t, e)
     
-    auto vidx = manager->perm[funcRegular->index];
+    auto vidx = funcRegular->index;
     auto v = cnfDumpCache.getCnfVarForIndependentVar(vidx);
+    auto r = cnfDumpCache.getCnfVarForTseytinVar(func);
+    auto vbdd = bdd_new_var_with_index(manager, vidx);
+    bool isVExistentiallyQuantified = (existentiallyQuantifiedVars.count(vbdd) > 0);
+    bdd_free(manager, vbdd);
 
     // recursive calls on t and e
     auto tfunc = cuddT(funcRegular);
     auto efunc = cuddE(funcRegular);
-    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache);
-    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache);
+    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars);
+    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars);
     auto t = tdcr.tseytinVar;
     auto e = edcr.tseytinVar;
 
+
+
+
+    // ---------- Case 3.1 --------
+    // Special case: if v is to be existentially quantified out,
+    // then r is (t or e)
+    if (isVExistentiallyQuantified)
+    {
+      // (r <-> (t or e)) = (r -> (t or e)) and (!r -> (!t and !e))    // !t and !e <- naughty pronounciations :D
+      //                  = (!r or t or e) and (r or (!t and !e))
+      //                  = (!r or t or e) and (r or !t) and (r or !e)
+      outputStream << -r << " " <<  t << " " <<  e << " 0\n"
+                   <<  r << " " << -t              << " 0\n"
+                   <<  r << " "              << -e << " 0\n";
+      int numClauses = tdcr.numClauses + edcr.numClauses + 3;
+      int tseytinVar = r;
+
+      return DumpCnfResult(tseytinVar, numClauses);
+    }
+
+    // else: 
+    // ------------- Case 3.2 -------------
+    // 
     // create a new var r and write clauses to set it up as IfThenElse(v, t, e)
     // r <-> IfThenElse(v, t, e)
     // == r <-> (v -> t) and (!v -> e)
@@ -220,7 +249,6 @@ namespace {
     // combining (1) and (2), we get
     // r <-> IfThenElse(v, t, e)
     // == (!r or !v or t) and (!r or v or e) and (r or v or !e) and (r or !v or !t)
-    auto r = cnfDumpCache.getCnfVarForTseytinVar(func);
     outputStream << -r << " " << -v << " " <<  t << " 0\n"
                  << -r << " " <<  v << " " <<  e << " 0\n"
                  <<  r << " " <<  v << " " << -e << " 0\n"
@@ -239,6 +267,7 @@ namespace blif_solve {
 
   void dumpCnfForModelCounting(DdManager * manager,
                                bdd_ptr_set const & allVars,
+                               bdd_ptr_set const & existentiallyQuantifiedVars,
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
                                std::string const & outputPath)
@@ -254,7 +283,7 @@ namespace blif_solve {
     // and write their tseytin vars into individual clauses
     for (auto ulit = upperLimit.cbegin(); ulit != upperLimit.cend(); ++ulit)
     {
-      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache);
+      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars);
       numClauses += dcr.numClauses;
       clauseOut << dcr.tseytinVar << " 0\n";
       ++numClauses;
@@ -263,20 +292,22 @@ namespace blif_solve {
     
     
     // process lowerLimit functions
-    std::vector<int> llTseytins;
-    llTseytins.reserve(lowerLimit.size());
-    for (auto llit = lowerLimit.cbegin(); llit != lowerLimit.cend(); ++llit)
+    if (!lowerLimit.empty())
     {
-      auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache);
-      numClauses += dcr.numClauses;
-      llTseytins.push_back(dcr.tseytinVar);
+      std::vector<int> llTseytins;
+      llTseytins.reserve(lowerLimit.size());
+      for (auto llit = lowerLimit.cbegin(); llit != lowerLimit.cend(); ++llit)
+      {
+        auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars);
+        numClauses += dcr.numClauses;
+        llTseytins.push_back(dcr.tseytinVar);
+      }
+      // write the negation of all lower limit tseytins into a single clause
+      for (auto llt: llTseytins)
+        clauseOut << -llt << " ";
+      clauseOut << "0\n";
+      ++numClauses;
     }
-    // write the negation of all lower limit tseytins into a single clause
-    for (auto llt: llTseytins)
-      clauseOut << -llt << " ";
-    clauseOut << "0\n";
-    ++numClauses;
-
 
     // done processing clauses
     clauseOut.close();
