@@ -41,6 +41,28 @@ SOFTWARE.
 #include "cnf_dump_clo.h"
 
 
+namespace {
+
+  bdd_ptr_set bdd_cube_to_set(DdManager * manager, bdd_ptr cube)
+  {
+    bdd_ptr_set result;
+    auto one = bdd_one(manager);
+    cube = bdd_dup(cube);
+    while (cube != one)
+    {
+      bdd_ptr next = bdd_new_var_with_index(manager, bdd_get_lowest_index(manager, cube));
+      result.insert(next);
+      auto smaller_cube = bdd_cube_diff(manager, cube, next);
+      bdd_free(manager, cube);
+      cube = smaller_cube;
+    }
+    bdd_free(manager, one);
+    bdd_free(manager, cube);
+    return result;
+  }
+
+} // end anonymous namespace
+
 
 int main(int argc, char const * const * const argv)
 {
@@ -72,14 +94,20 @@ int main(int argc, char const * const * const argv)
   auto factor_vec = blif_factors->getFactors();
   bdd_ptr_set non_pi_vars(npv_vec->cbegin(), npv_vec->cend());
   bdd_ptr_set factors(factor_vec->cbegin(), factor_vec->cend());
+  bdd_ptr_set pi_vars = bdd_cube_to_set(ddm, blif_factors->getPiVars());
+  blif_solve_log(INFO, "Dumping " 
+                        << factors.size() << " factors on "
+                        << non_pi_vars.size() << " vars while quantifying "
+                        << pi_vars.size() << " vars");
   blif_solve::dumpCnfForModelCounting(blif_factors->getDdManager(),
                                       non_pi_vars,
-                                      bdd_ptr_set(),
+                                      pi_vars,
                                       factors,
                                       bdd_ptr_set(),
                                       clo->output_cnf_file);
 
-
+  for (auto pi_var: pi_vars)
+    bdd_free(ddm, pi_var);
   blif_solve_log(INFO, "Done");
  
   }
