@@ -72,13 +72,11 @@ int main(int argc, char const * const * const argv)
   auto factor_vec = blif_factors->getFactors();
   bdd_ptr_set non_pi_vars(npv_vec->cbegin(), npv_vec->cend());
   bdd_ptr_set factors(factor_vec->cbegin(), factor_vec->cend());
-  bdd_ptr_set lower_limit;
-  lower_limit.insert(bdd_zero(ddm));
   blif_solve::dumpCnfForModelCounting(blif_factors->getDdManager(),
                                       non_pi_vars,
                                       bdd_ptr_set(),
                                       factors,
-                                      lower_limit,
+                                      bdd_ptr_set(),
                                       clo->output_cnf_file);
 
 
