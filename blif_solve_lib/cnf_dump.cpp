@@ -57,6 +57,8 @@ namespace {
     bool isVar;         // whether the bdd is a variable or not
     FuncProfile(DdManager * manager, bdd_ptr func)
     {
+      if (func == Cudd_ReadOne(manager) || func == Cudd_ReadLogicZero(manager))
+        throw std::runtime_error("Cannot compute profile for one/zero bdd: did you pass all variables to be quantified away?");
       bdd_ptr funcRegular = Cudd_Regular(func);
       negationFactor = (func == funcRegular) ? 1 : -1;
       index = funcRegular->index;
