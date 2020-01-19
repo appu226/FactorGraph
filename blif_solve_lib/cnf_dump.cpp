@@ -26,6 +26,9 @@ SOFTWARE.
 
 #include "cnf_dump.h"
 
+// blif_solve_lib includes
+#include "log.h"
+
 // cudd includes
 #include <util.h>
 #include <cuddInt.h>
@@ -43,6 +46,29 @@ SOFTWARE.
 
 namespace {
 
+
+  // ----------------------- Struct ------------------------
+  // FuncProfile
+  //   Gives commonly usable info about a bdd
+  struct FuncProfile
+  {
+    int negationFactor; // is -1 for negated bdds, 1 for normal bdds
+    int index;          // index of the condition variable of the bdd
+    bool isVar;         // whether the bdd is a variable or not
+    FuncProfile(DdManager * manager, bdd_ptr func)
+    {
+      bdd_ptr funcRegular = Cudd_Regular(func);
+      negationFactor = (func == funcRegular) ? 1 : -1;
+      index = funcRegular->index;
+      bdd_ptr condVar = bdd_new_var_with_index(manager, index);
+      isVar = Cudd_Regular(condVar) == funcRegular;
+      bdd_free(manager, condVar);
+    }
+  };
+
+
+
+
   // ----------------------- Class --------------------------
   // CnfDumpCache
   //   A cache containing the various variables that have
@@ -51,17 +77,22 @@ namespace {
   class CnfDumpCache 
   {
     public:
+      void addCnfVarForIndependentVar(int bdd_var_index);
       int getCnfVarForIndependentVar(int bdd_var_index);
+      int getCnfVarForIndependentVar(bdd_ptr var);
       int getCnfVarForTseytinVar(bdd_ptr func);
       bool isAlreadyWritten(bdd_ptr func) const;
       std::vector<int> getAllIndependentCnfVars() const;
       int getNumVars() const;
+      void debugAllCnfVars() const;
+
       CnfDumpCache(DdManager* ddm, bdd_ptr_set const & allVars);
 
     private:
       int m_counter;
       std::map<int, int> m_independentVars;
       std::map<bdd_ptr, int> m_tseytinVars;
+      DdManager * m_ddm;
 
   }; // end class CnfDumpCache
 
@@ -76,10 +107,20 @@ namespace {
       bdd_ptr_set const & allVars) :
     m_counter(0),
     m_independentVars(),
-    m_tseytinVars()
-  { 
+    m_tseytinVars(),
+    m_ddm(ddm)
+  {
     for (auto var: allVars)
-      getCnfVarForIndependentVar(Cudd_Regular(var)->index);
+      addCnfVarForIndependentVar(Cudd_Regular(var)->index);
+  }
+
+  void CnfDumpCache::addCnfVarForIndependentVar(int bdd_var_index)
+  {
+    if (m_independentVars.end() == m_independentVars.find(bdd_var_index))
+    {
+      int newCnfVar = ++m_counter;
+      m_independentVars[bdd_var_index] = newCnfVar;
+    }
   }
 
   int CnfDumpCache::getCnfVarForIndependentVar(int bdd_var_index)
@@ -87,30 +128,45 @@ namespace {
     auto resultIt = m_independentVars.find(bdd_var_index);
     if (m_independentVars.end() == resultIt)
     {
-      int newCnfVar = ++m_counter;
-      m_independentVars[bdd_var_index] = newCnfVar;
-      return newCnfVar;
+      char buffer [200];
+      sprintf(buffer, "Cannot find independent var with index %d", bdd_var_index);
+      throw std::runtime_error(buffer);
     } 
     else
       return resultIt->second;
   }
 
+  int CnfDumpCache::getCnfVarForIndependentVar(bdd_ptr var)
+  {
+    FuncProfile varProfile(m_ddm, var);
+    return getCnfVarForIndependentVar(varProfile.index) * varProfile.negationFactor;
+  }
+
   int CnfDumpCache::getCnfVarForTseytinVar(bdd_ptr func)
   {
+    // look for pre-added tseytin func
     auto resultIt = m_tseytinVars.find(func);
-    if (m_tseytinVars.end() == resultIt)
-    {
-      int newCnfVar = ++m_counter;
-      m_tseytinVars[func] = newCnfVar;
-      return newCnfVar;
-    }
-    else
+    if (m_tseytinVars.end() != resultIt)
       return resultIt->second;
+
+    // look for pre-added variable
+    FuncProfile funcProfile(m_ddm, func);
+    if (funcProfile.isVar)
+      return getCnfVarForIndependentVar(funcProfile.index) * funcProfile.negationFactor;
+
+    // add new tseytin func
+    int newCnfVar = ++m_counter;
+    m_tseytinVars[func] = newCnfVar;
+    return newCnfVar;
   }
 
   bool CnfDumpCache::isAlreadyWritten(bdd_ptr func) const
   {
-    return (m_tseytinVars.end() != m_tseytinVars.find(func));
+    FuncProfile funcProfile(m_ddm, func);
+    if (funcProfile.isVar)
+      return m_independentVars.end() != m_independentVars.find(funcProfile.index);
+    else
+      return m_tseytinVars.end() != m_tseytinVars.find(func);
   }
 
   std::vector<int> CnfDumpCache::getAllIndependentCnfVars() const
@@ -126,6 +182,23 @@ namespace {
   int CnfDumpCache::getNumVars() const
   {
     return m_counter;
+  }
+
+  void CnfDumpCache::debugAllCnfVars() const
+  {
+    for (auto independentVar: m_independentVars)
+    {
+      int index = independentVar.first;
+      int cnfVar = independentVar.second;
+      bdd_ptr varBdd = bdd_new_var_with_index(m_ddm, index);
+      blif_solve_log_bdd(DEBUG, "cnfVar " << cnfVar << " represents bdd of index " << index, m_ddm, varBdd);
+      bdd_free(m_ddm, varBdd);
+    }
+
+    for (auto tseytinVar: m_tseytinVars)
+    {
+      blif_solve_log_bdd(DEBUG, "cnfVar " << tseytinVar.second << " represents bdd ", m_ddm, tseytinVar.first);
+    }
   }
 
 
@@ -155,10 +228,14 @@ namespace {
               bdd_ptr func,
               std::ostream & outputStream,
               CnfDumpCache & cnfDumpCache,
-              const bdd_ptr_set & existentiallyQuantifiedVars)
+              const bdd_ptr_set & existentiallyQuantifiedVars,
+              std::string const & debugIndent)
   {
     if (cnfDumpCache.isAlreadyWritten(func))
+    {
+      blif_solve_log(DEBUG, debugIndent << "already written");
       return DumpCnfResult(cnfDumpCache.getCnfVarForTseytinVar(func), 0);
+    }
 
     //--------- Case 1-----------
     // base case: zero and one
@@ -169,30 +246,19 @@ namespace {
       int result = cnfDumpCache.getCnfVarForTseytinVar(func);
       // cnfVar(zero) = cnfVar(one) * -1
       int clause = result * (zero == func ? -1 : 1);
+      blif_solve_log(DEBUG, debugIndent << "adding 1 clause '" << clause << " 0' for func " << (zero == func ? "zero" : "one"))
       outputStream << clause << " 0\n";
       return DumpCnfResult(result, 1);
     }
     
 
     
-   
-    //--------- Case 2 ---------
-    // if the func is negated
-    //   call recursively on the non-negated func
-    //   and return -1 * tseytinVar
-    auto funcRegular = Cudd_Regular(func);
-    if (func != funcRegular)
-    {
-      auto regularDcr = dumpCnf(manager, funcRegular, outputStream, cnfDumpCache, existentiallyQuantifiedVars);
-      return DumpCnfResult(regularDcr.tseytinVar * -1, regularDcr.numClauses);
-    }
-
 
     // ---------- Case 3 ----------
     // recursive case: IfThenElse(v, t, e)
     
+    auto funcRegular = Cudd_Regular(func);
     auto vidx = funcRegular->index;
-    auto v = cnfDumpCache.getCnfVarForIndependentVar(vidx);
     auto r = cnfDumpCache.getCnfVarForTseytinVar(func);
     auto vbdd = bdd_new_var_with_index(manager, vidx);
     bool isVExistentiallyQuantified = (existentiallyQuantifiedVars.count(vbdd) > 0);
@@ -201,8 +267,10 @@ namespace {
     // recursive calls on t and e
     auto tfunc = cuddT(funcRegular);
     auto efunc = cuddE(funcRegular);
-    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars);
-    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars);
+    blif_solve_log_bdd(DEBUG, debugIndent << "dumping left branch ", manager, tfunc);
+    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars, debugIndent + "  ");
+    blif_solve_log_bdd(DEBUG, debugIndent << "dumping right branch ", manager, efunc);
+    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars, debugIndent + "  ");
     auto t = tdcr.tseytinVar;
     auto e = edcr.tseytinVar;
 
@@ -220,9 +288,14 @@ namespace {
       outputStream << -r << " " <<  t << " " <<  e << " 0\n"
                    <<  r << " " << -t              << " 0\n"
                    <<  r << " "              << -e << " 0\n";
+      blif_solve_log_bdd(DEBUG, 
+                         debugIndent << "adding 3 clauses on tseytin vars " << r << " " << t << " " << e 
+                                     << " because var with bdd index " << vidx
+                                     << " is to be existentially quantified in bdd ",
+                         manager,
+                         func);
       int numClauses = tdcr.numClauses + edcr.numClauses + 3;
       int tseytinVar = r;
-
       return DumpCnfResult(tseytinVar, numClauses);
     }
 
@@ -249,11 +322,18 @@ namespace {
     // combining (1) and (2), we get
     // r <-> IfThenElse(v, t, e)
     // == (!r or !v or t) and (!r or v or e) and (r or v or !e) and (r or !v or !t)
+    auto v = cnfDumpCache.getCnfVarForIndependentVar(vidx);
     outputStream << -r << " " << -v << " " <<  t << " 0\n"
                  << -r << " " <<  v << " " <<  e << " 0\n"
                  <<  r << " " <<  v << " " << -e << " 0\n"
                  <<  r << " " << -v << " " << -t << " 0\n";
 
+    blif_solve_log_bdd(DEBUG,
+                       debugIndent << "adding 4 clauses on tseytin vars " 
+                                   << r << " " << v << " " << t << " " << e
+                                   << " for bdd ",
+                       manager,
+                       func);
     int numClauses = tdcr.numClauses + edcr.numClauses + 4;
     int tseytinVar = r;
 
@@ -283,7 +363,8 @@ namespace blif_solve {
     // and write their tseytin vars into individual clauses
     for (auto ulit = upperLimit.cbegin(); ulit != upperLimit.cend(); ++ulit)
     {
-      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars);
+      blif_solve_log_bdd(DEBUG, "dumping cnf for upper limit func", manager, *ulit);
+      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars, "");
       numClauses += dcr.numClauses;
       clauseOut << dcr.tseytinVar << " 0\n";
       ++numClauses;
@@ -298,7 +379,8 @@ namespace blif_solve {
       llTseytins.reserve(lowerLimit.size());
       for (auto llit = lowerLimit.cbegin(); llit != lowerLimit.cend(); ++llit)
       {
-        auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars);
+        blif_solve_log_bdd(DEBUG, "dumping cnf for func", manager, *llit);
+        auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars, "");
         numClauses += dcr.numClauses;
         llTseytins.push_back(dcr.tseytinVar);
       }
@@ -334,6 +416,9 @@ namespace blif_solve {
       finalOut << line << "\n";
     clauseIn.close();
     finalOut.close();
+
+    if (blif_solve::getVerbosity() == blif_solve::DEBUG)
+      cnfDumpCache.debugAllCnfVars();
 
   }
 

@@ -1,0 +1,48 @@
+.model DD
+.inputs pi0 pi1 lo0 lo1
+.outputs po0 li0 li1
+.names v1
+1
+.names lo0 lo1 v1 v0111
+01- 1
+1-1 1
+.names lo0 v1 lo1 v0010
+00- 1
+1-0 0
+.names lo0 lo1 lo1 v1001
+00- 1
+1-1 1
+.names lo0 lo1 v1 v0100
+01- 1
+1-0 1
+.names pi1 v0111 v0010 v01110010
+01- 1
+1-1 1
+.names pi1 v1001 v0100 v10010100
+01- 1
+1-1 1
+.names pi0 v01110010 v10010100 po0
+01- 1
+1-1 1
+.names lo0 v1 lo1 v1110
+01- 1
+1-0 1
+.names pi1 v1110 v1001 v11100110
+01- 1
+1-0 1
+.names pi1 v0111 v1001 v10000110
+00- 1
+1-0 1
+.names pi0 v11100110 v10000110 li0
+01- 1
+1-1 1
+.names pi1 lo1 lo0 v01011100
+01- 1
+1-0 1
+.names pi1 v0100 lo0 v10110011
+00- 1
+1-1 1
+.names pi0 v01011100 v10110011 li1
+01- 1
+1-1 1
+.end

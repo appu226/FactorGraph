@@ -334,6 +334,9 @@ namespace blif_solve {
 
       
       result.push_back(std::shared_ptr<BlifFactors>(new BlifFactors(NULL, m_ddm, partitionFactors, partitionPiVars, partitionNonPiVars)));
+      blif_solve_log(DEBUG, "Added " << partitionFactors->size() << " factors to partition number " << result.size());
+      for (auto factor: *partitionFactors)
+        blif_solve_log_bdd(DEBUG, "Printing factor: ", m_ddm, factor);
       bdd_free(m_ddm, partitionSupport);
       bdd_free(m_ddm, one);
     }

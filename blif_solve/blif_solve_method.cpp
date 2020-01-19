@@ -379,8 +379,11 @@ namespace {
           auto factors = blif_factors.getFactors();
           for (auto fi = factors->cbegin(); fi != factors->cend(); ++fi)
             bdd_and_accumulate(manager, &func, *fi);
+          blif_solve_log_bdd(DEBUG, "Conjunction of factors in partition", manager, func);
           auto piVars = blif_factors.getPiVars();
-          result.insert(bdd_forsome(manager, func, piVars));
+          auto forsome = bdd_forsome(manager, func, piVars);
+          blif_solve_log_bdd(DEBUG, "Quantified result from partition", manager, forsome);
+          result.insert(forsome);
         }
         bdd_free(manager, func);
         return result;
