@@ -58,13 +58,20 @@ namespace {
     FuncProfile(DdManager * manager, bdd_ptr func)
     {
       if (func == Cudd_ReadOne(manager) || func == Cudd_ReadLogicZero(manager))
-        throw std::runtime_error("Cannot compute profile for one/zero bdd: did you pass all variables to be quantified away?");
-      bdd_ptr funcRegular = Cudd_Regular(func);
-      negationFactor = (func == funcRegular) ? 1 : -1;
-      index = funcRegular->index;
-      bdd_ptr condVar = bdd_new_var_with_index(manager, index);
-      isVar = Cudd_Regular(condVar) == funcRegular;
-      bdd_free(manager, condVar);
+      {
+        index = -1;
+        isVar = false;
+        negationFactor = (func == Cudd_ReadOne(manager) ? 1 : -1);
+      }
+      else
+      {
+        bdd_ptr funcRegular = Cudd_Regular(func);
+        negationFactor = (func == funcRegular) ? 1 : -1;
+        index = funcRegular->index;
+        bdd_ptr condVar = bdd_new_var_with_index(manager, index);
+        isVar = Cudd_Regular(condVar) == funcRegular;
+        bdd_free(manager, condVar);
+      }
     }
   };
 

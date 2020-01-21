@@ -8,6 +8,12 @@
 ---1  1
 [DEBUG] parsing circuit for li00 as:
 111-  1
+[DEBUG] Added 1 factors to partition number 1
+[DEBUG] Printing factor: 
+0--0  1
+10-0  1
+1100  1
+1111  1
 [INFO] Executing over approximating method FactorGraphApprox
 [INFO] largestSupportSet 30, numConvergence:1
 [INFO] Initiating message passing
@@ -15,6 +21,39 @@
 [INFO] Ran 1 FactorGraph convergences
 [INFO] Over approximating method FactorGraphApprox finished with 3 solutions.
 [INFO] Executing under approximating method ExactAndAccumulate
+[DEBUG] Conjunction of factors in partition
+0--0  1
+10-0  1
+1100  1
+1111  1
+[DEBUG] Quantified result from partition
+--00  1
+--1-  1
 [INFO] Under approximating method ExactAndAccumulate finished with 3 solutions.
 [DEBUG] Writing diff to temp/simple_and.dimacs
+[DEBUG] dumping cnf for upper limit func
+--00  1
+--1-  1
+[DEBUG] dumping left branch 
+----  1
+[DEBUG]   adding 1 clause '4 0' for func one
+[DEBUG] dumping right branch 
+---0  1
+[DEBUG]   already written
+[DEBUG] adding 4 clauses on tseytin vars 3 1 4 -2 for bdd 
+--00  1
+--1-  1
+[DEBUG] dumping cnf for func
+--00  1
+--1-  1
+[DEBUG] already written
+[DEBUG] cnfVar 1 represents bdd of index 2
+--1-  1
+[DEBUG] cnfVar 2 represents bdd of index 3
+---1  1
+[DEBUG] cnfVar 4 represents bdd 
+----  1
+[DEBUG] cnfVar 3 represents bdd 
+--00  1
+--1-  1
 [INFO] SUCCESS simple_and.blif
