@@ -339,7 +339,7 @@ namespace {
             bdd_ptr_set allVars;
             std::stringstream outputPath;
             outputPath << m_dotDumpPath << "/result_iter_" << nc << ".dimacs";
-            blif_solve::dumpCnfForModelCounting(ddm, allVars, bdd_ptr_set(), result, zero, outputPath.str());
+            blif_solve::dumpCnfForModelCounting(ddm, allVars, result, zero, outputPath.str());
           }
 
 

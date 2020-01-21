@@ -51,6 +51,8 @@ namespace blif_solve {
     int numConvergence;
     // maximum depth to use while clipping
     int clippingDepth;
+    // number of latch output variables to existentially quantify
+    int numLoVarsToQuantify;
 
     // path to dump dot files (for factor graph visualization)
     std::string dotDumpPath;

@@ -54,8 +54,7 @@ namespace blif_solve {
   //               should be written to
   // ----------------------------------------------------------------
   void dumpCnfForModelCounting(DdManager * manager,
-                               bdd_ptr_set const & allVars,
-                               bdd_ptr_set const & existentiallyQuantifiedVars,
+                               bdd_ptr_set const & independentVars,
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
                                std::string const & outputPath);

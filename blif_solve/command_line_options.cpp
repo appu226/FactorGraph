@@ -39,6 +39,7 @@ namespace blif_solve {
     largestSupportSet(30),
     numConvergence(1),
     clippingDepth(100),
+    numLoVarsToQuantify(0),
     dotDumpPath(),
     mustCountSolutions(false),
     blif_file_path()
@@ -119,6 +120,13 @@ namespace blif_solve {
           usage("clipping depth missing after --clipping_depth flag");
         clippingDepth = std::atoi(argv[argi]);
       }
+      else if(arg == "--num_lo_vars_to_quantify")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("number missing after --num_lo_vars_to_quantify");
+        numLoVarsToQuantify = std::atoi(argv[argi]);
+      }
       else if("--must_count_solutions" == arg)
       {
         mustCountSolutions = true;
@@ -154,6 +162,7 @@ namespace blif_solve {
               << "\t\t--verbosity v                : set verbosity level to v;\n"
               << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"
               << "\t\t--clipping_depth d           : set depth for clipping approximation\n"
+              << "\t\t--num_lo_vars_to_quantify    : number of lo vars to quantify\n"
               << "\t\t--dot_dump_path ddp          : path to dump dot files (for factor graph visualization\n"
               << "\t\t--must_count_solutions       : whether to count and print the number of solutions\n"
               << "\tAvailable solve methods: ExactAndAccumulate/ExactAndAbstractMulti/FactorGraphApprox/\n"

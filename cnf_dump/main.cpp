@@ -101,7 +101,6 @@ int main(int argc, char const * const * const argv)
                         << pi_vars.size() << " vars");
   blif_solve::dumpCnfForModelCounting(blif_factors->getDdManager(),
                                       non_pi_vars,
-                                      pi_vars,
                                       factors,
                                       bdd_ptr_set(),
                                       clo->output_cnf_file);

@@ -80,19 +80,21 @@ namespace {
   {
     public:
       void addCnfVarForIndependentVar(int bdd_var_index);
-      int getCnfVarForIndependentVar(int bdd_var_index);
-      int getCnfVarForIndependentVar(bdd_ptr var);
+      int getCnfVarForBddVar(int bdd_var_index);
+      int getCnfVarForBddVar(bdd_ptr var);
       int getCnfVarForTseytinVar(bdd_ptr func);
       bool isAlreadyWritten(bdd_ptr func) const;
+      bool isIndependentVar(int bdd_var_index) const;
       std::vector<int> getAllIndependentCnfVars() const;
       int getNumVars() const;
       void debugAllCnfVars() const;
 
-      CnfDumpCache(DdManager* ddm, bdd_ptr_set const & allVars);
+      CnfDumpCache(DdManager* ddm, bdd_ptr_set const & independentVars);
 
     private:
       int m_counter;
       std::map<int, int> m_independentVars;
+      std::map<int, int> m_dependentVars;
       std::map<bdd_ptr, int> m_tseytinVars;
       DdManager * m_ddm;
 
@@ -106,13 +108,13 @@ namespace {
   // function definitions for CnfDumpCache
   CnfDumpCache::CnfDumpCache(
       DdManager * ddm,
-      bdd_ptr_set const & allVars) :
+      bdd_ptr_set const & independentVars) :
     m_counter(0),
     m_independentVars(),
     m_tseytinVars(),
     m_ddm(ddm)
   {
-    for (auto var: allVars)
+    for (auto var: independentVars)
       addCnfVarForIndependentVar(Cudd_Regular(var)->index);
   }
 
@@ -125,23 +127,29 @@ namespace {
     }
   }
 
-  int CnfDumpCache::getCnfVarForIndependentVar(int bdd_var_index)
+  int CnfDumpCache::getCnfVarForBddVar(int bdd_var_index)
   {
     auto resultIt = m_independentVars.find(bdd_var_index);
     if (m_independentVars.end() == resultIt)
     {
-      char buffer [200];
-      sprintf(buffer, "Cannot find independent var with index %d", bdd_var_index);
-      throw std::runtime_error(buffer);
+      resultIt = m_dependentVars.find(bdd_var_index);
+      if (m_dependentVars.end() == resultIt)
+      {
+        auto result = ++m_counter;
+        m_dependentVars[bdd_var_index] = result;
+        return result;
+      }
+      else
+        return resultIt->second;
     } 
     else
       return resultIt->second;
   }
 
-  int CnfDumpCache::getCnfVarForIndependentVar(bdd_ptr var)
+  int CnfDumpCache::getCnfVarForBddVar(bdd_ptr var)
   {
     FuncProfile varProfile(m_ddm, var);
-    return getCnfVarForIndependentVar(varProfile.index) * varProfile.negationFactor;
+    return getCnfVarForBddVar(varProfile.index) * varProfile.negationFactor;
   }
 
   int CnfDumpCache::getCnfVarForTseytinVar(bdd_ptr func)
@@ -150,11 +158,14 @@ namespace {
     auto resultIt = m_tseytinVars.find(func);
     if (m_tseytinVars.end() != resultIt)
       return resultIt->second;
+    resultIt = m_tseytinVars.find(Cudd_Not(func));
+    if (m_tseytinVars.end() != resultIt)
+      return resultIt->second * -1;
 
     // look for pre-added variable
     FuncProfile funcProfile(m_ddm, func);
     if (funcProfile.isVar)
-      return getCnfVarForIndependentVar(funcProfile.index) * funcProfile.negationFactor;
+      return getCnfVarForBddVar(funcProfile.index) * funcProfile.negationFactor;
 
     // add new tseytin func
     int newCnfVar = ++m_counter;
@@ -166,9 +177,16 @@ namespace {
   {
     FuncProfile funcProfile(m_ddm, func);
     if (funcProfile.isVar)
-      return m_independentVars.end() != m_independentVars.find(funcProfile.index);
+      return (m_independentVars.end() != m_independentVars.find(funcProfile.index))
+             || (m_dependentVars.end() != m_dependentVars.find(funcProfile.index));
     else
-      return m_tseytinVars.end() != m_tseytinVars.find(func);
+      return (m_tseytinVars.end() != m_tseytinVars.find(func))
+              || (m_tseytinVars.end() != m_tseytinVars.find(Cudd_Not(func)));
+  }
+  
+  bool CnfDumpCache::isIndependentVar(int bdd_var_index) const
+  {
+    return (m_independentVars.end() != m_independentVars.find(bdd_var_index));
   }
 
   std::vector<int> CnfDumpCache::getAllIndependentCnfVars() const
@@ -192,6 +210,15 @@ namespace {
     {
       int index = independentVar.first;
       int cnfVar = independentVar.second;
+      bdd_ptr varBdd = bdd_new_var_with_index(m_ddm, index);
+      blif_solve_log_bdd(DEBUG, "cnfVar " << cnfVar << " represents bdd of index " << index, m_ddm, varBdd);
+      bdd_free(m_ddm, varBdd);
+    }
+
+    for (auto dependentVar: m_dependentVars)
+    {
+      int index = dependentVar.first;
+      int cnfVar = dependentVar.second;
       bdd_ptr varBdd = bdd_new_var_with_index(m_ddm, index);
       blif_solve_log_bdd(DEBUG, "cnfVar " << cnfVar << " represents bdd of index " << index, m_ddm, varBdd);
       bdd_free(m_ddm, varBdd);
@@ -230,7 +257,6 @@ namespace {
               bdd_ptr func,
               std::ostream & outputStream,
               CnfDumpCache & cnfDumpCache,
-              const bdd_ptr_set & existentiallyQuantifiedVars,
               std::string const & debugIndent)
   {
     if (cnfDumpCache.isAlreadyWritten(func))
@@ -262,17 +288,15 @@ namespace {
     auto funcRegular = Cudd_Regular(func);
     auto vidx = funcRegular->index;
     auto r = cnfDumpCache.getCnfVarForTseytinVar(func);
-    auto vbdd = bdd_new_var_with_index(manager, vidx);
-    bool isVExistentiallyQuantified = (existentiallyQuantifiedVars.count(vbdd) > 0);
-    bdd_free(manager, vbdd);
+    bool isVExistentiallyQuantified = !cnfDumpCache.isIndependentVar(vidx);
 
     // recursive calls on t and e
-    auto tfunc = cuddT(funcRegular);
-    auto efunc = cuddE(funcRegular);
+    auto tfunc = cuddT(funcRegular); if (func != funcRegular) tfunc = Cudd_Not(tfunc);
+    auto efunc = cuddE(funcRegular); if (func != funcRegular) efunc = Cudd_Not(efunc);
     blif_solve_log_bdd(DEBUG, debugIndent << "dumping left branch ", manager, tfunc);
-    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars, debugIndent + "  ");
+    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache, debugIndent + "  ");
     blif_solve_log_bdd(DEBUG, debugIndent << "dumping right branch ", manager, efunc);
-    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache, existentiallyQuantifiedVars, debugIndent + "  ");
+    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache, debugIndent + "  ");
     auto t = tdcr.tseytinVar;
     auto e = edcr.tseytinVar;
 
@@ -324,7 +348,7 @@ namespace {
     // combining (1) and (2), we get
     // r <-> IfThenElse(v, t, e)
     // == (!r or !v or t) and (!r or v or e) and (r or v or !e) and (r or !v or !t)
-    auto v = cnfDumpCache.getCnfVarForIndependentVar(vidx);
+    auto v = cnfDumpCache.getCnfVarForBddVar(vidx);
     outputStream << -r << " " << -v << " " <<  t << " 0\n"
                  << -r << " " <<  v << " " <<  e << " 0\n"
                  <<  r << " " <<  v << " " << -e << " 0\n"
@@ -349,7 +373,6 @@ namespace blif_solve {
 
   void dumpCnfForModelCounting(DdManager * manager,
                                bdd_ptr_set const & allVars,
-                               bdd_ptr_set const & existentiallyQuantifiedVars,
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
                                std::string const & outputPath)
@@ -366,7 +389,7 @@ namespace blif_solve {
     for (auto ulit = upperLimit.cbegin(); ulit != upperLimit.cend(); ++ulit)
     {
       blif_solve_log_bdd(DEBUG, "dumping cnf for upper limit func", manager, *ulit);
-      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars, "");
+      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache, "");
       numClauses += dcr.numClauses;
       clauseOut << dcr.tseytinVar << " 0\n";
       ++numClauses;
@@ -382,7 +405,7 @@ namespace blif_solve {
       for (auto llit = lowerLimit.cbegin(); llit != lowerLimit.cend(); ++llit)
       {
         blif_solve_log_bdd(DEBUG, "dumping cnf for func", manager, *llit);
-        auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache, existentiallyQuantifiedVars, "");
+        auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache, "");
         numClauses += dcr.numClauses;
         llTseytins.push_back(dcr.tseytinVar);
       }
