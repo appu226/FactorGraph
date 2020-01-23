@@ -309,32 +309,6 @@ namespace {
 
 
 
-
-    // ---------- Case 3.1 --------
-    // Special case: if v is to be existentially quantified out,
-    // then r is (t or e)
-    if (isVExistentiallyQuantified)
-    {
-      // (r <-> (t or e)) = (r -> (t or e)) and (!r -> (!t and !e))    // !t and !e <- naughty pronounciations :D
-      //                  = (!r or t or e) and (r or (!t and !e))
-      //                  = (!r or t or e) and (r or !t) and (r or !e)
-      outputStream << -r << " " <<  t << " " <<  e << " 0\n"
-                   <<  r << " " << -t              << " 0\n"
-                   <<  r << " "              << -e << " 0\n";
-      blif_solve_log_bdd(DEBUG, 
-                         debugIndent << "adding 3 clauses on tseytin vars " << r << " " << t << " " << e 
-                                     << " because var with bdd index " << vidx
-                                     << " is to be existentially quantified in bdd ",
-                         manager,
-                         func);
-      int numClauses = tdcr.numClauses + edcr.numClauses + 3;
-      int tseytinVar = r;
-      return DumpCnfResult(tseytinVar, numClauses);
-    }
-
-    // else: 
-    // ------------- Case 3.2 -------------
-    // 
     // create a new var r and write clauses to set it up as IfThenElse(v, t, e)
     // r <-> IfThenElse(v, t, e)
     // == r <-> (v -> t) and (!v -> e)
