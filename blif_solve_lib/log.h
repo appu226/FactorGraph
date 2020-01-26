@@ -27,7 +27,7 @@ SOFTWARE.
 #pragma once
 
 #include <iostream>
-#include <chrono>
+#include <ctime>
 
 namespace blif_solve {
 
@@ -65,12 +65,12 @@ namespace blif_solve {
   template<typename T> 
   double duration(T const & start)
   {
-    return std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
+    return static_cast<double>(std::clock() - start)/CLOCKS_PER_SEC;
   }
 
   inline auto now()
   {
-    return std::chrono::high_resolution_clock::now();
+    return std::clock();
   }
 
 

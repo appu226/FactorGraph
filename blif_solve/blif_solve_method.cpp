@@ -261,7 +261,8 @@ namespace {
           start = now();
           factor_graph * fg = factor_graph_new(ddm, &funcGroups.front(), funcGroups.size()); // the factor graph
           blif_solve_log(INFO, "Created factor graph with "
-              << funcGroups.size() << " functions in "
+              << funcGroups.size() << " functions on "
+              << mergeResults.variables->size() << " variables in "
               << duration(start) << " secs");
           for (auto funcGroup: funcGroups)
             bdd_free(ddm, funcGroup);

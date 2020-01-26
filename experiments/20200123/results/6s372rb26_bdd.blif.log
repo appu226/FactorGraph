@@ -1,0 +1,235 @@
+blif_solve/blif_solve --under_approximating_method Skip --largest_support_set 1 --num_convergence 1 --over_approximating_method FactorGraphApprox --verbosity INFO --seed 20200123 ../../data_sets/bddblif/6s372rb26_bdd.blif --diff_output_path experiments/20200123/results/6s372rb26_bdd.blif_1_1.cnf
+[INFO] created 1124 factors with 2283 vars (74 primary inputs + 2209 others) in 0.107827 sec
+[INFO] Executing over approximating method FactorGraphApprox
+[INFO] processing 13 partitions
+[INFO] largestSupportSet 1, numConvergence:1
+[INFO] Grouped func nodes in 8e-06 secs
+[INFO] Created factor graph with 1 functions on 2 variables in 2.5e-05 secs
+[INFO] Grouped non-pi variables in 3.2e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 1 iterations
+[INFO] Factor graph messages have converged in 1e-05 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 1, numConvergence:1
+[INFO] Grouped func nodes in 5e-06 secs
+[INFO] Created factor graph with 1 functions on 2 variables in 8e-06 secs
+[INFO] Grouped non-pi variables in 1.3e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 1 iterations
+[INFO] Factor graph messages have converged in 9e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 1, numConvergence:1
+[INFO] Grouped func nodes in 0.000677 secs
+[INFO] Created factor graph with 21 functions on 22 variables in 0.000302 secs
+[INFO] Grouped non-pi variables in 0.00038 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 1 iterations
+[INFO] Factor graph messages have converged in 4.9e-05 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 1, numConvergence:1
+[INFO] Grouped func nodes in 3e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 4e-06 secs
+[INFO] Grouped non-pi variables in 7e-06 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 5e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 1, numConvergence:1
+scripts/ganak.sh /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_1_1.cnf
+c Outputting solution to console
+c GANAK version 1.0.0
+The value of delta is 0.05
+The value of hashrange is 64x1
+Cannot open file: /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_1_1.cnf
+The total user time taken by ganak is:  0.0
+skipping 6s372rb26_bdd.blif_1_5 as the previous run failed
+skipping 6s372rb26_bdd.blif_1_10 as the previous run failed
+skipping 6s372rb26_bdd.blif_1_20 as the previous run failed
+blif_solve/blif_solve --under_approximating_method Skip --largest_support_set 5 --num_convergence 1 --over_approximating_method FactorGraphApprox --verbosity INFO --seed 20200123 ../../data_sets/bddblif/6s372rb26_bdd.blif --diff_output_path experiments/20200123/results/6s372rb26_bdd.blif_5_1.cnf
+[INFO] created 1124 factors with 2283 vars (74 primary inputs + 2209 others) in 0.107477 sec
+[INFO] Executing over approximating method FactorGraphApprox
+[INFO] processing 13 partitions
+[INFO] largestSupportSet 5, numConvergence:1
+[INFO] Grouped func nodes in 1.7e-05 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 2.8e-05 secs
+[INFO] Grouped non-pi variables in 4.2e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 1e-05 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 5, numConvergence:1
+[INFO] Grouped func nodes in 8e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 8e-06 secs
+[INFO] Grouped non-pi variables in 1.8e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 8e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 5, numConvergence:1
+[INFO] Grouped func nodes in 0.000885 secs
+[INFO] Created factor graph with 21 functions on 16 variables in 0.000276 secs
+[INFO] Grouped non-pi variables in 0.000423 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 1 iterations
+[INFO] Factor graph messages have converged in 5.2e-05 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 5, numConvergence:1
+[INFO] Grouped func nodes in 5e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 5e-06 secs
+[INFO] Grouped non-pi variables in 1.4e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 7e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 5, numConvergence:1
+scripts/ganak.sh /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_5_1.cnf
+c Outputting solution to console
+c GANAK version 1.0.0
+The value of delta is 0.05
+The value of hashrange is 64x1
+Cannot open file: /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_5_1.cnf
+The total user time taken by ganak is:  0.0
+skipping 6s372rb26_bdd.blif_5_5 as the previous run failed
+skipping 6s372rb26_bdd.blif_5_10 as the previous run failed
+skipping 6s372rb26_bdd.blif_5_20 as the previous run failed
+blif_solve/blif_solve --under_approximating_method Skip --largest_support_set 10 --num_convergence 1 --over_approximating_method FactorGraphApprox --verbosity INFO --seed 20200123 ../../data_sets/bddblif/6s372rb26_bdd.blif --diff_output_path experiments/20200123/results/6s372rb26_bdd.blif_10_1.cnf
+[INFO] created 1124 factors with 2283 vars (74 primary inputs + 2209 others) in 0.108261 sec
+[INFO] Executing over approximating method FactorGraphApprox
+[INFO] processing 13 partitions
+[INFO] largestSupportSet 10, numConvergence:1
+[INFO] Grouped func nodes in 1.6e-05 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 1.2e-05 secs
+[INFO] Grouped non-pi variables in 2.3e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 1e-05 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 10, numConvergence:1
+[INFO] Grouped func nodes in 9e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 9e-06 secs
+[INFO] Grouped non-pi variables in 1.8e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 6e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 10, numConvergence:1
+[INFO] Grouped func nodes in 0.002676 secs
+[INFO] Created factor graph with 6 functions on 6 variables in 0.000233 secs
+[INFO] Grouped non-pi variables in 0.000366 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 1 iterations
+[INFO] Factor graph messages have converged in 0.000119 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 10, numConvergence:1
+[INFO] Grouped func nodes in 5e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 5e-06 secs
+[INFO] Grouped non-pi variables in 1.1e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 7e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 10, numConvergence:1
+scripts/ganak.sh /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_10_1.cnf
+c Outputting solution to console
+c GANAK version 1.0.0
+The value of delta is 0.05
+The value of hashrange is 64x1
+Cannot open file: /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_10_1.cnf
+The total user time taken by ganak is:  0.0
+skipping 6s372rb26_bdd.blif_10_5 as the previous run failed
+skipping 6s372rb26_bdd.blif_10_10 as the previous run failed
+skipping 6s372rb26_bdd.blif_10_20 as the previous run failed
+blif_solve/blif_solve --under_approximating_method Skip --largest_support_set 20 --num_convergence 1 --over_approximating_method FactorGraphApprox --verbosity INFO --seed 20200123 ../../data_sets/bddblif/6s372rb26_bdd.blif --diff_output_path experiments/20200123/results/6s372rb26_bdd.blif_20_1.cnf
+[INFO] created 1124 factors with 2283 vars (74 primary inputs + 2209 others) in 0.109929 sec
+[INFO] Executing over approximating method FactorGraphApprox
+[INFO] processing 13 partitions
+[INFO] largestSupportSet 20, numConvergence:1
+[INFO] Grouped func nodes in 1.3e-05 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 2.1e-05 secs
+[INFO] Grouped non-pi variables in 2.9e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 9e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 20, numConvergence:1
+[INFO] Grouped func nodes in 8e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 8e-06 secs
+[INFO] Grouped non-pi variables in 1.7e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 7e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 20, numConvergence:1
+[INFO] Grouped func nodes in 0.003978 secs
+[INFO] Created factor graph with 3 functions on 4 variables in 0.000334 secs
+[INFO] Grouped non-pi variables in 0.000477 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 1 iterations
+[INFO] Factor graph messages have converged in 0.001159 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 20, numConvergence:1
+[INFO] Grouped func nodes in 4e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 6e-06 secs
+[INFO] Grouped non-pi variables in 1e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 8e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 20, numConvergence:1
+scripts/ganak.sh /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_20_1.cnf
+c Outputting solution to console
+c GANAK version 1.0.0
+The value of delta is 0.05
+The value of hashrange is 64x1
+Cannot open file: /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_20_1.cnf
+The total user time taken by ganak is:  0.0
+skipping 6s372rb26_bdd.blif_20_5 as the previous run failed
+skipping 6s372rb26_bdd.blif_20_10 as the previous run failed
+skipping 6s372rb26_bdd.blif_20_20 as the previous run failed
+blif_solve/blif_solve --under_approximating_method Skip --largest_support_set 40 --num_convergence 1 --over_approximating_method FactorGraphApprox --verbosity INFO --seed 20200123 ../../data_sets/bddblif/6s372rb26_bdd.blif --diff_output_path experiments/20200123/results/6s372rb26_bdd.blif_40_1.cnf
+[INFO] created 1124 factors with 2283 vars (74 primary inputs + 2209 others) in 0.108718 sec
+[INFO] Executing over approximating method FactorGraphApprox
+[INFO] processing 13 partitions
+[INFO] largestSupportSet 40, numConvergence:1
+[INFO] Grouped func nodes in 1.6e-05 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 2.5e-05 secs
+[INFO] Grouped non-pi variables in 3.4e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 1.1e-05 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 40, numConvergence:1
+[INFO] Grouped func nodes in 7e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 8e-06 secs
+[INFO] Grouped non-pi variables in 1.4e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 7e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 40, numConvergence:1
+[INFO] Grouped func nodes in 0.023804 secs
+[INFO] Created factor graph with 2 functions on 1 variables in 0.003374 secs
+[INFO] Grouped non-pi variables in 0.003739 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 4 iterations
+[INFO] Factor graph messages have converged in 0.104353 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 40, numConvergence:1
+[INFO] Grouped func nodes in 7e-06 secs
+[INFO] Created factor graph with 1 functions on 1 variables in 8e-06 secs
+[INFO] Grouped non-pi variables in 1.3e-05 secs
+[INFO] Initiating message passing
+[INFO] Factor graph messages have converged in 3 iterations
+[INFO] Factor graph messages have converged in 7e-06 secs
+[INFO] Ran 1 FactorGraph convergences
+[INFO] largestSupportSet 40, numConvergence:1
+scripts/ganak.sh /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_40_1.cnf
+c Outputting solution to console
+c GANAK version 1.0.0
+The value of delta is 0.05
+The value of hashrange is 64x1
+Cannot open file: /home/parakram/Software/DDP/FactorGraph/src/experiments/20200123/results/6s372rb26_bdd.blif_40_1.cnf
+The total user time taken by ganak is:  0.0
+skipping 6s372rb26_bdd.blif_40_5 as the previous run failed
+skipping 6s372rb26_bdd.blif_40_10 as the previous run failed
+skipping 6s372rb26_bdd.blif_40_20 as the previous run failed

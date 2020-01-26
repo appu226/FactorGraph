@@ -149,7 +149,7 @@ int main(int argc, char ** argv)
 
 
     // dump the diff
-    if (upperLimit.size() > 0 && lowerLimit.size() > 0 && clo->diffOutputPath.size() > 0)
+    if (upperLimit.size() > 0 && clo->diffOutputPath.size() > 0)
     {
       blif_solve_log(DEBUG, "Writing diff to " << clo->diffOutputPath);
       auto nonPiVars = blifFactors->getNonPiVars();
@@ -229,6 +229,7 @@ bdd_ptr_set divideAndConquer(blif_solve::BlifFactors::PtrVec const & partitions,
                              blif_solve::BlifSolveMethod::Cptr const & method)
 {
   bdd_ptr_set result;
+  blif_solve_log(INFO, "processing " << partitions.size() << " partitions");
   for (auto partition: partitions)
   {
     bdd_ptr_set subresult = method->solve(*partition);
