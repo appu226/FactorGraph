@@ -15,12 +15,14 @@
 1100  1
 1111  1
 [INFO] Executing over approximating method FactorGraphApprox
+[INFO] processing 1 partitions
 [INFO] largestSupportSet 30, numConvergence:1
 [INFO] Initiating message passing
 [INFO] Factor graph messages have converged in 3 iterations
 [INFO] Ran 1 FactorGraph convergences
 [INFO] Over approximating method FactorGraphApprox finished with 3 solutions.
 [INFO] Executing under approximating method ExactAndAccumulate
+[INFO] processing 1 partitions
 [DEBUG] Conjunction of factors in partition
 0--0  1
 10-0  1
