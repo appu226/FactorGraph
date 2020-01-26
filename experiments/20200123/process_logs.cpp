@@ -41,7 +41,7 @@ namespace {
     
     // variables to hold parsed information
     int lss;
-    int numConv;
+    int numConv = 0;
     std::optional<double> numSolutions;
     std::optional<double> timeTaken;
 
@@ -66,18 +66,20 @@ namespace {
 
         // save details of previous run
           if (numSolutions)
+          {
             numSolutionsTable [lss][numConv] = *numSolutions;
+            numConvergenceSet.insert(numConv);
+          }
           if (timeTaken)
             timeTable    [lss][numConv] = *timeTaken;
 
         // parse details of next run
         sscanf(line.c_str(),
-               "blif_solve/blif_solve --under_approximating_method Skip --largest_support_set %d --num_convergence %d",
-               &lss,
-               &numConv);
+               "blif_solve/blif_solve --under_approximating_method Skip --largest_support_set %d",
+               &lss);
         numSolutions.reset();
         timeTaken.reset();
-        numConvergenceSet.insert(numConv);
+        numConv = 0;
       }
 
       // case 2: time taken
@@ -97,11 +99,24 @@ namespace {
         fin >> numSolBuf;
         numSolutions.emplace(numSolBuf);
       }
-    } 
+
+      // case 4: number of convergences
+      else if (line.find("[INFO] Ran") == 0 && line.find("FactorGraph convergences") != std::string::npos)
+      {
+        int numConvForThisPartition;
+        sscanf(line.c_str(),
+               "[INFO] Ran %d FactorGraph convergences",
+               &numConvForThisPartition);
+        numConv = std::max(numConv, numConvForThisPartition);
+      }
+    }
     // finished reading file
 
     // save the details of the last run, when the file ends
-    if (numSolutions) numSolutionsTable[lss][numConv] = *numSolutions;
+    if (numSolutions) {
+      numSolutionsTable[lss][numConv] = *numSolutions;
+      numConvergenceSet.insert(numConv);
+    }
     if (timeTaken) timeTable[lss][numConv] = *timeTaken;
 
     // print out nice-ish tables
