@@ -1,6 +1,7 @@
 .model DD
-.inputs pi00 pi01 lo00
-.outputs po00 li00 ans_qpi
+.inputs pi00 pi01
+.outputs po00 ans_qpi
+.latch li00 lo00 2
 .names pi00 pi01 lo00 li00
 111 1
 .names li00 lo00 po00

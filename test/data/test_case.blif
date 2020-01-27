@@ -1,6 +1,8 @@
 .model DD
-.inputs pi0 pi1 lo0 lo1
-.outputs po0 li0 li1
+.inputs pi0 pi1
+.outputs po0
+.latch li0 lo0 2
+.latch li1 lo1 2
 .names v1
 1
 .names lo0 lo1 v1 v0111

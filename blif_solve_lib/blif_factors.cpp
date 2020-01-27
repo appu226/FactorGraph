@@ -23,14 +23,14 @@ SOFTWARE.
 */
 
 #include "blif_factors.h"
+#include "log.h"
 
 #include <bdd_partition.h>
-
-#include "log.h"
 
 #include <ntr.h>
 #include <cuddInt.h>
 
+#include <set>
 
 // local function definitions
 namespace {
@@ -239,64 +239,56 @@ namespace blif_solve {
     m_nonPiVars = std::make_shared<std::vector<bdd_ptr> >();
     m_factors.reset(new std::vector<bdd_ptr>());
 
+    std::set<std::string> primaryInputs;
+    std::set<std::string> latchInputs;
+    std::set<std::string> latchOutputs;
+
+    for (int ipi = 0; ipi < m_network->npis; ++ipi)
+      primaryInputs.insert(m_network->inputs[ipi]);
+
+    for (int ilatch = 0; ilatch < m_network->nlatches; ++ilatch)
+    {
+      latchInputs.insert(m_network->latches[ilatch][0]);
+      latchOutputs.insert(m_network->latches[ilatch][1]);
+    }
+
 
     // loop over all variables
     for (BnetNode_cptr node = m_network->nodes; node != NULL; node = node->next)
     {
-      if (NULL == node->dd)
-        continue;
-      std::string name = node->name;
+      std::string nodeName = node->name;
 
-
-      if (name.find(primary_input_prefix) == 0)
+      // if primary input
+      if (primaryInputs.count(nodeName) > 0)
       {
-        // if primary input variable
-        // store in piVars
-        bdd_ptr piVar = bdd_new_var_with_index(m_ddm, node->var);
-        blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, piVar);
-        reassignToUnion(m_ddm, m_piVars, piVar);
+        // count as pi var
+        bdd_ptr temp = bdd_cube_union(m_ddm, m_piVars, node->dd);
+        bdd_free(m_ddm, m_piVars);
+        m_piVars = temp;
+        blif_solve_log_bdd(DEBUG, "parsing var " << nodeName << " as:", m_ddm, node->dd);
       }
 
-
-      else if (name.find(latch_output_prefix) == 0)
+      // if latch input
+      else if (latchInputs.count(nodeName) > 0)
       {
-        int loVarNum;
-        std::string loVarFormat = latch_output_prefix + "%d";
-        sscanf(name.c_str(), loVarFormat.c_str(), &loVarNum);
-        if (loVarNum >= m_numLoVarsToQuantify)
-        {
-          // if lo variable and not to be quantified
-          // store in nonPiVars
-          bdd_ptr nonPiVar = bdd_new_var_with_index(m_ddm, node->var);
-          blif_solve_log_bdd(DEBUG, "parsing var " << name << " as:", m_ddm, nonPiVar);
-          m_nonPiVars->push_back(nonPiVar);
-        }
-        else
-        {
-          // else treat as Pi Var
-          bdd_ptr piVar = bdd_new_var_with_index(m_ddm, node->var);
-          blif_solve_log_bdd(DEBUG, "parsing var " << name << " (treated as PI var) as:", m_ddm, piVar);
-          reassignToUnion(m_ddm, m_piVars, piVar);
-        }
+        // take the latch input circuit C
+        // and the previously created latch input variable L
+        // and add (L nxor C) as a factor
+        auto L = bdd_new_var_with_index(m_ddm, -1);
+        auto C = node->dd;
+        m_factors->push_back(bdd_xnor(m_ddm, L, C));
+        m_nonPiVars->push_back(L);
+        blif_solve_log_bdd(DEBUG, "creating var " << nodeName << " as:", m_ddm, L);
+        blif_solve_log_bdd(DEBUG, "parsing circuit for " << nodeName << " as:", m_ddm, C);
       }
 
-
-      else if (name.find(latch_input_prefix) == 0)
+      // if latch output
+      else if (latchOutputs.count(nodeName) > 0)
       {
-        // if li variable
-        // store in nonPiVars
-        // and create factor
-        bdd_ptr li = bdd_new_var_with_index(m_ddm, -1);
-        blif_solve_log_bdd(DEBUG, "creating var " << name << " as:", m_ddm, li);
-        bdd_ptr li_circuit = node->dd;
-        blif_solve_log_bdd(DEBUG, "parsing circuit for " << name << " as:", m_ddm, li_circuit);
-        bdd_ptr factor = bdd_xnor(m_ddm, li, li_circuit);
-        m_factors->push_back(factor);
-        m_nonPiVars->push_back(li);
+        // count as non pi var
+        m_nonPiVars->push_back(bdd_dup(node->dd));
+        blif_solve_log_bdd(DEBUG, "parsing var " << nodeName << " as:", m_ddm, node->dd);
       }
-
-
-
     } // end loop over all network nodes
   } //end BlifFactors::createBdds
 
