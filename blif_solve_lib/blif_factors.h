@@ -88,11 +88,6 @@ namespace blif_solve {
       DdManager * getDdManager() const;
 
 
-      static std::string primary_input_prefix;
-      static std::string primary_output_prefix;
-      static std::string latch_input_prefix;
-      static std::string latch_output_prefix;
-
     private:
       BlifFactors(BnetNetwork * network,
                   DdManager * ddm,

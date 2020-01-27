@@ -152,15 +152,6 @@ namespace blif_solve {
 
 
 
-  // static member variables
-  std::string BlifFactors::primary_input_prefix = "pi";
-  std::string BlifFactors::primary_output_prefix = "po";
-  std::string BlifFactors::latch_input_prefix = "li";
-  std::string BlifFactors::latch_output_prefix = "lo";
-
-
-
-
 
   // constructor
   // parses the network file, WITHOUT creating the actual bdds

@@ -44,14 +44,6 @@ SOFTWARE.
 #include "blif_solve_method.h"
 
 
-// constants
-std::string const primary_input_prefix = "pi";
-std::string const primary_output_prefix = "po";
-std::string const latch_input_prefix = "li";
-std::string const latch_output_prefix = "lo";
-std::string const quantification_answer_prefix = "ans_qpi";
-
-
 
 // function declarations
 int                             main                 (int argc, char ** argv);
