@@ -6,6 +6,7 @@ qbf_solve/qbf_solve
 blif_solve/blif_solve
 test/test
 test/cnf_dump_test
+test/clipping_and_abstract_test
 cnf_dump/cnf_dump
 temp
 tags

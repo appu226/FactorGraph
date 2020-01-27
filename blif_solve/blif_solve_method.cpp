@@ -68,6 +68,7 @@ namespace {
         auto result = bdd_clipping_and_exists_multi(ddm, funcSet, cube, m_maxDepth, direction);
         bdd_ptr_set resultSet;
         resultSet.insert(result);
+        blif_solve_log_bdd(INFO, "Clipping returned bdd", ddm, result);
         return resultSet;
       }
 

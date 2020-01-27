@@ -70,7 +70,8 @@ int main(int argc, char const * const * const argv)
   
   auto numFactorsClo = CommandLineOptionValue<int>::create("--num_factors", "Number of factors (mandatory)", -1);
   auto numVarsClo = CommandLineOptionValue<int>::create("--num_vars", "Number of vars (mandatory)", -1);
-  auto cnfClo = CommandLineOptionValue<std::string>::create("--cnf", "CNF output path (mandatory)", "");
+  auto clippingDepthClo = CommandLineOptionValue<int>::create("--clipping_depth", "Depth for clipping approximation (mandatory)", -1);
+  auto clippingDirectionClo = CommandLineOptionValue<int>::create("--clipping_direction", "Clipping direction 0/1 (deault 1)", 1);
   auto seedClo = CommandLineOptionValue<int>::create("--seed", "Seed for randomization", 20200123);
   auto probVarInClauseClo  = CommandLineOptionValue<double>::create("--prob_var_in_clause", "Probability for selecting a variable into a clause (default 0.8)",  0.8);
   auto avgSupportSetSizeClo  = CommandLineOptionValue<int>::create("--avg_support_set_size", "Average size of factor support sets (default num_vars *.8)", -1);
@@ -80,8 +81,9 @@ int main(int argc, char const * const * const argv)
   auto numVarsToQuantifyClo = CommandLineOptionValue<int>::create("--num_vars_to_quantify", "Number of vars to existentially quantify away (default num_vars / 2)", -1);
 
 
-  std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > options{ numFactorsClo, numVarsClo, cnfClo, seedClo, 
-                                                                         probVarInClauseClo, avgSupportSetSizeClo, 
+  std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > options{ numFactorsClo, numVarsClo, 
+                                                                         clippingDepthClo, clippingDirectionClo,
+                                                                         seedClo, probVarInClauseClo, avgSupportSetSizeClo, 
                                                                          minClausesInFunctionClo, maxClausesInFunctionClo, 
                                                                          verbosityClo, numVarsToQuantifyClo };
   blif_solve::parseCommandLineOptions(argc - 1, argv + 1, options);
@@ -89,13 +91,14 @@ int main(int argc, char const * const * const argv)
   
   int numFactors = numFactorsClo->getValue();
   int numVars = numVarsClo->getValue();
-  std::string cnfFilePath = cnfClo->getValue();
-  if (numFactors < 0 || numVars < 0 || cnfFilePath == "")
+  int clippingDepth = clippingDepthClo->getValue();
+  if (numFactors < 0 || numVars < 0 || clippingDepth < 0)
   {
-    std::cout << "Missing mandatory parameters num_factors/num_vars/cnf" << std::endl;
+    std::cout << "Missing mandatory parameters num_factors/num_vars/clipping_depth" << std::endl;
     blif_solve::printHelp(options);
     return -1;
   }
+  int clippingDirection = clippingDirectionClo->getValue();
   int seed = seedClo->getValue();
   double probVarInClause = probVarInClauseClo->getValue();
   int avgSupportSetSize = avgSupportSetSizeClo->getValue();
@@ -114,13 +117,16 @@ int main(int argc, char const * const * const argv)
   blif_solve::setVerbosity(blif_solve::parseVerbosity(verbosityClo->getValue()));
   blif_solve_log(INFO, "numFactors = " << numFactors);
   blif_solve_log(INFO, "numVars = " << numVars);
+  blif_solve_log(INFO, "clippingDepth = " << clippingDepth);
+  blif_solve_log(INFO, "clippingDirection = " << clippingDirection);
   blif_solve_log(INFO, "seed = " << seed);
   blif_solve_log(INFO, "probVarInClause = " << probVarInClause);
   blif_solve_log(INFO, "avgSupportSetSize = " << avgSupportSetSize);
   blif_solve_log(INFO, "minClausesInFunction = " << minClausesInFunction);
   blif_solve_log(INFO, "maxClausesInFunction = " << maxClausesInFunction);
   blif_solve_log(INFO, "numVarsToQuantify = " << numVarsToQuantify);
-  blif_solve_log(INFO, "cnfFilePath = " << cnfFilePath);
+
+
 
 
   blif_solve_log(INFO, "generating factors");
@@ -130,17 +136,12 @@ int main(int argc, char const * const * const argv)
                                   maxClausesInFunction);
   auto factors = bddGen.generateFactors(numFactors);
   auto independentVars = bddGen.getIndependentVars(numVarsToQuantify);
-
-
-  blif_solve_log(INFO, "dumping cnf");
-  blif_solve::dumpCnfForModelCounting(manager, independentVars, factors, bdd_ptr_set(), cnfFilePath);
-  blif_solve_log(INFO, "running ganak");
-  std::system(("scripts/ganak.sh ${PWD}/" + cnfFilePath + " 2> /dev/null | grep -A 1 '# solutions' | tail -n 1 ").c_str());
-
-
-  blif_solve_log(INFO, "computing bdd result");
-  bdd_ptr conjunction = bdd_one(manager);
   bdd_ptr varsToQuantify = bddGen.getVarsToQuantify(numVarsToQuantify);
+
+
+
+  blif_solve_log(INFO, "computing exact result");
+  bdd_ptr conjunction = bdd_one(manager);
   for (auto factor: factors)
   {
     bdd_ptr temp = bdd_and(manager, conjunction, factor);
@@ -148,12 +149,22 @@ int main(int argc, char const * const * const argv)
     conjunction = temp;
   }
   bdd_ptr result = bdd_forsome(manager, conjunction, varsToQuantify);
-  blif_solve_log_bdd(DEBUG, "result is ", manager, result);
-  std::cout << bdd_count_minterm(manager, result, numVars - numVarsToQuantify) << std::endl;
-
-
-  bdd_free(manager, result);
   bdd_free(manager, conjunction);
+  blif_solve_log_bdd(DEBUG, "exact result is ", manager, result);
+  std::cout << "Exact number of solutions = " << bdd_count_minterm(manager, result, numVars - numVarsToQuantify) << std::endl;
+  bdd_free(manager, result);
+
+
+
+
+  blif_solve_log(INFO, "computing clipped result");
+  result = bdd_clipping_and_exists_multi(manager, factors, varsToQuantify, clippingDepth, clippingDirection);
+  blif_solve_log_bdd(DEBUG, "clipped result is ", manager, result);
+  std::cout << "Clipped number of solutions = " << bdd_count_minterm(manager, result, numVars - numVarsToQuantify) << std::endl;
+  bdd_free(manager, result);
+
+
+
   bdd_free(manager, varsToQuantify);
   for (auto factor: factors)
     bdd_free(manager, factor);
