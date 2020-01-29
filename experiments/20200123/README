@@ -34,29 +34,36 @@
    *** onto all the non primary input variables. ***
    *************************************************
 
-   This computation is attempted in 3 different methods.
 
 
 3. Tests for each case
    For each data set, (starting from the smallest by file size to the largest),
-     we loop over many var node sizes, func node sizes, and
-     number of factor graph convergences, for each data set,
-     and run the factor graph algorithm.
+     we loop over many largest_support_set sizes, and num_convergences.
    The meanings of these parameters are as follows:
-   - var_node_size: Maximum number of variables to merge in a single node in the factor graph.
-       We randomly merge the non-pi variables nodes into larger nodes,
-       upto "var_node_size" variables at a time.
-   - func_node_size: Maximum number of functions to merge in a single node in the factor graph.
-       We randomly merge the function nodes into larger nodes,
-       upto func_node_size functions at a time.
-   - number_of_convergences: Number of times to run the factor graph algorithm
-       We run the factor graph algorithm to convergence,
-       and compute the result as the set of final messages coming into the non-PI variable nodes.
-       We then take these messages as an additional set of factors,
-       and re-run the algorithm from scratch (including the random merging of) 
-                                             (variable and function nodes    ).
-       and thus compute a new result, guaranteed to be no-less-tighter than the first result.
-       This we repeat "number_of_convergences" times.
+   --- largest_support_set: The maximum number of variables in a merged variable node or func node
+           We use the following algorithms for merging the set of nodes in the graph:
+           1. compute the disconnected partitions among the factors
+           2. for each partition:
+           3.     let L = list of nodes to merge (pairs of funcs and pairs of vars)
+           4.     for each pair in L, compute the compatibility
+                           (compatibility(x, y) = |SS(x) \intersect SS(Y)| / min(|SS(x)|, |SS(y)|)
+                            where SS stands for support set)
+           5.     turn L into a max heap based on the compatibilities
+           6.     while L is not empty:
+           7.         extract the most compatible pair (x, y) from L
+           8.         if |SS(x) \union SS(y)| <= Largest_Support_Set:
+           9.             remove pairs with x and/or y from L
+           10.            compute node z = merge(x, y)
+           11.            for each neighbour n of z:
+           12.                add (z, n) into L while maintaining the max-heap property
+   --- number_of_convergences: Number of times to run the factor graph algorithm
+           We run the factor graph algorithm to convergence,
+           and compute the result as the set of final messages coming into the non-PI variable nodes.
+           We then take these messages as an additional set of factors,
+           and re-run the algorithm from scratch (including the random merging of) 
+                                                 (variable and function nodes    ).
+           and thus compute a new result, guaranteed to be no-less-tighter than the first result.
+           This we repeat "number_of_convergences" times.
    For each data set, for each combination of the above mentioned parameters,
      the computations were bounded by 2 mins.
    The computations were run with -O3 flag on a Intel(R) Core(TM) i3-4030U CPU @ 1.90GHz chip
@@ -64,9 +71,7 @@
 
 4. Results
    The results are summarized in a table in
-     experiments/20190201/summary.txt
-   The index of this table, explaining the meaning of various columns:
-     experiments/20190201/index.txt
+     summary.txt
    Detailed logs from which results have been scraped are compressed in:
      experiments/20190201/results.tgz
 
