@@ -1,0 +1,406 @@
+Running b01
+[INFO] created 5 factors with 12 vars (2 primary inputs + 10 others) in 0.000429 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000216 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 96 solutions.
+[INFO] SUCCESS b01.blif
+Running b01_C
+[INFO] created 0 factors with 6 vars (6 primary inputs + 0 others) in 0.000108 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 4e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b01_C.blif
+Running b01_opt
+[INFO] created 5 factors with 12 vars (2 primary inputs + 10 others) in 0.00014 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000207 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 96 solutions.
+[INFO] SUCCESS b01_opt.blif
+Running b01_opt_C
+[INFO] created 0 factors with 6 vars (6 primary inputs + 0 others) in 9.6e-05 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 4e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b01_opt_C.blif
+Running b02
+[INFO] created 4 factors with 9 vars (1 primary inputs + 8 others) in 9.5e-05 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000104 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 22 solutions.
+[INFO] SUCCESS b02.blif
+Running b02_C
+[INFO] created 0 factors with 4 vars (4 primary inputs + 0 others) in 7.4e-05 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 5e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b02_C.blif
+Running b02_opt
+[INFO] created 4 factors with 9 vars (1 primary inputs + 8 others) in 0.000115 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000102 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 22 solutions.
+[INFO] SUCCESS b02_opt.blif
+Running b02_opt_C
+[INFO] created 0 factors with 4 vars (4 primary inputs + 0 others) in 0.000124 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 8e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b02_opt_C.blif
+Running b03_C
+[INFO] created 0 factors with 33 vars (33 primary inputs + 0 others) in 0.00029 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 5e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b03_C.blif
+Running b03_opt_C
+[INFO] created 0 factors with 34 vars (34 primary inputs + 0 others) in 0.0004 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 5e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b03_opt_C.blif
+Running b04_C
+[INFO] created 0 factors with 76 vars (76 primary inputs + 0 others) in 0.017655 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 4e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b04_C.blif
+Running b04_opt_C
+[INFO] created 0 factors with 76 vars (76 primary inputs + 0 others) in 0.027238 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b04_opt_C.blif
+Running b05_C
+[INFO] created 0 factors with 34 vars (34 primary inputs + 0 others) in 0.016447 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b05_C.blif
+Running b05_opt_C
+[INFO] created 0 factors with 34 vars (34 primary inputs + 0 others) in 0.004579 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b05_opt_C.blif
+Running b06
+[INFO] created 9 factors with 20 vars (2 primary inputs + 18 others) in 0.000165 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000558 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1728 solutions.
+[INFO] SUCCESS b06.blif
+Running b06_C
+[INFO] created 0 factors with 10 vars (10 primary inputs + 0 others) in 0.000139 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b06_C.blif
+Running b06_opt
+[INFO] created 9 factors with 20 vars (2 primary inputs + 18 others) in 0.000308 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000478 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1728 solutions.
+[INFO] SUCCESS b06_opt.blif
+Running b06_opt_C
+[INFO] created 0 factors with 10 vars (10 primary inputs + 0 others) in 0.000152 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b06_opt_C.blif
+Running b07_C
+[INFO] created 0 factors with 49 vars (49 primary inputs + 0 others) in 0.009845 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 9e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b07_C.blif
+Running b07_opt_C
+[INFO] created 0 factors with 49 vars (49 primary inputs + 0 others) in 0.045738 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b07_opt_C.blif
+Running b08_C
+[INFO] created 0 factors with 29 vars (29 primary inputs + 0 others) in 0.000561 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 9e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b08_C.blif
+Running b08_opt_C
+[INFO] created 0 factors with 29 vars (29 primary inputs + 0 others) in 0.000424 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 6e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b08_opt_C.blif
+Running b09_C
+[INFO] created 0 factors with 28 vars (28 primary inputs + 0 others) in 0.000877 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b09_C.blif
+Running b09_opt_C
+[INFO] created 0 factors with 28 vars (28 primary inputs + 0 others) in 0.000251 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b09_opt_C.blif
+Running b10_C
+[INFO] created 0 factors with 27 vars (27 primary inputs + 0 others) in 0.000796 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b10_C.blif
+Running b10_opt_C
+[INFO] created 0 factors with 27 vars (27 primary inputs + 0 others) in 0.000677 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 6e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b10_opt_C.blif
+Running b11_C
+[INFO] created 0 factors with 37 vars (37 primary inputs + 0 others) in 0.001849 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 6e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b11_C.blif
+Running b11_opt_C
+[INFO] created 0 factors with 37 vars (37 primary inputs + 0 others) in 0.003206 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 6e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b11_opt_C.blif
+Running b13_C
+[INFO] created 0 factors with 62 vars (62 primary inputs + 0 others) in 0.001662 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b13_C.blif
+Running b13_opt_C
+[INFO] created 0 factors with 62 vars (62 primary inputs + 0 others) in 0.001061 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 5e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b13_opt_C.blif
+Running b18
+[INFO] created 3320 factors with 6676 vars (36 primary inputs + 6640 others) in 0.058131 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 3320 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.002088 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 2.62776e+999 solutions.
+[INFO] SUCCESS b18.blif
+Running b18_C
+[INFO] created 0 factors with 3355 vars (3355 primary inputs + 0 others) in 2.32716 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 9e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b18_C.blif
+Running b18_opt
+[INFO] created 3270 factors with 6576 vars (36 primary inputs + 6540 others) in 0.062939 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 3270 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.001978 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 2.33392e+984 solutions.
+[INFO] SUCCESS b18_opt.blif
+Running b18_opt_C
+[INFO] created 0 factors with 3305 vars (3305 primary inputs + 0 others) in 2.2867 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 6e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b18_opt_C.blif
+Running b19
+[INFO] created 6642 factors with 13305 vars (21 primary inputs + 13284 others) in 0.126669 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 6642 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.003086 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 2.76205e+1999 solutions.
+[INFO] SUCCESS b19.blif
+Running b19_C
+[INFO] created 0 factors with 6662 vars (6662 primary inputs + 0 others) in 8.37594 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 0 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 8e-06 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1 solutions.
+[INFO] SUCCESS b19_C.blif
+Running s1196a
+[INFO] created 18 factors with 50 vars (14 primary inputs + 36 others) in 0.002511 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.84669 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 3.56016e+08 solutions.
+[INFO] SUCCESS s1196a.blif
+Running s1196b
+[INFO] created 18 factors with 50 vars (14 primary inputs + 36 others) in 0.001524 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.8398 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 3.56016e+08 solutions.
+[INFO] SUCCESS s1196b.blif
+Running s1196
+[INFO] created 18 factors with 50 vars (14 primary inputs + 36 others) in 0.001748 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.87144 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 3.56016e+08 solutions.
+[INFO] SUCCESS s1196.blif
+Running s1238a
+[INFO] created 18 factors with 53 vars (17 primary inputs + 36 others) in 0.001578 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.86085 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 3.56016e+08 solutions.
+[INFO] SUCCESS s1238a.blif
+Running s1238
+[INFO] created 18 factors with 50 vars (14 primary inputs + 36 others) in 0.001639 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.85324 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 3.56016e+08 solutions.
+[INFO] SUCCESS s1238.blif
+Running s1488
+[INFO] created 6 factors with 20 vars (8 primary inputs + 12 others) in 0.001946 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.02968 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 133 solutions.
+[INFO] SUCCESS s1488.blif
+Running s1494
+[INFO] created 6 factors with 20 vars (8 primary inputs + 12 others) in 0.002192 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.04141 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 133 solutions.
+[INFO] SUCCESS s1494.blif
+Running s208a
+[INFO] created 8 factors with 26 vars (10 primary inputs + 16 others) in 0.000556 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.00873 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 512 solutions.
+[INFO] SUCCESS s208a.blif
+Running s208
+[INFO] created 8 factors with 27 vars (11 primary inputs + 16 others) in 0.000936 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000646 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 511 solutions.
+[INFO] SUCCESS s208.blif
+Running s27a
+[INFO] created 3 factors with 10 vars (4 primary inputs + 6 others) in 9.8e-05 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000137 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 33 solutions.
+[INFO] SUCCESS s27a.blif
+Running s27
+[INFO] created 3 factors with 10 vars (4 primary inputs + 6 others) in 0.000116 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.000193 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 33 solutions.
+[INFO] SUCCESS s27.blif
+Running s298
+[INFO] created 14 factors with 31 vars (3 primary inputs + 28 others) in 0.000264 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.486735 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 81408 solutions.
+[INFO] SUCCESS s298.blif
+Running s382
+[INFO] created 21 factors with 45 vars (3 primary inputs + 42 others) in 0.000368 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7.01875 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1.04732e+07 solutions.
+[INFO] SUCCESS s382.blif
+Running s386a
+[INFO] created 6 factors with 19 vars (7 primary inputs + 12 others) in 0.000616 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.010793 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 93 solutions.
+[INFO] SUCCESS s386a.blif
+Running s386
+[INFO] created 6 factors with 19 vars (7 primary inputs + 12 others) in 0.000584 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.008958 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 93 solutions.
+[INFO] SUCCESS s386.blif
+Running s400
+[INFO] created 21 factors with 45 vars (3 primary inputs + 42 others) in 0.000567 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 7.01248 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1.04732e+07 solutions.
+[INFO] SUCCESS s400.blif
+Running s420a
+[INFO] created 16 factors with 50 vars (18 primary inputs + 32 others) in 0.113576 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 6.06789 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 131072 solutions.
+[INFO] SUCCESS s420a.blif
+Running s420
+[INFO] created 16 factors with 51 vars (19 primary inputs + 32 others) in 0.121841 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 0.136916 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 138271 solutions.
+[INFO] SUCCESS s420.blif
+Running s444
+[INFO] created 21 factors with 45 vars (3 primary inputs + 42 others) in 0.000651 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 10.226 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 1.04732e+07 solutions.
+[INFO] SUCCESS s444.blif
+Running s510
+[INFO] created 6 factors with 31 vars (19 primary inputs + 12 others) in 0.013222 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 65.605 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 101 solutions.
+[INFO] SUCCESS s510.blif
+Running s820
+[INFO] created 5 factors with 28 vars (18 primary inputs + 10 others) in 0.001876 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.53203 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 114 solutions.
+[INFO] SUCCESS s820.blif
+Running s832
+[INFO] created 5 factors with 28 vars (18 primary inputs + 10 others) in 0.001952 sec
+[INFO] Executing over approximating method ExactAndAbstractMulti
+[INFO] processing 1 partitions
+[INFO] Finished over approximating method ExactAndAbstractMulti in 1.50924 sec
+[INFO] Over approximating method ExactAndAbstractMulti finished with 114 solutions.
+[INFO] SUCCESS s832.blif
