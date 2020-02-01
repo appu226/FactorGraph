@@ -10,3 +10,4 @@ test/clipping_and_abstract_test
 cnf_dump/cnf_dump
 temp
 tags
+experiments/*/process_logs
