@@ -404,8 +404,8 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
       bdd_and_accumulate(manager, &manualConjunction, f);
     auto manualResult = bdd_forsome(manager, manualConjunction, cube);
 
-    auto autoConjunction = bdd_and_multi(manager, funcs);
-    auto autoResult = bdd_and_exists_multi(manager, funcs, cube);
+    auto autoConjunction = bdd_and_multi(manager, funcs, 100*1000);
+    auto autoResult = bdd_and_exists_multi(manager, funcs, cube, 100*1000);
     auto conjunctionClipUp = bdd_clipping_and_multi(manager, funcs, maxDepth, dd_constants::Clip_Up);
     auto conjunctionClipDown = bdd_clipping_and_multi(manager, funcs, maxDepth, dd_constants::Clip_Down);
     auto resultClipUp = bdd_clipping_and_exists_multi(manager, funcs, cube, maxDepth, dd_constants::Clip_Up);
@@ -462,10 +462,10 @@ void testCuddBddCountMintermsMulti(DdManager * manager)
       funcs.insert(f);
     }
 
-    const auto computedAnswer = bdd_count_minterm_multi(manager, funcs, numVars);
+    const auto computedAnswer = bdd_count_minterm_multi(manager, funcs, numVars, 100*1000);
     //std::cout << "number of solutions is " << computedAnswer << std::endl; // DeleteMe
 
-    bdd_ptr conj = bdd_and_multi(manager, funcs);
+    bdd_ptr conj = bdd_and_multi(manager, funcs, 100*1000);
     const auto expectedAnswer = bdd_count_minterm(manager, conj, numVars);
     bdd_free(manager, conj);
     for (auto f: funcs)

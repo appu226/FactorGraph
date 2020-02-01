@@ -185,7 +185,7 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
   if ("ExactAndAccumulate" == bsmStr)
     return blif_solve::BlifSolveMethod::createExactAndAccumulate();
   else if ("ExactAndAbstractMulti" == bsmStr)
-    return blif_solve::BlifSolveMethod::createExactAndAbstractMulti();
+    return blif_solve::BlifSolveMethod::createExactAndAbstractMulti(clo.cacheSize);
   else if ("FactorGraphApprox" == bsmStr)
     return blif_solve::BlifSolveMethod::createFactorGraphApprox(
         clo.largestSupportSet,
@@ -212,7 +212,7 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
 
 long double getNumSolutions(DdManager * manager, bdd_ptr_set const & bdds, int numVars)
 {
-  auto numSln = bdd_count_minterm_multi(manager, bdds, numVars);
+  auto numSln = bdd_count_minterm_multi(manager, bdds, numVars, 100*1000);
   return numSln;
 }
 

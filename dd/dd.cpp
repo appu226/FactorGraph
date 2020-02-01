@@ -606,9 +606,9 @@ bdd_ptr bdd_xnor(DdManager *dd, bdd_ptr f, bdd_ptr g)
   Cudd_bddOr Cudd_bddNand Cudd_bddNor Cudd_bddXor Cudd_bddXnor
 
 *****************************************************************************/
-bdd_ptr bdd_and_multi(DdManager * dd, bdd_ptr_set const & funcs)
+bdd_ptr bdd_and_multi(DdManager * dd, bdd_ptr_set const & funcs, int cacheSize)
 {
-  DdNode * result = Cudd_bddAndMulti(dd, funcs);
+  DdNode * result = Cudd_bddAndMulti(dd, funcs, cacheSize);
   common_error(result, "bdd_and_multi: result = NULL");
   Cudd_Ref(result);
   return result;
@@ -633,9 +633,12 @@ bdd_ptr bdd_and_multi(DdManager * dd, bdd_ptr_set const & funcs)
   @see Cudd_addMatrixMultiply Cudd_addTriangle Cudd_bddAnd
 
 *****************************************************************************/
-bdd_ptr  bdd_and_exists_multi(DdManager *dd, bdd_ptr_set const & funcs, bdd_ptr var_cube)
+bdd_ptr  bdd_and_exists_multi(DdManager *dd, 
+                              bdd_ptr_set const & funcs, 
+                              bdd_ptr var_cube, 
+                              int cacheSize)
 {
-  DdNode * result = Cudd_bddAndAbstractMulti(dd, funcs, var_cube);
+  DdNode * result = Cudd_bddAndAbstractMulti(dd, funcs, var_cube, cacheSize);
   common_error(result, "bdd_and_exists_multi: result = NULL");
   Cudd_Ref(result);
   return result;
@@ -666,7 +669,8 @@ bdd_ptr bdd_clipping_and_multi(
 {
   DdNode * result = Cudd_bddClippingAndMulti(
       dd, funcs,
-      max_depth, direction);
+      max_depth,
+      direction);
   common_error(result, "bdd_clipping_and__multi: result = NULL");
   Cudd_Ref(result);
   return result;
@@ -753,7 +757,10 @@ long double bdd_count_minterm(DdManager * dd, bdd_ptr f, int numVars)
 
   @see Cudd_CountMinterm Cudd_EpdCountMinterm Cudd_ApaCountMinterm
 */
-long double bdd_count_minterm_multi(DdManager * dd, const bdd_ptr_set & funcs, int numVars)
+long double bdd_count_minterm_multi(DdManager * dd, 
+                                    const bdd_ptr_set & funcs, 
+                                    int numVars,
+                                    int cacheSize)
 {
   const int Cudd_Counting_Limit = sizeof(long double) == sizeof(double) ? 1023 : 16383;
   if (numVars >= Cudd_Counting_Limit)
@@ -764,6 +771,6 @@ long double bdd_count_minterm_multi(DdManager * dd, const bdd_ptr_set & funcs, i
     throw std::runtime_error(ss.str());
   } 
   else
-    return Cudd_LdblCountMintermMulti(dd, funcs, numVars, 100 * 1000);
+    return Cudd_LdblCountMintermMulti(dd, funcs, numVars, cacheSize);
 }
 

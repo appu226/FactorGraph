@@ -32,8 +32,8 @@ SOFTWARE.
 /* Function prototypes                                                       */
 /*---------------------------------------------------------------------------*/
 
-DdNode * Cudd_bddAndAbstractMulti(DdManager *manager, const std::set<DdNode *> & f, DdNode *cube);
-DdNode * Cudd_bddAndMulti(DdManager *manager, const std::set<DdNode *> & f);
+DdNode * Cudd_bddAndAbstractMulti(DdManager *manager, const std::set<DdNode *> & f, DdNode *cube, int multiCacheCapacity);
+DdNode * Cudd_bddAndMulti(DdManager *manager, const std::set<DdNode *> & f, int multiCacheCapacity);
 DdNode * Cudd_bddClippingAndMulti(DdManager *manager, 
                                   const std::set<DdNode *> & f, 
                                   int maxDepth, 
@@ -42,5 +42,5 @@ DdNode * Cudd_bddClippingAndAbstractMulti(DdManager *manager,
                                           const std::set<DdNode *> & f, 
                                           DdNode *cube, 
                                           int maxDepth, 
-                                          int Direction);
+                                          int direction);
 long double Cudd_LdblCountMintermMulti(DdManager * dd, const std::set<DdNode *> & funcs, int numVars, int multiCacheCapacity);

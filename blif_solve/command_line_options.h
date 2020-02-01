@@ -53,6 +53,8 @@ namespace blif_solve {
     int clippingDepth;
     // number of latch output variables to existentially quantify
     int numLoVarsToQuantify;
+    // cache size for multi-bdd algorithms
+    int cacheSize;
 
     // path to dump dot files (for factor graph visualization)
     std::string dotDumpPath;

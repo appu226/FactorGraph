@@ -408,6 +408,10 @@ namespace {
     : public BlifSolveMethod
   {
     public:
+      ExactAndAbstractMulti(int cacheSize):
+        m_cacheSize(cacheSize)
+      { }
+
       bdd_ptr_set solve(BlifFactors const & blif_factors) const override
       {
         auto manager = blif_factors.getDdManager();
@@ -415,9 +419,12 @@ namespace {
         bdd_ptr_set factor_set(factors->cbegin(), factors->cend());
         auto cube = blif_factors.getPiVars();
         bdd_ptr_set result;
-        result.insert(bdd_and_exists_multi(manager, factor_set, cube));
+        result.insert(bdd_and_exists_multi(manager, factor_set, cube, m_cacheSize));
         return result;
       }
+
+    private:
+      int m_cacheSize;
   };
 
 
@@ -469,9 +476,9 @@ namespace blif_solve
     return std::make_shared<ExactAndAccumulate>();
   }
 
-  BlifSolveMethodCptr BlifSolveMethod::createExactAndAbstractMulti()
+  BlifSolveMethodCptr BlifSolveMethod::createExactAndAbstractMulti(int cacheSize)
   {
-    return std::make_shared<ExactAndAbstractMulti>();
+    return std::make_shared<ExactAndAbstractMulti>(cacheSize);
   }
 
   BlifSolveMethodCptr BlifSolveMethod::createFactorGraphApprox(

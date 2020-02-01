@@ -38,7 +38,7 @@ namespace blif_solve {
       virtual bdd_ptr_set solve(BlifFactors const & blifFactors) const = 0;
 
       static Cptr createExactAndAccumulate();
-      static Cptr createExactAndAbstractMulti();
+      static Cptr createExactAndAbstractMulti(int cacheSize);
       static Cptr createFactorGraphApprox(int largestSupportSet,
                                           int numConvergence,
                                           std::string const & dotDumpPath);

@@ -71,7 +71,8 @@ namespace std {
 DdNode * cuddBddAndAbstractMultiRecur(
     DdManager * manager,
     std::set<DdNode*> const & f,
-    DdNode * cube);
+    DdNode * cube,
+    parakram::LruCache<std::set<DdNode *>, DdNode*> & cache);
 
 
 
@@ -79,7 +80,8 @@ DdNode * cuddBddAndAbstractMultiRecur(
 // Recursive "and" implementation
 DdNode * cuddBddAndMultiRecur(
     DdManager * manager,
-    std::set<DdNode *> const & f);
+    std::set<DdNode *> const & f,
+    parakram::LruCache<std::set<DdNode *>, DdNode *> & cache);
 
 
 
@@ -146,12 +148,14 @@ long double cuddBddCountMintermMultiAux(
 DdNode * Cudd_bddAndAbstractMulti(
     DdManager *manager, 
     std::set<DdNode*> const & f, 
-    DdNode *cube)
+    DdNode *cube,
+    int cacheSize)
 {
   DdNode * res;
+  parakram::LruCache<std::set<DdNode *>, DdNode *> cache(cacheSize);
   do {
     manager->reordered = 0;
-    res = cuddBddAndAbstractMultiRecur(manager, f, cube);
+    res = cuddBddAndAbstractMultiRecur(manager, f, cube, cache);
   } while(manager->reordered == 1);
   if (manager->errorCode == CUDD_TIMEOUT_EXPIRED && manager->timeoutHandler) {
     manager->timeoutHandler(manager, manager->tohArg);
@@ -177,12 +181,14 @@ DdNode * Cudd_bddAndAbstractMulti(
 */
 DdNode * Cudd_bddAndMulti(
     DdManager * dd,
-    std::set<DdNode*> const & f)
+    std::set<DdNode*> const & f,
+    int cacheSize)
 {
+  parakram::LruCache<std::set<DdNode *>, DdNode*> cache(cacheSize);
   DdNode * res;
   do {
     dd->reordered = 0;
-    res = cuddBddAndMultiRecur(dd, f);
+    res = cuddBddAndMultiRecur(dd, f, cache);
   } while (dd->reordered == 1);
   if (dd->errorCode == CUDD_TIMEOUT_EXPIRED && dd->timeoutHandler)
   {
@@ -321,7 +327,8 @@ Cudd_LdblCountMintermMulti(
 DdNode * cuddBddAndAbstractMultiRecur(
     DdManager * manager,
     std::set<DdNode*> const & fSet2,
-    DdNode * cube)
+    DdNode * cube,
+    parakram::LruCache<std::set<DdNode *>, DdNode *> & cache)
 {
 
   statLine(manager);
@@ -344,13 +351,26 @@ DdNode * cuddBddAndAbstractMultiRecur(
   // if all of the funcs are one, return one
   if (fSet.empty()) return one;
 
+  // check cache
+  auto cachedResult = cache.tryGet(fSet);
+  if (cachedResult.isPresent())
+    return cachedResult.get();
+
   // if there is only one element, no more need for conjunction
   if (fSet.size() == 1)
-    return cuddBddExistAbstractRecur(manager, *fSet.cbegin(), cube);
+  {
+    r = cuddBddExistAbstractRecur(manager, *fSet.cbegin(), cube);
+    cache.insert(fSet, r);
+    return r;
+  }
 
   // if cube is empty, return the conjunction
   if (cube == one)
-    return cuddBddAndMultiRecur(manager, fSet);
+  {
+    r = cuddBddAndMultiRecur(manager, fSet, cache);
+    // cache.insert(fSet, r); // should already be in the cache
+    return r;
+  }
 
   // find the top variable of the set of functions
   int top = manager->perm[Cudd_Regular(*fSet.cbegin())->index];
@@ -364,7 +384,9 @@ DdNode * cuddBddAndAbstractMultiRecur(
   while (topcube < top) {
     cube = cuddT(cube);
     if (cube == one) { // if there is nothing to quantify, return the conjunction
-      return (cuddBddAndMultiRecur(manager, fSet));
+      r = (cuddBddAndMultiRecur(manager, fSet, cache));
+      // cache.insert(fSet, r); // should already be in the cache
+      return r;
     }
     topcube = manager->perm[cube->index];
   }
@@ -395,20 +417,21 @@ DdNode * cuddBddAndAbstractMultiRecur(
   // need to quantify the topmost variable
   if (topcube == top) {
     auto remainingCube = cuddT(cube);
-    auto t = cuddBddAndAbstractMultiRecur(manager, tv, remainingCube);
+    auto t = cuddBddAndAbstractMultiRecur(manager, tv, remainingCube, cache);
     if (t == NULL) return NULL;
     // Special case: 1 or anything = 1. Hence, no need to compute
     // the else branch if t is 1. Likewise t + t * anything = t.
     // Notice that t == fe implies that fe does not depend on the
     // variables in the Cube.
     if (t == one || std::find(ev.cbegin(), ev.cend(), t) != ev.cend()) {
+      cache.insert(fSet, r);
       return t;
     }
 
     cuddRef(t);
     // Special case: t + !t * anything == t + anything
     ev.erase(Cudd_Not(t));
-    auto e = cuddBddAndAbstractMultiRecur(manager, ev, remainingCube);
+    auto e = cuddBddAndAbstractMultiRecur(manager, ev, remainingCube, cache);
     if (NULL == e)
     {
       Cudd_IterDerefBdd(manager, t);
@@ -435,10 +458,10 @@ DdNode * cuddBddAndAbstractMultiRecur(
   } // end of case where you need to quantify
   else
   { // no need to quantify
-    auto t = cuddBddAndAbstractMultiRecur(manager, tv, cube);
+    auto t = cuddBddAndAbstractMultiRecur(manager, tv, cube, cache);
     if (NULL == t) return NULL;
     cuddRef(t);
-    auto e = cuddBddAndAbstractMultiRecur(manager, ev, cube);
+    auto e = cuddBddAndAbstractMultiRecur(manager, ev, cube, cache);
     if (NULL == e)
     {
       Cudd_IterDerefBdd(manager, t);
@@ -475,6 +498,7 @@ DdNode * cuddBddAndAbstractMultiRecur(
     }
   }
 
+  cache.insert(fSet, r);
   return r;
 } // end of cuddBddAndAbstractMultiRecur
 
@@ -487,7 +511,8 @@ DdNode * cuddBddAndAbstractMultiRecur(
 // Recursive "and" implementation
 DdNode * cuddBddAndMultiRecur(
     DdManager * manager,
-    std::set<DdNode *> const & fset)
+    std::set<DdNode *> const & fset,
+    parakram::LruCache<std::set<DdNode *>, DdNode *> & cache)
 {
   statLine(manager);
   auto one = DD_ONE(manager);
@@ -510,6 +535,10 @@ DdNode * cuddBddAndMultiRecur(
   } 
   if (fSet.count(zero) > 0)
     return zero;
+
+  auto optResult = cache.tryGet(fSet);
+  if (optResult.isPresent())
+    return optResult.get();
 
   auto index = Cudd_Regular(*fSet.cbegin())->index;
   auto top = manager->perm[index];
@@ -538,11 +567,11 @@ DdNode * cuddBddAndMultiRecur(
     }
   }
 
-  auto t = cuddBddAndMultiRecur(manager, tv);
+  auto t = cuddBddAndMultiRecur(manager, tv, cache);
   if (NULL == t) return NULL;
   cuddRef(t);
 
-  auto e = cuddBddAndMultiRecur(manager, ev);
+  auto e = cuddBddAndMultiRecur(manager, ev, cache);
   if (NULL == e)
   {
     Cudd_IterDerefBdd(manager, t);
@@ -581,6 +610,7 @@ DdNode * cuddBddAndMultiRecur(
   }
   cuddDeref(e);
   cuddDeref(t);
+  cache.insert(fSet, r);
   return r;
 } // end cuddBddAndMultiRecur
 
