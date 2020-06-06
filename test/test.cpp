@@ -28,6 +28,7 @@ SOFTWARE.
 #include <optional.h>
 #include <lru_cache.h>
 #include <max_heap.h>
+#include <clo.hpp>
 
 #include <memory>
 #include <vector>
@@ -49,6 +50,7 @@ void testOptional();
 void testLruCache();
 void testDisjointSet(DdManager * manager);
 void testMaxHeap();
+void testClo();
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -67,6 +69,7 @@ int main()
     testDisjointSet(manager);
     testMaxHeap();
     testApproxMerge(manager);
+    testClo();
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -77,6 +80,22 @@ int main()
     std::cout << "[ERROR] " << e.what() << std::endl;
     return -1;
   }
+}
+
+
+void testClo()
+{
+  auto alpha = blif_solve::CommandLineOption<std::string>::make("--alpha", "Alpha");
+  auto beta = blif_solve::CommandLineOption<int>::make("--beta", "Beta");
+  int argc = 5;
+  char const * const argv[5] = {"skip", "--alpha", "3", "--beta", "4"};
+  std::vector<std::shared_ptr<blif_solve::CloInterface> > cloVec {alpha, beta};
+  blif_solve::parse(cloVec, argc, argv);
+  assert(alpha->value.has_value());
+  assert(alpha->value.value() == "3");
+  assert(beta->value.has_value());
+  assert(beta->value.value() == 4);
+ 
 }
 
 
