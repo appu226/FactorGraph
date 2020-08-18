@@ -8,6 +8,7 @@ test/test
 test/cnf_dump_test
 test/clipping_and_abstract_test
 cnf_dump/cnf_dump
+var_score/var_score
 temp
 tags
 experiments/*/process_logs
