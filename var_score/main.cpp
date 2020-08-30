@@ -26,37 +26,69 @@ SOFTWARE.
 
 #include <log.h>
 #include <command_line_options.h>
-
+#include <blif_factors.h>
+#include <srt.h>
 
 #include <memory>
 
 
+
+//////////////////
+// declarations //
+//////////////////
+
+// structure and functions to parse and store command line options
+struct VarScoreCommandLineOptions
+{
+  std::string verbosity;
+  std::string blif;
+  int largestSupportSet;
+};
 template<typename TValue>
 std::shared_ptr<blif_solve::CommandLineOptionValue<TValue> > 
   addCommandLineOption(std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > & commandLineOptions,
                        const std::string & name,
                        const std::string & help,
                        const TValue & defaultValue);
+VarScoreCommandLineOptions parseClo(int argc, char const * const * const argv);
+
+// main
+int main(int argc, char const * const * const argv);
+
+// quantification algorithms
+bdd_ptr varScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm);
 
 
 
 
+
+
+
+
+
+
+
+///////////////////
+// main function //
+///////////////////
 int main(int argc, char const * const * const argv)
 {
-  std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > clo;
-  auto verbosity = addCommandLineOption<std::string>(clo, "--verbosity", "verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)", "WARNING");
-  auto blif = addCommandLineOption<std::string>(clo, "--blif", "blif file name", "");
+  auto clo = parseClo(argc, argv); // parse the command line options
+  auto srt = std::make_shared<SRT>(); // initialize BDD
+  
+  // parse the blif file
+  blif_solve::BlifFactors bf(clo.blif, 0, srt->ddm);
+  bf.createBdds();
+  auto subProblems = bf.partitionFactors();
+  blif_solve_log(INFO, "Parsed " << subProblems.size() << " sub problems");
 
-
-  parseCommandLineOptions(argc - 1, argv + 1, clo);
-  blif_solve::setVerbosity(blif_solve::parseVerbosity(verbosity->getValue()));
-  if (blif->getValue() == "")
+  // solve each sub problem
+  for (auto sp: subProblems)
   {
-    blif_solve_log(ERROR, "Expecting value for command line argument --blif");
-    blif_solve::printHelp(clo);
-    return -1;
+    auto result = varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), sp->getDdManager());
+    blif_solve_log(INFO, "Computed sub result");
+    blif_solve_log_bdd(DEBUG, "result", sp->getDdManager(), result);
   }
-  blif_solve_log(DEBUG, "blif file: " + blif->getValue());
 
   return 0;
 }
@@ -64,6 +96,14 @@ int main(int argc, char const * const * const argv)
 
 
 
+
+
+
+
+
+///////////////////////////////////////////////////////
+// functions to parse and store command line options //
+///////////////////////////////////////////////////////
 template<typename TValue>
 std::shared_ptr<blif_solve::CommandLineOptionValue<TValue> >
   addCommandLineOption(std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > & commandLineOptions,
@@ -75,3 +115,58 @@ std::shared_ptr<blif_solve::CommandLineOptionValue<TValue> >
   commandLineOptions.push_back(result);
   return result;
 }
+
+//------------------------------------
+VarScoreCommandLineOptions
+  parseClo(int argc, char const * const * const argv)
+{
+  VarScoreCommandLineOptions result;
+  std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > clo;
+  auto verbosity = addCommandLineOption<std::string>(clo, "--verbosity", "verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)", "WARNING");
+  auto blif = addCommandLineOption<std::string>(clo, "--blif", "blif file name", "");
+  auto largestSupportSet = addCommandLineOption<int>(clo, "--largest_support_set", "limit on the bdd size", 100);
+
+
+  parseCommandLineOptions(argc - 1, argv + 1, clo);
+  blif_solve::setVerbosity(blif_solve::parseVerbosity(verbosity->getValue()));
+  if (blif->getValue() == "")
+  {
+    blif_solve_log(ERROR, "Expecting value for command line argument --blif");
+    blif_solve::printHelp(clo);
+    exit(1);
+  }
+  blif_solve_log(DEBUG, "blif file: " + blif->getValue());
+  blif_solve_log(DEBUG, "largest support set: " << largestSupportSet->getValue());
+  result.verbosity = verbosity->getValue();
+  result.blif = blif->getValue();
+  result.largestSupportSet = largestSupportSet->getValue();
+  return result;
+}
+
+
+
+
+
+
+
+
+
+///////////////////////////////
+// Quantification algorithms //
+///////////////////////////////
+bdd_ptr varScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm)
+{
+  throw std::runtime_error("varScoreQuantification not implemented yet");
+}
+
+
+
+
+
+
+
+
+
+
+
+
