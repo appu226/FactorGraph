@@ -32,6 +32,8 @@ SOFTWARE.
 #include <memory>
 
 
+#include "var_score_quantification.h"
+
 
 //////////////////
 // declarations //
@@ -55,20 +57,6 @@ VarScoreCommandLineOptions parseClo(int argc, char const * const * const argv);
 // main
 int main(int argc, char const * const * const argv);
 
-// quantification algorithms
-std::vector<bdd_ptr>
-  varScoreQuantification(const std::vector<bdd_ptr> & F, 
-                         bdd_ptr Q, 
-                         int largestSupportSet, 
-                         DdManager * ddm);
-
-
-
-
-
-
-
-
 
 
 
@@ -87,14 +75,28 @@ int main(int argc, char const * const * const argv)
   blif_solve_log(INFO, "Parsed " << subProblems.size() << " sub problems");
 
   // solve each sub problem
+  std::vector<bdd_ptr> resultVec;
   for (auto sp: subProblems)
   {
-    auto resultVec = varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), clo.largestSupportSet, sp->getDdManager());
+    auto rv = var_score::VarScoreQuantification::varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), clo.largestSupportSet, sp->getDdManager());
     blif_solve_log(INFO, "Computed sub result");
-    for (auto result: resultVec)
-      blif_solve_log_bdd(DEBUG, "result", sp->getDdManager(), result);
+    resultVec.insert(resultVec.end(), rv.cbegin(), rv.cend());
+  }
+  
+
+  // display final result
+  if (blif_solve::getVerbosity() == blif_solve::DEBUG)
+  {
+    bdd_ptr finalResult = bdd_one(srt->ddm);
+    for (auto r: resultVec)
+      bdd_and_accumulate(srt->ddm, &finalResult, r);
+    blif_solve_log_bdd(DEBUG, "finalResult", srt->ddm, finalResult);
+    bdd_free(srt->ddm, finalResult);
   }
 
+  // free results
+  for (auto r: resultVec)
+    bdd_free(srt->ddm, r);
   return 0;
 }
 
@@ -160,84 +162,5 @@ VarScoreCommandLineOptions
 // Quantification algorithms //
 ///////////////////////////////
 
-// declare utility structs, functions
-struct VarScoreQuantification {
-  public:
-
-#define NYI(fname) { throw std::runtime_error(#fname " not yet implemented"); }
-
-    VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, int largestSupportSet, DdManager * ddm) NYI(VarScoreQuantification)
-    bdd_ptr findVarWithOnlyOneFactor() NYI(findVarWithOnlyOneFactor)
-    std::vector<bdd_ptr> neighboringFactors(bdd_ptr var) NYI(neighboringFactors)
-    void removeFactor(bdd_ptr factor) NYI(removeFactor)
-    void addFactor(bdd_ptr factor) NYI(addFactor)
-    void removeVar(bdd_ptr var) NYI(removeVar)
-    bdd_ptr varWithLowestScore() NYI(varWithLowestScore)
-    std::pair<bdd_ptr, bdd_ptr> smallestTwoNeighbors(bdd_ptr var) NYI(smallestTwoNeighbors)
-    bool isFinished() NYI(isFinished)
-    std::vector<bdd_ptr> getFactorCopies() const NYI(getFactorCopies)
-    ~VarScoreQuantification() { blif_solve_log(ERROR, "Destructor ~VarScoreQuantification() not yet implemented"); }
-  private:
-    std::vector<bdd_ptr> m_factors;
-    std::map<bdd_ptr, std::vector<bdd_ptr> > m_vars;
-    int m_largestSupportSet;
-    DdManager * m_ddm;
-};
-
-
-std::vector<bdd_ptr> varScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, int largestSupportSet, DdManager * ddm)
-{
-  VarScoreQuantification vsq(F, Q, largestSupportSet, ddm);
-  while(!vsq.isFinished())
-  {
-    auto q = vsq.findVarWithOnlyOneFactor();
-    if (q != NULL)
-    {
-      auto tv = vsq.neighboringFactors(q);
-      assert(tv.size() == 1);
-      auto t = tv.front();
-      auto t_without_q = bdd_forsome(ddm, t, q);
-      vsq.addFactor(t_without_q);
-      bdd_free(ddm, t_without_q);
-      vsq.removeFactor(t);
-      vsq.removeVar(q);
-    }
-    else
-    {
-      auto q = vsq.varWithLowestScore();
-      auto t1t2 = vsq.smallestTwoNeighbors(q);
-      auto t1 = t1t2.first;
-      auto t2 = t1t2.second;
-      if (vsq.neighboringFactors(q).size() == 2)
-      {
-        auto t = bdd_and_exists(ddm, t1, t2, q);
-        vsq.addFactor(t);
-        bdd_free(ddm, t);
-        vsq.removeFactor(t1);
-        vsq.removeFactor(t2);
-        vsq.removeVar(q);
-      }
-      else
-      {
-        auto t = bdd_and(ddm, t1, t2);
-        vsq.addFactor(t);
-        bdd_free(ddm, t);
-        vsq.removeFactor(t1);
-        vsq.removeFactor(t2);
-      }
-    }
-  }
-  return vsq.getFactorCopies();
-}
-
-
-
-
-
-
-
-
-
-
-
+// declare utility struct
 
