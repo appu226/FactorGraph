@@ -54,7 +54,7 @@ namespace var_score {
       bdd_ptr varWithLowestScore() const;
       bdd_ptr findVarWithOnlyOneFactor() const;
       std::pair<bdd_ptr, bdd_ptr> smallestTwoNeighbors(bdd_ptr var) const;
-      std::set<bdd_ptr> neighboringFactors(bdd_ptr var) const;
+      const std::set<bdd_ptr> & neighboringFactors(bdd_ptr var) const;
       
       bool isFinished() const;
       std::vector<bdd_ptr> getFactorCopies() const;

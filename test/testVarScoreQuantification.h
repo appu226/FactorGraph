@@ -26,4 +26,4 @@ SOFTWARE.
 
 #include <var_score_quantification.h>
 
-void testVarScoreQuantification(DdManager * ddm);
+void testVarScoreQuantificationUtils(DdManager * ddm);

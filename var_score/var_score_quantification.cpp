@@ -92,7 +92,7 @@ namespace var_score {
 
 
 
-  std::set<bdd_ptr> VarScoreQuantification::neighboringFactors(bdd_ptr var) const
+  const std::set<bdd_ptr>& VarScoreQuantification::neighboringFactors(bdd_ptr var) const
   {
     auto qit = m_vars.find(var);
     assert(qit != m_vars.end());
@@ -107,13 +107,8 @@ namespace var_score {
 
   void VarScoreQuantification::removeFactor(bdd_ptr factor)
   {
-    for (auto vit = m_vars.begin(); vit != m_vars.end(); )
-    {
-      auto vxfs = vit++;
-      vxfs->second.erase(factor);
-      if (vxfs->second.size() == 0)
-        m_vars.erase(vxfs);
-    }
+    for (auto& vxfs: m_vars)
+      vxfs.second.erase(factor);
     if (m_factors.count(factor) == 0)
       return;
     m_factors.erase(factor);
@@ -132,7 +127,7 @@ namespace var_score {
     m_factors.insert(bdd_dup(factor));
     bdd_ptr fsup = bdd_support(m_ddm, factor);
     bdd_ptr one = bdd_one(m_ddm);
-    for(auto vxfs: m_vars)
+    for(auto& vxfs: m_vars)
     {
       bdd_ptr q = vxfs.first;
       bdd_ptr intersection = bdd_cube_intersection(m_ddm, q, fsup);
@@ -215,7 +210,10 @@ namespace var_score {
 
 
   bool VarScoreQuantification::isFinished() const {
-    return m_vars.empty();
+    for (const auto & vxfs: m_vars)
+      if (!vxfs.second.empty())
+        return false;
+    return true;
   }
 
 

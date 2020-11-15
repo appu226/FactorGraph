@@ -29,7 +29,7 @@ SOFTWARE.
 #include <cassert>
 
 
-void testVarScoreQuantification(DdManager * ddm)
+void testVarScoreQuantificationUtils(DdManager * ddm)
 {
   // prepare variables
   using namespace test;
@@ -110,8 +110,12 @@ void testVarScoreQuantification(DdManager * ddm)
 
   // test findVarWithOnlyOneFactor
   assert(vsq.findVarWithOnlyOneFactor() == v[4].getUncountedBdd());
-
-
+  vsq.removeFactor(F[2]);
+  assert(vsq.findVarWithOnlyOneFactor() == v[3].getUncountedBdd());
+  vsq.removeVar(v[4].getUncountedBdd());
+  assert(vsq.findVarWithOnlyOneFactor() == v[3].getUncountedBdd());
+  vsq.addFactor(v[3].getUncountedBdd());
+  assert(vsq.findVarWithOnlyOneFactor() == NULL);
 
 
 }

@@ -52,6 +52,7 @@ void testLruCache();
 void testDisjointSet(DdManager * manager);
 void testMaxHeap();
 void testClo();
+void testVarScoreQuantificationAlgo(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -61,6 +62,7 @@ int main()
     DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
     common_error(manager, "test/main.cpp : Could not initialize DdManager\n");
 
+    
     testCuddBddCountMintermsMulti(manager);
     testCuddBddAndAbstractMulti(manager);
     testCnfDump(manager);
@@ -71,7 +73,8 @@ int main()
     testMaxHeap();
     testApproxMerge(manager);
     testClo();
-    testVarScoreQuantification(manager);
+    testVarScoreQuantificationUtils(manager);
+    testVarScoreQuantificationAlgo(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -82,6 +85,67 @@ int main()
     std::cout << "[ERROR] " << e.what() << std::endl;
     return -1;
   }
+}
+
+
+
+void testVarScoreQuantificationAlgo(DdManager * manager)
+{
+  int const numVars = 4;
+  int const numTests = 5000;
+  int const numFuncsPerTest = 6;
+  int const largestSupportSet = 6;
+  std::vector<DdNode *> vars;
+  for (int vi = 0; vi < numVars; ++vi)
+    vars.push_back(bdd_new_var_with_index(manager, vi));
+  int const totalMinTerms = 1 << numVars;
+  int const totalFuncs = 1 << totalMinTerms;
+  for (int itest = 0; itest < numTests; ++itest)
+  {
+    std::set<DdNode *> funcs;
+    for (int ifunc = 0; ifunc < numFuncsPerTest; ++ifunc)
+    {
+      int const funcAsInteger = rand() % totalFuncs;
+      auto f = makeFunc(manager, numVars, funcAsInteger);
+      funcs.insert(f);
+    }
+    
+    const int numVarsToBeQuantified = rand() % numVars;
+    DdNode * cube = bdd_one(manager);
+    for (int iqv = 0; iqv < numVarsToBeQuantified; ++iqv)
+    {
+      auto temp = cube;
+      auto varIndex = rand() % numVars;
+      cube = bdd_cube_union(manager, cube, bdd_new_var_with_index(manager, varIndex));
+      bdd_free(manager, temp);
+    }
+
+    auto manualResult = bdd_and_exists_multi(manager, funcs, cube, 100*100);
+
+    std::vector<bdd_ptr> fvec(funcs.cbegin(), funcs.cend());
+    auto varScoreResultVec = var_score::VarScoreQuantification::varScoreQuantification(fvec, cube, largestSupportSet, manager);
+    std::set<bdd_ptr> varScoreResultSet(varScoreResultVec.cbegin(), varScoreResultVec.cend());
+    auto varScoreResult = bdd_and_multi(manager, varScoreResultSet, 100*1000);
+
+
+    std::cout << "\n\n\nVarScoreResult: \n";
+    bdd_print_minterms(manager, varScoreResult);
+    std::cout << "\n\n\nmanualResult: \n";
+    bdd_print_minterms(manager, manualResult);
+
+
+    assert(varScoreResult == manualResult);
+
+    for (auto f: funcs)
+      bdd_free(manager, f);
+    bdd_free(manager, cube);
+    bdd_free(manager, manualResult);
+    for (auto f: varScoreResultVec)
+      bdd_free(manager, f);
+    bdd_free(manager, varScoreResult);
+  }
+  for (auto v: vars)
+    bdd_free(manager, v);
 }
 
 
