@@ -1,11 +1,11 @@
-IFLAGS_test = ${EXPORT_IFLAGS_dd} ${EXPORT_IFLAGS_blif_solve_lib}
-LFLAGS_test = ${EXPORT_LFLAGS_dd} ${EXPORT_LFLAGS_blif_solve_lib}
+IFLAGS_test = ${EXPORT_IFLAGS_var_score}
+LFLAGS_test = ${EXPORT_LFLAGS_var_score}
 
 TEST_CC_FLAGS = -std=c++17 ${cpp.opt.flag} -Werror
 
 all : test cnf_dump_test clipping_and_abstract_test
 
-test : test.cpp bdd_factory.o testApproxMerge.o ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
+test : test.cpp bdd_factory.o testApproxMerge.o ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib} ${EXPORT_ARTIFACTS_var_score}
 	${CC} ${TEST_CC_FLAGS} test.cpp bdd_factory.o testApproxMerge.cpp ${IFLAGS_test} ${LFLAGS_test} -o test
 
 bdd_factory.o : bdd_factory.cpp bdd_factory.h ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}

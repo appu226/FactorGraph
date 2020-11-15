@@ -172,7 +172,10 @@ namespace var_score {
       for (auto f: vxfs.second)
         size += bdd_size(f);
       if (minq == NULL || size < lowestSize)
+      {
         minq = vxfs.first;
+        lowestSize = size;
+      }
     }
     assert(minq != NULL);
     return minq;
@@ -189,8 +192,9 @@ namespace var_score {
     assert(qit->second.size() >= 2);
     bdd_ptr f1 = NULL, f2 = NULL;
     int s1 = 0, s2 = 0;
-    for (auto f: qit->second)
+    for (auto fit: qit->second)
     {
+      bdd_ptr f = fit;
       int s = bdd_size(f);
       if (f1 == NULL || s < s1)
       {
