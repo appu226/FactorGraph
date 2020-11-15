@@ -15,6 +15,7 @@ COMPONENTS = ${build.list}
 include dd/exports.mk
 include factor_graph/exports.mk
 include blif_solve_lib/exports.mk
+include var_score/exports.mk
 
 # pass make command goals to all components
 all clean :
