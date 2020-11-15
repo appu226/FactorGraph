@@ -5,14 +5,17 @@ TEST_CC_FLAGS = -std=c++17 ${cpp.opt.flag} -Werror
 
 all : test cnf_dump_test clipping_and_abstract_test
 
-test : test.cpp bdd_factory.o testApproxMerge.o ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib} ${EXPORT_ARTIFACTS_var_score}
-	${CC} ${TEST_CC_FLAGS} test.cpp bdd_factory.o testApproxMerge.cpp ${IFLAGS_test} ${LFLAGS_test} -o test
+test : test.cpp bdd_factory.o testApproxMerge.o testVarScoreQuantification.o ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib} ${EXPORT_ARTIFACTS_var_score}
+	${CC} ${TEST_CC_FLAGS} test.cpp bdd_factory.o testVarScoreQuantification.o testApproxMerge.cpp ${IFLAGS_test} ${LFLAGS_test} -o test
 
 bdd_factory.o : bdd_factory.cpp bdd_factory.h ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
 	${CC} ${TEST_CC_FLAGS} -c bdd_factory.cpp ${IFLAGS_test} ${LFLAGS_test} -o bdd_factory.o
 
 testApproxMerge.o : testApproxMerge.cpp testApproxMerge.h ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
 	${CC} ${TEST_CC_FLAGS} -c testApproxMerge.cpp ${IFLAGS_test} ${LFLAGS_test} -o testApproxMerge.o
+
+testVarScoreQuantification.o : testVarScoreQuantification.cpp testVarScoreQuantification.h ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib} ${EXPORT_ARTIFACTS_var_score}
+	${CC} ${TEST_CC_FLAGS} -c testVarScoreQuantification.cpp ${IFLAGS_test} ${LFLAGS_test} -o testVarScoreQuantification.o
 
 cnf_dump_test : cnf_dump_test.cpp random_bdd_generator.o ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
 	${CC} ${TEST_CC_FLAGS} cnf_dump_test.cpp random_bdd_generator.o ${IFLAGS_test} ${LFLAGS_test} -o cnf_dump_test
