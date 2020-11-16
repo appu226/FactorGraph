@@ -1,0 +1,61 @@
+
+
+#################################################################################
+## Run the VarScore algorithm to search for parseable but unsolveable problems ##
+#################################################################################
+
+
+Table of contents
+   1. Objective
+   2. Experimental setup
+   3. How to run
+   4. Results
+   5. Conclusions
+   6. References
+
+
+
+1. Objective
+   Our high level algo is as follows:
+
+      1. Come up with any quantifier schedule
+      2. If the schedule can be computed exactly, do so.
+      3. If some step of the schedule cannot be computed exactly, try and compute it in parts by pushing in the quantifier into groups of functions.
+      4. If at some point you are forced to push in the quantifiers into individual functions (g1, g2, ... gn), then instead of doing that, do the following:
+         4.1. Merge the non-quantified variables (y1, y2...) in those factors into a single variable (y)
+         4.2. Apply the factor graph algorithm on the entire graph
+         4.3. Remove the factors g_i, and instead introduce the final messages going into y
+         4.4. Re-open y into multiple variables (y1, y2... ) 
+
+   The objective of this test is to find if there are any such problems which can be parsed in a limited amount of time, but take a very long time to solve.
+
+2. Experimental setup
+   We implemented the naive "VarScore" algorithm from [Chauhan-2001].
+   For each of our test cases, we print whether we can parse the test case or not (i.e., convert the blif files to BDDs within the time limit).
+   Then we try to run the VarScore algorithm to see if it finishes within the time limit.
+   If the algorithm finishes, we print the size of the largest bdd encountered.
+   The time-limit we use is 5 mins, for the entire run (parsing + solving) combined.
+
+3. How to run
+   CD into the high level project directory and run 
+     experiments/var_score/find_parseable_but_unsolvable_cases/run_all_test_cases.sh
+   The script was designed to continue from where it left off, so if you want to force a run of all cases, then you need to delete the results directory.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6. References:
+   6.1. [Chauhan-2001]: Pankaj Chauhan, Edmund Clarke, Somesh Jha, Jim Kukula, Tom Shiple, Helmut Veith, Dong Wang. Non-linear Quantification Scheduling in Image Computation. ICCAD, 2001.
+
