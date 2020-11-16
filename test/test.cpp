@@ -128,12 +128,6 @@ void testVarScoreQuantificationAlgo(DdManager * manager)
     auto varScoreResult = bdd_and_multi(manager, varScoreResultSet, 100*1000);
 
 
-    std::cout << "\n\n\nVarScoreResult: \n";
-    bdd_print_minterms(manager, varScoreResult);
-    std::cout << "\n\n\nmanualResult: \n";
-    bdd_print_minterms(manager, manualResult);
-
-
     assert(varScoreResult == manualResult);
 
     for (auto f: funcs)

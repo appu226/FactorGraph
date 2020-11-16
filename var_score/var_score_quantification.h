@@ -59,6 +59,8 @@ namespace var_score {
       bool isFinished() const;
       std::vector<bdd_ptr> getFactorCopies() const;
 
+      void printState() const;
+
       static
         std::vector<bdd_ptr>
         varScoreQuantification(const std::vector<bdd_ptr> & F, 

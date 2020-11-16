@@ -260,6 +260,31 @@ namespace var_score {
 
 
 
+  void VarScoreQuantification::printState() const
+  {
+    std::cout << "\n\n======\nFactors:\n\n" << std::endl;
+    for (auto f: m_factors)
+    {
+      bdd_print_minterms(m_ddm, f);
+      std::cout << "\n\n" << std::endl;
+    }
+
+    std::cout << "\n\n=====\nVariables:\n\n" << std::endl;
+    for (const auto & vxfs: m_vars)
+    {
+      std::cout << "\nvar:\n" << std::endl;
+      bdd_print_minterms(m_ddm, vxfs.first);
+      std::cout << "\n\nfuncs:\n" << std::endl;
+      for (auto f: vxfs.second)
+      {
+        bdd_print_minterms(m_ddm, f);
+        std::cout << "\n\n" << std::endl;
+      }
+    }
+  }
+
+
+
 
   std::vector<bdd_ptr>
     VarScoreQuantification::varScoreQuantification(const std::vector<bdd_ptr> & F, 
@@ -270,6 +295,7 @@ namespace var_score {
       VarScoreQuantification vsq(F, Q, largestSupportSet, ddm);
       while(!vsq.isFinished())
       {
+        // vsq.printState();
         auto q = vsq.findVarWithOnlyOneFactor();
         if (q != NULL)
         {
@@ -278,10 +304,10 @@ namespace var_score {
           assert(tv.size() == 1);
           auto t = *(tv.cbegin());
           auto t_without_q = bdd_forsome(ddm, t, q);
-          vsq.addFactor(t_without_q);
-          bdd_free(ddm, t_without_q);
           vsq.removeFactor(t);
           vsq.removeVar(q);
+          vsq.addFactor(t_without_q);
+          bdd_free(ddm, t_without_q);
         }
         else
         {
@@ -293,23 +319,24 @@ namespace var_score {
           {
             blif_solve_log(DEBUG, "found var with exactly two factors");
             auto t = bdd_and_exists(ddm, t1, t2, q);
-            vsq.addFactor(t);
-            bdd_free(ddm, t);
             vsq.removeFactor(t1);
             vsq.removeFactor(t2);
             vsq.removeVar(q);
+            vsq.addFactor(t);
+            bdd_free(ddm, t);
           }
           else
           {
             blif_solve_log(DEBUG, "merging two factors");
             auto t = bdd_and(ddm, t1, t2);
-            vsq.addFactor(t);
-            bdd_free(ddm, t);
             vsq.removeFactor(t1);
             vsq.removeFactor(t2);
+            vsq.addFactor(t);
+            bdd_free(ddm, t);
           }
         }
       }
+      // vsq.printState();
       return vsq.getFactorCopies();
     }
 
