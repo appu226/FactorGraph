@@ -44,7 +44,6 @@ struct VarScoreCommandLineOptions
 {
   std::string verbosity;
   std::string blif;
-  int largestSupportSet;
 };
 template<typename TValue>
 std::shared_ptr<blif_solve::CommandLineOptionValue<TValue> > 
@@ -65,6 +64,7 @@ int main(int argc, char const * const * const argv);
 ///////////////////
 int main(int argc, char const * const * const argv)
 {
+  auto start = blif_solve::now();
   auto clo = parseClo(argc, argv); // parse the command line options
   auto srt = std::make_shared<SRT>(); // initialize BDD
   
@@ -72,16 +72,19 @@ int main(int argc, char const * const * const argv)
   blif_solve::BlifFactors bf(clo.blif, 0, srt->ddm);
   bf.createBdds();
   auto subProblems = bf.partitionFactors();
-  blif_solve_log(INFO, "Parsed " << subProblems.size() << " sub problems");
+  blif_solve_log(INFO, "Parsed " << subProblems.size() << " sub problems in " << blif_solve::duration(start) << " sec");
+  start = blif_solve::now();
 
   // solve each sub problem
   std::vector<bdd_ptr> resultVec;
+  int maxBddSize = 0;
   for (auto sp: subProblems)
   {
-    auto rv = var_score::VarScoreQuantification::varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), clo.largestSupportSet, sp->getDdManager());
+    auto rv = var_score::VarScoreQuantification::varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), sp->getDdManager(), maxBddSize);
     blif_solve_log(INFO, "Computed sub result");
     resultVec.insert(resultVec.end(), rv.cbegin(), rv.cend());
   }
+  blif_solve_log(INFO, "Finished in " << blif_solve::duration(start) << " sec with maxBddSize " << maxBddSize);
   
 
   // display final result
@@ -131,7 +134,6 @@ VarScoreCommandLineOptions
   std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > clo;
   auto verbosity = addCommandLineOption<std::string>(clo, "--verbosity", "verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)", "WARNING");
   auto blif = addCommandLineOption<std::string>(clo, "--blif", "blif file name", "");
-  auto largestSupportSet = addCommandLineOption<int>(clo, "--largest_support_set", "limit on the bdd size", 100);
 
 
   parseCommandLineOptions(argc - 1, argv + 1, clo);
@@ -143,10 +145,8 @@ VarScoreCommandLineOptions
     exit(1);
   }
   blif_solve_log(DEBUG, "blif file: " + blif->getValue());
-  blif_solve_log(DEBUG, "largest support set: " << largestSupportSet->getValue());
   result.verbosity = verbosity->getValue();
   result.blif = blif->getValue();
-  result.largestSupportSet = largestSupportSet->getValue();
   return result;
 }
 

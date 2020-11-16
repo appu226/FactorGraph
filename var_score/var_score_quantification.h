@@ -44,7 +44,7 @@ namespace var_score {
     public:
 
 
-      VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, int largestSupportSet, DdManager * ddm);
+      VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm);
       ~VarScoreQuantification();
       
       void addFactor(bdd_ptr factor);
@@ -65,13 +65,12 @@ namespace var_score {
         std::vector<bdd_ptr>
         varScoreQuantification(const std::vector<bdd_ptr> & F, 
                                bdd_ptr Q, 
-                               int largestSupportSet, 
-                               DdManager * ddm);
+                               DdManager * ddm,
+                               int & maxBddSize);
 
     private:
       std::set<bdd_ptr> m_factors;
       std::map<bdd_ptr, std::set<bdd_ptr> > m_vars;
-      int m_largestSupportSet;
       DdManager * m_ddm;
 
       bool isNeighbor(bdd_ptr f, bdd_ptr v) const;

@@ -39,10 +39,9 @@ namespace var_score {
 
 
 
-  VarScoreQuantification::VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, int largestSupportSet, DdManager * ddm):
+  VarScoreQuantification::VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm):
     m_factors(F.cbegin(), F.cend()),
     m_vars(),
-    m_largestSupportSet(largestSupportSet),
     m_ddm(ddm)
   {
     for (auto f: m_factors)
@@ -289,10 +288,12 @@ namespace var_score {
   std::vector<bdd_ptr>
     VarScoreQuantification::varScoreQuantification(const std::vector<bdd_ptr> & F, 
         bdd_ptr Q, 
-        int largestSupportSet, 
-        DdManager * ddm)
+        DdManager * ddm,
+        int & maxBddSize)
     {
-      VarScoreQuantification vsq(F, Q, largestSupportSet, ddm);
+      for (auto f: F)
+        maxBddSize = std::max(maxBddSize, bdd_size(f));
+      VarScoreQuantification vsq(F, Q, ddm);
       while(!vsq.isFinished())
       {
         // vsq.printState();
@@ -307,6 +308,7 @@ namespace var_score {
           vsq.removeFactor(t);
           vsq.removeVar(q);
           vsq.addFactor(t_without_q);
+          maxBddSize = std::max(maxBddSize, bdd_size(t_without_q));
           bdd_free(ddm, t_without_q);
         }
         else
@@ -323,6 +325,7 @@ namespace var_score {
             vsq.removeFactor(t2);
             vsq.removeVar(q);
             vsq.addFactor(t);
+            maxBddSize = std::max(maxBddSize, bdd_size(t));
             bdd_free(ddm, t);
           }
           else
@@ -332,6 +335,7 @@ namespace var_score {
             vsq.removeFactor(t1);
             vsq.removeFactor(t2);
             vsq.addFactor(t);
+            maxBddSize = std::max(maxBddSize, bdd_size(t));
             bdd_free(ddm, t);
           }
         }

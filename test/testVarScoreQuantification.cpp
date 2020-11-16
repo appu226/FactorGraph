@@ -53,8 +53,8 @@ void testVarScoreQuantificationUtils(DdManager * ddm)
   for (size_t i = 1; i < v.size(); ++i)
     qbw = qbw * v[i];
   bdd_ptr Q = qbw.getUncountedBdd();
-  int largestSupportSet = 3;
-  var_score::VarScoreQuantification vsq(F, Q, largestSupportSet, ddm);
+  int maxBddSize = 0;
+  var_score::VarScoreQuantification vsq(F, Q, ddm);
 
   // test neighboringFactors
   for (size_t vidx = 0; vidx < v.size(); ++vidx)

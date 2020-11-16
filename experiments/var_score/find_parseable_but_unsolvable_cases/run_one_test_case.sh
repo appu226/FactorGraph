@@ -1,6 +1,7 @@
 base_dir=$1
 test_case=$2;
 outdir=$3
+timeout=$4
 
 
 echo running $test_case;
@@ -24,7 +25,7 @@ else
 
 
   # the actual command to run
-  command="var_score/var_score --blif ${test_case} --verbosity INFO"
+  command="var_score/var_score --blif ../../data_sets/all_blifs/${test_case} --verbosity INFO"
 
   rm -f ${test_case_log}.tmp
   echo $command >> ${test_case_log}.tmp
@@ -34,7 +35,7 @@ else
   # starts in parallel a killer command to kill blif_solve in 2 mins
   # if blif_solve command completes in less than 2 mins, then kill the killer command
   # also note the .tmp file used to record log
-  ((sleep 2m; killall blif_solve) & ($command; killall sleep)) | tee -a ${test_case_log}.tmp
+  ((sleep ${timeout}; killall var_score) & ($command; killall sleep)) | tee -a ${test_case_log}.tmp
 
 
   cat ${test_case_log}.tmp >> $test_case_log
