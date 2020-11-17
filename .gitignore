@@ -11,4 +11,4 @@ cnf_dump/cnf_dump
 var_score/var_score
 temp
 tags
-experiments/*/process_logs
+experiments/**/process_logs

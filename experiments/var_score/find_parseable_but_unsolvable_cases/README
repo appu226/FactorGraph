@@ -38,6 +38,22 @@ Table of contents
    If the algorithm finishes, we print the size of the largest bdd encountered.
    The time-limit we use is 5 mins, for the entire run (parsing + solving) combined.
 
+   The various files/folders are as follows:
+     - collect_test_cases.sh: a script to list all the test cases
+     - run_all_test_cases.sh: a script to loop over all the test cases and run them
+     - run_one_test_case.sh: a script to run a single test case
+                             It was deliberately separated out of run_all_test_cases.sh so that one can run a single test case.
+                             Note that run_one_test_case.sh maintains a "completed_list.txt" so that tests cases that were finished earlier are not run again.
+                             The idea behind this was that you can kill run_all_test_cases.sh in the middle of a run, and when you start it again, it will pick up from the test case where it left off.
+                             If you want to remove all history then delete the results folder.
+     - results/: a folder with the log files of all the previous runs
+                 It also contains a completed_list.txt that lists the cases that have completed.
+                 This list is used for skipping previously completed cases (see run_one_test_case.sh).
+     - results.tgz: a zipped archive of a snapshot run stored in git
+     - process_logs.cpp: a file to parse the run logs (see results/) and summarize into a table (see Summary.txt)
+     - Summary.txt: a tab separated table summarizing the stats from the run
+     - README: this file
+
 
 
 
@@ -47,6 +63,28 @@ Table of contents
    The script was designed to continue from where it left off, so if you want to force a run of all cases, then you need to delete the results directory.
    The scripts assume a bunch of .blif files present at a specific path relative to the invocation directory.
    The timeout can be configured in run_all_test_cases.sh
+
+
+
+
+4. Results
+   The log files from a snapshot run are checked into git inside results.tgz.
+   A table summarizing the stats from the run is checked in as Summary.txt.
+
+
+
+
+5. Conclusion
+   All the test cases that finished in the allotted time (5 mins), finished quite quickly (<1sec).
+   There were some cases that did take a long time to parse, but stillthe solving was super fast (e.g. 6s292rb037_bdd took 9 secs to parse but only .4 secs to solve.
+   It is safe to assume that these cases are not very large, but since they are tractable, these are good tests cases to compare the accuracy.
+
+   There were quite a few cases that were parseable, but could not finish.
+   For example, 6s120_bdd took 39 secs to parse 10 sub problems, but couldn't finish solving.
+   A more interesting example perhaps was 6s185_bdd, that parsed 1 sub problem in .3 secs, but could not be solved in 5 mins.
+   (Note that the number of sub problems does NOT indicate how big the test case is).
+   It would be very interesting to see whether these cases are solveable by early quantification, and if factor graph can help get a trade-off between accuracy and tractability.
+
 
 
 
