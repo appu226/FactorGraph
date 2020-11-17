@@ -28,6 +28,8 @@ Table of contents
 
    The objective of this test is to find if there are any such problems which can be parsed in a limited amount of time, but take a very long time to solve.
 
+   **** Note that the above algo is NOT the one we implemented in this test. See Experimental setup for that info. ****
+
 
 
 
