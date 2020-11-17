@@ -70,6 +70,12 @@ Table of contents
 4. Results
    The log files from a snapshot run are checked into git inside results.tgz.
    A table summarizing the stats from the run is checked in as Summary.txt.
+   The columns in Summary.txt are as follows:
+     Filename: the blif file name for the test case
+     ParsingTime: the number of seconds it took to parse the blif file into bdds, or "--" in case parsing didn't finish in 5 mins
+     SubProblems: the number of disjoint subproblems in the test case, or "--" in case parsing didn't finish in 5 mins
+     SolvingTime: the numbeer of seconds it took to quantify out the primary input variables, or "--" in case parsing/solving didn't finish in 5 mins
+     MaxBddSize: the largest bdd size encountered in the quantification procedure, or "--" in case parsing/solving didn't finish in 5 mins
 
 
 
