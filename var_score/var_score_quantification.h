@@ -35,6 +35,7 @@ SOFTWARE.
 
 namespace var_score {
 
+
   ///////////////////////////////
   // Quantification algorithms //
   ///////////////////////////////
@@ -42,6 +43,29 @@ namespace var_score {
   // declare utility struct
   struct VarScoreQuantification {
     public:
+
+
+
+      enum ApproximationMethod {
+        None,
+        EarlyQuantification,
+        FactorGraph
+      };
+
+      static
+        ApproximationMethod
+        parseApproximationMethod(std::string approximationMethodAsString);
+
+
+
+      static
+        std::vector<bdd_ptr>
+        varScoreQuantification(const std::vector<bdd_ptr> & F, 
+                               bdd_ptr Q, 
+                               DdManager * ddm,
+                               const int maxBddSize,
+                               ApproximationMethod approximationMethod);
+
 
 
       VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm);
@@ -58,15 +82,7 @@ namespace var_score {
       
       bool isFinished() const;
       std::vector<bdd_ptr> getFactorCopies() const;
-
       void printState() const;
-
-      static
-        std::vector<bdd_ptr>
-        varScoreQuantification(const std::vector<bdd_ptr> & F, 
-                               bdd_ptr Q, 
-                               DdManager * ddm,
-                               int & maxBddSize);
 
     private:
       std::set<bdd_ptr> m_factors;

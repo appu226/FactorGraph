@@ -94,6 +94,7 @@ void testVarScoreQuantificationAlgo(DdManager * manager)
   int const numVars = 4;
   int const numTests = 5000;
   int const numFuncsPerTest = 6;
+  int const maxBddSize = 100*1000*1000;
   std::vector<DdNode *> vars;
   for (int vi = 0; vi < numVars; ++vi)
     vars.push_back(bdd_new_var_with_index(manager, vi));
@@ -122,8 +123,7 @@ void testVarScoreQuantificationAlgo(DdManager * manager)
     auto manualResult = bdd_and_exists_multi(manager, funcs, cube, 100*100);
 
     std::vector<bdd_ptr> fvec(funcs.cbegin(), funcs.cend());
-    int maxBddSize = 0;
-    auto varScoreResultVec = var_score::VarScoreQuantification::varScoreQuantification(fvec, cube, manager, maxBddSize);
+    auto varScoreResultVec = var_score::VarScoreQuantification::varScoreQuantification(fvec, cube, manager, maxBddSize, var_score::VarScoreQuantification::None);
     std::set<bdd_ptr> varScoreResultSet(varScoreResultVec.cbegin(), varScoreResultVec.cend());
     auto varScoreResult = bdd_and_multi(manager, varScoreResultSet, 100*1000);
 

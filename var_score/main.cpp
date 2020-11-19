@@ -44,6 +44,9 @@ struct VarScoreCommandLineOptions
 {
   std::string verbosity;
   std::string blif;
+  int maxBddSize;
+  var_score::VarScoreQuantification::ApproximationMethod approximationMethod;
+  bool mustCountNumSolutions;
 };
 template<typename TValue>
 std::shared_ptr<blif_solve::CommandLineOptionValue<TValue> > 
@@ -77,15 +80,28 @@ int main(int argc, char const * const * const argv)
 
   // solve each sub problem
   std::vector<bdd_ptr> resultVec;
-  int maxBddSize = 0;
   for (auto sp: subProblems)
   {
-    auto rv = var_score::VarScoreQuantification::varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), sp->getDdManager(), maxBddSize);
+    auto rv = var_score::VarScoreQuantification::varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), sp->getDdManager(), clo.maxBddSize, clo.approximationMethod);
     blif_solve_log(INFO, "Computed sub result");
     resultVec.insert(resultVec.end(), rv.cbegin(), rv.cend());
   }
-  blif_solve_log(INFO, "Finished in " << blif_solve::duration(start) << " sec with maxBddSize " << maxBddSize);
+  blif_solve_log(INFO, "Finished in " << blif_solve::duration(start) << " sec");
   
+
+  // count number of solutions
+  if (clo.mustCountNumSolutions)
+  {
+    start = blif_solve::now();
+    auto numVars = bf.getNonPiVars()->size();
+    auto conjoinedSolution = bdd_one(srt->ddm);
+    for (auto result: resultVec)
+      bdd_and_accumulate(srt->ddm, &conjoinedSolution, result);
+    blif_solve_log(INFO, "Computed conjoined solution in " << blif_solve::duration(start) << " sec");
+    start = blif_solve::now();
+    auto numSolutions = bdd_count_minterm(srt->ddm, conjoinedSolution, numVars);
+    blif_solve_log(INFO, "Counted " << numSolutions << " solutions in " << blif_solve::duration(start) << " sec");
+  }
 
   // display final result
   if (blif_solve::getVerbosity() == blif_solve::DEBUG)
@@ -134,6 +150,9 @@ VarScoreCommandLineOptions
   std::vector<std::shared_ptr<blif_solve::ICommandLineOption> > clo;
   auto verbosity = addCommandLineOption<std::string>(clo, "--verbosity", "verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)", "WARNING");
   auto blif = addCommandLineOption<std::string>(clo, "--blif", "blif file name", "");
+  auto maxBddSize = addCommandLineOption<int>(clo, "--maxBddSize", "max bdd size allowed for exact computation", 100*1000*1000);
+  auto approximationMethod = addCommandLineOption<std::string>(clo, "--approximationMethod", "approximation method (none / early_quantification / factor_graph)", "none");
+  auto mustCountNumSolutions = addCommandLineOption<bool>(clo, "--mustCountNumSolutions", "count and print the number of satisfying states", false);
 
 
   parseCommandLineOptions(argc - 1, argv + 1, clo);
@@ -145,8 +164,15 @@ VarScoreCommandLineOptions
     exit(1);
   }
   blif_solve_log(DEBUG, "blif file: " + blif->getValue());
+  blif_solve_log(DEBUG, "verbosity: " + verbosity->getValue());
+  blif_solve_log(DEBUG, "largest bdd size: " << maxBddSize->getValue());
+  blif_solve_log(DEBUG, "approximation method: " << approximationMethod->getValue());
+  blif_solve_log(DEBUG, "must count num solutions: " << mustCountNumSolutions->getValue());
   result.verbosity = verbosity->getValue();
   result.blif = blif->getValue();
+  result.maxBddSize = maxBddSize->getValue();
+  result.approximationMethod = var_score::VarScoreQuantification::parseApproximationMethod(approximationMethod->getValue());
+  result.mustCountNumSolutions = mustCountNumSolutions->getValue();
   return result;
 }
 
@@ -157,10 +183,4 @@ VarScoreCommandLineOptions
 
 
 
-
-///////////////////////////////
-// Quantification algorithms //
-///////////////////////////////
-
-// declare utility struct
 

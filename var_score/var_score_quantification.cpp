@@ -25,16 +25,139 @@ SOFTWARE.
 
 #include "var_score_quantification.h"
 
-
 #include <log.h>
-
+#include <srt.h>
 
 #include <memory>
+#include <algorithm>
+#include <cctype>
+#include <sstream>
 
-#include <srt.h>
+
+
+
+
+//Declarations for helper functions
+namespace {
+
+  double getBddSize(DdManager* manager, bdd_ptr b1, bdd_ptr b2 = NULL);
+
+  class ApproximationMethodImpl {
+    public:
+
+      typedef std::shared_ptr<ApproximationMethodImpl const> CPtr;
+      static CPtr create(var_score::VarScoreQuantification::ApproximationMethod am);
+
+      virtual void process(
+          bdd_ptr q, 
+          bdd_ptr f1, 
+          bdd_ptr f2, 
+          var_score::VarScoreQuantification & vsq,
+          DdManager * manager) const = 0;
+
+  };
+
+} // end anonymous namespace
+
+
+
+
+
+
 
 
 namespace var_score {
+
+  /* the VarScore algorithm
+   * VARSCOREBASICSTEP(F,Q)
+   *   if there exists a variableq∈Qsuch thatqappears inthe support of only one BDD T∈F
+   *       F←F\{T}∪{∃q.T}
+   *       Q←Q\{q}
+   *   else
+   *       compute heuristic score VARSCORE for each variable inQ
+   *       let q ∈ Q be the variable with the lowest score
+   *       let T1, T2 ∈ F be the two smallest BDDs such that q ∈ Supp(T1) ∩ Supp(T2)
+   *       if q /∈ ⋃_{Ti∈F\{T1,T2}} Supp(Ti)
+   *            // use BDDANDEXISTS for efficiency
+   *            F←F\{T1,T2}∪{∃q.T1∧T2}
+   *            q←Q\{q}
+   *       else
+   *            F←F\{T1,T2}∪{T1∧T2}
+   *        endif
+   *   endif
+   *   return(F,Q)
+   * 
+   * (note: /∈ means "not an element of"
+   */
+  std::vector<bdd_ptr>
+    VarScoreQuantification::varScoreQuantification(const std::vector<bdd_ptr> & F, 
+        bdd_ptr Q, 
+        DdManager * ddm,
+        const int maxBddSize,
+        ApproximationMethod approximationMethod)
+    {
+      VarScoreQuantification vsq(F, Q, ddm);
+      auto approxImpl = ::ApproximationMethodImpl::create(approximationMethod);
+      auto exactImpl = ::ApproximationMethodImpl::create(None);
+      while(!vsq.isFinished())
+      {
+        // vsq.printState();
+        auto q = vsq.findVarWithOnlyOneFactor();
+        if (q != NULL)
+        {
+          blif_solve_log(DEBUG, "found var with only one factor");
+          auto tv = vsq.neighboringFactors(q);
+          assert(tv.size() == 1);
+          auto t = *(tv.cbegin());
+          auto t_without_q = bdd_forsome(ddm, t, q);
+          vsq.removeFactor(t);
+          vsq.removeVar(q);
+          vsq.addFactor(t_without_q);
+          bdd_free(ddm, t_without_q);
+        }
+        else
+        {
+          auto q = vsq.varWithLowestScore();
+          auto t1t2 = vsq.smallestTwoNeighbors(q);
+          auto t1 = t1t2.first;
+          auto t2 = t1t2.second;
+          if (getBddSize(ddm, t1, t2) > maxBddSize)
+            approxImpl->process(q, t1, t2, vsq, ddm);
+          else
+            exactImpl->process(q, t1, t2, vsq, ddm);
+        }
+      }
+      // vsq.printState();
+      return vsq.getFactorCopies();
+    }
+
+
+
+
+
+
+  VarScoreQuantification::ApproximationMethod VarScoreQuantification::parseApproximationMethod(std::string approximationMethodAsString)
+  {
+    std::map<std::string, ApproximationMethod> translationMap;
+    translationMap["none"] = None;
+    translationMap["early_quantification"] = EarlyQuantification;
+    translationMap["factor_graph"] = FactorGraph;
+    std::transform(approximationMethodAsString.begin(), approximationMethodAsString.end(), approximationMethodAsString.begin(), [](char c){ return std::tolower(c); });
+    auto ittm = translationMap.find(approximationMethodAsString);
+    if (ittm == translationMap.end())
+    {
+      std::stringstream ss;
+      ss << "Could not parse approximation method '" << approximationMethodAsString << "'. Expected one of { ";
+      for (const auto & kv: translationMap)
+        ss << kv.first << ", ";
+      ss << "}";
+      throw std::runtime_error(ss.str());
+    }
+    else
+      return ittm->second;
+  }
+
+
 
 
 
@@ -285,71 +408,131 @@ namespace var_score {
 
 
 
-  std::vector<bdd_ptr>
-    VarScoreQuantification::varScoreQuantification(const std::vector<bdd_ptr> & F, 
-        bdd_ptr Q, 
-        DdManager * ddm,
-        int & maxBddSize)
-    {
-      for (auto f: F)
-        maxBddSize = std::max(maxBddSize, bdd_size(f));
-      VarScoreQuantification vsq(F, Q, ddm);
-      while(!vsq.isFinished())
+} // end namespace var_score
+
+
+
+
+
+// definitions for helper functions
+namespace {
+
+  /* Heuristic for predicting the bdd size
+   * If no variables are common, then size is nb1 + nb2.
+   * If all variables are common then size is nb1 * nb2.
+   * Is it a bad heuristic? I don't know. You tell me.
+   */
+  double getBddSize(DdManager * manager, bdd_ptr b1, bdd_ptr b2)
+  {
+    double s1 = bdd_size(b1);
+    if (NULL == b2)
+      return s1;
+   
+    // support sets
+    bdd_ptr sp1 = bdd_support(manager, b1);
+    bdd_ptr sp2 = bdd_support(manager, b2);
+    // intersection support set
+    bdd_ptr intsn = bdd_cube_intersection(manager, sp1, sp2);
+
+    double nb1 = bdd_size(b1);
+    double nb2 = bdd_size(b2);
+    double nsp1 = bdd_size(sp1) - 1;
+    double nsp2 = bdd_size(sp2) - 1;
+    double nintsn = bdd_size(intsn) - 1;
+
+    bdd_free(manager, sp1);
+    bdd_free(manager, sp2);
+    bdd_free(manager, intsn);
+
+
+    return 
+      nb1 * (nsp1 - nintsn) / nsp1                  // vars unique to b1
+      + nb2 * (nsp2 - nintsn) / nsp2                // vars unique to b2
+      + nb1 * nb2 * nintsn * nintsn / nsp1 / nsp2;  // vars common to b1 and b2
+
+  }
+
+
+
+
+  class NoneApproximation : public ApproximationMethodImpl
+  {
+    public:
+      void process(
+          bdd_ptr q,
+          bdd_ptr t1,
+          bdd_ptr t2,
+          var_score::VarScoreQuantification & vsq,
+          DdManager * manager) const override
       {
-        // vsq.printState();
-        auto q = vsq.findVarWithOnlyOneFactor();
-        if (q != NULL)
+        if (vsq.neighboringFactors(q).size() == 2)
         {
-          blif_solve_log(DEBUG, "found var with only one factor");
-          auto tv = vsq.neighboringFactors(q);
-          assert(tv.size() == 1);
-          auto t = *(tv.cbegin());
-          auto t_without_q = bdd_forsome(ddm, t, q);
-          vsq.removeFactor(t);
+          blif_solve_log(DEBUG, "found var with exactly two factors");
+          auto t = bdd_and_exists(manager, t1, t2, q);
+          vsq.removeFactor(t1);
+          vsq.removeFactor(t2);
           vsq.removeVar(q);
-          vsq.addFactor(t_without_q);
-          maxBddSize = std::max(maxBddSize, bdd_size(t_without_q));
-          bdd_free(ddm, t_without_q);
+          vsq.addFactor(t);
+          bdd_free(manager, t);
         }
         else
         {
-          auto q = vsq.varWithLowestScore();
-          auto t1t2 = vsq.smallestTwoNeighbors(q);
-          auto t1 = t1t2.first;
-          auto t2 = t1t2.second;
-          if (vsq.neighboringFactors(q).size() == 2)
-          {
-            blif_solve_log(DEBUG, "found var with exactly two factors");
-            auto t = bdd_and_exists(ddm, t1, t2, q);
-            vsq.removeFactor(t1);
-            vsq.removeFactor(t2);
-            vsq.removeVar(q);
-            vsq.addFactor(t);
-            maxBddSize = std::max(maxBddSize, bdd_size(t));
-            bdd_free(ddm, t);
-          }
-          else
-          {
-            blif_solve_log(DEBUG, "merging two factors");
-            auto t = bdd_and(ddm, t1, t2);
-            vsq.removeFactor(t1);
-            vsq.removeFactor(t2);
-            vsq.addFactor(t);
-            maxBddSize = std::max(maxBddSize, bdd_size(t));
-            bdd_free(ddm, t);
-          }
+          blif_solve_log(DEBUG, "merging two factors");
+          auto t = bdd_and(manager, t1, t2);
+          vsq.removeFactor(t1);
+          vsq.removeFactor(t2);
+          vsq.addFactor(t);
+          bdd_free(manager, t);
         }
       }
-      // vsq.printState();
-      return vsq.getFactorCopies();
+  };
+
+
+  class EarlyQuantificationImpl: public ApproximationMethodImpl
+  {
+    public:
+      void process(
+          bdd_ptr q,
+          bdd_ptr t1,
+          bdd_ptr t2,
+          var_score::VarScoreQuantification & vsq,
+          DdManager * manager) const override
+      {
+        blif_solve_log(DEBUG, "early quantification of a variable");
+        auto t1_q = bdd_forsome(manager, t1, q);
+        vsq.removeFactor(t1);
+        vsq.addFactor(t1_q);
+        bdd_free(manager, t1_q);
+      }
+  };
+
+
+  class FactorGraphImpl: public ApproximationMethodImpl
+  {
+    public:
+      void process(
+          bdd_ptr q,
+          bdd_ptr,
+          bdd_ptr,
+          var_score::VarScoreQuantification & vsq,
+          DdManager * manager) const override
+      {
+        throw std::runtime_error("FactorGraphImpl not yet implemented");
+      }
+  };
+
+
+  ApproximationMethodImpl::CPtr ApproximationMethodImpl::create(var_score::VarScoreQuantification::ApproximationMethod am)
+  {
+    switch(am)
+    {
+      case var_score::VarScoreQuantification::None:
+        return std::make_shared<NoneApproximation>();
+      case var_score::VarScoreQuantification::EarlyQuantification:
+        return std::make_shared<EarlyQuantificationImpl>();
+      default:
+        throw std::runtime_error("Error: unimplemented AppoximationMethodImpl case");
     }
+  }
 
-
-
-
-
-
-
-
-
-} // end namespace var_score
+} // end anonymous namespace
