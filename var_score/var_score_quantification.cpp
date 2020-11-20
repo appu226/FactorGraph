@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include <log.h>
 #include <srt.h>
+#include <approx_merge.h>
 
 #include <memory>
 #include <algorithm>
@@ -517,7 +518,81 @@ namespace {
           var_score::VarScoreQuantification & vsq,
           DdManager * manager) const override
       {
-        throw std::runtime_error("FactorGraphImpl not yet implemented");
+        const int largestSupportSet = 10; // TODO: make this a command line param
+        auto & qneigh = vsq.neighboringFactors(q);
+        auto varsToProjectOn = findVarsToProjectOn(qneigh, q, manager);
+        auto factors = vsq.getFactorCopies();
+        auto mergeResults = blif_solve::merge(manager, factors, *varsToProjectOn, largestSupportSet);
+        for (auto factor: factors)
+          bdd_free(manager, factor);
+        auto & funcGroups = *mergeResults.factors;
+        auto start = blif_solve::now();
+        factor_graph * fg = factor_graph_new(manager, &funcGroups.front(), funcGroups.size());
+        blif_solve_log(INFO, "Created factor graph with "
+            << funcGroups.size() << " functions on "
+            << mergeResults.variables->size() << " variables in "
+            << blif_solve::duration(start) << " secs");
+        for (auto funcGroup: funcGroups)
+          bdd_free(manager, funcGroup);
+
+        auto & varGroups = *mergeResults.variables;
+        for (auto varGroup: varGroups)
+          factor_graph_group_vars(fg, varGroup);
+        int numIterations = factor_graph_converge(fg);
+        blif_solve_log(INFO, "Factor graph convergence took "
+            << numIterations << " secs");
+
+
+        for (auto neigh: qneigh)
+          vsq.removeFactor(neigh);
+        vsq.removeVar(q);
+
+        for (auto varToBeProjectedOn: *mergeResults.variables)
+        {
+          fgnode * V = factor_graph_get_varnode(fg, varToBeProjectedOn);
+          int num_messages;
+          bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
+          for (int mi = 0; mi < num_messages; ++mi)
+          {
+            vsq.addFactor(messages[mi]);
+            bdd_free(manager, messages[mi]);
+          }
+        }
+
+
+
+      }
+
+      static
+        blif_solve::MergeResults::FactorVec 
+        findVarsToProjectOn(
+            const std::set<bdd_ptr> & factors, 
+            bdd_ptr varToQuantify, 
+            DdManager * manager)
+      {
+        auto support = bdd_one(manager);
+        for (auto factor: factors)
+        {
+          auto fs = bdd_support(manager, factor);
+          bdd_and_accumulate(manager, &support, fs);
+          bdd_free(manager, fs);
+        }
+        auto result = std::make_shared<std::vector<bdd_ptr> >();
+        auto end = bdd_one(manager);
+        while(support != end)
+        {
+          auto nextvar = bdd_new_var_with_index(manager, bdd_get_lowest_index(manager, support));
+          if (nextvar == varToQuantify)
+            bdd_free(manager, nextvar);
+          else
+            result->push_back(nextvar);
+          auto nextsupport = bdd_cube_diff(manager, support, nextvar);
+          bdd_free(manager, support);
+          support = nextsupport;
+        }
+        bdd_free(manager, support);
+        bdd_free(manager, end);
+        return result;
       }
   };
 
@@ -530,6 +605,8 @@ namespace {
         return std::make_shared<NoneApproximation>();
       case var_score::VarScoreQuantification::EarlyQuantification:
         return std::make_shared<EarlyQuantificationImpl>();
+      case var_score::VarScoreQuantification::FactorGraph:
+        return std::make_shared<FactorGraphImpl>();
       default:
         throw std::runtime_error("Error: unimplemented AppoximationMethodImpl case");
     }
