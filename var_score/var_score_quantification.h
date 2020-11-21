@@ -31,6 +31,8 @@ SOFTWARE.
 
 #include <dd.h>
 
+#include "var_score_approximation.h"
+
 
 
 namespace var_score {
@@ -43,28 +45,14 @@ namespace var_score {
   // declare utility struct
   struct VarScoreQuantification {
     public:
-
-
-
-      enum ApproximationMethod {
-        None,
-        EarlyQuantification,
-        FactorGraph
-      };
-
-      static
-        ApproximationMethod
-        parseApproximationMethod(std::string approximationMethodAsString);
-
-
-
+ 
       static
         std::vector<bdd_ptr>
         varScoreQuantification(const std::vector<bdd_ptr> & F, 
                                bdd_ptr Q, 
                                DdManager * ddm,
                                const int maxBddSize,
-                               ApproximationMethod approximationMethod);
+                               ApproximationMethod::CPtr approximationMethod);
 
 
 

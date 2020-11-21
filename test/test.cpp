@@ -123,7 +123,7 @@ void testVarScoreQuantificationAlgo(DdManager * manager)
     auto manualResult = bdd_and_exists_multi(manager, funcs, cube, 100*100);
 
     std::vector<bdd_ptr> fvec(funcs.cbegin(), funcs.cend());
-    auto varScoreResultVec = var_score::VarScoreQuantification::varScoreQuantification(fvec, cube, manager, maxBddSize, var_score::VarScoreQuantification::None);
+    auto varScoreResultVec = var_score::VarScoreQuantification::varScoreQuantification(fvec, cube, manager, maxBddSize, var_score::ApproximationMethod::createExact());
     std::set<bdd_ptr> varScoreResultSet(varScoreResultVec.cbegin(), varScoreResultVec.cend());
     auto varScoreResult = bdd_and_multi(manager, varScoreResultSet, 100*1000);
 

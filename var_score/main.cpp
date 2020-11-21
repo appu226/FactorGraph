@@ -45,7 +45,7 @@ struct VarScoreCommandLineOptions
   std::string verbosity;
   std::string blif;
   int maxBddSize;
-  var_score::VarScoreQuantification::ApproximationMethod approximationMethod;
+  var_score::ApproximationMethod::CPtr approximationMethod;
   bool mustCountNumSolutions;
 };
 template<typename TValue>
@@ -151,7 +151,8 @@ VarScoreCommandLineOptions
   auto verbosity = addCommandLineOption<std::string>(clo, "--verbosity", "verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)", "WARNING");
   auto blif = addCommandLineOption<std::string>(clo, "--blif", "blif file name", "");
   auto maxBddSize = addCommandLineOption<int>(clo, "--maxBddSize", "max bdd size allowed for exact computation", 100*1000*1000);
-  auto approximationMethod = addCommandLineOption<std::string>(clo, "--approximationMethod", "approximation method (none / early_quantification / factor_graph)", "none");
+  auto approximationMethod = addCommandLineOption<std::string>(clo, "--approximationMethod", "approximation method (exact / early_quantification / factor_graph)", "exact");
+  auto factorGraphMergeSize = addCommandLineOption<int>(clo, "--factorGraphMergeSize", "largest support set allowed the factor graph during merging", 1);
   auto mustCountNumSolutions = addCommandLineOption<bool>(clo, "--mustCountNumSolutions", "count and print the number of satisfying states", false);
 
 
@@ -167,12 +168,23 @@ VarScoreCommandLineOptions
   blif_solve_log(DEBUG, "verbosity: " + verbosity->getValue());
   blif_solve_log(DEBUG, "largest bdd size: " << maxBddSize->getValue());
   blif_solve_log(DEBUG, "approximation method: " << approximationMethod->getValue());
+  blif_solve_log(DEBUG, "factor graph merge size: " << factorGraphMergeSize->getValue());
   blif_solve_log(DEBUG, "must count num solutions: " << mustCountNumSolutions->getValue());
   result.verbosity = verbosity->getValue();
   result.blif = blif->getValue();
   result.maxBddSize = maxBddSize->getValue();
-  result.approximationMethod = var_score::VarScoreQuantification::parseApproximationMethod(approximationMethod->getValue());
   result.mustCountNumSolutions = mustCountNumSolutions->getValue();
+  std::string am = approximationMethod->getValue();
+  for (auto amit = am.begin(); amit != am.end(); ++amit)
+    *amit = std::tolower(*amit);
+  if (am == "exact")
+      result.approximationMethod = var_score::ApproximationMethod::createExact();
+  else if (am == "early_quantification")
+    result.approximationMethod = var_score::ApproximationMethod::createEarlyQuantification();
+  else if (am == "factor_graph")
+    result.approximationMethod = var_score::ApproximationMethod::createFactorGraph(factorGraphMergeSize->getValue());
+  else
+    throw std::runtime_error("Could not recognise approximation method '" + approximationMethod->getValue() + "'. See --help.");
   return result;
 }
 

@@ -43,21 +43,6 @@ namespace {
 
   double getBddSize(DdManager* manager, bdd_ptr b1, bdd_ptr b2 = NULL);
 
-  class ApproximationMethodImpl {
-    public:
-
-      typedef std::shared_ptr<ApproximationMethodImpl const> CPtr;
-      static CPtr create(var_score::VarScoreQuantification::ApproximationMethod am);
-
-      virtual void process(
-          bdd_ptr q, 
-          bdd_ptr f1, 
-          bdd_ptr f2, 
-          var_score::VarScoreQuantification & vsq,
-          DdManager * manager) const = 0;
-
-  };
-
 } // end anonymous namespace
 
 
@@ -95,11 +80,10 @@ namespace var_score {
         bdd_ptr Q, 
         DdManager * ddm,
         const int maxBddSize,
-        ApproximationMethod approximationMethod)
+        ApproximationMethod::CPtr approxImpl)
     {
       VarScoreQuantification vsq(F, Q, ddm);
-      auto approxImpl = ::ApproximationMethodImpl::create(approximationMethod);
-      auto exactImpl = ::ApproximationMethodImpl::create(None);
+      auto exactImpl = ApproximationMethod::createExact();
       while(!vsq.isFinished())
       {
         // vsq.printState();
@@ -131,33 +115,6 @@ namespace var_score {
       // vsq.printState();
       return vsq.getFactorCopies();
     }
-
-
-
-
-
-
-  VarScoreQuantification::ApproximationMethod VarScoreQuantification::parseApproximationMethod(std::string approximationMethodAsString)
-  {
-    std::map<std::string, ApproximationMethod> translationMap;
-    translationMap["none"] = None;
-    translationMap["early_quantification"] = EarlyQuantification;
-    translationMap["factor_graph"] = FactorGraph;
-    std::transform(approximationMethodAsString.begin(), approximationMethodAsString.end(), approximationMethodAsString.begin(), [](char c){ return std::tolower(c); });
-    auto ittm = translationMap.find(approximationMethodAsString);
-    if (ittm == translationMap.end())
-    {
-      std::stringstream ss;
-      ss << "Could not parse approximation method '" << approximationMethodAsString << "'. Expected one of { ";
-      for (const auto & kv: translationMap)
-        ss << kv.first << ", ";
-      ss << "}";
-      throw std::runtime_error(ss.str());
-    }
-    else
-      return ittm->second;
-  }
-
 
 
 
@@ -454,162 +411,5 @@ namespace {
   }
 
 
-
-
-  class NoneApproximation : public ApproximationMethodImpl
-  {
-    public:
-      void process(
-          bdd_ptr q,
-          bdd_ptr t1,
-          bdd_ptr t2,
-          var_score::VarScoreQuantification & vsq,
-          DdManager * manager) const override
-      {
-        if (vsq.neighboringFactors(q).size() == 2)
-        {
-          blif_solve_log(DEBUG, "found var with exactly two factors");
-          auto t = bdd_and_exists(manager, t1, t2, q);
-          vsq.removeFactor(t1);
-          vsq.removeFactor(t2);
-          vsq.removeVar(q);
-          vsq.addFactor(t);
-          bdd_free(manager, t);
-        }
-        else
-        {
-          blif_solve_log(DEBUG, "merging two factors");
-          auto t = bdd_and(manager, t1, t2);
-          vsq.removeFactor(t1);
-          vsq.removeFactor(t2);
-          vsq.addFactor(t);
-          bdd_free(manager, t);
-        }
-      }
-  };
-
-
-  class EarlyQuantificationImpl: public ApproximationMethodImpl
-  {
-    public:
-      void process(
-          bdd_ptr q,
-          bdd_ptr t1,
-          bdd_ptr t2,
-          var_score::VarScoreQuantification & vsq,
-          DdManager * manager) const override
-      {
-        blif_solve_log(DEBUG, "early quantification of a variable");
-        auto t1_q = bdd_forsome(manager, t1, q);
-        vsq.removeFactor(t1);
-        vsq.addFactor(t1_q);
-        bdd_free(manager, t1_q);
-      }
-  };
-
-
-  class FactorGraphImpl: public ApproximationMethodImpl
-  {
-    public:
-      void process(
-          bdd_ptr q,
-          bdd_ptr,
-          bdd_ptr,
-          var_score::VarScoreQuantification & vsq,
-          DdManager * manager) const override
-      {
-        const int largestSupportSet = 10; // TODO: make this a command line param
-        auto & qneigh = vsq.neighboringFactors(q);
-        auto varsToProjectOn = findVarsToProjectOn(qneigh, q, manager);
-        auto factors = vsq.getFactorCopies();
-        auto mergeResults = blif_solve::merge(manager, factors, *varsToProjectOn, largestSupportSet);
-        for (auto factor: factors)
-          bdd_free(manager, factor);
-        auto & funcGroups = *mergeResults.factors;
-        auto start = blif_solve::now();
-        factor_graph * fg = factor_graph_new(manager, &funcGroups.front(), funcGroups.size());
-        blif_solve_log(INFO, "Created factor graph with "
-            << funcGroups.size() << " functions on "
-            << mergeResults.variables->size() << " variables in "
-            << blif_solve::duration(start) << " secs");
-        for (auto funcGroup: funcGroups)
-          bdd_free(manager, funcGroup);
-
-        auto & varGroups = *mergeResults.variables;
-        for (auto varGroup: varGroups)
-          factor_graph_group_vars(fg, varGroup);
-        int numIterations = factor_graph_converge(fg);
-        blif_solve_log(INFO, "Factor graph convergence took "
-            << numIterations << " secs");
-
-
-        for (auto neigh: qneigh)
-          vsq.removeFactor(neigh);
-        vsq.removeVar(q);
-
-        for (auto varToBeProjectedOn: *mergeResults.variables)
-        {
-          fgnode * V = factor_graph_get_varnode(fg, varToBeProjectedOn);
-          int num_messages;
-          bdd_ptr *messages = factor_graph_incoming_messages(fg, V, &num_messages);
-          for (int mi = 0; mi < num_messages; ++mi)
-          {
-            vsq.addFactor(messages[mi]);
-            bdd_free(manager, messages[mi]);
-          }
-        }
-
-
-
-      }
-
-      static
-        blif_solve::MergeResults::FactorVec 
-        findVarsToProjectOn(
-            const std::set<bdd_ptr> & factors, 
-            bdd_ptr varToQuantify, 
-            DdManager * manager)
-      {
-        auto support = bdd_one(manager);
-        for (auto factor: factors)
-        {
-          auto fs = bdd_support(manager, factor);
-          bdd_and_accumulate(manager, &support, fs);
-          bdd_free(manager, fs);
-        }
-        auto result = std::make_shared<std::vector<bdd_ptr> >();
-        auto end = bdd_one(manager);
-        while(support != end)
-        {
-          auto nextvar = bdd_new_var_with_index(manager, bdd_get_lowest_index(manager, support));
-          if (nextvar == varToQuantify)
-            bdd_free(manager, nextvar);
-          else
-            result->push_back(nextvar);
-          auto nextsupport = bdd_cube_diff(manager, support, nextvar);
-          bdd_free(manager, support);
-          support = nextsupport;
-        }
-        bdd_free(manager, support);
-        bdd_free(manager, end);
-        return result;
-      }
-  };
-
-
-  ApproximationMethodImpl::CPtr ApproximationMethodImpl::create(var_score::VarScoreQuantification::ApproximationMethod am)
-  {
-    switch(am)
-    {
-      case var_score::VarScoreQuantification::None:
-        return std::make_shared<NoneApproximation>();
-      case var_score::VarScoreQuantification::EarlyQuantification:
-        return std::make_shared<EarlyQuantificationImpl>();
-      case var_score::VarScoreQuantification::FactorGraph:
-        return std::make_shared<FactorGraphImpl>();
-      default:
-        throw std::runtime_error("Error: unimplemented AppoximationMethodImpl case");
-    }
-  }
 
 } // end anonymous namespace
