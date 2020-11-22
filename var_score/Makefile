@@ -2,11 +2,10 @@ IFLAGS_var_score = ${EXPORT_IFLAGS_blif_solve_lib}
 LFLAGS_var_score = ${EXPORT_LFLAGS_blif_solve_lib}
 
 
-all : var_score libVarScore.a
+all : var_score libVarScore.so
 
-libVarScore.a: var_score_quantification.o var_score_approximation.o
-	ar r libVarScore.a var_score_quantification.o var_score_approximation.o
-	ranlib libVarScore.a
+libVarScore.so: var_score_quantification.o var_score_approximation.o
+	${CC} ${CC_LINK_FLAGS} -o libVarScore.so var_score_quantification.o var_score_approximation.o
 
 var_score:	main.o var_score_quantification.o var_score_approximation.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACTS_dd} ${EXPORT_ARTIFACTS_blif_solve_lib}
 	${CC} main.o var_score_quantification.o var_score_approximation.o ${LFLAGS_var_score} -o var_score
@@ -21,4 +20,4 @@ var_score_quantification.o: var_score_quantification.h var_score_approximation.h
 	${CC} ${CC_FLAGS} ${IFLAGS_var_score} var_score_quantification.cpp -o var_score_quantification.o
 
 clean :
-	rm -f libVarScore.a var_score *.o
+	rm -f libVarScore.so var_score *.o

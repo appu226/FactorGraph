@@ -1,11 +1,10 @@
 IFLAGS_dd = ${EXPORT_IFLAGS_cudd}
 LFLAGS_dd = ${EXPORT_LFLAGS_cudd}
 
-all : 			libDd.a
+all : 			libDd.so
 
-libDd.a :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o
-			ar r libDd.a dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o
-			ranlib libDd.a
+libDd.so :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o
+			${CC} ${CC_LINK_FLAGS} -shared -o libDd.so dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o
 	
 dd.o :			dd.cpp dd.h bnet.h ntr.h cuddAndAbsMulti.h
 			${CC} ${CC_FLAGS} ${IFLAGS_dd} dd.cpp -o dd.o
@@ -34,5 +33,5 @@ tags : 			*.cpp *.h
 			ctags-exuberant ./*.cpp ./*.h ../${CUDD}/cudd/cuddAPI.c
 
 clean :
-			rm -f *.o libDd.a
+			rm -f *.o libDd.so
 

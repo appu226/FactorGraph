@@ -1,11 +1,10 @@
 IFLAGS_factor_graph = ${EXPORT_IFLAGS_dd}
 LFLAGS_factor_graph = ${EXPORT_LFLAGS_dd}
 
-all : 			libFactorGraph.a
+all : 			libFactorGraph.so
 
-libFactorGraph.a :	factor_graph.o hash_table.o qbf.o srt.o ${EXPORT_ARTIFACTS_dd}
-			ar r libFactorGraph.a factor_graph.o hash_table.o qbf.o srt.o
-			ranlib libFactorGraph.a
+libFactorGraph.so :	factor_graph.o hash_table.o qbf.o srt.o ${EXPORT_ARTIFACTS_dd}
+			${CC} ${CC_LINK_FLAGS} -o libFactorGraph.so factor_graph.o hash_table.o qbf.o srt.o
 	
 factor_graph.o :	factor_graph.cpp factor_graph.h ${EXPORT_ARTIFACTS_dd}
 			${CC} ${CC_FLAGS} ${IFLAGS_factor_graph} factor_graph.cpp -o factor_graph.o
@@ -26,5 +25,5 @@ tags : 			*.cpp *.h
 			ctags-exuberant ./*.cpp ./*.h ../${CUDD}/cudd/cuddAPI.c
 
 clean :
-			rm -f *.o libFactorGraph.a
+			rm -f *.o libFactorGraph.so
 

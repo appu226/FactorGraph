@@ -1,11 +1,10 @@
 IFLAGS_blif_solve_lib = ${EXPORT_IFLAGS_factor_graph}
 LFLAGS_blif_solve_lib = ${EXPORT_LFLAGS_factor_graph}
 
-all : 			libBlifSolveLib.a
+all : 			libBlifSolveLib.so
 
-libBlifSolveLib.a :	clo.o cnf_dump.o blif_factors.o log.o approx_merge.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACS_dd}
-	ar r libBlifSolveLib.a clo.o cnf_dump.o blif_factors.o log.o approx_merge.o
-	ranlib libBlifSolveLib.a
+libBlifSolveLib.so :	clo.o cnf_dump.o blif_factors.o log.o approx_merge.o ${EXPORT_ARTIFACTS_factor_graph} ${EXPORT_ARTIFACS_dd}
+	${CC} ${CC_LINK_FLAGS} -o libBlifSolveLib.so clo.o cnf_dump.o blif_factors.o log.o approx_merge.o
 
 clo.o : clo.cpp clo.hpp
 	${CC} ${CC_FLAGS} ${I_FLAGS_blif_solve_lib} clo.cpp -o clo.o
@@ -28,5 +27,5 @@ tags : 			*.cpp *.h
 	ctags-exuberant ./*.cpp ./*.h ./*.hpp
 
 clean :
-	rm -f *.o libBlifSolveLib.a
+	rm -f *.o libBlifSolveLib.so
 

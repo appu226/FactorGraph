@@ -1,7 +1,8 @@
 export CC = g++
 
 export cpp_opt_flag ?= -O3
-export CC_FLAGS = -std=c++17 -c ${cpp_opt_flag} -Werror ${DBG_FLAGS}
+export CC_FLAGS = -std=c++17 -c -fPIC ${cpp_opt_flag} -Werror ${DBG_FLAGS}
+export CC_LINK_FLAGS = -shared
 
 # set up variables for using cudd as a dependency
 PATH_cudd := $(CURDIR)/../cudd-3.0.0
