@@ -70,7 +70,7 @@ namespace test
 
   BddWrapper BddWrapper::operator - () const
   {
-    return BddWrapper(bdd_not(m_manager, m_bdd), m_manager);
+    return BddWrapper(bdd_not(m_bdd), m_manager);
   }
 
   bdd_ptr BddWrapper::operator ! () const

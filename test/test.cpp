@@ -53,6 +53,7 @@ void testDisjointSet(DdManager * manager);
 void testMaxHeap();
 void testClo();
 void testVarScoreQuantificationAlgo(DdManager * manager);
+void testVarScoreFactorGraphInternals(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -75,6 +76,7 @@ int main()
     testClo();
     testVarScoreQuantificationUtils(manager);
     testVarScoreQuantificationAlgo(manager);
+    testVarScoreFactorGraphInternals(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -87,6 +89,11 @@ int main()
   }
 }
 
+
+void testVarScoreFactorGraphInternals(DdManager * manager)
+{
+  var_score::ApproximationMethod::runUnitTests(manager);
+}
 
 
 void testVarScoreQuantificationAlgo(DdManager * manager)
@@ -588,7 +595,7 @@ DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntege
         bool mustNegate = !(iMinTerm & (1 << ivar));
         if (mustNegate)
         {
-          auto notVar = bdd_not(manager, var);
+          auto notVar = bdd_not(var);
           bdd_and_accumulate(manager, &minterm, notVar);
           bdd_free(manager, notVar);
         } else

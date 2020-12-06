@@ -63,7 +63,7 @@ bdd_ptr  bdd_cofactor (DdManager *, bdd_ptr, bdd_ptr);
 void     bdd_and_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
 int      bdd_get_lowest_index (DdManager *, bdd_ptr);
 void     bdd_free (DdManager *, bdd_ptr);
-bdd_ptr  bdd_not  (DdManager *, bdd_ptr);
+bdd_ptr  bdd_not  (bdd_ptr);
 int      bdd_is_one (DdManager *, bdd_ptr);
 int      bdd_is_zero (DdManager *, bdd_ptr);
 void     bdd_or_accumulate (DdManager *, bdd_ptr *, bdd_ptr);
@@ -75,5 +75,6 @@ bdd_ptr  bdd_and_exists_multi(DdManager *dd, bdd_ptr_set const & funcs, bdd_ptr 
                               int cacheSize);
 bdd_ptr  bdd_clipping_and_multi(DdManager *dd, bdd_ptr_set const & funcs, int max_depth, int direction);
 bdd_ptr  bdd_clipping_and_exists_multi(DdManager *d, bdd_ptr_set const & funcs, bdd_ptr var_cube, int max_depth, int direction);
+bdd_ptr  bdd_substitute_vars(DdManager *d, bdd_ptr f, bdd_ptr* x, bdd_ptr* y, int n);
 long double bdd_count_minterm(DdManager * dd, bdd_ptr f, int numVars);
 long double bdd_count_minterm_multi(DdManager * dd, const bdd_ptr_set & fset, int numVars, int cacheSize);

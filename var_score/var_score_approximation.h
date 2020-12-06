@@ -49,6 +49,9 @@ namespace var_score
           var_score::VarScoreQuantification & vsq,
           DdManager * manager) const = 0;
 
+      // unit test internal functionality
+      static void runUnitTests(DdManager * manager);
+
   };
 
 

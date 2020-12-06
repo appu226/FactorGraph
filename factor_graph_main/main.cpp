@@ -137,7 +137,7 @@ bdd_ptr fgtest4(factor_graph *fg, fgnode* fgn, int l)
   assert(factor_graph_assign_var(fg, res) == 0);
   res2 = fgtest4(fg, fgn, l);
   factor_graph_rollback(fg);
-  temp = bdd_not(fg->m, res);
+  temp = bdd_not(res);
   res = temp;
   fg->time++;
   fgdm("assigning false ", bdd_get_lowest_index(fg->m, res));
@@ -604,7 +604,7 @@ int main2(int argc, char ** argv)
       bdd_ptr myans1 = bdd_or(fg->m,bdd_new_var_with_index(fg->m,0),bdd_new_var_with_index(fg->m,1));
       bdd_ptr myans2 = bdd_and(fg->m,
       				bdd_or(fg->m,bdd_new_var_with_index(fg->m,0),bdd_new_var_with_index(fg->m,2)),
-      				bdd_or(fg->m,bdd_new_var_with_index(fg->m,1),bdd_not(fg->m,bdd_new_var_with_index(fg->m,2))));
+      				bdd_or(fg->m,bdd_new_var_with_index(fg->m,1),bdd_not(bdd_new_var_with_index(fg->m,2))));
       
       if(msgans == actans) {
       	if(msgans == myans1)
@@ -638,7 +638,7 @@ int main2(int argc, char ** argv)
       }while(j*j - j);//while j is neither 0 nor 1
       
       if(j) temp = bdd_dup(var);
-      else  temp = bdd_not(fg->m, var);
+      else  temp = bdd_not(var);
       printf("assigning var returns %d\n", factor_graph_assign_var(fg, temp));
       bdd_free(fg->m, var);
       bdd_free(fg->m, temp);
@@ -804,7 +804,7 @@ void fgtest3(factor_graph *fg, fgnode *n, int l)
   fgtest3(fg, n, l);
   factor_graph_rollback(fg);
   fg->time++;
-  notnextv = bdd_not(fg->m, nextv);
+  notnextv = bdd_not(nextv);
   fgdm("setting to false", bdd_get_lowest_index(fg->m, nextv));
   assert(factor_graph_assign_var(fg, notnextv) == 0);
   bdd_free(fg->m, notnextv);

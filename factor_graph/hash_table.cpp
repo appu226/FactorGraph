@@ -72,7 +72,7 @@ int hash_value(bdd_ptr *G, int Gs, bdd_ptr V)
     {
       v = bdd_new_var_with_index(HTM, bdd_get_lowest_index(HTM, ssp));
       if(BS[bsp] == '0')
-      	bdd_and_accumulate(HTM, &ssv, bdd_not(HTM, v));
+      	bdd_and_accumulate(HTM, &ssv, bdd_not(v));
       else
         bdd_and_accumulate(HTM, &ssv, bdd_dup(v));
 

@@ -330,7 +330,7 @@ BDD_List* CNF_to_BDD_List(CNF_vector *cnf, DdManager *dd) {
 			}
       else
       {
-				temp3 = bdd_not(dd, temp2);
+				temp3 = bdd_not(temp2);
 				bdd_free(dd, temp2);
       }
       bdd_or_accumulate(dd, &temp, temp3);
@@ -355,7 +355,7 @@ bdd_ptr CNF_to_BDD (CNF_vector* cnf, DdManager *m) {
 				temp3 = temp2;
       else
       {
-				temp3 = bdd_not(m, temp2);
+				temp3 = bdd_not(temp2);
 				bdd_free(m, temp2);
       }
       bdd_or_accumulate(m, &temp, temp3);

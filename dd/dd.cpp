@@ -291,12 +291,12 @@ bdd_ptr bdd_forall(DdManager * dd, bdd_ptr fn, bdd_ptr cube)
   DdNode * result;
   DdNode * notfn;
 
-  notfn = bdd_not(dd, fn);
+  notfn = bdd_not(fn);
   result = Cudd_bddExistAbstract(dd, (DdNode *)notfn, (DdNode *)cube);
   common_error(result, "bdd_forsome: result = NULL");
   Cudd_Ref(result);
   bdd_free(dd, notfn);
-  notfn = bdd_not(dd, result);
+  notfn = bdd_not(result);
   bdd_free(dd, result);
   return((bdd_ptr)notfn);
 }
@@ -475,7 +475,7 @@ void bdd_free(DdManager * dd, bdd_ptr dd_node)
   SeeAlso     [bdd_and bdd_xor bdd_or bdd_imply]
 
 ******************************************************************************/
-bdd_ptr bdd_not(DdManager * dd, bdd_ptr fn)
+bdd_ptr bdd_not(bdd_ptr fn)
 {
   DdNode * result;
 
@@ -708,6 +708,39 @@ bdd_ptr bdd_clipping_and_exists_multi(
   Cudd_Ref(result);
   return result;
 }
+
+
+
+
+/**Function********************************************************************
+  @brief Swaps two sets of variables of the same size (x and y) in
+  the %BDD f.
+
+  @details The size is given by n. The two sets of variables are
+  assumed to be disjoint.
+
+  @return a pointer to the resulting %BDD if successful; NULL
+  otherwise.
+
+  @sideeffect None
+
+  @see Cudd_bddPermute Cudd_addSwapVariables
+
+******************************************************************************/
+
+bdd_ptr  bdd_substitute_vars(
+    DdManager *manager, 
+    bdd_ptr f, 
+    bdd_ptr* x, 
+    bdd_ptr* y, 
+    int n)
+{
+  DdNode * result = Cudd_bddSwapVariables(manager, f, x, y, n);
+  common_error(result, "bdd_substitute_vars: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
 
 
 

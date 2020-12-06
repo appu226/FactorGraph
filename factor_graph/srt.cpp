@@ -378,7 +378,7 @@ void SRTNode::append(SRTNode *node, Vector_Int &to_split, Vector_Int &already_sp
 void SRTNode::split(int var) {
 
   bdd_ptr vava = bdd_new_var_with_index(this->m, var);
-  bdd_ptr notvava = bdd_not(this->m, vava);
+  bdd_ptr notvava = bdd_not(vava);
   assert(is_leaf());
 //  DBG(std::cout<<var<<" "<<is_leaf()<<std::endl);
 
@@ -476,7 +476,7 @@ void SRTNode::apply_operator(boolop op) {
   }
   else {              // pack
     bdd_ptr var = bdd_new_var_with_index(dd,spvar);
-    bdd_ptr not_var = bdd_not(dd,var);
+    bdd_ptr not_var = bdd_not(var);
     
     BDD_List* var_list = new BDD_List();
     var_list->push_back(var);
@@ -660,7 +660,7 @@ BDD_List* SRTNode::evaluate(Quant* q,Deduction_List& dl) {
   }
   int var = get_split_var();
   bdd_ptr bdd_var = q->get_var_quant_index(var);
-  bdd_ptr not_bdd_var = bdd_not(q->ddm,bdd_var);
+  bdd_ptr not_bdd_var = bdd_not(bdd_var);
   BDD_List var_list;
   var_list.push_back(bdd_var);
   BDD_List not_var_list;
@@ -1332,7 +1332,7 @@ void factor_graph_eliminate(factor_graph*fg, fgnode *n, SRTNode *curr)
   DBG(std::cout<<"done with "<<bdd_get_lowest_index(fg->m, v)<<" set to true"<<std::endl);
 
   fg->time++;
-  bdd_ptr temp = bdd_not(fg->m, v);
+  bdd_ptr temp = bdd_not(v);
   factor_graph_assign_var(fg, temp);
   factor_graph_eliminate(fg, n, curr->type.children.e);
   bdd_free(fg->m, temp);

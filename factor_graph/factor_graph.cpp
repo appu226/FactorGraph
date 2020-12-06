@@ -2938,7 +2938,7 @@ bdd_ptr *vector_to_bdd(DdManager *m, int **cnf, int *clssz, int cnfsz, int *ress
       next = bdd_new_var_with_index(m, n);
       if(cnf[i][j] < 0)
       {
-        temp = bdd_not(m, next);
+        temp = bdd_not(next);
         bdd_free(m, next);
         next = temp;
       }

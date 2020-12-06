@@ -66,7 +66,7 @@ namespace test {
       if (pickVarInClause)
       {
         bool negateVarInClause = m_distNegateVarInClause(m_randomEngine);
-        bdd_ptr var = (negateVarInClause ? bdd_not(m_manager, m_vars[v]) : bdd_dup(m_vars[v]));
+        bdd_ptr var = (negateVarInClause ? bdd_not(m_vars[v]) : bdd_dup(m_vars[v]));
         bdd_ptr newClause = bdd_and(m_manager, clause, var);
         bdd_free(m_manager, clause);
         bdd_free(m_manager, var);
