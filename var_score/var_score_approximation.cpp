@@ -94,10 +94,15 @@ namespace {
 
   class FactorGraphModifier {
     public:
-      FactorGraphModifier(DdManager * manager, int greatestIndex) :
+      FactorGraphModifier(DdManager * manager, bdd_ptr q, int greatestIndex) :
         m_manager(manager),
+        m_q(q),
         m_idx(greatestIndex),
-        m_map()
+        m_map(),
+        m_newFactors(),
+        m_varsToBeGrouped(),
+        m_origVars(),
+        m_newVars()
       { }
 
       ~FactorGraphModifier()
@@ -106,6 +111,10 @@ namespace {
         {
           bdd_free(m_manager, kv.first);
           for (auto v: kv.second)
+            bdd_free(m_manager, v);
+          for (auto f: m_newFactors)
+            bdd_free(m_manager, f);
+          for (auto v: m_varsToBeGrouped)
             bdd_free(m_manager, v);
         }
       }
@@ -140,14 +149,82 @@ namespace {
         return result;
       }
 
+      void addNonQFactor(bdd_ptr factor)
+      {
+        m_newFactors.push_back(bdd_dup(factor));
+      }
+
+      void addQFactor(bdd_ptr factor)
+      {
+        // replace each non-'q' neighbor 'v' of 'factor' with unique var 'x'
+        // and create a new factor 'equalityFactor' asserting 'x' is equal to 'v'
+        std::vector<bdd_ptr> varsToBeSubstituted;
+        std::vector<bdd_ptr> varsToSubstituteWith;
+        m_varsToBeGrouped.push_back(bdd_one(m_manager));
+        bdd_ptr equalityFactor = bdd_one(m_manager);
+        bdd_ptr nfSup = bdd_support(m_manager, factor);
+        bdd_ptr one = bdd_one(m_manager);
+        while (nfSup != one)
+        {
+          // get nextVar from support and remove it from support
+          bdd_ptr nextVar = bdd_new_var_with_index(m_manager, bdd_get_lowest_index(m_manager, nfSup));
+          bdd_ptr nfSupNext = bdd_cube_diff(m_manager, nfSup, nextVar);
+          bdd_free(m_manager, nfSup);
+          nfSup = nfSupNext;
+
+          // skip q
+          if (nextVar == m_q)
+          {
+            bdd_free(m_manager, nextVar);
+            continue;
+          }
+
+          // get a unique dummy var for "nextVar"
+          auto newDummyVar = getNewDummyVar(nextVar);
+          varsToBeSubstituted.push_back(nextVar);
+          varsToSubstituteWith.push_back(newDummyVar.dummyVar);
+          m_origVars.push_back(nextVar);
+          m_newVars.push_back(newDummyVar.dummyVar);
+          bdd_and_accumulate(m_manager, &m_varsToBeGrouped.back(), newDummyVar.dummyVar);
+          bdd_and_accumulate(m_manager, &equalityFactor, newDummyVar.equalityFactor);
+          bdd_free(m_manager, newDummyVar.equalityFactor);
+          bdd_free(m_manager, nextVar);
+        }
+        bdd_free(m_manager, nfSup);
+        bdd_free(m_manager, one);
+        bdd_ptr newFactor = bdd_substitute_vars(
+            m_manager, 
+            factor, 
+            &(varsToBeSubstituted.front()), 
+            &(varsToSubstituteWith.front()), 
+            varsToBeSubstituted.size());
+        m_newFactors.push_back(newFactor);
+        m_newFactors.push_back(equalityFactor);
+      }
+
+      std::vector<bdd_ptr> getNewFactors() const
+      {
+        return m_newFactors;
+      }
+
+      std::vector<bdd_ptr> getVarsToBeGrouped() const
+      {
+        return m_varsToBeGrouped;
+      }
+
+      bdd_ptr reverseSubstitute(bdd_ptr factor)
+      {
+        return bdd_substitute_vars(m_manager, factor, &m_newVars.front(), &m_origVars.front(), m_newVars.size());
+      }
 
       static void testDummyVarMap(DdManager * manager)
       {
+        bdd_ptr q = bdd_new_var_with_index(manager, 5);
         bdd_ptr a = bdd_new_var_with_index(manager, 10);
         bdd_ptr b = bdd_new_var_with_index(manager, 20);
         bdd_ptr c = bdd_new_var_with_index(manager, 30);
         
-        FactorGraphModifier fgm(manager, 30);
+        FactorGraphModifier fgm(manager, q, 30);
         auto a1 = fgm.getNewDummyVar(a);
         auto a1dv_expected = bdd_new_var_with_index(manager, 31);
         assert(a1.dummyVar  == a1dv_expected);
@@ -192,13 +269,19 @@ namespace {
         bdd_free(manager, c);
         bdd_free(manager, b);
         bdd_free(manager, a);
+        bdd_free(manager, q);
       }
       
 
     private:
       DdManager * m_manager;
+      bdd_ptr m_q;
       int m_idx;
       std::map<bdd_ptr, std::vector<bdd_ptr> > m_map;
+      std::vector<bdd_ptr> m_newFactors;
+      std::vector<bdd_ptr> m_varsToBeGrouped;
+      std::vector<bdd_ptr> m_origVars;
+      std::vector<bdd_ptr> m_newVars;
   };
 
 
@@ -220,76 +303,64 @@ namespace {
           var_score::VarScoreQuantification & vsq,
           DdManager * manager) const override
       {
+        // create modified factor graph
+        // with subsituted variables
+        // and equality factors
+        auto start = blif_solve::now();
         auto & qneigh = vsq.neighboringFactors(q);
         auto varsToProjectOn = findVarsToProjectOn(qneigh, q, manager);
         auto factors = vsq.getFactorCopies();
-        FactorGraphModifier fgm(manager, findLargestIndex(factors, manager));
-        std::vector<bdd_ptr> newFactors;
-        std::vector<bdd_ptr> varsToBeGrouped;
+        FactorGraphModifier fgm(manager, q, findLargestIndex(factors, manager));
         for (auto factor: factors)
         {
           if (qneigh.count(factor) > 0)
-          {
-            // 'factor' is a neighbor of 'q'
-            // replace each non-'q' neighbor 'v' of 'factor' with unique var 'x'
-            // and create a new factor 'factorx' asserting 'x' is equal to 'v'
-            std::vector<bdd_ptr> varsToBeSubstituted;
-            std::vector<bdd_ptr> varsToSubstituteWith;
-            varsToBeGrouped.push_back(bdd_one(manager));
-            bdd_ptr equalityFactor = bdd_one(manager);
-            bdd_ptr nfSup = bdd_support(manager, factor);
-            bdd_ptr one = bdd_one(manager);
-            while (nfSup != one)
-            {
-              // get nextVar from support and remove it from support
-              bdd_ptr nextVar = bdd_new_var_with_index(manager, bdd_get_lowest_index(manager, nfSup));
-              bdd_ptr nfSupNext = bdd_cube_diff(manager, nfSup, nextVar);
-              bdd_free(manager, nfSup);
-              nfSup = nfSupNext;
-              
-              // skip q
-              if (nextVar == q)
-              {
-                bdd_free(manager, nextVar);
-                continue;
-              }
-
-              // get a unique dummy var for "nextVar"
-              auto newDummyVar = fgm.getNewDummyVar(nextVar);
-              varsToBeSubstituted.push_back(nextVar);
-              varsToSubstituteWith.push_back(newDummyVar.dummyVar);
-              bdd_and_accumulate(manager, &varsToBeGrouped.back(), newDummyVar.dummyVar);
-              bdd_and_accumulate(manager, &equalityFactor, newDummyVar.equalityFactor);
-              bdd_free(manager, newDummyVar.equalityFactor);
-              bdd_free(manager, nextVar);
-            }
-            bdd_free(manager, nfSup);
-            bdd_free(manager, one);
-            bdd_ptr newFactor = bdd_substitute_vars(
-                manager, 
-                factor, 
-                &(varsToBeSubstituted.front()), 
-                &(varsToSubstituteWith.front()), 
-                varsToBeSubstituted.size());
-            newFactors.push_back(newFactor);
-            newFactors.push_back(equalityFactor);
-          }
+            fgm.addQFactor(factor);
           else
             // not a neighbor, copy as is
-            newFactors.push_back(bdd_dup(factor));
+            fgm.addNonQFactor(factor);
+        }
+        auto newFactors = fgm.getNewFactors();
+        auto varsToBeGrouped = fgm.getVarsToBeGrouped();
+        auto fg = factor_graph_new(manager, &newFactors.front(), newFactors.size());
+        for (auto vtbg: varsToBeGrouped)
+          factor_graph_group_vars(fg, vtbg);
+        blif_solve_log(INFO, "var_score/FactorGraphImpl: factor graph created in " 
+                             << blif_solve::duration(start) 
+                             << " sec");
+
+        // run message passing
+        start = blif_solve::now();
+        int numIterations = factor_graph_converge(fg);
+        blif_solve_log(INFO, "var_score/FactorGraphImpl: factor grpah converged in "
+                             << blif_solve::duration(start)
+                             << " sec");
+
+        // remove old factors from vsq
+        for (auto neigh: qneigh)
+          vsq.removeFactor(neigh);
+        vsq.removeVar(q);
+
+        // collect messages, reverse substitute, and insert into vsq
+        std::vector<bdd_ptr> messageVec;
+        for (auto vtbg: varsToBeGrouped)
+        {
+          auto node = factor_graph_get_varnode(fg, vtbg);
+          int numMessages;
+          auto messages = factor_graph_incoming_messages(fg, node, &numMessages);
+          for (auto mit = messages; numMessages > 0; --numMessages)
+          {
+            auto finalFactor = fgm.reverseSubstitute(*mit);
+            vsq.addFactor(finalFactor);
+            bdd_free(manager, finalFactor);
+            bdd_free(manager, *mit);
+          }
+          free(messages);
         }
 
-
-
-
-        for (auto factor: newFactors)
-          bdd_free(manager, factor);
-        for (auto vtbg: varsToBeGrouped)
-          bdd_free(manager, vtbg);
+        // free up stuff
+        factor_graph_delete(fg);
         for (auto factor: factors)
           bdd_free(manager, factor);
-
-        throw std::runtime_error("FactorGraphImpl::process not yet implemented");
       } // end of FactoGraphImpl::process
 
 
