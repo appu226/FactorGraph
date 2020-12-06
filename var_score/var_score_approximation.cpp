@@ -92,15 +92,15 @@ namespace {
     bdd_ptr equalityFactor;
   };
 
-  class DummyVarMap {
+  class FactorGraphModifier {
     public:
-      DummyVarMap(DdManager * manager, int greatestIndex) :
+      FactorGraphModifier(DdManager * manager, int greatestIndex) :
         m_manager(manager),
         m_idx(greatestIndex),
         m_map()
       { }
 
-      ~DummyVarMap()
+      ~FactorGraphModifier()
       {
         for (const auto & kv: m_map)
         {
@@ -147,8 +147,8 @@ namespace {
         bdd_ptr b = bdd_new_var_with_index(manager, 20);
         bdd_ptr c = bdd_new_var_with_index(manager, 30);
         
-        DummyVarMap dvm(manager, 30);
-        auto a1 = dvm.getNewDummyVar(a);
+        FactorGraphModifier fgm(manager, 30);
+        auto a1 = fgm.getNewDummyVar(a);
         auto a1dv_expected = bdd_new_var_with_index(manager, 31);
         assert(a1.dummyVar  == a1dv_expected);
         auto z = bdd_and(manager, a1.equalityFactor, a);
@@ -161,7 +161,7 @@ namespace {
         bdd_free(manager, a1dv_expected);
         bdd_free(manager, a1.equalityFactor);
 
-        auto b1 = dvm.getNewDummyVar(b);
+        auto b1 = fgm.getNewDummyVar(b);
         auto b1dv_expected = bdd_new_var_with_index(manager, 32);
         assert(b1.dummyVar == b1dv_expected);
         z = bdd_and(manager, b1.equalityFactor, b);
@@ -174,7 +174,7 @@ namespace {
         bdd_free(manager, b1.equalityFactor);
         bdd_free(manager, b1.dummyVar);
 
-        auto a2 = dvm.getNewDummyVar(a);
+        auto a2 = fgm.getNewDummyVar(a);
         auto a2dv_expected = bdd_new_var_with_index(manager, 33);
         assert(a2.dummyVar == a2dv_expected);
         z = bdd_and(manager, a2.equalityFactor, a1.dummyVar);
@@ -223,7 +223,7 @@ namespace {
         auto & qneigh = vsq.neighboringFactors(q);
         auto varsToProjectOn = findVarsToProjectOn(qneigh, q, manager);
         auto factors = vsq.getFactorCopies();
-        DummyVarMap dummyVarMap(manager, findLargestIndex(factors, manager));
+        FactorGraphModifier fgm(manager, findLargestIndex(factors, manager));
         std::vector<bdd_ptr> newFactors;
         std::vector<bdd_ptr> varsToBeGrouped;
         for (auto factor: factors)
@@ -255,7 +255,7 @@ namespace {
               }
 
               // get a unique dummy var for "nextVar"
-              auto newDummyVar = dummyVarMap.getNewDummyVar(nextVar);
+              auto newDummyVar = fgm.getNewDummyVar(nextVar);
               varsToBeSubstituted.push_back(nextVar);
               varsToSubstituteWith.push_back(newDummyVar.dummyVar);
               bdd_and_accumulate(manager, &varsToBeGrouped.back(), newDummyVar.dummyVar);
@@ -403,7 +403,7 @@ namespace var_score
   void ApproximationMethod::runUnitTests(DdManager * manager)
   {
     testFindLargestIndex(manager);
-    DummyVarMap::testDummyVarMap(manager);
+    FactorGraphModifier::testDummyVarMap(manager);
   }
 
 
