@@ -72,16 +72,22 @@ namespace {
     public:
       void process(
           bdd_ptr q,
-          bdd_ptr t1,
-          bdd_ptr t2,
+          bdd_ptr, // not needed
+          bdd_ptr, // not needed
           var_score::VarScoreQuantification & vsq,
           DdManager * manager) const override
       {
         blif_solve_log(DEBUG, "early quantification of a variable");
-        auto t1_q = bdd_forsome(manager, t1, q);
-        vsq.removeFactor(t1);
-        vsq.addFactor(t1_q);
-        bdd_free(manager, t1_q);
+        auto neigh = vsq.neighboringFactors(q);
+        for (auto n: neigh)
+        {
+          auto newn = bdd_forsome(manager, n, q);
+          vsq.removeFactor(n);
+          vsq.addFactor(newn);
+          bdd_free(manager, newn);
+        }
+        vsq.removeVar(q);
+         
       }
   };
 
