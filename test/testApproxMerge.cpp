@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "testApproxMerge.h"
 
-#include "bdd_factory.h"
+#include <bdd_factory.h>
 
 #include <random>
 #include <algorithm>
@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace {
 
-  using namespace test;
+  using dd::BddWrapper;
 
   BddWrapper makeFactor(DdManager * manager,
                         std::default_random_engine & dre,
@@ -83,11 +83,11 @@ namespace {
       std::transform(input.cbegin(), input.cend(), std::back_inserter(output), op);
       return output;
     }
-}
+} // end anonymous namespace
 
 void testApproxMerge(DdManager * manager)
 {
-  using namespace test;
+  using dd::BddWrapper;
   const int seed = 20190516;
   const int NumFuncs = 90;
   const int NumVars = 50;

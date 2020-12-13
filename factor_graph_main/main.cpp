@@ -222,7 +222,7 @@ int main2(int argc, char ** argv)
   int i;
   int j;
   char command[1001];
-  char param1[100], param2[100];
+  char param1[100], param2[300];
   factor_graph *fg;
   bdd_ptr nextv;
   bdd_ptr *funcs;

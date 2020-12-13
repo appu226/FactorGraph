@@ -24,6 +24,7 @@ SOFTWARE.
 
 
 #include <dd.h>
+#include <bdd_factory.h>
 #include <cnf_dump.h>
 #include <optional.h>
 #include <lru_cache.h>
@@ -39,7 +40,6 @@ SOFTWARE.
 #include <factor_graph.h>
 #include <bdd_partition.h>
 
-#include "bdd_factory.h"
 #include "testApproxMerge.h"
 #include "testVarScoreQuantification.h"
 
@@ -237,11 +237,10 @@ int DestructorCounter::count = 0;
 
 void testDisjointSet(DdManager * manager)
 {
-  using namespace test;
 
-  std::vector<BddWrapper> v;
+  std::vector<dd::BddWrapper> v;
   for (int i = 0; i < 10; ++i)
-    v.push_back(BddWrapper(bdd_new_var_with_index(manager, i), manager));
+    v.push_back(dd::BddWrapper(bdd_new_var_with_index(manager, i), manager));
   
   //  f3  f4 -- f5 -- f6    f0
   //    \  |         
@@ -259,16 +258,16 @@ void testDisjointSet(DdManager * manager)
   // f8 = v7 . !v8
   // f9 = v8
 
-  BddWrapper f0 = v[9];
-  BddWrapper f1 = v[0] * v[1];
-  BddWrapper f2 = v[1] * v[2] + v[1] * v[3];
-  BddWrapper f3 = v[2] + (-v[3]);
-  BddWrapper f4 = (-v[1]) + v[2] * v[4];
-  BddWrapper f5 = v[4] + (-v[5]);
-  BddWrapper f6 = v[5];
-  BddWrapper f7 = v[6] + v[7];
-  BddWrapper f8 = v[7] + (-v[8]);
-  BddWrapper f9 = v[8];
+  dd::BddWrapper f0 = v[9];
+  dd::BddWrapper f1 = v[0] * v[1];
+  dd::BddWrapper f2 = v[1] * v[2] + v[1] * v[3];
+  dd::BddWrapper f3 = v[2] + (-v[3]);
+  dd::BddWrapper f4 = (-v[1]) + v[2] * v[4];
+  dd::BddWrapper f5 = v[4] + (-v[5]);
+  dd::BddWrapper f6 = v[5];
+  dd::BddWrapper f7 = v[6] + v[7];
+  dd::BddWrapper f8 = v[7] + (-v[8]);
+  dd::BddWrapper f9 = v[8];
 
   std::vector<bdd_ptr> factors{!f0, !f1, !f2, !f3, !f4, !f5, !f6, !f7, !f8, !f9};
   auto partitions = bddPartition(manager, factors);
@@ -392,10 +391,10 @@ void testOptional() {
 
 void testCnfDump(DdManager * manager)
 {
-  using test::BddWrapper;
-  BddWrapper x(bdd_new_var_with_index(manager, 1), manager);
-  BddWrapper y(bdd_new_var_with_index(manager, 2), manager);
-  BddWrapper z(bdd_new_var_with_index(manager, 3), manager);
+  using dd::BddWrapper;
+  dd::BddWrapper x(bdd_new_var_with_index(manager, 1), manager);
+  dd::BddWrapper y(bdd_new_var_with_index(manager, 2), manager);
+  dd::BddWrapper z(bdd_new_var_with_index(manager, 3), manager);
 
   bdd_ptr_set upperLimit;
   auto overApprox1 = x*y + x*-y*z;
@@ -427,7 +426,7 @@ void testCnfDump(DdManager * manager)
 
 void testIsConnectedComponent(DdManager * manager)
 {
-  using test::BddWrapper;
+  using dd::BddWrapper;
   BddWrapper w(bdd_new_var_with_index(manager, 1), manager);
   BddWrapper x(bdd_new_var_with_index(manager, 2), manager);
   BddWrapper y(bdd_new_var_with_index(manager, 3), manager);

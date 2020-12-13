@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include <stdexcept>
 
-namespace test
+namespace dd
 {
 
   BddWrapper::BddWrapper(bdd_ptr myBdd, DdManager * manager) :
@@ -119,4 +119,4 @@ namespace test
   }
 
 
-} // end namespace test
+} // end namespace dd

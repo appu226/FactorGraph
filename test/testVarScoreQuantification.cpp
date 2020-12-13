@@ -23,16 +23,17 @@ SOFTWARE.
 */
 
 
+#include <bdd_factory.h>
+
 #include "testVarScoreQuantification.h"
-#include "bdd_factory.h"
 
 #include <cassert>
 
 
 void testVarScoreQuantificationUtils(DdManager * ddm)
 {
+  using dd::BddWrapper;
   // prepare variables
-  using namespace test;
   std::vector<BddWrapper> v;
   for (int i = 0; i < 5; ++i)
     v.emplace_back(bdd_new_var_with_index(ddm, i), ddm);

@@ -82,6 +82,7 @@ namespace parakram {
       m_data[0] = that.m_data[0];
       if (m_data[0])
         new (dptr())TValue(*that.dptr());
+      return *this;
     }
 
   template<typename TValue>

@@ -353,12 +353,12 @@ namespace {
           auto node = factor_graph_get_varnode(fg, vtbg);
           int numMessages;
           auto messages = factor_graph_incoming_messages(fg, node, &numMessages);
-          for (auto mit = messages; numMessages > 0; --numMessages)
+          for (auto im = 0; im < numMessages; ++im)
           {
-            auto finalFactor = fgm.reverseSubstitute(*mit);
+            auto finalFactor = fgm.reverseSubstitute(messages[im]);
             vsq.addFactor(finalFactor);
             bdd_free(manager, finalFactor);
-            bdd_free(manager, *mit);
+            bdd_free(manager, messages[im]);
           }
           free(messages);
         }

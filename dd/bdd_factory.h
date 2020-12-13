@@ -26,9 +26,9 @@ SOFTWARE.
 
 #pragma once
 
-#include <dd.h>
+#include "dd.h"
 
-namespace test
+namespace dd
 {
 
 
@@ -65,4 +65,4 @@ namespace test
 
   }; // end class BddWrapper
 
-} // end namespace test
+} // end namespace dd

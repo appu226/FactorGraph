@@ -102,6 +102,7 @@ namespace parakram {
         m_keyStoreMap.erase(ksmit);
         m_keyStore.erase(ksit);
       }
+      return true;
     }
 
   template<typename TKey, typename TValue>
