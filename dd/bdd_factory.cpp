@@ -108,6 +108,11 @@ namespace dd
     return BddWrapper(bdd_forsome(m_manager, m_bdd, variables.m_bdd), m_manager);
   }
 
+  BddWrapper BddWrapper::varWithLowestIndex() const
+  {
+    return BddWrapper(bdd_new_var_with_index(m_manager, bdd_get_lowest_index(m_manager, getUncountedBdd())), m_manager);
+  }
+
   bdd_ptr BddWrapper::getUncountedBdd() const
   {
     return m_bdd;
@@ -116,6 +121,27 @@ namespace dd
   bdd_ptr BddWrapper::getCountedBdd() const
   {
     return bdd_dup(m_bdd);
+  }
+
+  bool BddWrapper::operator <(const BddWrapper & that) const
+  {
+    return m_bdd < that.m_bdd;
+  }
+
+  std::vector<BddWrapper> BddWrapper::fromVector(const std::vector<bdd_ptr> & bddVec, DdManager * manager)
+  {
+    std::vector<BddWrapper> result;
+    for (auto p: bddVec)
+      result.push_back(BddWrapper(p, manager));
+    return result;
+  }
+
+  std::set<BddWrapper> BddWrapper::fromSet(const std::set<bdd_ptr> & bddSet, DdManager * manager)
+  {
+    std::set<BddWrapper> result;
+    for (auto p: bddSet)
+      result.insert(BddWrapper(p, manager));
+    return result;
   }
 
 

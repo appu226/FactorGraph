@@ -39,31 +39,26 @@ void testVarScoreQuantificationUtils(DdManager * ddm)
     v.emplace_back(bdd_new_var_with_index(ddm, i), ddm);
   
   // prepare factors
-  std::vector<BddWrapper> f;
-  f.emplace_back(v[0] + v[1]*v[2] + v[1]*(-v[3]) + (-v[0]) * (-v[1]));
-  f.emplace_back(v[1] + v[0]*v[2]);
-  f.emplace_back(v[3] + v[4]);
-  f.emplace_back(v[1] + v[2]);
-  std::vector<bdd_ptr> F;
-  for (size_t i = 0; i < f.size(); ++i)
-    F.push_back(f[i].getUncountedBdd());
-
+  std::vector<BddWrapper> F;
+  F.emplace_back(v[0] + v[1]*v[2] + v[1]*(-v[3]) + (-v[0]) * (-v[1]));
+  F.emplace_back(v[1] + v[0]*v[2]);
+  F.emplace_back(v[3] + v[4]);
+  F.emplace_back(v[1] + v[2]);
 
   // setup VarScoreQuantification object
-  BddWrapper qbw = v[0];
+  BddWrapper Q = v[0];
   for (size_t i = 1; i < v.size(); ++i)
-    qbw = qbw * v[i];
-  bdd_ptr Q = qbw.getUncountedBdd();
+    Q = Q * v[i];
   int maxBddSize = 0;
   var_score::VarScoreQuantification vsq(F, Q, ddm);
 
   // test neighboringFactors
   for (size_t vidx = 0; vidx < v.size(); ++vidx)
   {
-    std::set<bdd_ptr> actual = vsq.neighboringFactors(v[vidx].getUncountedBdd());
-    for (size_t fidx = 0; fidx < f.size(); ++fidx)
+    std::set<BddWrapper> actual = vsq.neighboringFactors(v[vidx]);
+    for (size_t fidx = 0; fidx < F.size(); ++fidx)
     {
-      auto commonSupport = f[fidx].support().cubeIntersection(v[vidx]);
+      auto commonSupport = F[fidx].support().cubeIntersection(v[vidx]);
       bool isNeighbor = !bdd_is_one(ddm, commonSupport.getUncountedBdd());
       if (isNeighbor)
         assert(1 == actual.count(F[fidx]));
@@ -76,31 +71,31 @@ void testVarScoreQuantificationUtils(DdManager * ddm)
   // test smallestTwoNeighbors
   for (size_t vidx = 0; vidx < v.size(); ++vidx)
   {
-    auto allNeigh = vsq.neighboringFactors(v[vidx].getUncountedBdd());
+    auto allNeigh = vsq.neighboringFactors(v[vidx]);
     if (allNeigh.size() < 2)
       continue;
-    auto smallestTwoNeigh = vsq.smallestTwoNeighbors(v[vidx].getUncountedBdd());
-    int size1 = bdd_size(smallestTwoNeigh.first);
-    int size2 = bdd_size(smallestTwoNeigh.second);
+    auto smallestTwoNeigh = vsq.smallestTwoNeighbors(v[vidx]);
+    int size1 = bdd_size(smallestTwoNeigh.first.getUncountedBdd());
+    int size2 = bdd_size(smallestTwoNeigh.second.getUncountedBdd());
     for (auto n: allNeigh)
     {
-      int nsize = bdd_size(n);
+      int nsize = bdd_size(n.getUncountedBdd());
       assert(nsize >= size1 || nsize == size2);
       assert(nsize >= size2 || nsize == size1);
     }
   }
 
   // test varWithLowestScore
-  bdd_ptr varWithLowestScore = vsq.varWithLowestScore();
+  auto varWithLowestScore = vsq.varWithLowestScore();
   int lowestScore = -1;
   std::vector<int> scores;
   for (size_t vidx = 0; vidx < v.size(); ++vidx)
   {
-    bdd_ptr theVar = v[vidx].getUncountedBdd();
+    auto theVar = v[vidx];
     int score = 0;
     auto neighbors = vsq.neighboringFactors(theVar);
     for (auto n: neighbors)
-      score += bdd_size(n);
+      score += bdd_size(n.getUncountedBdd());
     scores.push_back(score);
     if (theVar == varWithLowestScore)
       lowestScore = score;
@@ -110,14 +105,12 @@ void testVarScoreQuantificationUtils(DdManager * ddm)
     assert(lowestScore <= score);
 
   // test findVarWithOnlyOneFactor
-  assert(vsq.findVarWithOnlyOneFactor() == v[4].getUncountedBdd());
+  assert(vsq.findVarWithOnlyOneFactor() == std::optional<BddWrapper>(v[4]));
   vsq.removeFactor(F[2]);
-  assert(vsq.findVarWithOnlyOneFactor() == v[3].getUncountedBdd());
-  vsq.removeVar(v[4].getUncountedBdd());
-  assert(vsq.findVarWithOnlyOneFactor() == v[3].getUncountedBdd());
-  vsq.addFactor(v[3].getUncountedBdd());
-  assert(vsq.findVarWithOnlyOneFactor() == NULL);
-
-
+  assert(vsq.findVarWithOnlyOneFactor() == std::optional<BddWrapper>(v[3]));
+  vsq.removeVar(v[4]);
+  assert(vsq.findVarWithOnlyOneFactor() == std::optional<BddWrapper>(v[3]));
+  vsq.addFactor(v[3]);
+  assert(!vsq.findVarWithOnlyOneFactor().has_value());
 }
 

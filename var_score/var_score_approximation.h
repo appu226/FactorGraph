@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <memory>
 
-#include <dd.h>
+#include <bdd_factory.h>
 
 namespace var_score
 {
@@ -35,6 +35,7 @@ namespace var_score
 
   class ApproximationMethod {
     public:
+      typedef dd::BddWrapper BddWrapper;
 
       typedef std::shared_ptr<ApproximationMethod const> CPtr;
 
@@ -43,9 +44,9 @@ namespace var_score
       static CPtr createFactorGraph(int largestSupportSet);
 
       virtual void process(
-          bdd_ptr q, 
-          bdd_ptr f1, 
-          bdd_ptr f2, 
+          BddWrapper const & q, 
+          BddWrapper const & f1, 
+          BddWrapper const & f2, 
           var_score::VarScoreQuantification & vsq,
           DdManager * manager) const = 0;
 

@@ -28,6 +28,7 @@ SOFTWARE.
 #include <command_line_options.h>
 #include <blif_factors.h>
 #include <srt.h>
+#include <bdd_factory.h>
 
 #include <memory>
 
@@ -67,6 +68,7 @@ int main(int argc, char const * const * const argv);
 ///////////////////
 int main(int argc, char const * const * const argv)
 {
+  using dd::BddWrapper;
   auto start = blif_solve::now();
   auto clo = parseClo(argc, argv); // parse the command line options
   auto srt = std::make_shared<SRT>(); // initialize BDD
@@ -79,10 +81,14 @@ int main(int argc, char const * const * const argv)
   start = blif_solve::now();
 
   // solve each sub problem
-  std::vector<bdd_ptr> resultVec;
+  std::vector<BddWrapper> resultVec;
   for (auto sp: subProblems)
   {
-    auto rv = var_score::VarScoreQuantification::varScoreQuantification(*(sp->getFactors()), sp->getPiVars(), sp->getDdManager(), clo.maxBddSize, clo.approximationMethod);
+    auto spFactors = BddWrapper::fromVector(*(sp->getFactors()), sp->getDdManager());
+    for (auto const & spf: spFactors) spf.getCountedBdd(); // increase ref count because BddWrapper will decrease it during destruction
+    auto spPiVars = BddWrapper(sp->getPiVars(), sp->getDdManager());
+    spPiVars.getCountedBdd();                              // increase ref count because BddWrapper will decrease it during destruction
+    auto rv = var_score::VarScoreQuantification::varScoreQuantification(spFactors, spPiVars, sp->getDdManager(), clo.maxBddSize, clo.approximationMethod);
     blif_solve_log(INFO, "Computed sub result");
     resultVec.insert(resultVec.end(), rv.cbegin(), rv.cend());
   }
@@ -94,28 +100,24 @@ int main(int argc, char const * const * const argv)
   {
     start = blif_solve::now();
     auto numVars = bf.getNonPiVars()->size();
-    auto conjoinedSolution = bdd_one(srt->ddm);
-    for (auto result: resultVec)
-      bdd_and_accumulate(srt->ddm, &conjoinedSolution, result);
+    BddWrapper conjoinedSolution(bdd_one(srt->ddm), srt->ddm);
+    for (const auto & result: resultVec)
+      conjoinedSolution = conjoinedSolution * result;
     blif_solve_log(INFO, "Computed conjoined solution in " << blif_solve::duration(start) << " sec");
     start = blif_solve::now();
-    auto numSolutions = bdd_count_minterm(srt->ddm, conjoinedSolution, numVars);
+    auto numSolutions = bdd_count_minterm(srt->ddm, conjoinedSolution.getUncountedBdd(), numVars);
     blif_solve_log(INFO, "Counted " << numSolutions << " solutions in " << blif_solve::duration(start) << " sec");
   }
 
   // display final result
   if (blif_solve::getVerbosity() == blif_solve::DEBUG)
   {
-    bdd_ptr finalResult = bdd_one(srt->ddm);
-    for (auto r: resultVec)
-      bdd_and_accumulate(srt->ddm, &finalResult, r);
-    blif_solve_log_bdd(DEBUG, "finalResult", srt->ddm, finalResult);
-    bdd_free(srt->ddm, finalResult);
+    BddWrapper finalResult(bdd_one(srt->ddm), srt->ddm);
+    for (const auto & r: resultVec)
+      finalResult = finalResult * r;
+    blif_solve_log_bdd(DEBUG, "finalResult", srt->ddm, finalResult.getUncountedBdd());
   }
 
-  // free results
-  for (auto r: resultVec)
-    bdd_free(srt->ddm, r);
   return 0;
 }
 

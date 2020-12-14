@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include "dd.h"
 
+#include <vector>
+#include <set>
+
 namespace dd
 {
 
@@ -56,13 +59,61 @@ namespace dd
 
       BddWrapper existentialQuantification(const BddWrapper & variables) const;
 
+      BddWrapper varWithLowestIndex() const;
+
       bdd_ptr getUncountedBdd() const;
       bdd_ptr getCountedBdd() const;
+
+      static std::vector<BddWrapper> fromVector(const std::vector<bdd_ptr>& bddVec, DdManager * manager);
+      static std::set<BddWrapper> fromSet(const std::set<bdd_ptr> & bddSet, DdManager * manager);
+
+      bool operator < (const BddWrapper & that) const;
+      bool operator == (const BddWrapper & that) const { return m_bdd == that.m_bdd; }
+      bool operator != (const BddWrapper & that) const { return m_bdd != that.m_bdd; }
 
     private:
       bdd_ptr m_bdd;
       DdManager * m_manager;
 
   }; // end class BddWrapper
+
+
+
+  class BddVectorWrapper
+  {
+    public:
+      BddVectorWrapper(DdManager * manager):
+        m_vector(),
+        m_manager(manager)
+      { }
+
+      BddVectorWrapper(const std::vector<bdd_ptr> & bddVector,
+                       DdManager * manager):
+        m_vector(bddVector),
+        m_manager(manager)
+      { }
+
+      std::vector<bdd_ptr> const & operator * () const { return m_vector; }
+      std::vector<bdd_ptr>       & operator * ()       { return m_vector; }
+
+      std::vector<bdd_ptr> const * operator -> () const { return &m_vector; }
+      std::vector<bdd_ptr>       * operator -> ()       { return &m_vector; }
+
+      void push_back (BddWrapper const & f) { m_vector.push_back (f.getCountedBdd()); }
+
+      BddWrapper get(size_t index) const { return {bdd_dup(m_vector[index]), m_manager}; }
+      void set(size_t index, BddWrapper const & value) { bdd_free(m_manager, m_vector[index]); m_vector[index] = value.getCountedBdd(); }
+
+      ~BddVectorWrapper()
+      {
+        for (auto p: m_vector)
+          bdd_free(m_manager, p);
+      }
+
+    private:
+      std::vector<bdd_ptr> m_vector;
+      DdManager * m_manager;
+
+  }; // end of class BddVectorWrapper
 
 } // end namespace dd

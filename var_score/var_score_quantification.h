@@ -28,8 +28,9 @@ SOFTWARE.
 #include <map>
 #include <set>
 #include <vector>
+#include <optional>
 
-#include <dd.h>
+#include <bdd_factory.h>
 
 #include "var_score_approximation.h"
 
@@ -45,39 +46,39 @@ namespace var_score {
   // declare utility struct
   struct VarScoreQuantification {
     public:
+      typedef dd::BddWrapper BddWrapper;
  
       static
-        std::vector<bdd_ptr>
-        varScoreQuantification(const std::vector<bdd_ptr> & F, 
-                               bdd_ptr Q, 
+        std::vector<BddWrapper>
+        varScoreQuantification(const std::vector<BddWrapper> & F, 
+                               const BddWrapper & Q, 
                                DdManager * ddm,
                                const int maxBddSize,
-                               ApproximationMethod::CPtr approximationMethod);
+                               const ApproximationMethod::CPtr & approximationMethod);
 
 
 
-      VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm);
-      ~VarScoreQuantification();
+      VarScoreQuantification(const std::vector<BddWrapper> & F, const BddWrapper & Q, DdManager * ddm);
       
-      void addFactor(bdd_ptr factor);
-      void removeFactor(bdd_ptr factor);
-      void removeVar(bdd_ptr var);
+      void addFactor(const BddWrapper & factor);
+      void removeFactor(const BddWrapper & factor);
+      void removeVar(const BddWrapper & var);
       
-      bdd_ptr varWithLowestScore() const;
-      bdd_ptr findVarWithOnlyOneFactor() const;
-      std::pair<bdd_ptr, bdd_ptr> smallestTwoNeighbors(bdd_ptr var) const;
-      const std::set<bdd_ptr> & neighboringFactors(bdd_ptr var) const;
+      BddWrapper varWithLowestScore() const;
+      std::optional<BddWrapper> findVarWithOnlyOneFactor() const;
+      std::pair<BddWrapper, BddWrapper> smallestTwoNeighbors(const BddWrapper & var) const;
+      const std::set<BddWrapper> & neighboringFactors(const BddWrapper & var) const;
       
       bool isFinished() const;
-      std::vector<bdd_ptr> getFactorCopies() const;
+      std::vector<BddWrapper> getFactorCopies() const;
       void printState() const;
 
     private:
-      std::set<bdd_ptr> m_factors;
-      std::map<bdd_ptr, std::set<bdd_ptr> > m_vars;
+      std::set<BddWrapper> m_factors;
+      std::map<BddWrapper, std::set<BddWrapper> > m_vars;
       DdManager * m_ddm;
 
-      bool isNeighbor(bdd_ptr f, bdd_ptr v) const;
+      bool isNeighbor(const BddWrapper & f, const BddWrapper & v) const;
   }; // end struct VarScoreQuantification
 
 

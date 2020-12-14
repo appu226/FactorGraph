@@ -1,6 +1,6 @@
 export CC = g++
 
-export cpp_opt_flag ?= -O3
+export cpp_opt_flag ?= -g
 export CC_FLAGS = -std=c++17 -c -fPIC ${cpp_opt_flag} -Werror ${DBG_FLAGS}
 export CC_LINK_FLAGS = -shared
 

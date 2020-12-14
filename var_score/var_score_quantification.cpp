@@ -41,7 +41,7 @@ SOFTWARE.
 //Declarations for helper functions
 namespace {
 
-  double getBddSize(DdManager* manager, bdd_ptr b1, bdd_ptr b2 = NULL);
+  double getBddSize(DdManager* manager, const dd::BddWrapper & b1, const dd::BddWrapper & b2);
 
 } // end anonymous namespace
 
@@ -53,6 +53,8 @@ namespace {
 
 
 namespace var_score {
+
+  using dd::BddWrapper;
 
   /* the VarScore algorithm
    * VARSCOREBASICSTEP(F,Q)
@@ -75,30 +77,29 @@ namespace var_score {
    * 
    * (note: /∈ means "not an element of"
    */
-  std::vector<bdd_ptr>
-    VarScoreQuantification::varScoreQuantification(const std::vector<bdd_ptr> & F, 
-        bdd_ptr Q, 
+  std::vector<BddWrapper>
+    VarScoreQuantification::varScoreQuantification(const std::vector<BddWrapper> & F, 
+        const BddWrapper & Q, 
         DdManager * ddm,
         const int maxBddSize,
-        ApproximationMethod::CPtr approxImpl)
+        const ApproximationMethod::CPtr & approxImpl)
     {
       VarScoreQuantification vsq(F, Q, ddm);
       auto exactImpl = ApproximationMethod::createExact();
       while(!vsq.isFinished())
       {
         // vsq.printState();
-        auto q = vsq.findVarWithOnlyOneFactor();
-        if (q != NULL)
+        auto q1 = vsq.findVarWithOnlyOneFactor();
+        if (q1)
         {
           blif_solve_log(DEBUG, "found var with only one factor");
-          auto tv = vsq.neighboringFactors(q);
+          auto tv = vsq.neighboringFactors(*q1);
           assert(tv.size() == 1);
           auto t = *(tv.cbegin());
-          auto t_without_q = bdd_forsome(ddm, t, q);
+          auto t_without_q = t.existentialQuantification(*q1);
           vsq.removeFactor(t);
-          vsq.removeVar(q);
+          vsq.removeVar(*q1);
           vsq.addFactor(t_without_q);
-          bdd_free(ddm, t_without_q);
         }
         else
         {
@@ -120,37 +121,25 @@ namespace var_score {
 
 
 
-  VarScoreQuantification::VarScoreQuantification(const std::vector<bdd_ptr> & F, bdd_ptr Q, DdManager * ddm):
+  VarScoreQuantification::VarScoreQuantification(const std::vector<BddWrapper> & F, const BddWrapper & Q, DdManager * ddm):
     m_factors(F.cbegin(), F.cend()),
     m_vars(),
     m_ddm(ddm)
   {
-    for (auto f: m_factors)
-      bdd_dup(f);
-    bdd_ptr qs = bdd_dup(Q);
-    bdd_ptr one = bdd_one(ddm);
+    BddWrapper qs = Q;
+    BddWrapper one(bdd_one(ddm), ddm);
     while(qs != one)
     {
       // get next q
-      bdd_ptr q = bdd_new_var_with_index(m_ddm, bdd_get_lowest_index(m_ddm, qs));
-      {
-        // compute new qs
-        bdd_ptr qs_rem = bdd_forsome(m_ddm, qs, q);
-        bdd_free(m_ddm, qs);
-        qs = qs_rem;
-      }
+      BddWrapper q = qs.varWithLowestIndex();
+      qs = qs.cubeDiff(q);
       // find neighbors of q
       for (auto f: m_factors)
         if (isNeighbor(f, q))
           m_vars[q].insert(f);
       if (m_vars[q].empty()) // no neighbors, you can ignore
-      {
         m_vars.erase(q);
-        bdd_free(m_ddm, q);
-      }
     }
-    bdd_free(m_ddm, qs);
-    bdd_free(m_ddm, one);
     blif_solve_log(DEBUG, "Created VarScoreQuantification with " << m_vars.size() << " vars and " << m_factors.size() << " factors");
   }
 
@@ -160,19 +149,19 @@ namespace var_score {
 
 
 
-  bdd_ptr VarScoreQuantification::findVarWithOnlyOneFactor() const
+  std::optional<BddWrapper> VarScoreQuantification::findVarWithOnlyOneFactor() const
   {
     for(auto vxfs: m_vars)
       if (vxfs.second.size() == 1)
         return vxfs.first;
-    return NULL;
+    return std::optional<BddWrapper>();
   }
 
 
 
 
 
-  const std::set<bdd_ptr>& VarScoreQuantification::neighboringFactors(bdd_ptr var) const
+  const std::set<BddWrapper>& VarScoreQuantification::neighboringFactors(const BddWrapper & var) const
   {
     auto qit = m_vars.find(var);
     assert(qit != m_vars.end());
@@ -185,14 +174,13 @@ namespace var_score {
 
 
 
-  void VarScoreQuantification::removeFactor(bdd_ptr factor)
+  void VarScoreQuantification::removeFactor(const BddWrapper & factor)
   {
     for (auto& vxfs: m_vars)
       vxfs.second.erase(factor);
     if (m_factors.count(factor) == 0)
       return;
     m_factors.erase(factor);
-    bdd_free(m_ddm, factor);
   }
 
 
@@ -200,89 +188,84 @@ namespace var_score {
 
 
 
-  void VarScoreQuantification::addFactor(bdd_ptr factor) 
+  void VarScoreQuantification::addFactor(const BddWrapper & factor) 
   {
     if (m_factors.count(factor) > 0)
       return;
-    m_factors.insert(bdd_dup(factor));
-    bdd_ptr fsup = bdd_support(m_ddm, factor);
-    bdd_ptr one = bdd_one(m_ddm);
+    m_factors.insert(factor);
+    BddWrapper fsup = factor.support();
+    BddWrapper one(bdd_one(m_ddm), m_ddm);
     for(auto& vxfs: m_vars)
     {
-      bdd_ptr q = vxfs.first;
-      bdd_ptr intersection = bdd_cube_intersection(m_ddm, q, fsup);
+      BddWrapper q = vxfs.first;
+      BddWrapper intersection = q.cubeIntersection(fsup);
       if (intersection != one)
         vxfs.second.insert(factor);
-      bdd_free(m_ddm, intersection);
     }
-    bdd_free(m_ddm, fsup);
-    bdd_free(m_ddm, one);
   }
 
 
 
 
 
-  void VarScoreQuantification::removeVar(bdd_ptr var)
+  void VarScoreQuantification::removeVar(const BddWrapper & var)
   {
     auto vit = m_vars.find(var);
     if (vit != m_vars.end())
-    {
-      bdd_free(m_ddm, vit->first);
       m_vars.erase(vit);
-    }
   }
 
 
 
 
 
-  bdd_ptr VarScoreQuantification::varWithLowestScore() const
+  BddWrapper VarScoreQuantification::varWithLowestScore() const
   {
-    bdd_ptr minq = NULL;
+    std::optional<BddWrapper> minq;
     int lowestSize = 0;
     for (auto vxfs: m_vars)
     {
       int size = 0;
       for (auto f: vxfs.second)
-        size += bdd_size(f);
-      if (minq == NULL || size < lowestSize)
+        size += bdd_size(f.getUncountedBdd());
+      if (!minq || size < lowestSize)
       {
         minq = vxfs.first;
         lowestSize = size;
       }
     }
-    assert(minq != NULL);
-    return minq;
+    assert(minq.has_value());
+    return *minq;
   }
 
 
 
 
 
-  std::pair<bdd_ptr, bdd_ptr> VarScoreQuantification::smallestTwoNeighbors(bdd_ptr var) const
+  std::pair<BddWrapper, BddWrapper> VarScoreQuantification::smallestTwoNeighbors(const BddWrapper & var) const
   {
     auto qit = m_vars.find(var);
     assert(qit != m_vars.end());
     assert(qit->second.size() >= 2);
-    bdd_ptr f1 = NULL, f2 = NULL;
+    std::optional<BddWrapper> f1, f2;
     int s1 = 0, s2 = 0;
     for (auto fit: qit->second)
     {
-      bdd_ptr f = fit;
-      int s = bdd_size(f);
-      if (f1 == NULL || s < s1)
+      std::optional<BddWrapper> f(fit);
+      int s = bdd_size(f->getUncountedBdd());
+      if (!f1.has_value() || s < s1)
       {
         std::swap(f1, f);
         std::swap(s1, s);
       }
-      if (f != NULL && (f2 == NULL || s < s2))
+      if (f.has_value() && (!f2.has_value() || s < s2))
       {
         std::swap(f2, f);
         std::swap(s2, s);
       }
     }
-    return std::make_pair(f1, f2);
+    assert(f1.has_value() && f2.has_value());
+    return std::make_pair(*f1, *f2);
   }
 
 
@@ -301,39 +284,21 @@ namespace var_score {
 
 
 
-  std::vector<bdd_ptr> VarScoreQuantification::getFactorCopies() const
+  std::vector<BddWrapper> VarScoreQuantification::getFactorCopies() const
   {
-    std::vector<bdd_ptr> result(m_factors.cbegin(), m_factors.cend());
-    for (auto f: result)
-      bdd_dup(f);
-    return result;
+    return std::vector<BddWrapper>(m_factors.cbegin(), m_factors.cend());
   }
 
 
 
 
-  bool VarScoreQuantification::isNeighbor(bdd_ptr f, bdd_ptr g) const
+  bool VarScoreQuantification::isNeighbor(const BddWrapper & f, const BddWrapper & g) const
   {
-    auto fsup = bdd_support(m_ddm, f);
-    auto gsup = bdd_support(m_ddm, g);
-    auto common = bdd_cube_intersection(m_ddm, fsup, gsup);
-    bool isNotNeighbor = bdd_is_one(m_ddm, common);
-    bdd_free(m_ddm, fsup);
-    bdd_free(m_ddm, gsup);
-    bdd_free(m_ddm, common);
+    auto fsup = f.support();
+    auto gsup = g.support();
+    auto common = fsup.cubeIntersection(gsup);
+    bool isNotNeighbor = bdd_is_one(m_ddm, common.getUncountedBdd());
     return ! isNotNeighbor;
-  }
-
-
-
-
-
-  VarScoreQuantification::~VarScoreQuantification()
-  {
-    for (auto f: m_factors)
-      bdd_free(m_ddm, f);
-    for (auto vxfs: m_vars)
-      bdd_free(m_ddm, vxfs.first);
   }
 
 
@@ -343,9 +308,9 @@ namespace var_score {
   void VarScoreQuantification::printState() const
   {
     std::cout << "\n\n======\nFactors:\n\n" << std::endl;
-    for (auto f: m_factors)
+    for (const auto & f: m_factors)
     {
-      bdd_print_minterms(m_ddm, f);
+      bdd_print_minterms(m_ddm, f.getUncountedBdd());
       std::cout << "\n\n" << std::endl;
     }
 
@@ -353,11 +318,11 @@ namespace var_score {
     for (const auto & vxfs: m_vars)
     {
       std::cout << "\nvar:\n" << std::endl;
-      bdd_print_minterms(m_ddm, vxfs.first);
+      bdd_print_minterms(m_ddm, vxfs.first.getUncountedBdd());
       std::cout << "\n\nfuncs:\n" << std::endl;
-      for (auto f: vxfs.second)
+      for (const auto & f: vxfs.second)
       {
-        bdd_print_minterms(m_ddm, f);
+        bdd_print_minterms(m_ddm, f.getUncountedBdd());
         std::cout << "\n\n" << std::endl;
       }
     }
@@ -375,33 +340,26 @@ namespace var_score {
 // definitions for helper functions
 namespace {
 
+  using dd::BddWrapper;
+
   /* Heuristic for predicting the bdd size
    * If no variables are common, then size is nb1 + nb2.
    * If all variables are common then size is nb1 * nb2.
    * Is it a bad heuristic? I don't know. You tell me.
    */
-  double getBddSize(DdManager * manager, bdd_ptr b1, bdd_ptr b2)
+  double getBddSize(DdManager * manager, const BddWrapper & b1, const BddWrapper & b2)
   {
-    double s1 = bdd_size(b1);
-    if (NULL == b2)
-      return s1;
-   
     // support sets
-    bdd_ptr sp1 = bdd_support(manager, b1);
-    bdd_ptr sp2 = bdd_support(manager, b2);
+    BddWrapper sp1 = b1.support();
+    BddWrapper sp2 = b2.support();
     // intersection support set
-    bdd_ptr intsn = bdd_cube_intersection(manager, sp1, sp2);
+    BddWrapper intsn = sp1.cubeIntersection(sp2);
 
-    double nb1 = bdd_size(b1);
-    double nb2 = bdd_size(b2);
-    double nsp1 = bdd_size(sp1) - 1;
-    double nsp2 = bdd_size(sp2) - 1;
-    double nintsn = bdd_size(intsn) - 1;
-
-    bdd_free(manager, sp1);
-    bdd_free(manager, sp2);
-    bdd_free(manager, intsn);
-
+    double nb1 = bdd_size(b1.getUncountedBdd());
+    double nb2 = bdd_size(b2.getUncountedBdd());
+    double nsp1 = bdd_size(sp1.getUncountedBdd()) - 1;
+    double nsp2 = bdd_size(sp2.getUncountedBdd()) - 1;
+    double nintsn = bdd_size(intsn.getUncountedBdd()) - 1;
 
     return 
       nb1 * (nsp1 - nintsn) / nsp1                  // vars unique to b1

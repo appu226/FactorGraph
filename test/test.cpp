@@ -98,55 +98,46 @@ void testVarScoreFactorGraphInternals(DdManager * manager)
 
 void testVarScoreQuantificationAlgo(DdManager * manager)
 {
+  using dd::BddWrapper;
   int const numVars = 4;
   int const numTests = 5000;
   int const numFuncsPerTest = 6;
   int const maxBddSize = 100*1000*1000;
-  std::vector<DdNode *> vars;
-  for (int vi = 0; vi < numVars; ++vi)
-    vars.push_back(bdd_new_var_with_index(manager, vi));
   int const totalMinTerms = 1 << numVars;
   int const totalFuncs = 1 << totalMinTerms;
   for (int itest = 0; itest < numTests; ++itest)
   {
-    std::set<DdNode *> funcs;
+    std::set<BddWrapper> funcs;
     for (int ifunc = 0; ifunc < numFuncsPerTest; ++ifunc)
     {
       int const funcAsInteger = rand() % totalFuncs;
       auto f = makeFunc(manager, numVars, funcAsInteger);
-      funcs.insert(f);
+      funcs.insert(BddWrapper(f, manager));
     }
     
     const int numVarsToBeQuantified = rand() % numVars;
-    DdNode * cube = bdd_one(manager);
+    BddWrapper cube(bdd_one(manager), manager);
     for (int iqv = 0; iqv < numVarsToBeQuantified; ++iqv)
     {
-      auto temp = cube;
       auto varIndex = rand() % numVars;
-      cube = bdd_cube_union(manager, cube, bdd_new_var_with_index(manager, varIndex));
-      bdd_free(manager, temp);
+      cube = cube.cubeUnion(BddWrapper(bdd_new_var_with_index(manager, varIndex), manager));
     }
 
-    auto manualResult = bdd_and_exists_multi(manager, funcs, cube, 100*100);
+    BddWrapper manualConjunction(bdd_one(manager), manager);
+    for (const auto & f: funcs)
+      manualConjunction = manualConjunction * f;
+    auto manualResult = manualConjunction.existentialQuantification(cube);
 
-    std::vector<bdd_ptr> fvec(funcs.cbegin(), funcs.cend());
+    std::vector<BddWrapper> fvec(funcs.cbegin(), funcs.cend());
     auto varScoreResultVec = var_score::VarScoreQuantification::varScoreQuantification(fvec, cube, manager, maxBddSize, var_score::ApproximationMethod::createExact());
-    std::set<bdd_ptr> varScoreResultSet(varScoreResultVec.cbegin(), varScoreResultVec.cend());
-    auto varScoreResult = bdd_and_multi(manager, varScoreResultSet, 100*1000);
+    BddWrapper varScoreResult(bdd_one(manager), manager);
+    for (const auto & vsr: varScoreResultVec)
+      varScoreResult = vsr * varScoreResult;
 
 
     assert(varScoreResult == manualResult);
 
-    for (auto f: funcs)
-      bdd_free(manager, f);
-    bdd_free(manager, cube);
-    bdd_free(manager, manualResult);
-    for (auto f: varScoreResultVec)
-      bdd_free(manager, f);
-    bdd_free(manager, varScoreResult);
   }
-  for (auto v: vars)
-    bdd_free(manager, v);
 }
 
 
