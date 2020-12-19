@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace dd
 {
-
   BddWrapper::BddWrapper(bdd_ptr myBdd, DdManager * manager) :
     m_bdd(myBdd),
     m_manager(manager)
@@ -144,5 +143,41 @@ namespace dd
     return result;
   }
 
+
+
+
+
+
+  BddVectorWrapper::BddVectorWrapper(DdManager * manager):
+    m_vector(),
+    m_manager(manager)
+  { }
+
+  BddVectorWrapper::BddVectorWrapper(const std::vector<bdd_ptr> & bddVector,
+      DdManager * manager):
+    m_vector(bddVector),
+    m_manager(manager)
+  { }
+
+  BddVectorWrapper::BddVectorWrapper(const BddVectorWrapper& that):
+    m_vector(that.m_vector),
+    m_manager(that.m_manager)
+  {
+    for (auto p: m_vector)
+      bdd_dup(p);
+  }
+
+  BddVectorWrapper & BddVectorWrapper::operator = (BddVectorWrapper & that)
+  {
+    while(!m_vector.empty())
+    {
+      bdd_free(m_manager, m_vector.back());
+      m_vector.pop_back();
+    }
+    m_manager = that.m_manager;
+    for (auto p: that.m_vector)
+      m_vector.push_back(bdd_dup(p));
+    return *this;
+  }
 
 } // end namespace dd

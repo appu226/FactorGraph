@@ -71,6 +71,7 @@ namespace dd
       bool operator == (const BddWrapper & that) const { return m_bdd == that.m_bdd; }
       bool operator != (const BddWrapper & that) const { return m_bdd != that.m_bdd; }
 
+
     private:
       bdd_ptr m_bdd;
       DdManager * m_manager;
@@ -82,16 +83,11 @@ namespace dd
   class BddVectorWrapper
   {
     public:
-      BddVectorWrapper(DdManager * manager):
-        m_vector(),
-        m_manager(manager)
-      { }
-
+      BddVectorWrapper(DdManager * manager);
       BddVectorWrapper(const std::vector<bdd_ptr> & bddVector,
-                       DdManager * manager):
-        m_vector(bddVector),
-        m_manager(manager)
-      { }
+                       DdManager * manager);
+      BddVectorWrapper(const BddVectorWrapper& that);
+      BddVectorWrapper & operator = (BddVectorWrapper & that);
 
       std::vector<bdd_ptr> const & operator * () const { return m_vector; }
       std::vector<bdd_ptr>       & operator * ()       { return m_vector; }
