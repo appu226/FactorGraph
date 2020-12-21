@@ -1,0 +1,114 @@
+#################################################################################
+## Run the VarScore algorithm to search for parseable but unsolveable problems ##
+#################################################################################
+
+
+Table of contents
+   1. Objective
+   2. Experimental setup
+   3. How to run
+   4. Results
+   5. Conclusions
+   6. References
+
+
+
+
+1. Objective
+   The factor graph algorithm can be used to obtain an over-approximation of a problem of the form
+      \exists Q [ \and_i F_i ]
+   where the variables Q are being existintially quantified from the conjunction of a set of factors F_i.
+   The "VarScore" algorithm from [Chauhan-2001] provides an exact solution for the same problem,
+     but risks running out of memory when faced with large BDDs.
+   We propose a hybrid approach where the VarScore algorithm (or in general, any exact algorithm)
+     may be enhanced with the factor graph algorithm to compute over-approximations to memory intensive 
+     sub-steps of the exact algorithm.
+   In this experiment, we compare the following three approaches:
+     - Full exact computation
+     - Use factor graph approximation when estimated BDD size is above a threshold
+     - "Push the quantifier into the conjunction", 
+        i.e., replace:
+           \exists q [ \and_i f_i ]
+        with:
+           \and_i [ \exists q f_i ]
+        to compute another over approximation for sub-problems whose estimated BDD size is above a threshold
+
+   And the objective is to compare the run time, memory utilization, and accuracy of results, across the three methods.
+
+
+
+
+2. Experimental setup
+   We implemented the naive "VarScore" algorithm from [Chauhan-2001], which forms our "exact" solution.
+   When computing a sub problem of the form
+       \exists q [ \and_i f_i ]
+     we check the estimated BDD size of the sub result, and if the result is above a threshold, we use an approximation algorithm.
+   There are two approximation algorithms:
+     - "early_quantification": 
+       We replace: 
+           \exists q [ \and_i f_i ]
+        with:
+           \and_i [ \exists q f_i ]
+     - "factor_graph":
+       For each f_i, 
+         we look at the support set s_i,
+         and replace all variables that are not q with unique dummy variables.
+       From these factors, we create a factor graph.
+       We also add other factors from the original problem into the factor graph.
+       We add "equality factors" that assert the equality of original variables and their corresponding dummy variables.
+       We group the dummy variables for each factor, such that it is ensured that there is a message at least as tight as
+           \exists q f_i
+       for each i.
+       We collect the incoming messages into each of these dummy-variable functions, 
+         and replace the dummy variables with the corresponding original variables.
+       We reomove the f_i from the original problem, and add back in the messages thus collected.
+
+
+   The various files/folders are as follows:
+     - collect_test_cases.sh: a script to list all the test cases
+     - run_all_test_cases.sh: a script to loop over all the test cases and run them
+     - run_one_test_case.sh: a script to run a single test case
+                             It was deliberately separated out of run_all_test_cases.sh so that one can run a single test case.
+                             Note that run_one_test_case.sh maintains a "completed_list.txt" so that tests cases that were finished earlier are not run again.
+                             The idea behind this was that you can kill run_all_test_cases.sh in the middle of a run, and when you start it again, it will pick up from the test case where it left off.
+                             If you want to remove all history then delete the results folder.
+     - results/: a folder with the log files of all the previous runs
+                 It also contains a completed_list.txt that lists the cases that have completed.
+                 This list is used for skipping previously completed cases (see run_one_test_case.sh).
+     - results.tgz: a zipped archive of a snapshot run stored in git
+     - README: this file
+
+
+
+
+3. How to run
+   CD into the high level project directory and run 
+     experiments/var_score/compare_3_methods/run_all_test_cases.sh
+   The script was designed to continue from where it left off, so if you want to force a run of all cases, then you need to delete the results directory.
+   The scripts assume a bunch of .blif files present at a specific path relative to the invocation directory.
+   The timeout can be configured in run_all_test_cases.sh
+
+
+
+
+4. Results
+   The log files from a snapshot run are checked into git inside results.tgz.
+   The full run could not be completed, but the results were enough to form the conclusions.
+
+
+
+5. Conclusion
+   In particular, take a look at s382.blif.log, s208.blif.log and b10.blif.log.
+   It seems that the factor graph algorithm:
+     - takes longer
+     - sometimes doesn't finish
+     - gives exactly the same results as the "early_quantification" algorithm.
+   The last point is theoritically indeed possible, but practically quite surprising,
+     because we were instead expecting the "factor_graph" algorithm to give better (more tighter)
+     results compared to the "early quantification" algorithm.
+   The next step would be to investigate the results more closely to see why this is happening.
+
+
+6. References:
+   6.1. [Chauhan-2001]: Pankaj Chauhan, Edmund Clarke, Somesh Jha, Jim Kukula, Tom Shiple, Helmut Veith, Dong Wang. Non-linear Quantification Scheduling in Image Computation. ICCAD, 2001.
+
