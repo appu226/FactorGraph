@@ -122,6 +122,11 @@ namespace dd
     return bdd_dup(m_bdd);
   }
 
+  DdManager * BddWrapper::getManager() const
+  {
+    return m_manager;
+  }
+
   bool BddWrapper::operator <(const BddWrapper & that) const
   {
     return m_bdd < that.m_bdd;

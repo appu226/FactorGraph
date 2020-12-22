@@ -3,8 +3,8 @@ LFLAGS_dd = ${EXPORT_LFLAGS_cudd}
 
 all : 			libDd.so
 
-libDd.so :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o bdd_factory.o
-			${CC} ${CC_LINK_FLAGS} -shared -o libDd.so dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o bdd_factory.o
+libDd.so :	dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o bdd_factory.o dotty.o
+			${CC} ${CC_LINK_FLAGS} -shared -o libDd.so dd.o bnet.o ntr.o ntrHeap.o ntrMflow.o cuddAndAbsMulti.o bdd_partition.o bdd_factory.o dotty.o
 	
 dd.o :			dd.cpp dd.h bnet.h ntr.h cuddAndAbsMulti.h
 			${CC} ${CC_FLAGS} ${IFLAGS_dd} dd.cpp -o dd.o
@@ -27,8 +27,11 @@ bdd_partition.o : bdd_partition.cpp bdd_partition.h dd.h
 cuddAndAbsMulti.o : cuddAndAbsMulti.cpp cuddAndAbsMulti.h lru_cache.h optional.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} cuddAndAbsMulti.cpp -o cuddAndAbsMulti.o
 
-bdd_factory.o : bdd_factory.cpp bdd_factory.h
+bdd_factory.o : bdd_factory.cpp bdd_factory.h dd.h
 	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} bdd_factory.cpp -o bdd_factory.o
+
+dotty.o : dd.h bdd_factory.h dotty.h dotty.cpp
+	    ${CC} ${CC_FLAGS} ${IFLAGS_dd} dotty.cpp -o dotty.o
 
 tags : 			*.cpp *.h
 			touch tag

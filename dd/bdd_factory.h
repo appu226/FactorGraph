@@ -63,6 +63,7 @@ namespace dd
 
       bdd_ptr getUncountedBdd() const;
       bdd_ptr getCountedBdd() const;
+      DdManager * getManager() const;
 
       static std::vector<BddWrapper> fromVector(const std::vector<bdd_ptr>& bddVec, DdManager * manager);
       static std::set<BddWrapper> fromSet(const std::set<bdd_ptr> & bddSet, DdManager * manager);
