@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include <string>
 #include <map>
+#include <iostream>
 
 
 
@@ -55,7 +56,7 @@ namespace dd {
       void setEdgeLabel(const BddWrapper & factor, const BddWrapper & variable, const std::string & label);
       void setEdgeAttributes(const BddWrapper & factor, const BddWrapper & variable, const std::string & attributes);
 
-      void writeToDottyFile(const std::string & dottyFilePath) const;
+      void writeToDottyFile(std::ostream & stream) const;
 
    private:
 

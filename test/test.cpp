@@ -30,6 +30,7 @@ SOFTWARE.
 #include <lru_cache.h>
 #include <max_heap.h>
 #include <clo.hpp>
+#include <dotty.h>
 
 #include <memory>
 #include <vector>
@@ -54,6 +55,7 @@ void testMaxHeap();
 void testClo();
 void testVarScoreQuantificationAlgo(DdManager * manager);
 void testVarScoreFactorGraphInternals(DdManager * manager);
+void testDotty(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -77,6 +79,7 @@ int main()
     testVarScoreQuantificationUtils(manager);
     testVarScoreQuantificationAlgo(manager);
     testVarScoreFactorGraphInternals(manager);
+    testDotty(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -87,6 +90,83 @@ int main()
     std::cout << "[ERROR] " << e.what() << std::endl;
     return -1;
   }
+}
+
+
+void testDotty(DdManager * manager)
+{
+  std::vector<dd::BddWrapper> v;
+  for (int i = 0; i < 10; ++i)
+    v.push_back(dd::BddWrapper(bdd_new_var_with_index(manager, i), manager));
+  
+  //  f3  f4 -- f5 -- f6    f0
+  //    \  |         
+  // f1-- f2    f7 -- f8 -- f9
+  //
+  // f0 = v9
+  // f1 = v0 . v1
+  // f2 = v1.v2 + v1.v3
+  // f3 = v2 + !v3
+  // f4 = !v1 + v2.v4
+  // f5 = v4 + !v5
+  // f6 = v5
+  //
+  // f7 = v6 + v7
+  // f8 = v7 . !v8
+  // f9 = v8
+
+  dd::BddWrapper f0 = v[9];
+  dd::BddWrapper f1 = v[0] * v[1];
+  dd::BddWrapper f2 = v[1] * v[2] + v[1] * v[3];
+  dd::BddWrapper f3 = v[2] + (-v[3]);
+  dd::BddWrapper f4 = (-v[1]) + v[2] * v[4];
+  dd::BddWrapper f5 = v[4] + (-v[5]);
+  dd::BddWrapper f6 = v[5];
+  dd::BddWrapper f7 = v[6] + v[7];
+  dd::BddWrapper f8 = v[7] + (-v[8]);
+  dd::BddWrapper f9 = v[8];
+
+  dd::Dotty dotty;
+  auto addFactor = 
+    [&](const dd::BddWrapper & f, const std::string & label) {
+      dotty.addFactor(f, false);
+      dotty.setFactorLabel(f, label);
+    };
+  addFactor(f0, "f0");
+  addFactor(f1, "f1");
+  addFactor(f2, "f2");
+  addFactor(f3, "f3");
+  addFactor(f4, "f4");
+  addFactor(f5, "f5");
+  addFactor(f6, "f6");
+  addFactor(f7, "f7");
+  addFactor(f8, "f8");
+  addFactor(f9, "f9");
+
+  auto addVariable =
+    [&](const dd::BddWrapper & v, const std::string & label) {
+      dotty.addVariable(v, true);
+      dotty.setVariableLabel(v, label);
+    };
+  addVariable(v[0], "v0");
+  addVariable(v[1], "v1");
+  addVariable(v[2], "v2");
+  addVariable(v[3], "v3");
+  addVariable(v[4], "v4");
+  addVariable(v[5], "v5");
+  addVariable(v[6], "v6");
+  addVariable(v[7], "v7");
+  addVariable(v[8], "v8");
+  addVariable(v[9], "v9");
+
+  std::stringstream ss;
+  dotty.writeToDottyFile(ss);
+  std::string result = ss.str();
+  assert(result.find("f2 [shape=box]") != std::string::npos);
+  assert(result.find("v3 [shape=ellipse]") != std::string::npos);
+  assert(result.find("f7 -- v6") != std::string::npos);
+  assert(result.find("f3 -- v0") == std::string::npos);
+
 }
 
 

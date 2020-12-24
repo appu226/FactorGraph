@@ -111,9 +111,48 @@ namespace dd
     m_edges[std::make_pair(factor, variable)].label = label;
   }
 
+  void Dotty::writeToDottyFile(std::ostream & stream) const
+  {
+    stream << "graph FactorGraph {\n";
+    {
+      for (const auto & factorProperties : m_factors)
+      {
+        const auto & properties = factorProperties.second;
+        std::string attributes = "shape=box";
+        if (!properties.attributes.empty())
+          attributes.append(" ").append(properties.attributes);
+        stream << "  " << properties.label << " [" << attributes << "];\n";
+      }
 
+      for (const auto & variableProperties : m_variables)
+      {
+        const auto & properties = variableProperties.second;
+        std::string attributes = "shape=ellipse";
+        if (!properties.attributes.empty())
+          attributes.append(" ").append(properties.attributes);
+        stream << "  " << properties.label << " [" << attributes << "];\n";
+      }
 
-
+      for (const auto & edgeProperties : m_edges)
+      {
+        const auto & factor = edgeProperties.first.first;
+        const auto & variable = edgeProperties.first.second;
+        const auto & properties = edgeProperties.second;
+        std::string attributes;
+        if (!properties.label.empty())
+          attributes.append("label=").append(properties.label);
+        if (!properties.attributes.empty())
+          attributes.append(" ").append(properties.attributes);
+        const auto & factorLabel = m_factors.at(factor).label;
+        const auto & variableLabel = m_variables.at(variable).label;
+        stream << "  " << factorLabel << " -- " << variableLabel;
+        if (!attributes.empty())
+          stream << " [" << attributes << "]";
+        stream << ";\n";
+      }
+    }
+    stream << "}\n";
+  }
 
 
 
