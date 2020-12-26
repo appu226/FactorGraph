@@ -56,7 +56,7 @@ namespace dd
         auto commonSup = fsup.cubeIntersection(var);
         if (!bdd_is_one(commonSup.getManager(), commonSup.getUncountedBdd()))
         {
-          m_edges[std::make_pair(factor, var)];
+          addEdge(factor, var);
         }
       }
     }
@@ -72,14 +72,14 @@ namespace dd
         auto factor = kv.first;
         auto commonSup = variable.cubeIntersection(factor.support());
         if (!bdd_is_one(commonSup.getManager(), commonSup.getUncountedBdd()))
-          m_edges[std::make_pair(factor, variable)];
+          addEdge(factor, variable);
       }
     }
   }
 
   void Dotty::addEdge(const BddWrapper & factor, const BddWrapper & variable)
   {
-    m_edges[std::make_pair(factor, variable)];
+    m_edges[std::make_pair(factor, variable)].attributes = "color=grey";
   }
 
   void Dotty::setFactorAttributes(const BddWrapper & factor, const std::string & attributes)
@@ -114,7 +114,7 @@ namespace dd
 
   void Dotty::writeToDottyFile(std::ostream & stream) const
   {
-    stream << "graph FactorGraph {\n";
+    stream << "graph " << m_graphName << " {\n";
     {
       for (const auto & factorProperties : m_factors)
       {

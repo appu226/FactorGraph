@@ -44,6 +44,13 @@ namespace dd {
 
     public:
 
+      Dotty(const std::string & graphName = "FactorGraph") :
+        m_graphName(graphName),
+        m_factors(),
+        m_variables(),
+        m_edges()
+      {};
+
       void addFactor(const BddWrapper & factor, bool addEdges);
       void setFactorLabel(const BddWrapper & factor, const std::string & label);
       void setFactorAttributes(const BddWrapper & factor, const std::string & attributes);
@@ -65,6 +72,7 @@ namespace dd {
         std::string attributes;
       };
 
+      std::string m_graphName;
       std::map<BddWrapper, Properties> m_factors;
       std::map<BddWrapper, Properties> m_variables;
       std::map<std::pair<BddWrapper, BddWrapper>, Properties> m_edges;

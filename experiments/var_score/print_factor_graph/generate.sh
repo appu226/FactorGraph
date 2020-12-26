@@ -6,4 +6,4 @@ var_score/var_score --blif ../../data_sets/all_blifs/s400.blif --verbosity INFO 
 var_score/var_score --blif ../../data_sets/all_blifs/b10.blif  --verbosity INFO --approximationMethod factor_graph --maxBddSize 10000 --mustCountNumSolutions 1 --dottyFilePrefix ${result_dir}/b10
 var_score/var_score --blif ../../data_sets/all_blifs/s208.blif --verbosity INFO --approximationMethod factor_graph --maxBddSize 100   --mustCountNumSolutions 1 --dottyFilePrefix ${result_dir}/s208
 sfdp -Grepulsiveforce=10 -Tsvg -O ${result_dir}/*.dot
-rm experiments/var_score/print_factor_graph/results/*.dot
+rm ${result_dir}/*.dot

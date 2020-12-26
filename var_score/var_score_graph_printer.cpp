@@ -71,6 +71,7 @@ namespace {
         std::ofstream fout(fullFileName);
         blif_solve_log(INFO, "Writing var_score graphs to " << fullFileName);
         writeFirstGraph(Q, originalFactors, fout);
+        writeSecondGraph(Q, newFactors, groupedVariables, fout);
         fout.close();
       }
     private: 
@@ -87,7 +88,7 @@ namespace {
                                   std::ostream & out)
       {
         using namespace dd;
-        Dotty dotty;
+        Dotty dotty("OriginalGraph");
         std::set<BddWrapper> l2Neigh; // Q's level 2 neighbors
                                       // (neighbors of neighbors of Q)
         for (const auto & f: F)
@@ -110,6 +111,64 @@ namespace {
           }
         }
         dotty.setVariableAttributes(Q, "color=red");
+        dotty.writeToDottyFile(out);
+        out << std::endl;
+      }
+
+      static void writeSecondGraph(const dd::BddWrapper & Q,
+                                   const dd::BddVectorWrapper & factors,
+                                   const dd::BddVectorWrapper & groupedVariables,
+                                   std::ostream & out)
+      {
+        using namespace dd;
+        BddWrapper one(bdd_one(Q.getManager()), Q.getManager());
+        Dotty dotty("ModifiedGraph");
+
+        std::set<BddWrapper> addedVars; // set of vars that have already been added to the graph
+
+        // add Q
+        addedVars.insert(Q);
+        dotty.addVariable(Q, false);
+        dotty.setVariableAttributes(Q, "color=red");
+
+        // add all grouped vars
+        for (size_t igv = 0; igv < groupedVariables->size(); ++igv)
+        {
+          BddWrapper gv = groupedVariables.get(igv);
+          dotty.addVariable(gv, false);
+          dotty.setVariableAttributes(gv, "color=purple");
+          while (gv != one)
+          {
+            auto v = gv.varWithLowestIndex();
+            gv = gv.cubeDiff(v);
+            addedVars.insert(v);
+          }
+        }
+
+        // add each factor, and any ungrouped vars
+        for (size_t ifactor = 0; ifactor < factors->size(); ++ifactor)
+        {
+          auto factor = factors.get(ifactor);
+          auto fsup = factor.support();
+          bool isQNeigh = (fsup.cubeIntersection(Q) != one);
+          while (fsup != one)
+          {
+            auto v = fsup.varWithLowestIndex();
+            fsup = fsup.cubeDiff(v);
+            if (!addedVars.count(v))
+            {
+              addedVars.insert(v);
+              dotty.addVariable(v, false);
+              if (isQNeigh)
+                dotty.setVariableAttributes(v, "color=green");
+            }
+          }
+          dotty.addFactor(factor, true);
+          if (isQNeigh)
+            dotty.setFactorAttributes(factor, "color=blue");
+        }
+
+        // write to file
         dotty.writeToDottyFile(out);
         out << std::endl;
       }
