@@ -25,6 +25,7 @@ SOFTWARE.
 #include "dotty.h"
 
 #include <sstream>
+#include <algorithm>
 
 namespace {
 
@@ -32,7 +33,7 @@ namespace {
   {
     std::stringstream ss;
     ss << bdd;
-    return ss.str();
+    return '"' + ss.str() + '"';
   }
 
 } // end anonymous namespace

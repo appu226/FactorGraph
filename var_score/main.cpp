@@ -34,6 +34,7 @@ SOFTWARE.
 
 
 #include "var_score_quantification.h"
+#include "var_score_graph_printer.h"
 
 
 //////////////////
@@ -156,6 +157,7 @@ VarScoreCommandLineOptions
   auto approximationMethod = addCommandLineOption<std::string>(clo, "--approximationMethod", "approximation method (exact / early_quantification / factor_graph)", "exact");
   auto factorGraphMergeSize = addCommandLineOption<int>(clo, "--factorGraphMergeSize", "largest support set allowed the factor graph during merging", 1);
   auto mustCountNumSolutions = addCommandLineOption<bool>(clo, "--mustCountNumSolutions", "count and print the number of satisfying states", false);
+  auto dottyFilePrefix = addCommandLineOption<std::string>(clo, "--dottyFilePrefix", "a path and file prefix for generating intermediate factor graphs", "");
 
 
   parseCommandLineOptions(argc - 1, argv + 1, clo);
@@ -172,6 +174,7 @@ VarScoreCommandLineOptions
   blif_solve_log(DEBUG, "approximation method: " << approximationMethod->getValue());
   blif_solve_log(DEBUG, "factor graph merge size: " << factorGraphMergeSize->getValue());
   blif_solve_log(DEBUG, "must count num solutions: " << mustCountNumSolutions->getValue());
+  blif_solve_log(DEBUG, "dotty file prefix: " << dottyFilePrefix->getValue());
   result.verbosity = verbosity->getValue();
   result.blif = blif->getValue();
   result.maxBddSize = maxBddSize->getValue();
@@ -184,7 +187,16 @@ VarScoreCommandLineOptions
   else if (am == "early_quantification")
     result.approximationMethod = var_score::ApproximationMethod::createEarlyQuantification();
   else if (am == "factor_graph")
-    result.approximationMethod = var_score::ApproximationMethod::createFactorGraph(factorGraphMergeSize->getValue());
+  {
+    auto dfp = dottyFilePrefix->getValue();
+    var_score::GraphPrinter::CPtr graphPrinter;
+    if (dfp.empty())
+      graphPrinter = var_score::GraphPrinter::noneImpl();
+    else
+      graphPrinter = var_score::GraphPrinter::fileDumpImpl(dfp);
+
+    result.approximationMethod = var_score::ApproximationMethod::createFactorGraph(factorGraphMergeSize->getValue(), graphPrinter);
+  }
   else
     throw std::runtime_error("Could not recognise approximation method '" + approximationMethod->getValue() + "'. See --help.");
   return result;

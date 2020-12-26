@@ -251,8 +251,10 @@ namespace {
   {
     public:
 
-      FactorGraphImpl(int largestSupportSet)
-        : m_largestSupportSet(largestSupportSet)
+      FactorGraphImpl(int largestSupportSet,
+                      var_score::GraphPrinter::CPtr const & graphPrinter)
+        : m_largestSupportSet(largestSupportSet),
+          m_graphPrinter(graphPrinter)
       { }
 
       void process(
@@ -292,6 +294,12 @@ namespace {
         blif_solve_log(INFO, "var_score/FactorGraphImpl: factor grpah converged in "
                              << blif_solve::duration(start)
                              << " sec");
+
+        // dump factor graphs for debugging
+        m_graphPrinter->generateGraphs(q,
+                                       factors,
+                                       newFactors,
+                                       varsToBeGrouped);
 
         // remove old factors from vsq
         for (auto const & neigh: qneigh)
@@ -339,6 +347,7 @@ namespace {
 
     private:
       int m_largestSupportSet;
+      var_score::GraphPrinter::CPtr m_graphPrinter;
   };
 
 
@@ -378,9 +387,9 @@ namespace var_score
     return std::make_shared<EarlyQuantificationImpl>();
   }
 
-  ApproximationMethod::CPtr ApproximationMethod::createFactorGraph(int largestSupportSet)
+  ApproximationMethod::CPtr ApproximationMethod::createFactorGraph(int largestSupportSet, GraphPrinter::CPtr const & graphPrinter)
   {
-    return std::make_shared<FactorGraphImpl>(largestSupportSet);
+    return std::make_shared<FactorGraphImpl>(largestSupportSet, graphPrinter);
   }
 
   void ApproximationMethod::runUnitTests(DdManager * manager)

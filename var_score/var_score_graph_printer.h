@@ -24,38 +24,23 @@ SOFTWARE.
 
 #pragma once
 
-#include <memory>
-
 #include <bdd_factory.h>
 
-#include "var_score_graph_printer.h"
+#include <memory>
 
-namespace var_score
-{
 
-  class VarScoreQuantification;
-
-  class ApproximationMethod {
+namespace var_score {
+  class GraphPrinter {
     public:
-      typedef dd::BddWrapper BddWrapper;
+      typedef std::shared_ptr<const GraphPrinter> CPtr;
+      virtual void generateGraphs(const dd::BddWrapper & Q,
+                                  const std::vector<dd::BddWrapper> & originalFactors,
+                                  const dd::BddVectorWrapper & newFactors,
+                                  const dd::BddVectorWrapper & groupedVariables
+                                 ) const = 0;
 
-      typedef std::shared_ptr<ApproximationMethod const> CPtr;
-
-      static CPtr createExact();
-      static CPtr createEarlyQuantification();
-      static CPtr createFactorGraph(int largestSupportSet, GraphPrinter::CPtr const & graphPrinter);
-
-      virtual void process(
-          BddWrapper const & q, 
-          BddWrapper const & f1, 
-          BddWrapper const & f2, 
-          var_score::VarScoreQuantification & vsq,
-          DdManager * manager) const = 0;
-
-      // unit test internal functionality
-      static void runUnitTests(DdManager * manager);
-
+      static CPtr noneImpl();
+      static CPtr fileDumpImpl(const std::string & outputFilePrefix);
+      virtual ~GraphPrinter() {}
   };
-
-
-} // end namespace var_score
+}
