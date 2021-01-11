@@ -33,6 +33,7 @@ namespace blif_solve {
 
   class ICommandLineOption {
     public:
+      virtual ~ICommandLineOption() {}
       virtual std::string getName() const = 0;
       virtual std::string getHelp() const = 0;
       virtual bool tryParse(int & numRemainingArgs, char const * const * & currentArg) = 0;

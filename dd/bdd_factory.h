@@ -56,10 +56,15 @@ namespace dd
       BddWrapper cubeDiff(const BddWrapper & that) const;
 
       BddWrapper support() const;
+      long double countMinterms(int numVars = -1) const;
 
       BddWrapper existentialQuantification(const BddWrapper & variables) const;
 
       BddWrapper varWithLowestIndex() const;
+      BddWrapper one() const;
+      BddWrapper zero() const;
+      bool isOne() const;
+      bool isZero() const;
 
       bdd_ptr getUncountedBdd() const;
       bdd_ptr getCountedBdd() const;

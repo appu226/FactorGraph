@@ -87,6 +87,22 @@ namespace dd
     return BddWrapper(bdd_support(m_manager, m_bdd), m_manager);
   }
 
+  long double BddWrapper::countMinterms(int numVars) const
+  {
+    if (numVars <= 0)
+    {
+      numVars = 0;
+      auto sup = support();
+      BddWrapper one(bdd_one(m_manager), m_manager);
+      while (sup != one)
+      {
+        ++numVars;
+        sup = sup.cubeDiff(sup.varWithLowestIndex());
+      }
+    }
+    return bdd_count_minterm(m_manager, m_bdd, numVars);
+  }
+
   BddWrapper BddWrapper::cubeIntersection(const BddWrapper & that) const
   {
     return BddWrapper(bdd_cube_intersection(m_manager, m_bdd, that.m_bdd), m_manager);
@@ -110,6 +126,26 @@ namespace dd
   BddWrapper BddWrapper::varWithLowestIndex() const
   {
     return BddWrapper(bdd_new_var_with_index(m_manager, bdd_get_lowest_index(m_manager, getUncountedBdd())), m_manager);
+  }
+
+  BddWrapper BddWrapper::one() const
+  {
+    return BddWrapper(bdd_one(m_manager), m_manager);
+  }
+
+  BddWrapper BddWrapper::zero() const
+  {
+    return BddWrapper(bdd_zero(m_manager), m_manager);
+  }
+
+  bool BddWrapper::isOne() const
+  {
+    return bdd_is_one(m_manager, m_bdd);
+  }
+
+  bool BddWrapper::isZero() const
+  {
+    return bdd_is_zero(m_manager, m_bdd);
   }
 
   bdd_ptr BddWrapper::getUncountedBdd() const

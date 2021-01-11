@@ -27,10 +27,11 @@ SOFTWARE.
 
 #include <log.h>
 #include <approx_merge.h>
-#include <factor_graph.h>
+#include <fgpp.h>
 
 #include <algorithm>
 #include <sstream>
+#include <cassert>
 
 namespace {
   
@@ -269,6 +270,22 @@ namespace {
         // and equality factors
         auto start = blif_solve::now();
         auto qneigh = vsq.neighboringFactors(q);
+
+#if 0
+        auto exactAns = BddWrapper(bdd_one(q.getManager()), q.getManager());
+        auto earlyQuantificationAns = exactAns;
+        std::set<BddWrapper> neighborsWithQRemoved;
+        for (const auto & qn: qneigh)
+        {
+          //exactAns = exactAns * qn;
+          auto n = qn.existentialQuantification(q);
+          neighborsWithQRemoved.insert(n);
+          blif_solve_log(INFO, "neighbor " << qn.getUncountedBdd() << " has " << n.countMinterms() << " minterms once q is quantified out.");
+          earlyQuantificationAns = earlyQuantificationAns * n;
+        }
+        exactAns = exactAns.existentialQuantification(q);
+#endif
+
         auto factors = vsq.getFactorCopies();
         FactorGraphModifier fgm(manager, q, findLargestIndex(factors, manager));
         for (auto factor: factors)
@@ -281,17 +298,22 @@ namespace {
         }
         auto newFactors = fgm.getNewFactors();
         auto varsToBeGrouped = fgm.getVarsToBeGrouped();
-        auto fg = factor_graph_new(manager, &newFactors->front(), newFactors->size());
+        std::vector<BddWrapper> newFactorVec;
+        for (size_t fidx = 0; fidx < newFactors->size(); ++fidx)
+          newFactorVec.push_back(newFactors.get(fidx));
+        auto fg = fgpp::FactorGraph::createFactorGraph(newFactorVec);
         for (auto vtbg: *varsToBeGrouped)
-          factor_graph_group_vars(fg, vtbg);
+          fg->groupVariables(BddWrapper(bdd_dup(vtbg), manager));
         blif_solve_log(INFO, "var_score/FactorGraphImpl: factor graph created in " 
                              << blif_solve::duration(start) 
                              << " sec");
 
         // run message passing
         start = blif_solve::now();
-        int numIterations = factor_graph_converge(fg);
-        blif_solve_log(INFO, "var_score/FactorGraphImpl: factor grpah converged in "
+        int numIterations = fg->converge();
+        blif_solve_log(INFO, "var_score/FactorGraphImpl: factor grpah converged with "
+                             << numIterations
+                             << " iterations in "
                              << blif_solve::duration(start)
                              << " sec");
 
@@ -308,22 +330,32 @@ namespace {
 
         // collect messages, reverse substitute, and insert into vsq
         std::vector<BddWrapper> messageVec;
+#if 0
+        BddWrapper fgAns = q.one();
+#endif
         for (auto vtbg: *varsToBeGrouped)
         {
-          auto node = factor_graph_get_varnode(fg, vtbg);
           int numMessages;
-          auto messages = factor_graph_incoming_messages(fg, node, &numMessages);
-          for (auto im = 0; im < numMessages; ++im)
+          auto messages = fg->getIncomingMessages(BddWrapper(bdd_dup(vtbg), manager));
+          blif_solve_log(INFO, messages.size() << " messages for " << vtbg);
+          for (auto im = 0; im < messages.size(); ++im)
           {
-            auto finalFactor = fgm.reverseSubstitute(BddWrapper(bdd_dup(messages[im]), manager));
+            auto finalFactor = fgm.reverseSubstitute(messages[im]);
+#if 0
+            if (neighborsWithQRemoved.count(finalFactor) > 0)
+              blif_solve_log(INFO, "message " << im << " is the same as a neighbor with Q removed");
+            blif_solve_log(INFO, "message " << im << " has " << finalFactor.countMinterms() << " minterms");
+            fgAns = fgAns * finalFactor;
+#endif
             vsq.addFactor(finalFactor);
-            bdd_free(manager, messages[im]);
           }
-          free(messages);
         }
+#if 0
+        blif_solve_log(INFO, "num terms for exact answer           = " << exactAns.countMinterms());
+        blif_solve_log(INFO, "num terms for earlyQuantificationAns = " << earlyQuantificationAns.countMinterms());
+        blif_solve_log(INFO, "num terms for factorGraphAns         = " << fgAns.countMinterms());
+#endif
 
-        // free up stuff
-        factor_graph_delete(fg);
       } // end of FactoGraphImpl::process
 
 

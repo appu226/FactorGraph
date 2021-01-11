@@ -24,40 +24,31 @@ SOFTWARE.
 
 #pragma once
 
+#include <bdd_factory.h>
 #include <memory>
 
-#include <bdd_factory.h>
 
-#include "var_score_graph_printer.h"
-
-namespace var_score
+namespace fgpp
 {
 
-  class VarScoreQuantification;
-
-  class ApproximationMethod {
+  class FactorGraph
+  {
     public:
+      typedef std::shared_ptr<FactorGraph> Ptr;
       typedef dd::BddWrapper BddWrapper;
 
-      typedef std::shared_ptr<ApproximationMethod const> CPtr;
+      virtual void groupVariables(const BddWrapper & variableCube) = 0;
+      virtual std::vector<BddWrapper> getIncomingMessages(const BddWrapper & variableCube) const = 0;
+      virtual int converge() = 0;
 
-      static CPtr createExact();
-      static CPtr createEarlyQuantification();
-      static CPtr createFactorGraph(int largestSupportSet, GraphPrinter::CPtr const & graphPrinter);
+      // static Ptr createLegacyFactorGraph(const std::vector<BddWrapper> & factors);
+      static Ptr createFactorGraph(const std::vector<BddWrapper> & factors);
 
-      virtual void process(
-          BddWrapper const & q, 
-          BddWrapper const & f1, 
-          BddWrapper const & f2, 
-          var_score::VarScoreQuantification & vsq,
-          DdManager * manager) const = 0;
+      virtual ~FactorGraph() {}
 
-      // unit test internal functionality
-      static void runUnitTests(DdManager * manager);
-
-      virtual ~ApproximationMethod() {}
+      static void testFactorGraphImpl(DdManager * manager);
 
   };
 
 
-} // end namespace var_score
+} // end namespace factor_graph

@@ -40,6 +40,7 @@ SOFTWARE.
 #include <stdexcept>
 #include <factor_graph.h>
 #include <bdd_partition.h>
+#include <fgpp.h>
 
 #include "testApproxMerge.h"
 #include "testVarScoreQuantification.h"
@@ -56,6 +57,7 @@ void testClo();
 void testVarScoreQuantificationAlgo(DdManager * manager);
 void testVarScoreFactorGraphInternals(DdManager * manager);
 void testDotty(DdManager * manager);
+void testFactorGraphImpl(DdManager * manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -80,6 +82,7 @@ int main()
     testVarScoreQuantificationAlgo(manager);
     testVarScoreFactorGraphInternals(manager);
     testDotty(manager);
+    testFactorGraphImpl(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -91,6 +94,14 @@ int main()
     return -1;
   }
 }
+
+
+
+void testFactorGraphImpl(DdManager * manager)
+{
+  fgpp::FactorGraph::testFactorGraphImpl(manager);
+}
+
 
 
 void testDotty(DdManager * manager)

@@ -47,6 +47,8 @@ namespace blif_solve {
       static Cptr createFalse();
       static Cptr createClippingAndAbstract(int clippingDepth, bool isClippingOverApproximated);
 
+      virtual ~BlifSolveMethod() {}
+
   }; // end class BlifSolveMethod
 
   typedef BlifSolveMethod::Cptr BlifSolveMethodCptr;

@@ -3,12 +3,14 @@ LFLAGS_factor_graph = ${EXPORT_LFLAGS_dd}
 
 all : 			libFactorGraph.so
 
-libFactorGraph.so :	factor_graph.o hash_table.o qbf.o srt.o ${EXPORT_ARTIFACTS_dd}
-			${CC} ${CC_LINK_FLAGS} -o libFactorGraph.so factor_graph.o hash_table.o qbf.o srt.o
+libFactorGraph.so :	factor_graph.o hash_table.o qbf.o srt.o fgpp.o ${EXPORT_ARTIFACTS_dd}
+			${CC} ${CC_LINK_FLAGS} -o libFactorGraph.so factor_graph.o hash_table.o qbf.o srt.o fgpp.o
 	
 factor_graph.o :	factor_graph.cpp factor_graph.h ${EXPORT_ARTIFACTS_dd}
 			${CC} ${CC_FLAGS} ${IFLAGS_factor_graph} factor_graph.cpp -o factor_graph.o
 
+fgpp.o: fgpp.cpp fgpp.h ${EXPORT_ARTIFACTS_dd}
+	    ${CC} ${CC_FLAGS} ${IFLAGS_factor_graph} fgpp.cpp -o fgpp.o
 
 hash_table.o :		hash_table.cpp hash_table.h factor_graph.h ${EXPORT_ARTIFACTS_dd}
 			${CC} ${CC_FLAGS} ${IFLAGS_factor_graph} hash_table.cpp -o hash_table.o
