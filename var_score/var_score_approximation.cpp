@@ -38,6 +38,23 @@ namespace {
   using dd::BddWrapper;
   using dd::BddVectorWrapper;
 
+  std::string printSupportSet(const BddWrapper & bdd)
+  {
+    auto support = bdd.support(), one = bdd.one();
+    std::stringstream out;
+    out << "{";
+    while (support != one)
+    {
+      auto next = support.varWithLowestIndex();
+      out << " " << next.getIndex();
+      support = support.cubeDiff(next);
+      if (support != one) 
+        out << ",";
+    }
+    out << " }";
+    return out.str();
+  }
+
   class ExactImpl : public var_score::ApproximationMethod
   {
     public:
@@ -153,6 +170,7 @@ namespace {
         BddVectorWrapper varsToSubstituteWith(m_manager);
         BddWrapper one(bdd_one(m_manager), m_manager);
         m_varsToBeGrouped.push_back(one);
+        auto lastIndex = m_varsToBeGrouped->size() - 1;
         BddWrapper equalityFactor = one;
         BddWrapper nfSup = factor.support();
         while (nfSup != one)
@@ -167,14 +185,21 @@ namespace {
 
           // get a unique dummy var for "nextVar"
           auto newDummyVar = getNewDummyVar(nextVar);
+#ifdef DEBUG_VAR_SCORE
+          std::cout << "Replacing var " << nextVar.getIndex() << " with " << newDummyVar.dummyVar.getIndex() << "\n";
+#endif
           varsToBeSubstituted.push_back(nextVar);
           varsToSubstituteWith.push_back(newDummyVar.dummyVar);
           m_origVars.push_back(nextVar);
           m_newVars.push_back(newDummyVar.dummyVar);
-          auto lastIndex = m_varsToBeGrouped->size() - 1;
           m_varsToBeGrouped.set(lastIndex, m_varsToBeGrouped.get(lastIndex) * newDummyVar.dummyVar);
           equalityFactor = equalityFactor * newDummyVar.equalityFactor;
         }
+#ifdef DEBUG_VAR_SCORE
+        std::cout << "Marking following vars to be grouped: ";
+        printSupportSet(m_varsToBeGrouped.get(lastIndex));
+        std::cout << "\n";
+#endif
         BddWrapper newFactor(
             bdd_substitute_vars(
               m_manager, 
@@ -183,6 +208,16 @@ namespace {
               &(varsToSubstituteWith->front()), 
               varsToBeSubstituted->size()),
             m_manager);
+
+#ifdef DEBUG_VAR_SCORE
+        std::cout << "replacing factor " << factor.getUncountedBdd() 
+                 << " with new factor " << newFactor.getUncountedBdd() << " ";
+        printSupportSet(newFactor);
+        std::cout << "\nadding equality factor " << equalityFactor.getUncountedBdd() << " ";
+        printSupportSet(equalityFactor);
+        std::cout << "\n";
+#endif
+    
         m_newFactors.push_back(newFactor);
         m_newFactors.push_back(equalityFactor);
       }
@@ -271,7 +306,8 @@ namespace {
         auto start = blif_solve::now();
         auto qneigh = vsq.neighboringFactors(q);
 
-#if 0
+#ifdef DEBUG_VAR_SCORE
+        vsq.printState();
         auto exactAns = BddWrapper(bdd_one(q.getManager()), q.getManager());
         auto earlyQuantificationAns = exactAns;
         std::set<BddWrapper> neighborsWithQRemoved;
@@ -330,27 +366,30 @@ namespace {
 
         // collect messages, reverse substitute, and insert into vsq
         std::vector<BddWrapper> messageVec;
-#if 0
+#ifdef DEBUG_VAR_SCORE
         BddWrapper fgAns = q.one();
 #endif
         for (auto vtbg: *varsToBeGrouped)
         {
           int numMessages;
           auto messages = fg->getIncomingMessages(BddWrapper(bdd_dup(vtbg), manager));
+#ifdef DEBUG_VAR_SCORE
           blif_solve_log(INFO, messages.size() << " messages for " << vtbg);
+#endif
           for (auto im = 0; im < messages.size(); ++im)
           {
             auto finalFactor = fgm.reverseSubstitute(messages[im]);
-#if 0
+#ifdef DEBUG_VAR_SCORE
             if (neighborsWithQRemoved.count(finalFactor) > 0)
               blif_solve_log(INFO, "message " << im << " is the same as a neighbor with Q removed");
             blif_solve_log(INFO, "message " << im << " has " << finalFactor.countMinterms() << " minterms");
+            blif_solve_log(INFO, "message " << im << " has support set " << printSupportSet(finalFactor));
             fgAns = fgAns * finalFactor;
 #endif
             vsq.addFactor(finalFactor);
           }
         }
-#if 0
+#ifdef DEBUG_VAR_SCORE
         blif_solve_log(INFO, "num terms for exact answer           = " << exactAns.countMinterms());
         blif_solve_log(INFO, "num terms for earlyQuantificationAns = " << earlyQuantificationAns.countMinterms());
         blif_solve_log(INFO, "num terms for factorGraphAns         = " << fgAns.countMinterms());

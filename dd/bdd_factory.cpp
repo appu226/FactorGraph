@@ -148,6 +148,11 @@ namespace dd
     return bdd_is_zero(m_manager, m_bdd);
   }
 
+  int BddWrapper::getIndex() const
+  {
+    return bdd_get_lowest_index(m_manager, getUncountedBdd());
+  }
+
   bdd_ptr BddWrapper::getUncountedBdd() const
   {
     return m_bdd;

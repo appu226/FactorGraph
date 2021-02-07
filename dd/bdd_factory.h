@@ -65,6 +65,7 @@ namespace dd
       BddWrapper zero() const;
       bool isOne() const;
       bool isZero() const;
+      int getIndex() const;
 
       bdd_ptr getUncountedBdd() const;
       bdd_ptr getCountedBdd() const;

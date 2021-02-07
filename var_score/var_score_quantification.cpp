@@ -43,6 +43,23 @@ namespace {
 
   double getBddSize(DdManager* manager, const dd::BddWrapper & b1, const dd::BddWrapper & b2);
 
+  std::string printSupportSet(const dd::BddWrapper & bdd)
+  {
+    auto support = bdd.support(), one = bdd.one();
+    std::stringstream out;
+    out << "{";
+    while (support != one)
+    {
+      auto next = support.varWithLowestIndex();
+      out << " " << next.getIndex();
+      support = support.cubeDiff(next);
+      if (support != one) 
+        out << ",";
+    }
+    out << " }";
+    return out.str();
+  }
+
 } // end anonymous namespace
 
 
@@ -307,23 +324,23 @@ namespace var_score {
 
   void VarScoreQuantification::printState() const
   {
-    std::cout << "\n\n======\nFactors:\n\n" << std::endl;
+    std::cout << "\n======\nFactors:\n";
     for (const auto & f: m_factors)
     {
-      bdd_print_minterms(m_ddm, f.getUncountedBdd());
-      std::cout << "\n\n" << std::endl;
+      std::cout << f.getUncountedBdd() << " " << printSupportSet(f) << "\n";
     }
 
-    std::cout << "\n\n=====\nVariables:\n\n" << std::endl;
+    std::cout << "\nVariables:\n" << std::endl;
     for (const auto & vxfs: m_vars)
     {
-      std::cout << "\nvar:\n" << std::endl;
-      bdd_print_minterms(m_ddm, vxfs.first.getUncountedBdd());
-      std::cout << "\n\nfuncs:\n" << std::endl;
+      std::cout << "var: " << vxfs.first.getUncountedBdd() 
+                << " " << printSupportSet(vxfs.first)
+                << "\nfuncs:\n";
       for (const auto & f: vxfs.second)
       {
-        bdd_print_minterms(m_ddm, f.getUncountedBdd());
-        std::cout << "\n\n" << std::endl;
+        std::cout << "    " << f.getUncountedBdd() 
+                  << " " << printSupportSet(f) 
+                  << "\n";
       }
     }
   }
