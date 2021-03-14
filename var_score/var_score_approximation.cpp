@@ -132,7 +132,7 @@ namespace {
         m_idx(greatestIndex),
         m_map(),
         m_newFactors(manager),
-        m_varsToBeGrouped(manager),
+        m_varsToBeProjectedOn(manager),
         m_origVars(manager),
         m_newVars(manager)
       { }
@@ -169,8 +169,8 @@ namespace {
         BddVectorWrapper varsToBeSubstituted(m_manager);
         BddVectorWrapper varsToSubstituteWith(m_manager);
         BddWrapper one(bdd_one(m_manager), m_manager);
-        m_varsToBeGrouped.push_back(one);
-        auto lastIndex = m_varsToBeGrouped->size() - 1;
+        m_varsToBeProjectedOn.push_back(one);
+        auto lastIndex = m_varsToBeProjectedOn->size() - 1;
         BddWrapper equalityFactor = one;
         BddWrapper nfSup = factor.support();
         while (nfSup != one)
@@ -192,13 +192,13 @@ namespace {
           varsToSubstituteWith.push_back(newDummyVar.dummyVar);
           m_origVars.push_back(nextVar);
           m_newVars.push_back(newDummyVar.dummyVar);
-          m_varsToBeGrouped.set(lastIndex, m_varsToBeGrouped.get(lastIndex) * newDummyVar.dummyVar);
+          m_varsToBeProjectedOn.set(lastIndex, m_varsToBeProjectedOn.get(lastIndex) * newDummyVar.dummyVar);
           equalityFactor = equalityFactor * newDummyVar.equalityFactor;
         }
 #ifdef DEBUG_VAR_SCORE
-        std::cout << "Marking following vars to be grouped: ";
-        printSupportSet(m_varsToBeGrouped.get(lastIndex));
-        std::cout << "\n";
+        std::cout << "Marking following vars to be grouped: "
+                  << printSupportSet(m_varsToBeProjectedOn.get(lastIndex))
+                  << "\n";
 #endif
         BddWrapper newFactor(
             bdd_substitute_vars(
@@ -211,10 +211,10 @@ namespace {
 
 #ifdef DEBUG_VAR_SCORE
         std::cout << "replacing factor " << factor.getUncountedBdd() 
-                 << " with new factor " << newFactor.getUncountedBdd() << " ";
-        printSupportSet(newFactor);
-        std::cout << "\nadding equality factor " << equalityFactor.getUncountedBdd() << " ";
-        printSupportSet(equalityFactor);
+                  << " with new factor " << newFactor.getUncountedBdd() << " "
+                  << printSupportSet(newFactor);
+        std::cout << "\nadding equality factor " << equalityFactor.getUncountedBdd() << " "
+                  << printSupportSet(equalityFactor);
         std::cout << "\n";
 #endif
     
@@ -227,9 +227,27 @@ namespace {
         return m_newFactors;
       }
 
-      BddVectorWrapper const & getVarsToBeGrouped() const
+      BddVectorWrapper const & getVarsToBeProjectedOn() const
       {
-        return m_varsToBeGrouped;
+        return m_varsToBeProjectedOn;
+      }
+
+      BddVectorWrapper getQuantifiedVars() const
+      {
+        BddVectorWrapper result(m_manager);
+        BddWrapper allVariables(bdd_one(m_manager), m_manager);
+        for (int ifactor = 0; ifactor < m_newFactors->size(); ++ifactor)
+          allVariables = allVariables.cubeUnion(m_newFactors.get(ifactor).support());
+        for (int iv = 0; iv < m_varsToBeProjectedOn->size(); ++iv)
+          allVariables = allVariables.cubeDiff(m_varsToBeProjectedOn.get(iv));
+        BddWrapper one = allVariables.one();
+        while(allVariables != one)
+        {
+          auto next = allVariables.varWithLowestIndex();
+          result.push_back(next);
+          allVariables = allVariables.cubeDiff(next);
+        }
+        return result;
       }
 
       BddWrapper reverseSubstitute(const BddWrapper & factor)
@@ -274,7 +292,7 @@ namespace {
       int m_idx;
       std::map<BddWrapper, std::vector<BddWrapper> > m_map;
       BddVectorWrapper m_newFactors;
-      BddVectorWrapper m_varsToBeGrouped;
+      BddVectorWrapper m_varsToBeProjectedOn;
       BddVectorWrapper m_origVars;
       BddVectorWrapper m_newVars;
   };
@@ -313,7 +331,7 @@ namespace {
         std::set<BddWrapper> neighborsWithQRemoved;
         for (const auto & qn: qneigh)
         {
-          //exactAns = exactAns * qn;
+          exactAns = exactAns * qn;
           auto n = qn.existentialQuantification(q);
           neighborsWithQRemoved.insert(n);
           blif_solve_log(INFO, "neighbor " << qn.getUncountedBdd() << " has " << n.countMinterms() << " minterms once q is quantified out.");
@@ -332,14 +350,33 @@ namespace {
             // not a neighbor, copy as is
             fgm.addNonQFactor(factor);
         }
-        auto newFactors = fgm.getNewFactors();
-        auto varsToBeGrouped = fgm.getVarsToBeGrouped();
-        std::vector<BddWrapper> newFactorVec;
-        for (size_t fidx = 0; fidx < newFactors->size(); ++fidx)
-          newFactorVec.push_back(newFactors.get(fidx));
-        auto fg = fgpp::FactorGraph::createFactorGraph(newFactorVec);
-        for (auto vtbg: *varsToBeGrouped)
+        auto mergeResults = blif_solve::merge(manager,
+                                              *fgm.getNewFactors(),
+                                              *fgm.getQuantifiedVars(),
+                                              m_largestSupportSet);
+        std::vector<BddWrapper> mergedFactors, mergedVariables;
+        for (auto factor: *mergeResults.factors)
+        {
+          mergedFactors.push_back(BddWrapper(factor, manager));
+#ifdef DEBUG_VAR_SCORE
+          blif_solve_log(INFO, "merged factor " << factor << " " << printSupportSet(mergedFactors.back()));
+#endif
+        }
+        for (auto variable: *mergeResults.variables)
+        {
+#ifdef DEBUG_VAR_SCORE
+          mergedVariables.push_back(BddWrapper(variable, manager));
+          blif_solve_log(INFO, "merged variable " << variable << " " << printSupportSet(mergedVariables.back()));
+#endif
+        }
+
+
+        auto fg = fgpp::FactorGraph::createFactorGraph(mergedFactors);
+        auto varsToBeProjectedOn = fgm.getVarsToBeProjectedOn();
+        for (auto vtbg: *varsToBeProjectedOn)
           fg->groupVariables(BddWrapper(bdd_dup(vtbg), manager));
+        for (auto const & vtbg: mergedVariables)
+          fg->groupVariables(vtbg);
         blif_solve_log(INFO, "var_score/FactorGraphImpl: factor graph created in " 
                              << blif_solve::duration(start) 
                              << " sec");
@@ -347,17 +384,23 @@ namespace {
         // run message passing
         start = blif_solve::now();
         int numIterations = fg->converge();
-        blif_solve_log(INFO, "var_score/FactorGraphImpl: factor grpah converged with "
+        blif_solve_log(INFO, "var_score/FactorGraphImpl: factor graph converged with "
                              << numIterations
                              << " iterations in "
                              << blif_solve::duration(start)
                              << " sec");
 
         // dump factor graphs for debugging
+        BddVectorWrapper mergedFactors2(manager);
+        for (auto & f: mergedFactors)
+          mergedFactors2.push_back(f);
+        BddVectorWrapper mergedVars2 = varsToBeProjectedOn;
+        for (auto const & vtbg: mergedVariables)
+          mergedVars2.push_back(vtbg);
         m_graphPrinter->generateGraphs(q,
                                        factors,
-                                       newFactors,
-                                       varsToBeGrouped);
+                                       mergedFactors2,
+                                       varsToBeProjectedOn);
 
         // remove old factors from vsq
         for (auto const & neigh: qneigh)
@@ -369,7 +412,7 @@ namespace {
 #ifdef DEBUG_VAR_SCORE
         BddWrapper fgAns = q.one();
 #endif
-        for (auto vtbg: *varsToBeGrouped)
+        for (auto vtbg: *varsToBeProjectedOn)
         {
           int numMessages;
           auto messages = fg->getIncomingMessages(BddWrapper(bdd_dup(vtbg), manager));

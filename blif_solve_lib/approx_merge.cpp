@@ -113,7 +113,15 @@ namespace {
     int unionSize = bdd_size(combinedSupportSet);
     bdd_free(manager, combinedSupportSet);
     if (unionSize > largestSupportSet)
+    {
+#ifdef DEBUG_MERGE
+      std::cout << "cannot merge " << f1 << " and " << f2 << " because unionsize " << unionSize << " is larger than largestSupportSet " << largestSupportSet << std::endl;
+#endif
       return std::optional<double>();
+    }
+#ifdef DEBUG_MERGE
+    std::cout << "merging " << f1 << " and " << f2 << std::endl;
+#endif
     auto commonSupportSet = bdd_cube_intersection(manager, f1->supportSet, f2->supportSet);
     double commonSize = bdd_size(commonSupportSet);
     bdd_free(manager, commonSupportSet);
@@ -205,7 +213,7 @@ namespace blif_solve
 
 
     // execute the most promising merger
-    // until you've exhausted all optional
+    // until you've exhausted all options
     while (heap.size() > 0)
     {
       auto merger = heap.top();
