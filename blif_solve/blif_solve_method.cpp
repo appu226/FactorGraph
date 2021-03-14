@@ -26,12 +26,12 @@ SOFTWARE.
 #include "blif_solve_method.h"
 
 // blif_solve_lib includes
-#include <approx_merge.h>
+#include <blif_solve_lib/approx_merge.h>
+#include <blif_solve_lib/cnf_dump.h>
 
 // FactorGraph includes
-#include <dd.h>
-#include <factor_graph.h>
-#include <cnf_dump.h>
+#include <dd/dd.h>
+#include <factor_graph/factor_graph.h>
 
 // std includes
 #include <memory>

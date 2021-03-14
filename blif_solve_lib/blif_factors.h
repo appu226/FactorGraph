@@ -26,8 +26,8 @@ SOFTWARE.
 
 #pragma once
 
-#include <bnet.h>
-#include <dd.h>
+#include <dd/bnet.h>
+#include <dd/dd.h>
 
 #include <vector>
 #include <string>

@@ -23,14 +23,17 @@ SOFTWARE.
 */
 
 
-#include <dd.h>
-#include <bdd_factory.h>
-#include <cnf_dump.h>
-#include <optional.h>
-#include <lru_cache.h>
-#include <max_heap.h>
-#include <clo.hpp>
-#include <dotty.h>
+#include <dd/dd.h>
+#include <dd/bdd_factory.h>
+#include <blif_solve_lib/cnf_dump.h>
+#include <dd/optional.h>
+#include <dd/lru_cache.h>
+#include <dd/max_heap.h>
+#include <blif_solve_lib/clo.hpp>
+#include <dd/dotty.h>
+#include <factor_graph/factor_graph.h>
+#include <dd/bdd_partition.h>
+#include <factor_graph/fgpp.h>
 
 #include <memory>
 #include <vector>
@@ -38,9 +41,6 @@ SOFTWARE.
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <factor_graph.h>
-#include <bdd_partition.h>
-#include <fgpp.h>
 
 #include "testApproxMerge.h"
 #include "testVarScoreQuantification.h"

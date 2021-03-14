@@ -24,6 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <var_score_quantification.h>
+#include <var_score/var_score_quantification.h>
 
 void testVarScoreQuantificationUtils(DdManager * ddm);

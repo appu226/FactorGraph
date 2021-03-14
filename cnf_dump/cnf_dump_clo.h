@@ -30,7 +30,7 @@ SOFTWARE.
 
 
 // blif_solve_lib includes
-#include <log.h>
+#include <blif_solve_lib/log.h>
 
 
 // namespace cnf_dump

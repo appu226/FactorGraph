@@ -24,8 +24,8 @@ SOFTWARE.
 
 #include "var_score_graph_printer.h"
 
-#include <dotty.h>
-#include <log.h>
+#include <dd/dotty.h>
+#include <blif_solve_lib/log.h>
 
 #include <iostream>
 #include <fstream>

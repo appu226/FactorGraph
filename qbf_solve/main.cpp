@@ -31,7 +31,7 @@ SOFTWARE.
 #include <memory>
 #include <time.h>
 #include <string>
-#include <srt.h>
+#include <factor_graph/srt.h>
 using namespace std;
 
 #ifdef DEBUG

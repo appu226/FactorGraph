@@ -1,4 +1,4 @@
 set -e
 
-qbf_solve/qbf_solve
+build/out/qbf_solve/qbf_solve
 echo SUCCESS

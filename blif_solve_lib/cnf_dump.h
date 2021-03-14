@@ -26,7 +26,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <dd.h>
+#include <dd/dd.h>
 #include <string>
 
 namespace blif_solve {

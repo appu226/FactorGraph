@@ -24,7 +24,7 @@ SOFTWARE.
 
 
 
-#include <factor_graph.h>
+#include <factor_graph/factor_graph.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

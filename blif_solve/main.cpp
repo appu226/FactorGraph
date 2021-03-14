@@ -31,18 +31,23 @@ SOFTWARE.
 #include <stdexcept>
 #include <string>
 
+// dd includes
+#include <dd/dd.h>
+#include <dd/ntr.h>
+
 // factor_graph includes
-#include <dd.h>
-#include <ntr.h>
-#include <srt.h>
+#include <factor_graph/srt.h>
+
+// cudd includes
 #include <cuddInt.h>
 
-// blif_solve includes
-#include <cnf_dump.h>
-#include "command_line_options.h"
-#include "blif_factors.h"
+// blif_solve_lib includes
+#include <blif_solve_lib/cnf_dump.h>
+#include <blif_solve_lib/blif_factors.h>
 #include "blif_solve_method.h"
 
+// blif_solve includes
+#include "command_line_options.h"
 
 
 // function declarations

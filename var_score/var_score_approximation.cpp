@@ -25,9 +25,9 @@ SOFTWARE.
 #include "var_score_approximation.h"
 #include "var_score_quantification.h"
 
-#include <log.h>
-#include <approx_merge.h>
-#include <fgpp.h>
+#include <blif_solve_lib/log.h>
+#include <blif_solve_lib/approx_merge.h>
+#include <factor_graph/fgpp.h>
 
 #include <algorithm>
 #include <sstream>

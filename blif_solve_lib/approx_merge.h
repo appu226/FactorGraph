@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <dd.h>
+#include <dd/dd.h>
 
 #include <vector>
 #include <memory>

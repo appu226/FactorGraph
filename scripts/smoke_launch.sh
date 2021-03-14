@@ -1,5 +1,4 @@
 set -e
-make -s -j 4
 
 scripts/prefix.sh factor_graph_main scripts/smoke/factor_graph_main.sh
 

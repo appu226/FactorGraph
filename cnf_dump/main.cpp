@@ -31,9 +31,9 @@ SOFTWARE.
 
 
 // blif_solve_lib includes
-#include <log.h>
-#include <blif_factors.h>
-#include <cnf_dump.h>
+#include <blif_solve_lib/log.h>
+#include <blif_solve_lib/blif_factors.h>
+#include <blif_solve_lib/cnf_dump.h>
 
 
 

@@ -25,9 +25,9 @@ SOFTWARE.
 #include "blif_factors.h"
 #include "log.h"
 
-#include <bdd_partition.h>
+#include <dd/bdd_partition.h>
 
-#include <ntr.h>
+#include <dd/ntr.h>
 #include <cuddInt.h>
 
 #include <set>

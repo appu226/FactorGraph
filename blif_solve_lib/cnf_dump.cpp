@@ -41,7 +41,7 @@ SOFTWARE.
 #include <fstream>
 
 // dd includes
-#include <dd.h>
+#include <dd/dd.h>
 
 
 namespace {

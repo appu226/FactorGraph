@@ -24,11 +24,11 @@ SOFTWARE.
 
 
 
-#include <log.h>
-#include <command_line_options.h>
-#include <blif_factors.h>
-#include <srt.h>
-#include <bdd_factory.h>
+#include <blif_solve_lib/log.h>
+#include <blif_solve_lib/command_line_options.h>
+#include <blif_solve_lib/blif_factors.h>
+#include <factor_graph/srt.h>
+#include <dd/bdd_factory.h>
 
 #include <memory>
 

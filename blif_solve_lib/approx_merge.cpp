@@ -25,8 +25,8 @@ SOFTWARE.
 
 #include "approx_merge.h"
 
-#include <disjoint_set.h>
-#include <max_heap.h>
+#include <dd/disjoint_set.h>
+#include <dd/max_heap.h>
 
 #include <list>
 #include <stdexcept>

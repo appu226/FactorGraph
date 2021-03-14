@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include <memory>
 
-#include <bdd_factory.h>
+#include <dd/bdd_factory.h>
 
 #include "var_score_graph_printer.h"
 

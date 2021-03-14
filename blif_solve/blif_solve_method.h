@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "blif_factors.h"
+#include <blif_solve_lib/blif_factors.h>
 #include "command_line_options.h"
 #include <memory>
 

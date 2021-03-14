@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <approx_merge.h>
+#include <blif_solve_lib/approx_merge.h>
 
 void testApproxMerge(DdManager * manager);
 

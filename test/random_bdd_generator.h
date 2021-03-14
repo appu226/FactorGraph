@@ -24,7 +24,7 @@ SOFTWARE.
 
 
 // dd includes
-#include <dd.h>
+#include <dd/dd.h>
 
 // std includes
 #include <set>

@@ -32,13 +32,13 @@ SOFTWARE.
 
 
 // dd includes
-#include <dd.h>
+#include <dd/dd.h>
 
 
 // blif_solve_lib includes
-#include <command_line_options.h>
-#include <log.h>
-#include <cnf_dump.h>
+#include <blif_solve_lib/command_line_options.h>
+#include <blif_solve_lib/log.h>
+#include <blif_solve_lib/cnf_dump.h>
 
 
 // test includes

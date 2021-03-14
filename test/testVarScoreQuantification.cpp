@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 
-#include <bdd_factory.h>
+#include <dd/bdd_factory.h>
 
 #include "testVarScoreQuantification.h"
 

@@ -28,9 +28,9 @@ SOFTWARE.
 #ifndef FACTOR_GRAPH
 #define FACTOR_GRAPH
 
-#include<stdio.h>
+#include <stdio.h>
 #include <util.h>
-#include <dd.h>
+#include <dd/dd.h>
 
 #define FACTOR_GRAPH_DEBUG 1
 

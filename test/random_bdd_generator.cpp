@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <stdexcept>
-#include <log.h>
+#include <blif_solve_lib/log.h>
 
 #include "random_bdd_generator.h"
 

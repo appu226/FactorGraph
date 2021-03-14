@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "testApproxMerge.h"
 
-#include <bdd_factory.h>
+#include <dd/bdd_factory.h>
 
 #include <random>
 #include <algorithm>
