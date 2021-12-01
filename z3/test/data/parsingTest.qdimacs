@@ -1,0 +1,11 @@
+c small qdimacs file for testing parsing
+c   Parakram Majumdar
+p cnf 10 3
+a 3 4 0
+e 1 2 5 0
+a 6 0
+1 2 3 -4 5 0
+2 7 8 -3 10 0
+-7 -8 1 2 -6 9 0
+
+
