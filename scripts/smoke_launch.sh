@@ -19,7 +19,7 @@ scripts/prefix.sh 6s365r_bdd scripts/smoke/6s365r_bdd.sh
 
 rm -rf temp
 
-scripts/prefix.sh z3 scripts/smoke/z3.sh
+scripts/prefix.sh mustool scripts/smoke/mustool.sh
 
 echo
 echo SUCCESS
