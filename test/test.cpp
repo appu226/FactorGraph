@@ -34,6 +34,7 @@ SOFTWARE.
 #include <factor_graph/factor_graph.h>
 #include <dd/bdd_partition.h>
 #include <factor_graph/fgpp.h>
+#include <dd/qdimacs.h>
 
 #include <memory>
 #include <vector>
@@ -58,6 +59,7 @@ void testVarScoreQuantificationAlgo(DdManager * manager);
 void testVarScoreFactorGraphInternals(DdManager * manager);
 void testDotty(DdManager * manager);
 void testFactorGraphImpl(DdManager * manager);
+void testQdimacsParser();
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -83,6 +85,7 @@ int main()
     testVarScoreFactorGraphInternals(manager);
     testDotty(manager);
     testFactorGraphImpl(manager);
+    testQdimacsParser();
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -95,6 +98,46 @@ int main()
   }
 }
 
+
+void testQdimacsParser()
+{
+  const auto ForAll = dd::Quantifier::ForAll,
+        Exists = dd::Quantifier::Exists;
+  std::string cnf1 =
+    "c ignore this comment\n"
+    "p cnf 4 7\n"
+    "a 1 4 0\n"
+    "e 2 0\n"
+    "a 3 0\n"
+    "1 2 0\n"
+    "-1 -2 0\n"
+    "1 3 0\n"
+    "-1 3 2 0\n"
+    "-4 -1 0\n"
+    "3 1 0\n"
+    "-2 4 0\n";
+  std::stringstream cnf1ss(cnf1);
+  auto qd = dd::Qdimacs::parseQdimacs(cnf1ss);
+  assert(qd->numVariables == 4);
+  assert(qd->quantifiers.size() == 3);
+  assert((qd->quantifiers ==
+      std::vector<dd::Quantifier>{
+        {dd::Quantifier::ForAll, {1, 4} },
+        {dd::Quantifier::Exists, {2} },
+        {dd::Quantifier::ForAll, {3}}
+      }));
+  assert(qd->clauses.size() == 7);
+  assert((qd->clauses ==
+      std::vector<std::vector<int> >{
+         { 1, 2 },
+         { -1, -2 },
+         { 1, 3 },
+         { -1, 3, 2 },
+         { -4, -1 },
+         { 3, 1 },
+         { -2, 4 }
+       }));
+}
 
 
 void testFactorGraphImpl(DdManager * manager)
