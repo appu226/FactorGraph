@@ -27,6 +27,7 @@ SOFTWARE.
 #include <vector>
 #include <memory>
 #include <istream>
+#include <ostream>
 
 namespace dd {
 
@@ -65,6 +66,9 @@ namespace dd {
 
     // static function to parse a Qdimacs file
     static std::shared_ptr<Qdimacs> parseQdimacs(std::istream& is);
+
+    // print to output stream
+    void print(std::ostream& os) const;
 
   }; // end struct Qdimacs
 

@@ -17,6 +17,8 @@ scripts/prefix.sh testCnfDump scripts/smoke/testCnfDump.sh
 
 scripts/prefix.sh 6s365r_bdd scripts/smoke/6s365r_bdd.sh
 
+scripts/prefix.sh simplify_qdimacs scripts/smoke/simplify_qdimacs.sh
+
 rm -rf temp
 
 echo

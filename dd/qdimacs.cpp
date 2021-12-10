@@ -102,4 +102,25 @@ namespace dd {
     }
 
 
+
+
+    void Qdimacs::print(std::ostream& os) const
+    {
+      os << "p cnf " << numVariables << ' '<< clauses.size() << "\n";
+      for (const auto & quantifier: quantifiers)
+      {
+        os << (quantifier.quantifierType == Quantifier::ForAll ? 'a' : 'e');
+        for (auto v: quantifier.variables)
+          os << ' ' << v;
+        os << " 0\n";
+      }
+      for (const auto & clause: clauses)
+      {
+        for (auto v: clause)
+          os << v << ' ';
+        os << "0\n";
+      }
+    }
+
+
 } // end namespace dd
