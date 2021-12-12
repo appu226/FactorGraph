@@ -38,7 +38,7 @@ int main(int argc, char const * const * const argv)
     std::cout << "Program to take a qdimacs file and create two output files:\n"
       << "  - a qdimacs file with just one quantifier clause,\n"
       << "      which was the innermost existential quantification\n"
-      << "      of the original problem"
+      << "      of the original problem\n"
       << "  - a cnf file, created by removing all the existentially \n"
       << "      quantified variables from the previous problem (along with\n"
       << "      any resulting empty clauses)\n"
@@ -90,7 +90,7 @@ int main(int argc, char const * const * const argv)
   }
   // remove all collected vars from all clauses
   // and all empty clauses hence created
-  std::vector<dd::Qdimacs::Clause> newClauses;
+  std::set<dd::Qdimacs::Clause> newClauses;
   for (const auto & clause: qdimacs->clauses)
   {
     dd::Qdimacs::Clause newClause;
@@ -98,15 +98,14 @@ int main(int argc, char const * const * const argv)
       if (varsToRemove.count(v) == 0)
         newClause.push_back(v);
     if (!newClause.empty())
-      newClauses.push_back(newClause);
+      newClauses.insert(newClause);
   }
   // complete the modification, and print
   qdimacs->quantifiers.clear();
-  qdimacs->clauses = newClauses;
+  qdimacs->clauses = std::vector<dd::Qdimacs::Clause>(newClauses.cbegin(), newClauses.cend());
   {
     std::ofstream cnfos(argv[3]);
     qdimacs->print(cnfos);
-    cnfos << std::endl;
   }
   
   
