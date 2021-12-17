@@ -35,6 +35,7 @@ SOFTWARE.
 #include <dd/bdd_partition.h>
 #include <factor_graph/fgpp.h>
 #include <dd/qdimacs.h>
+#include <dd/qdimacs_to_bdd.h>
 
 #include <memory>
 #include <vector>
@@ -59,7 +60,7 @@ void testVarScoreQuantificationAlgo(DdManager * manager);
 void testVarScoreFactorGraphInternals(DdManager * manager);
 void testDotty(DdManager * manager);
 void testFactorGraphImpl(DdManager * manager);
-void testQdimacsParser();
+void testQdimacsParser(DdManager* manager);
 
 DdNode * makeFunc(DdManager * manager, int const numVars, int const funcAsIntger);
 
@@ -85,7 +86,7 @@ int main()
     testVarScoreFactorGraphInternals(manager);
     testDotty(manager);
     testFactorGraphImpl(manager);
-    testQdimacsParser();
+    testQdimacsParser(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -99,10 +100,11 @@ int main()
 }
 
 
-void testQdimacsParser()
+void testQdimacsParser(DdManager* manager)
 {
-  const auto ForAll = dd::Quantifier::ForAll,
-        Exists = dd::Quantifier::Exists;
+  using namespace dd;
+  const auto ForAll = Quantifier::ForAll,
+        Exists = Quantifier::Exists;
   std::string cnf1 =
     "c ignore this comment\n"
     "p cnf 4 7\n"
@@ -117,18 +119,17 @@ void testQdimacsParser()
     "3 1 0\n"
     "-2 4 0\n";
   std::stringstream cnf1ss(cnf1);
-  auto qd = dd::Qdimacs::parseQdimacs(cnf1ss);
+  auto qd = Qdimacs::parseQdimacs(cnf1ss);
   assert(qd->numVariables == 4);
   assert(qd->quantifiers.size() == 3);
   assert((qd->quantifiers ==
       std::vector<dd::Quantifier>{
-        {dd::Quantifier::ForAll, {1, 4} },
-        {dd::Quantifier::Exists, {2} },
-        {dd::Quantifier::ForAll, {3}}
+        {ForAll, {1, 4} },
+        {Exists, {2} },
+        {ForAll, {3}}
       }));
   assert(qd->clauses.size() == 7);
-  assert((qd->clauses ==
-      std::vector<std::vector<int> >{
+  auto expectedClauses = std::vector<std::vector<int> >{
          { 1, 2 },
          { -1, -2 },
          { 1, 3 },
@@ -136,7 +137,29 @@ void testQdimacsParser()
          { -4, -1 },
          { 3, 1 },
          { -2, 4 }
-       }));
+       };
+  assert(qd->clauses == expectedClauses);
+  auto qtb = QdimacsToBdd::createFromQdimacs(manager, *qd);
+  assert(qtb->numVariables == 4);
+  assert(qtb->quantifications.size() == 3);
+  
+  auto VV = [manager](int i)->BddWrapper { return BddWrapper(bdd_new_var_with_index(manager, i), manager); };
+  BddWrapper c1 = VV(1) * VV(4), c2 = VV(2), c3 = VV(3);
+  assert((*qtb->quantifications[0] == BddQuantification{ForAll, c1.getUncountedBdd()}));
+  assert((*qtb->quantifications[1] == BddQuantification{Exists, c2.getUncountedBdd()}));
+  assert((*qtb->quantifications[2] == BddQuantification{ForAll, c3.getUncountedBdd()}));
+
+  assert(qtb->clauses.size() == 6);
+  for (const auto & ecv: expectedClauses)
+  {
+    std::set<int> ecs(ecv.cbegin(), ecv.cend());
+    assert(qtb->clauses.count(ecs) == 1);
+    BddWrapper ebc = c1.zero();
+    for (auto v: ecv)
+      ebc = ebc + (v > 0? VV(v) : -VV(-v));
+    assert(qtb->clauses[ecs] == ebc.getUncountedBdd());
+  }
+
 }
 
 
