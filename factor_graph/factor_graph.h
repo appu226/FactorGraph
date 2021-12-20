@@ -24,9 +24,7 @@ SOFTWARE.
 
 
 
-
-#ifndef FACTOR_GRAPH
-#define FACTOR_GRAPH
+#pragma once
 
 #include <stdio.h>
 #include <util.h>
@@ -131,4 +129,3 @@ void for_each_list(FgList* const fl, Func func, int const time = -1)
   } while(fli != fl);
 }
 
-#endif /* FACTOR_GRAPH */

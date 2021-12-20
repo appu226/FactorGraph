@@ -23,9 +23,8 @@ SOFTWARE.
 */
 
 
+#pragma once
 
-#ifndef _SRT_H
-#define _SRT_H
 
 #include <list>
 #include <queue>
@@ -208,6 +207,5 @@ void factor_graph_eliminate(factor_graph*fg, fgnode *n, SRTNode *curr);
 
 /* profiling */
 void profile();
-#endif
 
 
