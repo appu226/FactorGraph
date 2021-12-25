@@ -7,7 +7,7 @@ include_directories (${CMAKE_SOURCE_DIR})
 enable_testing ()
 
 project ("FactorGraph")
-
+add_subdirectory ("mustool")
 add_subdirectory ("dd")
 add_subdirectory ("factor_graph")
 add_subdirectory ("factor_graph_main")
