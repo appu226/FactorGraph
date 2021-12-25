@@ -37,6 +37,6 @@ add_library (mustool
 "mcsmus/mcsmus/system.hh" "mcsmus/mcsmus/lingeling-solver.hh" "mcsmus/mcsmus/mcsmus.cc"
 "mcsmus/mcsmus/mcsmus.hh")
   
-add_definitions(-DUMCSMUS -DNOSMT -DNOLTL)
+add_definitions(-DUMCSMUS -DNOSMT -DNOLTL -DNDEBUG)
 
 target_link_libraries (mustool PUBLIC z stdc++fs) 
