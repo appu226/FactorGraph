@@ -82,11 +82,11 @@ int main(int argc, char const * const * const argv)
 
 
   // create a set of the quantified variables
-  std::set<int> varsToRemove;
+  std::set<int> varsToKeep;
   for (auto v: qdimacs->quantifiers[0].variables)
   {
-    varsToRemove.insert(v);
-    varsToRemove.insert(-v);
+    varsToKeep.insert(v);
+    varsToKeep.insert(-v);
   }
   // remove all collected vars from all clauses
   // and all empty clauses hence created
@@ -95,7 +95,7 @@ int main(int argc, char const * const * const argv)
   {
     dd::Qdimacs::Clause newClause;
     for (auto v: clause)
-      if (varsToRemove.count(v) == 0)
+      if (varsToKeep.count(v) > 0)
         newClause.push_back(v);
     if (!newClause.empty())
       newClauses.insert(newClause);
