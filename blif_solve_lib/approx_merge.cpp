@@ -31,6 +31,7 @@ SOFTWARE.
 #include <list>
 #include <stdexcept>
 #include <iostream>
+#include <optional>
 
 namespace {
 
