@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.8)
 add_library (mustool 
 "satSolvers/MSHandle.cpp" "satSolvers/mcsmus.cpp" "satSolvers/MSHandle.h"
 "satSolvers/SatSolver.h" "satSolvers/SatSolver.cpp" "satSolvers/Dimacs.h"
-"satSolvers/ParseUtils.h" "algorithms/tome.cpp"
+"satSolvers/ParseUtils.h" "satSolvers/MucCallback.h" "algorithms/tome.cpp"
 "algorithms/marco.cpp" "algorithms/remus.cpp" "core/misc.h"
 "core/Master.h" "core/misc.cpp" "core/types_h.h" "core/Master.cpp"
 "core/Explorer.h" "core/Explorer.cpp" "custom_minisat" "custom_minisat/System.cc"

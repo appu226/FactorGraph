@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 
+#include "MucCallback.h"
+
 class SatSolver{
 public:
 	int dimension;
@@ -17,10 +19,12 @@ public:
 	int shrinks;
 	int grows;
 	int exported_muses;
+	MucCallback::Ptr mucCallback;
 
 	SatSolver(std::string filename): shrink_alg("default"), checks(0), shrinks(0), grows(0), exported_muses(0){}
 	~SatSolver(){}
 	virtual std::string toString(std::vector<bool> &mus) = 0;
+	virtual void processMuc(std::vector<bool> & mus) = 0;
 	virtual bool solve(std::vector<bool> &f, bool core = false, bool grow = false) = 0;
 	virtual std::vector<bool> shrink(std::vector<bool> &f, std::vector<bool> crits = std::vector<bool>());
 	virtual std::vector<bool> grow(std::vector<bool> &f);

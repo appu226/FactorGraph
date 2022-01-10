@@ -19,14 +19,18 @@ public:
 	int vars;
 
 	MSHandle(std::string filename);
+	MSHandle(int numVars, const std::vector<std::vector<int> > & clauses);
 	~MSHandle();
 	bool solve(std::vector<bool> &f, bool shrink = false, bool grow = false);
 
 	std::string toString(std::vector<bool> &mus);
+	void processMuc(std::vector<bool> & mus);
+
 
 	bool add_clause(std::vector<int> clause);
 	bool add_unit(int lit);
 	bool parse(std::string filename);
+	bool parse(int numVars, const std::vector<std::vector<int> >& clauses);
 
 	std::vector<bool> shrink(std::vector<bool> &f, std::vector<bool> crits = std::vector<bool>());
 	std::vector<bool> shrink_muser(std::string input, int hash2);

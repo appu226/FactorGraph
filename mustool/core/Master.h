@@ -48,6 +48,7 @@ public:
 	string sat_solver;
 
 	Master(string filename, string alg);
+	Master(int numVars, const vector<vector<int> > & clauses, const string& alg);
 	~Master();
 	bool is_valid(Formula &f, bool core = false, bool grow = false);
 	void block_down(Formula f);
@@ -58,7 +59,8 @@ public:
 	void write_mus_to_file(MUS& f);
 	void validate_mus(Formula &f);
 	void enumerate();
-
+	void setMucCallback(const MucCallback::Ptr & mucCallback) { if (satSolver) satSolver->mucCallback = mucCallback; }
+	
 	//reMUS algorithm functions
 	int depthMUS;
 	float dim_reduction;
