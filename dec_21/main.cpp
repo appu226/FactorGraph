@@ -29,7 +29,7 @@ SOFTWARE.
 #include <dd/qdimacs.h>
 #include <dd/qdimacs_to_bdd.h>
 
-#include <factor_graph/factor_graph.h>
+#include <factor_graph/fgpp.h>
 
 #include <memory>
 #include <vector>
@@ -54,15 +54,7 @@ struct CommandLineOptions {
 
 struct DummyMucCallback: public MucCallback
 {
-    void processMuc(const std::vector<std::vector<int> >& muc) override
-    {
-      std::cout << "Callback found an MUC:\n";
-      for(const auto & clause: muc) {
-        for (int v: clause)
-          std::cout << v << " ";
-        std::cout << "\n";
-      }
-    }
+    void processMuc(const std::vector<std::vector<int> >& muc) override;
 };
 
 
@@ -72,10 +64,11 @@ struct DummyMucCallback: public MucCallback
 CommandLineOptions parseClo(int argc, char const * const * const argv);
 int main(int argc, char const * const * const argv);
 std::shared_ptr<DdManager> ddm_init();
-factor_graph * createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
+fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
 std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string & inputFilePath);
 std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs);
-
+bdd_ptr getFactorGraphResult(DdManager* ddm, const fgpp::FactorGraph& fg, const dd::QdimacsToBdd& qdimacsToBdd);
+bdd_ptr getExactResult(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
 
 
 
@@ -100,17 +93,30 @@ int main(int argc, char const * const * const argv)
       << qdimacs->clauses.size() << " clauses in "
       << blif_solve::duration(start) << " sec");
 
-  auto numIterations = factor_graph_converge(fg);                      // converge factor graph
+  auto numIterations = fg->converge();                                  // converge factor graph
   blif_solve_log(INFO, "Factor graph converged after " 
       << numIterations << " iterations in "
       << blif_solve::duration(start) << " secs");
   
 
+  auto factorGraphResult = getFactorGraphResult(ddm.get(), *fg, *bdds);
+  auto exactResult = getExactResult(ddm.get(), *bdds);
+  blif_solve_log(INFO, "factor graph result is " 
+                      << (factorGraphResult == exactResult 
+                          ? "exact" 
+                          : "strictly over-approximate"));
+
+  blif_solve_log_bdd(INFO, "factor graph:", ddm.get(), factorGraphResult);
+  blif_solve_log_bdd(INFO, "exact:", ddm.get(), exactResult);
+
   auto mustMaster = createMustMaster(*qdimacs);
   mustMaster->enumerate();
 
   // cleanup
-  if (fg) factor_graph_delete(fg);
+  if (factorGraphResult) bdd_free(ddm.get(), factorGraphResult);
+  if (exactResult) bdd_free(ddm.get(), exactResult);
+
+  blif_solve_log(INFO, "Done");
   return 0;
 }
 
@@ -132,12 +138,12 @@ std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string& inputFilePath)
 
 
 // create factor graph
-factor_graph* createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& bdds)
+fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& bdds)
 {
-  std::vector<bdd_ptr> allFactors;
-  allFactors.reserve(bdds.clauses.size());
-  for (const auto & kv: bdds.clauses) allFactors.push_back(kv.second);
-  return factor_graph_new(ddm, &allFactors.front(), allFactors.size());
+  std::vector<dd::BddWrapper> bddWrapperVec;
+  for (const auto& factorKv: bdds.clauses)
+    bddWrapperVec.push_back(dd::BddWrapper(bdd_dup(factorKv.second), ddm));
+  return fgpp::FactorGraph::createFactorGraph(bddWrapperVec);
 }
 
 
@@ -218,24 +224,55 @@ std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs)
   assert(qdimacs.quantifiers.front().quantifierType == dd::Quantifier::Exists);
   const auto & quantifiedVariablesVec = qdimacs.quantifiers.front().variables;
   std::set<int> quantifiedVariableSet(quantifiedVariablesVec.cbegin(), quantifiedVariablesVec.cend());
-  auto isQuantifiedVariable = [&](int v)-> bool { return quantifiedVariableSet.count(v) + quantifiedVariableSet.count(-v) > 0; };
+  auto isQuantifiedVariable = [&](int v)-> bool { return quantifiedVariableSet.count(v >=0 ? v : -v) > 0; };
+  auto numMustVariables = qdimacs.numVariables; // numMustVariable mast mast, numMustVarible mast :)
 
-  // filter out clauses with at least one quantified variable
-  // remove all the quantified variables
+  // create output clauses by:
+  //   - filtering out clauses with no quantified variables
+  //   - keeping only the quantified variables
+  // create map from non-quantified literals to positions of clauses in the 'outputClauses' vector
   std::vector<std::vector<int> > outputClauses;
-  std::set<std::set<int> > uniqueOutputClauses;
-  for (const auto & inputClause : qdimacs.clauses)
+  typedef std::set<int> LiteralSet;
+  std::set<LiteralSet> outputClauseSet;   // remember where each outputClause is stored
+  std::map<int, std::set<size_t> > nonQuantifiedLiteralToOutputClausePosMap;
+  for (const auto & clause: qdimacs.clauses)
   {
-    std::vector<int> outputClause;
-    std::copy_if(inputClause.cbegin(), inputClause.cend(), std::back_inserter(outputClause), isQuantifiedVariable);
-    std::set<int> uniqueOutputClause(outputClause.cbegin(), outputClause.cend());
-    if (!outputClause.empty() && !uniqueOutputClauses.count(uniqueOutputClause))
+    LiteralSet quantifiedLiterals, nonQuantifiedLiterals;
+    for (const auto literal: clause)
     {
-      uniqueOutputClauses.insert(uniqueOutputClause);
-      outputClauses.push_back(outputClause);
+      if (isQuantifiedVariable(literal)) quantifiedLiterals.insert(literal);
+      else nonQuantifiedLiterals.insert(literal);
     }
+    if (quantifiedLiterals.empty()) // skip if no quantified variables
+      continue;
+    size_t outputClausePos;  // find the position of this clause in 'outputClauses'
+    if (outputClauseSet.count(quantifiedLiterals) == 0)
+    {
+      // if it's not already in 'outputClauses', then add it to the end
+      outputClausePos = outputClauses.size();
+      outputClauses.push_back(std::vector<int>(quantifiedLiterals.cbegin(), quantifiedLiterals.cend()));
+      outputClauseSet.insert(quantifiedLiterals);
+    }
+    else
+    {
+      // if it's already present, add a new fake variable to the clause to make it unique
+      ++numMustVariables;
+      std::vector<int> nextOutputClause(quantifiedLiterals.cbegin(), quantifiedLiterals.cend());
+      nextOutputClause.push_back(numMustVariables);
+      outputClausePos = outputClauses.size();
+      outputClauses.push_back(nextOutputClause);
+
+      // also add a new clause that's the negative of the fake variable
+      outputClauses.push_back(std::vector<int>(1, -numMustVariables));
+
+      // no need to add these to the outputClauseSet, because they have a unique variable
+    }
+    for (const auto literal: nonQuantifiedLiterals)
+      nonQuantifiedLiteralToOutputClausePosMap[literal].insert(outputClausePos);
   }
-  auto result = std::make_shared<Master>(qdimacs.numVariables, outputClauses, "remus");
+
+  // create the MUST Master using outputClauses
+  auto result = std::make_shared<Master>(numMustVariables, outputClauses, "remus");
   // result->verbose = ??;
   result->depthMUS = 6;
   result->dim_reduction = 0.9;
@@ -245,5 +282,81 @@ std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs)
   result->criticals_rotation = false;
   auto mucCallback = std::make_shared<DummyMucCallback>();
   result->setMucCallback(mucCallback);
+
+
+  // find pairs of output clauses with opposite signs of a non-quantified variable
+  // pass these pairs into the solver to indicate inconsistent sets of clauses
+  std::set<std::pair<int, int> > inconsistentPairs;
+  for (const auto & qvXcids: nonQuantifiedLiteralToOutputClausePosMap)
+  {
+    int qv = qvXcids.first;
+    if (qv < 0) continue;  // skip half due to symmetry
+    const auto& cids = qvXcids.second;
+    const auto& opp_cids = nonQuantifiedLiteralToOutputClausePosMap[-qv];
+    const auto printOutputClause = [&](int id) -> std::string {
+      std::stringstream result;
+      result << "{ ";
+      for (const auto lit: outputClauses[id]) {
+        result << lit << ", ";
+      }
+      result << "}";
+      return result.str();
+    };
+    for (int cid: cids)
+      for (int opp_cid: opp_cids)
+      {
+        int minId = (cid < opp_cid ? cid : opp_cid);
+        int maxId = (cid > opp_cid ? cid : opp_cid);
+        if (minId == maxId || inconsistentPairs.count(std::make_pair(minId, maxId)) > 0)
+          continue;
+        blif_solve_log(INFO, "marking inconsistent: " << printOutputClause(minId) << " " << printOutputClause(maxId)
+          << " because of " << qv);
+        result->explorer->mark_inconsistent_pair(minId, maxId);
+        inconsistentPairs.insert(std::make_pair(minId, maxId));
+      }
+
+  }
+
+  return result;
+}
+
+
+
+
+void DummyMucCallback::processMuc(const std::vector<std::vector<int> >& muc)
+{
+  std::cout << "Callback found an MUC:\n";
+  for(const auto & clause: muc) {
+    for (int v: clause)
+      std::cout << v << " ";
+    std::cout << "\n";
+  }
+}
+
+
+
+
+
+bdd_ptr getFactorGraphResult(DdManager* ddm, const fgpp::FactorGraph& fg, const dd::QdimacsToBdd& q2b)
+{
+  auto qvars = dd::BddWrapper(q2b.quantifications[0]->quantifiedVariables, ddm);
+  auto resultVec = fg.getIncomingMessages(qvars);
+  dd::BddWrapper result(bdd_one(ddm), ddm);
+  for (const auto & message: resultVec)
+    result = result * message;
+  return result.getCountedBdd();
+}
+
+
+
+
+
+bdd_ptr getExactResult(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd)
+{
+  bdd_ptr f = bdd_one(ddm);
+  for(const auto & kv: qdimacsToBdd.clauses)
+    bdd_and_accumulate(ddm, &f, kv.second);
+  bdd_ptr result = bdd_forsome(ddm, f, qdimacsToBdd.quantifications[0]->quantifiedVariables);
+  bdd_free(ddm, f);
   return result;
 }
