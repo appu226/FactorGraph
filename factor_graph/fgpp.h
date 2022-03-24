@@ -38,6 +38,7 @@ namespace fgpp
       typedef dd::BddWrapper BddWrapper;
 
       virtual void groupVariables(const BddWrapper & variableCube) = 0;
+      virtual BddWrapper groupFactors(const std::vector<BddWrapper> & factors) = 0;
       virtual std::vector<BddWrapper> getIncomingMessages(const BddWrapper & variableCube) const = 0;
       virtual int converge() = 0;
 

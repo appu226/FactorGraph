@@ -97,6 +97,7 @@ namespace {
 
       FactorGraphImpl(const std::vector<BddWrapper> & factors);
 
+      BddWrapper groupFactors(const std::vector<BddWrapper> & factors) override;
       void groupVariables(const BddWrapper & variableCube) override;
       std::vector<BddWrapper> getIncomingMessages(const BddWrapper & variableCube) const override;
       int converge() override;
@@ -263,6 +264,46 @@ namespace {
         result.push_back(e->factorToVariableMessage);
     }
     return result;
+  }
+
+
+
+
+
+  dd::BddWrapper FactorGraphImpl::groupFactors(const std::vector<BddWrapper>& factors)
+  {
+    if (factors.empty())
+      throw std::invalid_argument("FactorGraph::groupFactors must be called with at least one factor.");
+    std::set<BddWrapper> factorSet(factors.cbegin(), factors.cend());
+    FGFactorNodePtr new_fnode = std::make_shared<FGFactorNode>(factors.cbegin()->one());
+    FGNodePtrSet neighbors;
+    for (auto fit = m_factorNodes.begin(); fit != m_factorNodes.end();)
+    {
+      FGNodePtr old_fnode = *fit;
+      if (factorSet.count(old_fnode->nodeBdd) == 0)
+      {
+        ++fit;
+        continue;
+      }
+
+      new_fnode->nodeBdd = new_fnode->nodeBdd * old_fnode->nodeBdd;
+      for (const auto & old_edge: old_fnode->edges)
+      {
+        const auto & old_vnode = old_edge->getVariableNode();
+        m_edges.erase(old_edge);
+        old_vnode->edges.erase(old_edge);
+        if (neighbors.count(old_vnode))
+          continue;
+        neighbors.insert(old_vnode);
+        FGEdgePtr new_edge = std::make_shared<FGEdge>(old_vnode, new_fnode);
+        m_edges.insert(new_edge);
+        old_vnode->edges.insert(new_edge);
+        new_fnode->edges.insert(new_edge);
+      }
+      fit = m_factorNodes.erase(fit);
+    }
+    m_factorNodes.insert(new_fnode);
+    return new_fnode->nodeBdd;
   }
 
 
@@ -479,6 +520,163 @@ namespace {
           messagesAnd = messagesAnd * m;
         auto FAndProjected = project(FAnd, gv);
         assert(messagesAnd == FAndProjected);
+      }
+    }
+
+    // grouping of variable nodes should work
+    {
+      FactorGraphImpl fg3(F);
+      auto findNodeInSet = 
+        [](const BddWrapper& bdd, 
+           const FGNodePtrSet& nodeSet
+        ) -> FGNodePtr
+        {
+          for (const auto & node: nodeSet)
+            if (node->nodeBdd == bdd)
+              return node;
+          assert(false); // could not find node
+        };
+      auto findEdgeInSet = 
+        [](const BddWrapper& variable,
+           const BddWrapper& factor,
+           const FGEdgePtrSet& edgeSet
+        ) -> FGEdgePtr {
+          for (const auto & edge: edgeSet)
+            if(edge->getFactorNode()->nodeBdd == factor 
+               && edge->getVariableNode()->nodeBdd == variable)
+              return edge;
+          assert(false); // could not find edge
+        };
+      auto matchEdgeSet =
+        [findEdgeInSet](const std::vector<BddWrapper>& variables,
+           const std::vector<BddWrapper>& factors,
+           const FGEdgePtrSet& edges)
+        {
+          assert(variables.size() == factors.size());
+          assert(factors.size() == edges.size());
+          for (size_t i = 0; i < variables.size(); ++i)
+            findEdgeInSet(variables[i], factors[i], edges);
+        };
+      
+      // check unmerged graph
+      {
+        assert(fg3.m_factorNodes.size() == 8);
+        auto f_0 = findNodeInSet(F[0], fg3.m_factorNodes);
+        matchEdgeSet({V[0], V[1]}, {2, F[0]}, f_0->edges);
+        auto f_1 = findNodeInSet(F[1], fg3.m_factorNodes);
+        matchEdgeSet({V[1], V[2], V[3]}, {3, F[1]}, f_1->edges);
+        auto f_2 = findNodeInSet(F[2], fg3.m_factorNodes);
+        matchEdgeSet({V[2], V[4]}, {2, F[2]}, f_2->edges);
+        auto f_3 = findNodeInSet(F[3], fg3.m_factorNodes);
+        matchEdgeSet({V[0], V[7], V[8]}, {3, F[3]}, f_3->edges);
+        auto f_4 = findNodeInSet(F[4], fg3.m_factorNodes);
+        matchEdgeSet({V[1], V[5]}, {2, F[4]}, f_4->edges);
+        auto f_5 = findNodeInSet(F[5], fg3.m_factorNodes);
+        matchEdgeSet({V[5], V[6], V[9]}, {3, F[5]}, f_5->edges);
+        auto f_6 = findNodeInSet(F[6], fg3.m_factorNodes);
+        matchEdgeSet({V[6], V[11], V[10]}, {3, F[6]}, f_6->edges);
+        auto f_7 = findNodeInSet(F[7], fg3.m_factorNodes);
+        matchEdgeSet({V[9], V[11]}, {2, F[7]}, f_7->edges);
+
+        assert(fg3.m_variableNodes.size() == 12);
+        auto v_0 = findNodeInSet(V[0], fg3.m_variableNodes);
+        matchEdgeSet({2, V[0]}, {F[0], F[3]}, v_0->edges);
+        auto v_1 = findNodeInSet(V[1], fg3.m_variableNodes);
+        matchEdgeSet({3, V[1]}, {F[0], F[1], F[4]}, v_1->edges);
+        auto v_2 = findNodeInSet(V[2], fg3.m_variableNodes);
+        matchEdgeSet({2, V[2]}, {F[1], F[2]}, v_2->edges);
+        auto v_3 = findNodeInSet(V[3], fg3.m_variableNodes);
+        matchEdgeSet({1, V[3]}, {1, F[1]}, v_3->edges);
+        auto v_4 = findNodeInSet(V[4], fg3.m_variableNodes);
+        matchEdgeSet({1, V[4]}, {1, F[2]}, v_4->edges);
+        auto v_5 = findNodeInSet(V[5], fg3.m_variableNodes);
+        matchEdgeSet({2, V[5]}, {F[4], F[5]}, v_5->edges);
+        auto v_6 = findNodeInSet(V[6], fg3.m_variableNodes);
+        matchEdgeSet({2, V[6]}, {F[5], F[6]}, v_6->edges);
+        auto v_7 = findNodeInSet(V[7], fg3.m_variableNodes);
+        matchEdgeSet({1, V[7]}, {1, F[3]}, v_7->edges);
+        auto v_8 = findNodeInSet(V[8], fg3.m_variableNodes);
+        matchEdgeSet({1, V[8]}, {1, F[3]}, v_8->edges);
+        auto v_9 = findNodeInSet(V[9], fg3.m_variableNodes);
+        matchEdgeSet({2, V[9]}, {F[5], F[7]}, v_9->edges);
+        auto v_10 = findNodeInSet(V[10], fg3.m_variableNodes);
+        matchEdgeSet({1, V[10]}, {1, F[6]}, v_10->edges);
+        auto v_11 = findNodeInSet(V[11], fg3.m_variableNodes);
+        matchEdgeSet({2, V[11]}, {F[6], F[7]}, v_11->edges);
+
+        assert(fg3.m_edges.size() == 20);
+        matchEdgeSet({V[0], V[1],
+                      V[1], V[2], V[3],
+                      V[2], V[4],
+                      V[0], V[7], V[8],
+                      V[1], V[5],
+                      V[5], V[6], V[9],
+                      V[6], V[10], V[11],
+                      V[9], V[11]},
+                     {F[0], F[0],
+                      F[1], F[1], F[1],
+                      F[2], F[2],
+                      F[3], F[3], F[3],
+                      F[4], F[4],
+                      F[5], F[5], F[5],
+                      F[6], F[6], F[6],
+                      F[7], F[7]},
+                     fg3.m_edges);
+      }
+
+      // check merged graph
+      {
+        fg3.groupFactors({F[0], F[1], F[2]});
+        auto v_0_1_2 = V[0] * V[1] * V[2];
+        fg3.groupVariables(v_0_1_2);
+        fg3.groupFactors({F[0] * F[1] * F[2], F[3]});
+        auto v_0_1_2_3 = v_0_1_2 * V[3];
+        fg3.groupVariables(v_0_1_2_3);
+        assert(fg3.m_factorNodes.size() == 5);
+        auto f_0_1_2_3 = F[0] * F[1] * F[2] * F[3];
+        auto f_merged = findNodeInSet(f_0_1_2_3, fg3.m_factorNodes);
+        matchEdgeSet({v_0_1_2_3, V[4], V[7], V[8]}, {4, f_0_1_2_3}, f_merged->edges);
+        auto f_4 = findNodeInSet(F[4], fg3.m_factorNodes);
+        matchEdgeSet({v_0_1_2_3, V[5]}, {2, F[4]}, f_4->edges);
+        auto f_5 = findNodeInSet(F[5], fg3.m_factorNodes);
+        matchEdgeSet({V[5], V[6], V[9]}, {3, F[5]}, f_5->edges);
+        auto f_6 = findNodeInSet(F[6], fg3.m_factorNodes);
+        matchEdgeSet({V[6], V[10], V[11]}, {3, F[6]}, f_6->edges);
+        auto f_7 = findNodeInSet(F[7], fg3.m_factorNodes);
+        matchEdgeSet({V[9], V[11]}, {2, F[7]}, f_7->edges);
+
+        assert(fg3.m_variableNodes.size() == 9);
+        auto v_merged = findNodeInSet(v_0_1_2_3, fg3.m_variableNodes);
+        matchEdgeSet({2, v_0_1_2_3}, {f_0_1_2_3, F[4]}, v_merged->edges);
+        auto v_4 = findNodeInSet(V[4], fg3.m_variableNodes);
+        matchEdgeSet({1, V[4]}, {f_0_1_2_3}, v_4->edges);
+        auto v_5 = findNodeInSet(V[5], fg3.m_variableNodes);
+        matchEdgeSet({2, V[5]}, {F[4], F[5]}, v_5->edges);
+        auto v_6 = findNodeInSet(V[6], fg3.m_variableNodes);
+        matchEdgeSet({2, V[6]}, {F[5], F[6]}, v_6->edges);
+        auto v_7 = findNodeInSet(V[7], fg3.m_variableNodes);
+        matchEdgeSet({1, V[7]}, {f_0_1_2_3}, v_7->edges);
+        auto v_8 = findNodeInSet(V[8], fg3.m_variableNodes);
+        matchEdgeSet({1, V[8]}, {f_0_1_2_3}, v_8->edges);
+        auto v_9 = findNodeInSet(V[9], fg3.m_variableNodes);
+        matchEdgeSet({2, V[9]}, {F[5], F[7]}, v_9->edges);
+        auto v_10 = findNodeInSet(V[10], fg3.m_variableNodes);
+        matchEdgeSet({1, V[10]}, {1, F[6]}, v_10->edges);
+        auto v_11 = findNodeInSet(V[11], fg3.m_variableNodes);
+        matchEdgeSet({2, V[11]}, {F[6], F[7]}, v_11->edges);
+        
+        assert(fg3.m_edges.size() == 14);
+        matchEdgeSet({v_0_1_2_3, V[4], V[7], V[8],
+                      v_0_1_2_3, V[5],
+                      V[5], V[6], V[9],
+                      V[6], V[10], V[11],
+                      V[9], V[11]},
+                     {f_0_1_2_3, f_0_1_2_3, f_0_1_2_3, f_0_1_2_3,
+                      F[4], F[4],
+                      F[5], F[5], F[5],
+                      F[6], F[6], F[6],
+                      F[7], F[7]},
+                     fg3.m_edges);
       }
     }
 
