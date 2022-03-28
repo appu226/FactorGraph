@@ -744,6 +744,36 @@ bdd_ptr  bdd_substitute_vars(
 
 
 
+/**Function********************************************************************
+  @brief Substitutes varValue for x_varIndex in the %BDD for func.
+
+  @details varIndex is the index of the variable to be substituted.
+  bdd_assign passes the corresponding projection function to the
+  recursive procedure, so that the cache may be used.
+
+  @return the composed %BDD if successful; NULL otherwise.
+
+  @sideeffect None
+
+  @see Cudd_addCompose
+
+*/
+bdd_ptr  bdd_assign(
+    DdManager *manager, 
+    bdd_ptr func, 
+    int varIndex, 
+    bdd_ptr varValue)
+{
+  DdNode * result = Cudd_bddCompose(manager, func, varValue, varIndex);
+  common_error(result, "bdd_assign: result = NULL");
+  Cudd_Ref(result);
+  return result;
+}
+
+
+
+
+
 /**
   @brief Returns the number of minterms of aa %ADD or %BDD as a long double.
 

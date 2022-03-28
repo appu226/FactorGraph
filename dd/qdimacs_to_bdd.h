@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "qdimacs.h"
 #include "dd.h"
+#include "bdd_factory.h"
 
 #include <vector>
 #include <set>
@@ -59,10 +60,14 @@ namespace dd {
     std::map<std::set<int>, bdd_ptr> clauses;            // cnf factors, mapped from original int-set clause to bdd clause
     DdManager* ddManager;                                // the bdd manager
 
+    typedef std::shared_ptr<QdimacsToBdd> Ptr;
+
     static
-      std::shared_ptr<QdimacsToBdd>
+      Ptr
       createFromQdimacs(DdManager* ddManager, const Qdimacs& qdimacs); // static constructor function
 
+    BddWrapper getBdd(int v) const;
+    BddWrapper getBdd(const std::set<int>& clause) const;
     ~QdimacsToBdd(); // destructor, calls free on all bdds stored in the structure
   };
 

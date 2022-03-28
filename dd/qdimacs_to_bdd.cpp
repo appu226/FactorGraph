@@ -55,10 +55,6 @@ namespace dd {
     // create variable bdds for easy access
     result->numVariables = qdimacs.numVariables;
     BddWrapper one(bdd_one(ddManager), ddManager);
-    BddVectorWrapper vars({one.getCountedBdd()}, ddManager); // first element is just one
-    for (int i = 1; i <= qdimacs.numVariables; ++i)
-      vars.push_back({ bdd_new_var_with_index(ddManager, i), ddManager}); // add variable of bdd index i to vector index i
-
 
 
     // create quantifications
@@ -66,7 +62,7 @@ namespace dd {
     {
       BddWrapper quantifiedVariables = one; // start with True
       for (const auto vin: qin.variables)
-        quantifiedVariables = quantifiedVariables.cubeUnion(vars.get(vin));
+        quantifiedVariables = quantifiedVariables.cubeUnion(result->getBdd(vin));
       result->quantifications.push_back(std::make_unique<BddQuantification>(BddQuantification{qin.quantifierType, quantifiedVariables.getCountedBdd()}));
     }
 
@@ -77,7 +73,7 @@ namespace dd {
     {
       BddWrapper clauseOut = -one; // start with False
       for (auto vin: clauseIn)
-        clauseOut = clauseOut + (vin > 0 ? vars.get(vin) : -vars.get(-vin));
+        clauseOut = clauseOut + result->getBdd(vin);
       std::set<int> clauseKey(clauseIn.cbegin(), clauseIn.cend());
       result->clauses[clauseKey] = clauseOut.getCountedBdd();
     }
@@ -87,6 +83,30 @@ namespace dd {
     return result;
   
   } // end QdimacsToBdd::createFromQdimacs
+
+
+  BddWrapper
+    QdimacsToBdd::getBdd(int v) const
+  {
+    BddWrapper result(bdd_new_var_with_index(ddManager, v > 0 ? v : -v), ddManager);
+    if (v < 0) result = -result;
+    return result;
+  }
+
+
+  BddWrapper
+    QdimacsToBdd::getBdd(const std::set<int>& clause) const
+  {
+    auto cit = clauses.find(clause);
+    if (cit != clauses.end())
+      return BddWrapper(bdd_dup(cit->second), ddManager);
+    BddWrapper result(bdd_zero(ddManager), ddManager);
+    for (const auto l: clause)
+    {
+      result = result + getBdd(l);
+    }
+    return result;
+  }
 
 
 
