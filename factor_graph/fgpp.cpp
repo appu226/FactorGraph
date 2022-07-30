@@ -535,6 +535,7 @@ namespace {
             if (node->nodeBdd == bdd)
               return node;
           assert(false); // could not find node
+          return NULL; // unreachable
         };
       auto findEdgeInSet = 
         [](const BddWrapper& variable,
@@ -546,6 +547,7 @@ namespace {
                && edge->getVariableNode()->nodeBdd == variable)
               return edge;
           assert(false); // could not find edge
+          return NULL; // unreachable
         };
       auto matchEdgeSet =
         [findEdgeInSet](const std::vector<BddWrapper>& variables,

@@ -48,12 +48,12 @@ void remove_comments(FILE *f)
 {
   char c = '\n';
   char buffer[1000];
-  while(c == '\n')  fscanf(f, "%c", &c);
+  while(c == '\n')  (void)!fscanf(f, "%c", &c);
   while(c == 'c' || c == 'a' || c == 'e')
   {
-    fscanf(f, "%[^\n]", buffer);
+    (void)!fscanf(f, "%[^\n]", buffer);
     c = '\n';
-    while(c == '\n')  fscanf(f, "%c", &c);
+    while(c == '\n')  (void)!fscanf(f, "%c", &c);
   }
   ungetc(c, f);
 }
@@ -155,7 +155,7 @@ int best_lambda(factor_graph *fg, fgnode *fgn)
 {
   int ans;
   printf("enter lambda -> ");
-  scanf("%d", &ans);
+  (void)!scanf("%d", &ans);
   return ans;
   
   /*
@@ -241,7 +241,7 @@ int main2(int argc, char ** argv)
 
   inputfile = fopen(argv[1], "r");
   remove_comments(inputfile);
-  fscanf(inputfile, "p cnf %d %d", &numvars, &numclauses);
+  (void)!fscanf(inputfile, "p cnf %d %d", &numvars, &numclauses);
   printf("numclauses is %d, numvars = %d\n", numclauses, numvars);
 
   cnf = (int **)malloc(sizeof(int *) * numclauses);
@@ -254,13 +254,13 @@ int main2(int argc, char ** argv)
     cnf[i] = (int *)malloc(sizeof(int) * MAX_CLAUSE_SIZE);
     common_error(cnf[i], " out of mem while inputting problem\n");
     clssz[i] = 0;
-    fscanf(inputfile, "%d", &j);
+    (void)!fscanf(inputfile, "%d", &j);
     while(j != 0)
     {
       assert(clssz[i] < MAX_CLAUSE_SIZE && "MAX_CLAUSE_SIZE insufficient\n");
       cnf[i][clssz[i]] = j;
       clssz[i]++;
-      fscanf(inputfile, "%d", &j);
+      (void)!fscanf(inputfile, "%d", &j);
     }
   }
   fclose(inputfile);
@@ -275,7 +275,7 @@ int main2(int argc, char ** argv)
   /* Command line */
   do {
     printf("-> ");
-    scanf("%s", command);
+    (void)!scanf("%s", command);
     if(!strcmp(command, "exit"))
       break;
     else if(!strcmp(command, "quit"))
@@ -303,7 +303,7 @@ int main2(int argc, char ** argv)
     else if(!strcmp(command, "fgtest4"))
     {
       printf("Enter number of vars to group -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       time_t tt1, tt2;
       
       printf("grouping vars...\n");
@@ -393,7 +393,7 @@ int main2(int argc, char ** argv)
     else if(!strcmp(command, "randomgroup"))
     {
       printf("Enter number of vars -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       fgnode_list *vl = fg->vl;
       bdd_ptr vargrp = bdd_one(fg->m);
       do{
@@ -413,9 +413,9 @@ int main2(int argc, char ** argv)
     else if(!strcmp(command, "fgtest3"))
     {
       printf("enter LAMBDA -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       printf("enter id of the variable node -> ");
-      scanf("%d", &j);
+      (void)!scanf("%d", &j);
       fgnode_list* vl = fg->vl;
       do
       {
@@ -440,7 +440,7 @@ int main2(int argc, char ** argv)
     {
       fgnode_list *vl1, *vl2;
       printf("enter first var id -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       vl1 = fg->vl;
       do
       {
@@ -460,7 +460,7 @@ int main2(int argc, char ** argv)
       }
       
       printf("enter second var id -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       vl2 = fg->vl;
       do
       {
@@ -486,7 +486,7 @@ int main2(int argc, char ** argv)
     {
       fgnode_list *fl1, *fl2;
       printf("enter first func id -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       fl1 = fg->fl;
       do
       {
@@ -506,7 +506,7 @@ int main2(int argc, char ** argv)
       }
       
       printf("enter second func id -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       fl2 = fg->fl;
       do
       {
@@ -538,7 +538,7 @@ int main2(int argc, char ** argv)
       bdd_ptr varcube, vbar;
       
       printf("enter varnode id -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       
       printf("computing the message from message passing...\n");
       factor_graph_converge(fg);
@@ -629,12 +629,12 @@ int main2(int argc, char ** argv)
     else if(!strcmp(command, "setvar"))
     {
       printf("enter var id -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       bdd_ptr var = bdd_new_var_with_index(fg->m, i);
       bdd_ptr temp;
       do {
         printf("enter value (0 or 1) -> ");
-        scanf("%d", &j);
+        (void)!scanf("%d", &j);
       }while(j*j - j);//while j is neither 0 nor 1
       
       if(j) temp = bdd_dup(var);
@@ -660,33 +660,33 @@ int main2(int argc, char ** argv)
     else if(!strcmp(command, "print"))
     {
       printf("F G file -> ");
-      scanf("%s", param1);
+      (void)!scanf("%s", param1);
       printf("dot file -> ");
-      scanf("%s", param2);
+      (void)!scanf("%s", param2);
       factor_graph_print(fg, param2, param1);
     }
     else if(!strcmp(command, "createpng"))
     {
       printf("Name of dot file (without extension) -> %s", param2);
-      scanf("%s", param1);
+      (void)!scanf("%s", param1);
       
       sprintf(param2, "%s.dot", param1);
       factor_graph_print(fg, param2, "tempfile101");
-      system("rm -f tempfile101");
+      (void)!system("rm -f tempfile101");
       
       sprintf(param2, "fdp -Tpng -o %s.png %s.dot", param1, param1);
       printf("%s\n", param2);
-      system(param2);
+      (void)!system(param2);
       sprintf(param2, "eog %s.png &", param1);
       printf("%s\n", param2);
-      system(param2);
+      (void)!system(param2);
     }
     else if(!strcmp("makeacyclic", command))
     {
       printf("enter lambda -> ");
-      scanf("%d", &i);
+      (void)!scanf("%d", &i);
       printf("enter starting variable node id -> ");
-      scanf("%d", &j);
+      (void)!scanf("%d", &j);
       fgnode_list *vl = fg->vl;
       if(vl != NULL) do
       {
@@ -737,7 +737,7 @@ int main1(int argc, char ** argv)
 
   /* Input the problem*/
 
-  scanf("p cnf %d %d", &numvars, &numclauses);
+  (void)!scanf("p cnf %d %d", &numvars, &numclauses);
   printf("numclauses is %d\n", numclauses);
   printf("numvars is %d\n", numvars);
 
@@ -750,13 +750,13 @@ int main1(int argc, char ** argv)
     cnf[i] = (int *)malloc(sizeof(int) * MAX_CLAUSE_SIZE);
     common_error(cnf[i], " out of mem while inputting problem\n");
     clssz[i] = 0;
-    scanf("%d", &j);
+    (void)!scanf("%d", &j);
     while(j != 0)
     {
       assert(clssz[i] < MAX_CLAUSE_SIZE && "MAX_CLAUSE_SIZE insufficient\n");
       cnf[i][clssz[i]] = j;
       clssz[i]++;
-      scanf("%d", &j);
+      (void)!scanf("%d", &j);
     }
   }
   /* Create the factor graph*/

@@ -29,7 +29,7 @@ SOFTWARE.
 #include <iostream>
 #include <string>
 #include <cmath>
-
+#include <cassert>
 
 // dd includes
 #include <dd/dd.h>
@@ -135,7 +135,7 @@ int main(int argc, char const * const * const argv)
   blif_solve_log(INFO, "dumping cnf");
   blif_solve::dumpCnfForModelCounting(manager, independentVars, factors, bdd_ptr_set(), cnfFilePath);
   blif_solve_log(INFO, "running ganak");
-  std::system(("scripts/ganak.sh ${PWD}/" + cnfFilePath + " 2> /dev/null | grep -A 1 '# solutions' | tail -n 1 ").c_str());
+  assert(!std::system(("scripts/ganak.sh ${PWD}/" + cnfFilePath + " 2> /dev/null | grep -A 1 '# solutions' | tail -n 1 ").c_str()));
 
 
   blif_solve_log(INFO, "computing bdd result");
