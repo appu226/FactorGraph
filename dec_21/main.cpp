@@ -48,6 +48,7 @@ struct CommandLineOptions {
   int largestSupportSet;
   int maxMucSize;
   std::string inputFile;
+  bool computeExact;
 };
 
 
@@ -130,14 +131,18 @@ int main(int argc, char const * const * const argv)
   
 
   auto factorGraphResult = getFactorGraphResult(ddm.get(), *fg, *bdds);
-  auto exactResult = getExactResult(ddm.get(), *bdds);
-  blif_solve_log(DEBUG, "factor graph result is " 
-                        << (factorGraphResult == exactResult 
-                            ? "exact" 
-                            : "strictly over-approximate"));
-
   blif_solve_log_bdd(DEBUG, "factor graph result:", ddm.get(), factorGraphResult.getUncountedBdd());
-  blif_solve_log_bdd(DEBUG, "exact result:", ddm.get(), exactResult.getUncountedBdd());
+
+  if(clo.computeExact)
+  {
+    auto exactResult = getExactResult(ddm.get(), *bdds);
+    blif_solve_log(DEBUG, "factor graph result is " 
+                          << (factorGraphResult == exactResult 
+                              ? "exact" 
+                              : "strictly over-approximate"));
+
+    blif_solve_log_bdd(DEBUG, "exact result:", ddm.get(), exactResult.getUncountedBdd());
+  }
 
   auto mustMaster = createMustMaster(*qdimacs, bdds, fg, factorGraphResult);
   mustMaster->enumerate();
@@ -203,11 +208,17 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
         "Log verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)",
         false,
         std::string("ERROR"));
-  
+  auto computeExact =
+    std::make_shared<CommandLineOption<bool> >(
+        "--computeExact",
+        "Compute exact solution (default false)",
+        false,
+        false
+    );
   
   // parse the command line
   blif_solve::parse(
-      {  largestSupportSet, maxMucSize, inputFile, verbosity },
+      {  largestSupportSet, maxMucSize, inputFile, verbosity, computeExact },
       argc,
       argv);
 
@@ -219,7 +230,8 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
   return CommandLineOptions{
     *(largestSupportSet->value),
     *(maxMucSize->value),
-    *(inputFile->value)
+    *(inputFile->value),
+    *(computeExact->value)
   };
 }
 
@@ -432,9 +444,10 @@ void Dec21MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
   }
   else
   {
-    blif_solve_log(INFO, "NOT nice: counter example does indeed satisfy FG solution.")
+    blif_solve_log(INFO, "NOT nice: counter example does indeed satisfy FG solution.");
     auto mergedFunc = m_factorGraph->groupFactors(funcNodes);
     m_factorGraph->groupVariables(varNodes);
+    blif_solve_log(INFO, "merged " << funcNodes.size() << " func nodes.");
     m_factorGraph->converge();
     m_factorGraphResult = getFactorGraphResult(m_ddManager, *m_factorGraph, *m_qdimacsToBdd);
     blif_solve_log_bdd(DEBUG, "factor graph result:", m_ddManager, m_factorGraphResult.getUncountedBdd());
