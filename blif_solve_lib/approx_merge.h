@@ -28,9 +28,24 @@ SOFTWARE.
 
 #include <vector>
 #include <memory>
+#include <map>
 
 namespace blif_solve
 {
+
+  class MergeHints {
+    
+    public:
+      void addWeight(bdd_ptr func1, bdd_ptr func2, double weight);
+      double getWeight(bdd_ptr func1, bdd_ptr func2) const;
+      void merge(bdd_ptr func1, bdd_ptr func2, bdd_ptr newFunc);
+
+    private:
+      typedef std::pair<bdd_ptr, bdd_ptr> FactorPair;
+      typedef std::map<FactorPair, double> WeightMap;
+      WeightMap m_weights;  
+
+  };
 
   struct MergeResults
   {
@@ -43,6 +58,7 @@ namespace blif_solve
     merge(DdManager * manager,
           const std::vector<bdd_ptr> & factors, 
           const std::vector<bdd_ptr> & variables, 
-          int largestSupportSet);
+          int largestSupportSet,
+          const MergeHints& mergeHints);
 
 } // end namespace blif_solve

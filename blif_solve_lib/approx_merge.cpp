@@ -149,15 +149,88 @@ namespace {
 
 } // end anonymous namespace
 
+
+
+
+
+
 namespace blif_solve
 {
+
+
+  void MergeHints::addWeight(bdd_ptr func1, bdd_ptr func2, double weight)
+  {
+    if (func2 < func1) return addWeight(func2, func1, weight);
+    if (func1 == func2) return;
+
+    m_weights.insert(std::make_pair(FactorPair{func1, func2}, weight));
+  }
+
+  double MergeHints::getWeight(bdd_ptr func1, bdd_ptr func2) const
+  {
+    if (func2 < func1) return getWeight(func2, func1);
+    if (func1 == func2) return 0;
+
+    auto it = m_weights.find(FactorPair{func1, func2});
+    if (it != m_weights.end())
+      return it->second;
+    else
+      return 0;
+  }
+
+  void MergeHints::merge(bdd_ptr func1, bdd_ptr func2, bdd_ptr newFunc)
+  {
+    if (func2 < func1) return merge(func2, func1, newFunc);
+    if (func1 == func2) return;
+
+    std::map<bdd_ptr, double> stuffToAdd;
+    std::vector<FactorPair> stuffToDelete;
+
+    auto markForAddition = [&](bdd_ptr g, double w) {
+      auto staIt = stuffToAdd.find(g);
+      if (staIt == stuffToAdd.end())
+        stuffToAdd[g] = w;
+      else
+        staIt->second = std::max(w, staIt->second);
+    };
+
+    for (auto wit = m_weights.cbegin(); wit != m_weights.cend(); ++wit) {
+      auto g1 = wit->first.first;
+      auto g2 = wit->first.second;
+      auto w = wit->second;
+      if (func1 == g1 && func2 == g2) {
+        stuffToDelete.push_back(FactorPair{func1, func2});
+      } else if(func1 == g1)
+      {
+        stuffToDelete.push_back(FactorPair{g1, g2});
+        markForAddition(g2, w);
+      } else if (func1 == g2)
+      {
+        stuffToDelete.push_back(FactorPair{g1, g2});
+        markForAddition(g1, w);
+      } else if (func2 == g1)
+      {
+        stuffToDelete.push_back(FactorPair{g1, g2});
+        markForAddition(g2, w);
+      } else if (func2 == g2)
+      {
+        stuffToDelete.push_back(FactorPair{g1, g2});
+        markForAddition(g1, w);
+      }
+    }
+    for (const auto & toDelete: stuffToDelete)
+      m_weights.erase(toDelete);
+    for (const auto & toAdd: stuffToAdd)
+      addWeight(toAdd.first, newFunc, toAdd.second);
+  }
 
  
   MergeResults 
     merge(DdManager * manager,
           const std::vector<bdd_ptr> & factors, 
           const std::vector<bdd_ptr> & variables, 
-          int largestSupportSet)
+          int largestSupportSet,
+          const MergeHints& hints)
   {
     // create func nodes
     std::vector<std::unique_ptr<AmNode> > funcNodes;

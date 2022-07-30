@@ -256,7 +256,7 @@ namespace {
         {
           // group the funcs in the factor graph
           auto start = now();
-          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet);
+          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, MergeHints());
           auto & funcGroups = *mergeResults.factors;
           blif_solve_log(INFO, "Grouped func nodes in " << duration(start) << " secs");
           start = now();

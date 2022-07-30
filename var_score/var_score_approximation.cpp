@@ -353,7 +353,8 @@ namespace {
         auto mergeResults = blif_solve::merge(manager,
                                               *fgm.getNewFactors(),
                                               *fgm.getQuantifiedVars(),
-                                              m_largestSupportSet);
+                                              m_largestSupportSet,
+                                              blif_solve::MergeHints());
         std::vector<BddWrapper> mergedFactors, mergedVariables;
         for (auto factor: *mergeResults.factors)
         {
