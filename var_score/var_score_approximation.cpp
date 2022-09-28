@@ -354,7 +354,8 @@ namespace {
                                               *fgm.getNewFactors(),
                                               *fgm.getQuantifiedVars(),
                                               m_largestSupportSet,
-                                              blif_solve::MergeHints());
+                                              blif_solve::MergeHints(manager),
+                                              std::set<bdd_ptr>());
         std::vector<BddWrapper> mergedFactors, mergedVariables;
         for (auto factor: *mergeResults.factors)
         {

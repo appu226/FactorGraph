@@ -102,8 +102,12 @@ namespace {
 
 
   std::optional<double>
-    getCompatibility(AmNode * f1, AmNode * f2, const int largestSupportSet)
+    getCompatibility(AmNode * f1, AmNode * f2, const int largestSupportSet, const double hint, const std::set<bdd_ptr>& quantifiedVariables)
   {
+    bool isF1Quantified = quantifiedVariables.count(f1->supportSet);
+    bool isF2Quantified = quantifiedVariables.count(f2->supportSet);
+    if (isF1Quantified != isF2Quantified)
+      return std::optional<double>();
     auto manager = f1->manager;
     auto combinedSupportSet = bdd_dup(f1->supportSet);
     bdd_and_accumulate(manager, &combinedSupportSet, f2->supportSet);
@@ -128,7 +132,7 @@ namespace {
     bdd_free(manager, commonSupportSet);
     double f1Size = bdd_size(f1->supportSet);
     double f2Size = bdd_size(f2->supportSet);
-    return commonSize / std::min(f1Size, f2Size);
+    return commonSize / std::min(f1Size, f2Size) + hint;
   }
 
   AmNode *
@@ -147,6 +151,11 @@ namespace {
     else return NULL;
   }
 
+  blif_solve::MergeHints::FactorPair makeFactorPair(bdd_ptr f1, bdd_ptr f2, DdManager* manager) {
+    typedef dd::BddWrapper bw;
+    return blif_solve::MergeHints::FactorPair{bw(bdd_dup(f1), manager), bw(bdd_dup(f2), manager)};
+  }
+
 } // end anonymous namespace
 
 
@@ -163,7 +172,7 @@ namespace blif_solve
     if (func2 < func1) return addWeight(func2, func1, weight);
     if (func1 == func2) return;
 
-    m_weights.insert(std::make_pair(FactorPair{func1, func2}, weight));
+    m_weights.insert(std::make_pair(makeFactorPair(func1, func2, m_manager), weight));
   }
 
   double MergeHints::getWeight(bdd_ptr func1, bdd_ptr func2) const
@@ -171,7 +180,7 @@ namespace blif_solve
     if (func2 < func1) return getWeight(func2, func1);
     if (func1 == func2) return 0;
 
-    auto it = m_weights.find(FactorPair{func1, func2});
+    auto it = m_weights.find(makeFactorPair(func1, func2, m_manager));
     if (it != m_weights.end())
       return it->second;
     else
@@ -183,10 +192,10 @@ namespace blif_solve
     if (func2 < func1) return merge(func2, func1, newFunc);
     if (func1 == func2) return;
 
-    std::map<bdd_ptr, double> stuffToAdd;
+    std::map<BddWrapper, double> stuffToAdd;
     std::vector<FactorPair> stuffToDelete;
 
-    auto markForAddition = [&](bdd_ptr g, double w) {
+    auto markForAddition = [&](BddWrapper const & g, double w) {
       auto staIt = stuffToAdd.find(g);
       if (staIt == stuffToAdd.end())
         stuffToAdd[g] = w;
@@ -198,21 +207,21 @@ namespace blif_solve
       auto g1 = wit->first.first;
       auto g2 = wit->first.second;
       auto w = wit->second;
-      if (func1 == g1 && func2 == g2) {
-        stuffToDelete.push_back(FactorPair{func1, func2});
-      } else if(func1 == g1)
+      if (func1 == g1.getUncountedBdd() && func2 == g2.getUncountedBdd()) {
+        stuffToDelete.push_back(makeFactorPair(func1, func2, m_manager));
+      } else if(func1 == g1.getUncountedBdd())
       {
         stuffToDelete.push_back(FactorPair{g1, g2});
         markForAddition(g2, w);
-      } else if (func1 == g2)
+      } else if (func1 == g2.getUncountedBdd())
       {
         stuffToDelete.push_back(FactorPair{g1, g2});
         markForAddition(g1, w);
-      } else if (func2 == g1)
+      } else if (func2 == g1.getUncountedBdd())
       {
         stuffToDelete.push_back(FactorPair{g1, g2});
         markForAddition(g2, w);
-      } else if (func2 == g2)
+      } else if (func2 == g2.getUncountedBdd())
       {
         stuffToDelete.push_back(FactorPair{g1, g2});
         markForAddition(g1, w);
@@ -221,7 +230,7 @@ namespace blif_solve
     for (const auto & toDelete: stuffToDelete)
       m_weights.erase(toDelete);
     for (const auto & toAdd: stuffToAdd)
-      addWeight(toAdd.first, newFunc, toAdd.second);
+      addWeight(toAdd.first.getUncountedBdd(), newFunc, toAdd.second);
   }
 
  
@@ -230,8 +239,10 @@ namespace blif_solve
           const std::vector<bdd_ptr> & factors, 
           const std::vector<bdd_ptr> & variables, 
           int largestSupportSet,
-          const MergeHints& hints)
+          const MergeHints& hintsInput,
+          const std::set<bdd_ptr>& quantifiedVariables)
   {
+    MergeHints hints = hintsInput;
     // create func nodes
     std::vector<std::unique_ptr<AmNode> > funcNodes;
     std::set<bdd_ptr> mergedFactors(factors.cbegin(), factors.cend());
@@ -243,6 +254,13 @@ namespace blif_solve
     std::set<bdd_ptr> mergedVariables(variables.cbegin(), variables.cend());
     for (auto variable: variables)
       varNodes.push_back(std::make_unique<AmNode>(AmNode::Var, manager, variable));
+
+    // copy quantifiedVariables set
+    std::set<bdd_ptr> qv;
+    for (auto v: quantifiedVariables)
+      qv.insert(v);
+    std::set<bdd_ptr> qf; // for functions
+    
 
     // create func-var connections
     for (auto & func: funcNodes) {
@@ -260,7 +278,7 @@ namespace blif_solve
     for (auto & f1: funcNodes) {
       for (auto & f2: funcNodes) {
         if (f1 < f2 && f1->isConnectedTo(*f2)) {
-          auto optPriority = getCompatibility(f1.get(), f2.get(), largestSupportSet);
+          auto optPriority = getCompatibility(f1.get(), f2.get(), largestSupportSet, hints.getWeight(f1->node, f2->node), qf);
           if (optPriority) {
             mergers.push_back(std::make_unique<AmMerger>(f1.get(), f2.get()));
             auto merger = mergers.back().get();
@@ -275,7 +293,7 @@ namespace blif_solve
     for (auto & v1: varNodes) {
       for (auto & v2: varNodes) {
         if (v1 < v2) {
-          auto optPriority = getCompatibility(v1.get(), v2.get(), largestSupportSet);
+          auto optPriority = getCompatibility(v1.get(), v2.get(), largestSupportSet, hints.getWeight(v1->node, v2->node), qv);
           if (optPriority) {
             mergers.push_back(std::make_unique<AmMerger>(v1.get(), v2.get()));
             auto merger = mergers.back().get();
@@ -294,9 +312,13 @@ namespace blif_solve
       heap.pop();
       if (merger->node1->type != merger->node2->type)
         throw std::runtime_error("Assertion failure: node1 and node2 in merger don't have consistent type");
+      std::set<bdd_ptr> &quantified = (merger->node1->type == AmNode::Var ? qv : qf);
+      bool isQuantified = quantified.count(merger->node1->supportSet);
 
       // create merged node
       bdd_ptr mergedBdd = bdd_and(manager, merger->node1->node, merger->node2->node);
+      if (isQuantified) quantified.insert(bdd_dup(mergedBdd));
+      hints.merge(merger->node1->node, merger->node2->node, mergedBdd);
       auto & nodeVec = merger->node1->type == AmNode::Func ? funcNodes : varNodes;
       nodeVec.push_back(std::make_unique<AmNode>(merger->node1->type, manager, mergedBdd));
       bdd_free(manager, mergedBdd);
@@ -332,7 +354,7 @@ namespace blif_solve
           if (oldMergerSet.count(otherNode) != 0)
             continue;
           oldMergerSet.insert(otherNode);
-          auto optPriority = getCompatibility(mergedNode, otherNode, largestSupportSet);
+          auto optPriority = getCompatibility(mergedNode, otherNode, largestSupportSet, hints.getWeight(mergedNode->node, otherNode->node), quantified);
           if (optPriority)
           {
             mergers.push_back(std::make_unique<AmMerger>(mergedNode, otherNode));
@@ -347,6 +369,7 @@ namespace blif_solve
     result.variables = std::make_shared<std::vector<bdd_ptr> >(mergedVariables.cbegin(), mergedVariables.cend());
     for (auto factor: *result.factors) bdd_dup(factor);
     for (auto variable: *result.variables) bdd_dup(variable);
+    for (auto q: qv) bdd_free(manager, q);
     return result;
 
   }

@@ -251,12 +251,13 @@ namespace {
 
 
         // run message passing multiple times and collect results
+        std::set<bdd_ptr> qv;
         int nc = 0;
         for ( ; nc < m_numConvergence && static_cast<int>(result.size()) > last_result_size; ++nc)
         {
           // group the funcs in the factor graph
           auto start = now();
-          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, MergeHints());
+          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, MergeHints(ddm), qv);
           auto & funcGroups = *mergeResults.factors;
           blif_solve_log(INFO, "Grouped func nodes in " << duration(start) << " secs");
           start = now();

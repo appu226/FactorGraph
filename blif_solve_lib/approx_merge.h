@@ -25,10 +25,12 @@ SOFTWARE.
 #pragma once
 
 #include <dd/dd.h>
+#include <dd/bdd_factory.h>
 
 #include <vector>
 #include <memory>
 #include <map>
+#include <set>
 
 namespace blif_solve
 {
@@ -36,14 +38,17 @@ namespace blif_solve
   class MergeHints {
     
     public:
+      typedef dd::BddWrapper BddWrapper;
+      typedef std::pair<BddWrapper, BddWrapper> FactorPair;
+      MergeHints(DdManager* manager): m_manager(manager) { }
       void addWeight(bdd_ptr func1, bdd_ptr func2, double weight);
       double getWeight(bdd_ptr func1, bdd_ptr func2) const;
       void merge(bdd_ptr func1, bdd_ptr func2, bdd_ptr newFunc);
 
     private:
-      typedef std::pair<bdd_ptr, bdd_ptr> FactorPair;
       typedef std::map<FactorPair, double> WeightMap;
-      WeightMap m_weights;  
+      WeightMap m_weights;
+      DdManager * m_manager;
 
   };
 
@@ -59,6 +64,7 @@ namespace blif_solve
           const std::vector<bdd_ptr> & factors, 
           const std::vector<bdd_ptr> & variables, 
           int largestSupportSet,
-          const MergeHints& mergeHints);
+          const MergeHints& mergeHints,
+          const std::set<bdd_ptr>& quantifiedVariables);
 
 } // end namespace blif_solve

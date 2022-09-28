@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 
+#include <blif_solve_lib/approx_merge.h>
 #include <blif_solve_lib/clo.hpp>
 #include <blif_solve_lib/log.h>
 
@@ -49,13 +50,14 @@ struct CommandLineOptions {
   int maxMucSize;
   std::string inputFile;
   bool computeExact;
+  double mucMergeWeight;
 };
 
 
 struct ClauseData {
   typedef std::pair<int, bool> Assignment;
   typedef std::set<Assignment> AssignmentSet;
-  dd::BddWrapper varNode;
+  std::vector<dd::BddWrapper> varNodes;
   dd::BddWrapper funcNode;
   AssignmentSet literalAssignments;
 };
@@ -63,24 +65,33 @@ struct May22MucCallback: public MucCallback
 {
 
   May22MucCallback(DdManager* ddManager, 
-                   const fgpp::FactorGraph::Ptr& factorGraph, 
                    const dd::QdimacsToBdd::Ptr& qdimacsToBdd,
-                   const dd::BddWrapper & factorGraphResult);
+                   const double mucMergeWeight,
+                   const dd::BddVectorWrapper& factors,
+                   const dd::BddVectorWrapper& variables,
+                   const double largestSupportSet);
 
   void processMuc(const std::vector<std::vector<int> >& muc) override;
 
   void addClause(const std::set<int>& mustClause,
-                 const dd::BddWrapper & varNode,
+                 const std::vector<dd::BddWrapper> & varNodes,
                  const dd::BddWrapper & funcNode,
                  const ClauseData::AssignmentSet & literals);
+
+  ~May22MucCallback();
   
   private:
   using Clause = std::set<int>;
   using ClauseDataMap = std::map<Clause, ClauseData>;
 
   DdManager* m_ddManager;
-  fgpp::FactorGraph::Ptr m_factorGraph;
   dd::QdimacsToBdd::Ptr m_qdimacsToBdd;
+  std::set<bdd_ptr> m_quantifiedVariables;
+  blif_solve::MergeHints m_mergeHints;
+  double m_mucMergeWeight;
+  dd::BddVectorWrapper m_factors;
+  dd::BddVectorWrapper m_variables;
+  double m_largestSupportSet;
   dd::BddWrapper m_factorGraphResult;
   ClauseDataMap m_clauseData;
 };
@@ -92,15 +103,19 @@ struct May22MucCallback: public MucCallback
 CommandLineOptions parseClo(int argc, char const * const * const argv);
 int main(int argc, char const * const * const argv);
 std::shared_ptr<DdManager> ddm_init();
-fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
+void getFactorsAndVariables(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd, dd::BddVectorWrapper& factors, dd::BddVectorWrapper& variables);
 std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string & inputFilePath);
-std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs, 
-                                         const dd::QdimacsToBdd::Ptr& qdimacsToBdd, 
-                                         const fgpp::FactorGraph::Ptr& factorGraph,
-                                         const dd::BddWrapper& factorGraphResult);
+std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs,
+                                         const dd::QdimacsToBdd::Ptr& qdimacsToBdd,
+                                         const double mucMergeWeight,
+                                         const dd::BddVectorWrapper& factors,
+                                         const dd::BddVectorWrapper& variables,
+                                         const double largestSupportSet);
 dd::BddWrapper getFactorGraphResult(DdManager* ddm, const fgpp::FactorGraph& fg, const dd::QdimacsToBdd& qdimacsToBdd);
+fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm,
+                                         dd::BddVectorWrapper const & factors);
 dd::BddWrapper getExactResult(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
-
+template<typename FVec> void mergeAllPairs(const FVec& fvec, blif_solve::MergeHints& mergeHints, const double mergeWeight);
 
 
 
@@ -118,7 +133,9 @@ int main(int argc, char const * const * const argv)
   auto qdimacs = parseQdimacs(clo.inputFile);                           // parse input file
   auto ddm = ddm_init();                                                // init cudd
   auto bdds = dd::QdimacsToBdd::createFromQdimacs(ddm.get(), *qdimacs); // create bdds
-  auto fg = createFactorGraph(ddm.get(), *bdds);                        // create factor graph
+  dd::BddVectorWrapper factors(ddm.get()), variables(ddm.get());
+  getFactorsAndVariables(ddm.get(), *bdds, factors, variables);         // parse factors and variables
+  auto fg = createFactorGraph(ddm.get(), factors);                      // create factor graph
   blif_solve_log(INFO, "create factor graph from qdimacs file with "
       << qdimacs->numVariables << " variables and "
       << qdimacs->clauses.size() << " clauses in "
@@ -144,13 +161,38 @@ int main(int argc, char const * const * const argv)
     blif_solve_log_bdd(DEBUG, "exact result:", ddm.get(), exactResult.getUncountedBdd());
   }
 
-  auto mustMaster = createMustMaster(*qdimacs, bdds, fg, factorGraphResult);
+  auto mustMaster = createMustMaster(*qdimacs, bdds, clo.mucMergeWeight, factors, variables, clo.largestSupportSet);
   mustMaster->enumerate();
 
   blif_solve_log(INFO, "Done");
   return 0;
 }
 
+
+
+fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, dd::BddVectorWrapper const & factors)
+{
+  std::vector<dd::BddWrapper> factorWrappers;
+  factorWrappers.reserve(factors->size());
+  for (const auto ptr: *factors)
+    factorWrappers.emplace_back(ptr, ddm);
+  return fgpp::FactorGraph::createFactorGraph(factorWrappers);
+}
+
+
+
+
+template<typename FVec>
+void mergeAllPairs(const FVec& fvec, blif_solve::MergeHints& mergeHints, const double mergeWeight)
+{
+  for (const auto & fn1: fvec) {
+    for (const auto & fn2: fvec) {
+      if (fn1 != fn2) {
+        mergeHints.addWeight(fn1.getUncountedBdd(), fn2.getUncountedBdd(), mergeWeight);
+      }
+    }
+  }
+}
 
 
 
@@ -169,12 +211,22 @@ std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string& inputFilePath)
 
 
 // create factor graph
-fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& bdds)
+void getFactorsAndVariables(DdManager* ddm, const dd::QdimacsToBdd& bdds, dd::BddVectorWrapper& factors, dd::BddVectorWrapper& variables)
 {
-  std::vector<dd::BddWrapper> bddWrapperVec;
+  dd::BddWrapper one(bdd_one(ddm), ddm);
+  dd::BddWrapper allVars = one;
   for (const auto& factorKv: bdds.clauses)
-    bddWrapperVec.push_back(dd::BddWrapper(bdd_dup(factorKv.second), ddm));
-  return fgpp::FactorGraph::createFactorGraph(bddWrapperVec);
+  {
+    dd::BddWrapper factor(bdd_dup(factorKv.second), ddm);
+    factors.push_back(factor);
+    allVars = allVars * factor.support();
+  }
+  while(allVars != one)
+  {
+    auto var = allVars.varWithLowestIndex();
+    variables.push_back(var);
+    allVars = allVars.cubeDiff(var);
+  }
 }
 
 
@@ -215,10 +267,17 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
         false,
         false
     );
+  auto mucMergeWeight =
+    std::make_shared<CommandLineOption<double> >(
+      "--mucMergeWeight",
+      "Weightage given to merge MUC findings",
+      false,
+      0.5
+    );
   
   // parse the command line
   blif_solve::parse(
-      {  largestSupportSet, maxMucSize, inputFile, verbosity, computeExact },
+      {  largestSupportSet, maxMucSize, inputFile, verbosity, computeExact, mucMergeWeight },
       argc,
       argv);
 
@@ -231,7 +290,8 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
     *(largestSupportSet->value),
     *(maxMucSize->value),
     *(inputFile->value),
-    *(computeExact->value)
+    *(computeExact->value),
+    *(mucMergeWeight->value)
   };
 }
 
@@ -258,8 +318,10 @@ std::shared_ptr<DdManager> ddm_init()
 std::shared_ptr<Master> createMustMaster(
   const dd::Qdimacs& qdimacs,
   const dd::QdimacsToBdd::Ptr& qdimacsToBdd,
-  const fgpp::FactorGraph::Ptr& factorGraph,
-  const dd::BddWrapper& factorGraphResult)
+  const double mucMergeWeight,
+  const dd::BddVectorWrapper& factors,
+  const dd::BddVectorWrapper& variables,
+  const double largestSupportSet)
 {
   // check that we have exactly one quantifier which happens to be existential
   assert(qdimacs.quantifiers.size() == 1);
@@ -277,7 +339,7 @@ std::shared_ptr<Master> createMustMaster(
   typedef std::set<int> LiteralSet;
   std::set<LiteralSet> outputClauseSet;   // remember where each outputClause is stored
   std::map<int, std::set<size_t> > nonQuantifiedLiteralToOutputClausePosMap;
-  auto mucCallback = std::make_shared<May22MucCallback>(qdimacsToBdd->ddManager, factorGraph, qdimacsToBdd, factorGraphResult);
+  auto mucCallback = std::make_shared<May22MucCallback>(qdimacsToBdd->ddManager, qdimacsToBdd, mucMergeWeight, factors, variables, largestSupportSet);
   for (const auto & clause: qdimacs.clauses)
   {
     LiteralSet quantifiedLiterals, nonQuantifiedLiterals, nextOutputClause;
@@ -317,16 +379,16 @@ std::shared_ptr<Master> createMustMaster(
 
     {
       dd::BddWrapper funcNode = qdimacsToBdd->getBdd(std::set<int>(clause.cbegin(), clause.cend()));
-      dd::BddWrapper varNode = funcNode.one();
+      std::vector<dd::BddWrapper> varNodes;
       ClauseData::AssignmentSet reversedNonQuantifiedLiterals;
       for (auto nql: nonQuantifiedLiterals)
       {
         int nql_abs = (nql > 0 ? nql : -nql);
-        varNode = varNode * qdimacsToBdd->getBdd(nql_abs);
+        varNodes.push_back(qdimacsToBdd->getBdd(nql_abs));
         reversedNonQuantifiedLiterals.insert(std::make_pair(nql_abs, nql < 0));
       }
       
-      mucCallback->addClause(nextOutputClause, varNode, funcNode, reversedNonQuantifiedLiterals);
+      mucCallback->addClause(nextOutputClause, varNodes, funcNode, reversedNonQuantifiedLiterals);
     }
   }
 
@@ -382,15 +444,39 @@ std::shared_ptr<Master> createMustMaster(
 
 
 May22MucCallback::May22MucCallback(DdManager* ddManager, 
-                                   const fgpp::FactorGraph::Ptr& factorGraph, 
                                    const dd::QdimacsToBdd::Ptr& qdimacsToBdd,
-                                   const dd::BddWrapper& factorGraphResult): 
+                                   const double mucMergeWeight,
+                                   const dd::BddVectorWrapper& factors,
+                                   const dd::BddVectorWrapper& variables,
+                                   const double largestSupportSet): 
   m_ddManager(ddManager),
-  m_factorGraph(factorGraph),
   m_qdimacsToBdd(qdimacsToBdd),
-  m_factorGraphResult(factorGraphResult),
+  m_quantifiedVariables(),
+  m_mergeHints(ddManager),
+  m_mucMergeWeight(mucMergeWeight),
+  m_factors(factors),
+  m_variables(variables),
+  m_largestSupportSet(largestSupportSet),
+  m_factorGraphResult(bdd_one(ddManager), ddManager),
   m_clauseData()
-{ }
+{
+  if (m_qdimacsToBdd->quantifications.size() != 1)
+    throw std::runtime_error("Expecting only one quantifier, instead found " + std::to_string(m_qdimacsToBdd->quantifications.size()));
+  if (m_qdimacsToBdd->quantifications.front()->quantifierType != dd::Quantifier::Exists)
+    throw std::runtime_error("Expecting quantifer to be 'existential' but found something else.");
+  dd::BddWrapper allQuantifiedVariables(m_qdimacsToBdd->quantifications.front()->quantifiedVariables, m_ddManager);
+  while(!allQuantifiedVariables.isOne())
+  {
+    auto nextV = allQuantifiedVariables.varWithLowestIndex();
+    allQuantifiedVariables = allQuantifiedVariables.cubeDiff(nextV);
+    m_quantifiedVariables.insert(nextV.getCountedBdd());
+  }
+}
+
+May22MucCallback::~May22MucCallback() {
+  for(auto q: m_quantifiedVariables)
+    bdd_free(m_ddManager, q);
+}
 
 void May22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
 {
@@ -405,7 +491,7 @@ void May22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
     }
     blif_solve_log(DEBUG, mucss.str());
   }
-  dd::BddWrapper varNodes(bdd_one(m_ddManager), m_ddManager);
+  std::set<dd::BddWrapper> varNodes;
   std::vector<dd::BddWrapper> funcNodes;
   ClauseData::AssignmentSet varAssignment;
   std::vector<ClauseData*> clauseDataVec;
@@ -415,7 +501,7 @@ void May22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
     if (cdit == m_clauseData.end())
       continue;
     auto & clauseData = cdit->second;
-    varNodes = varNodes * clauseData.varNode;
+    varNodes.insert(clauseData.varNodes.cbegin(), clauseData.varNodes.cend());
     funcNodes.push_back(clauseData.funcNode);
     varAssignment.insert(clauseData.literalAssignments.cbegin(), clauseData.literalAssignments.cend());
     clauseDataVec.push_back(&clauseData);
@@ -445,24 +531,29 @@ void May22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
   else
   {
     blif_solve_log(INFO, "NOT nice: counter example does indeed satisfy FG solution.");
-    auto mergedFunc = m_factorGraph->groupFactors(funcNodes);
-    m_factorGraph->groupVariables(varNodes);
+    mergeAllPairs(funcNodes, m_mergeHints, m_mucMergeWeight);
+    mergeAllPairs(varNodes, m_mergeHints, m_mucMergeWeight);
+    auto mergeResults = blif_solve::merge(m_ddManager, *m_factors, *m_variables, m_largestSupportSet, m_mergeHints, m_quantifiedVariables);
+    auto factorGraph = createFactorGraph(m_ddManager, dd::BddVectorWrapper(*mergeResults.factors, m_ddManager));
+    for (const auto & varsToMerge: *mergeResults.variables)
+    {
+      factorGraph->groupVariables(dd::BddWrapper(bdd_dup(varsToMerge), m_ddManager));
+    }
     blif_solve_log(INFO, "merged " << funcNodes.size() << " func nodes.");
-    m_factorGraph->converge();
-    m_factorGraphResult = getFactorGraphResult(m_ddManager, *m_factorGraph, *m_qdimacsToBdd);
+    factorGraph->converge();
+    m_factorGraphResult = getFactorGraphResult(m_ddManager, *factorGraph, *m_qdimacsToBdd);
     blif_solve_log_bdd(DEBUG, "factor graph result:", m_ddManager, m_factorGraphResult.getUncountedBdd());
-    for (auto & cd: clauseDataVec) cd->funcNode = mergedFunc;
   }
 }
 
 void 
   May22MucCallback::addClause(
     const std::set<int>& mustClause,
-    const dd::BddWrapper & varNode,
+    const std::vector<dd::BddWrapper> & varNodes,
     const dd::BddWrapper & funcNode,
     const ClauseData::AssignmentSet& literals)
 {
-  m_clauseData.insert(std::make_pair(mustClause, ClauseData{varNode, funcNode, literals}));
+  m_clauseData.insert(std::make_pair(mustClause, ClauseData{varNodes, funcNode, literals}));
 }
 
 
