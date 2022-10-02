@@ -175,7 +175,7 @@ fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, dd::BddVectorWrapper co
   std::vector<dd::BddWrapper> factorWrappers;
   factorWrappers.reserve(factors->size());
   for (const auto ptr: *factors)
-    factorWrappers.emplace_back(ptr, ddm);
+    factorWrappers.emplace_back(bdd_dup(ptr), ddm);
   return fgpp::FactorGraph::createFactorGraph(factorWrappers);
 }
 

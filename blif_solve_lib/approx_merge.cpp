@@ -258,7 +258,7 @@ namespace blif_solve
     // copy quantifiedVariables set
     std::set<bdd_ptr> qv;
     for (auto v: quantifiedVariables)
-      qv.insert(v);
+      qv.insert(bdd_dup(v));
     std::set<bdd_ptr> qf; // for functions
     
 
@@ -317,7 +317,7 @@ namespace blif_solve
 
       // create merged node
       bdd_ptr mergedBdd = bdd_and(manager, merger->node1->node, merger->node2->node);
-      if (isQuantified) quantified.insert(bdd_dup(mergedBdd));
+      if (isQuantified && quantified.count(mergedBdd) == 0) quantified.insert(bdd_dup(mergedBdd));
       hints.merge(merger->node1->node, merger->node2->node, mergedBdd);
       auto & nodeVec = merger->node1->type == AmNode::Func ? funcNodes : varNodes;
       nodeVec.push_back(std::make_unique<AmNode>(merger->node1->type, manager, mergedBdd));
