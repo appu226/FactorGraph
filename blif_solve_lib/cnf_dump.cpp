@@ -34,8 +34,10 @@ SOFTWARE.
 #include <cuddInt.h>
 
 // std includes
+#include <algorithm>
 #include <vector>
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
@@ -238,6 +240,66 @@ namespace {
   }
 
 
+
+  // ---------------------- Interface ------------------------
+  // IClauseWriter
+  //   An interface to collect clauses created by dumpCnf
+  struct IClauseWriter
+  {
+    typedef std::shared_ptr<IClauseWriter> Ptr;
+    virtual ~IClauseWriter() {}
+    virtual void writeClause(std::vector<int> const & clause) = 0;
+    void writeSingletonClause(int var) { writeClause(std::vector<int>(1, var)); }
+  };
+
+
+  struct FileClauseWriter: public IClauseWriter
+  {
+
+    FileClauseWriter(std::ostream& outStream)
+    : m_outStream(outStream)
+    { }
+
+    static Ptr create(std::ostream& outStream)
+    {
+      return std::make_shared<FileClauseWriter>(outStream);
+    }
+
+
+    void writeClause(std::vector<int> const & clause) override
+    {
+      for(auto l: clause)
+        m_outStream << l << ' ';
+      m_outStream << "0\n";
+    }
+
+    std::ostream & m_outStream;
+  };
+
+  struct DirectClauseWriter: public IClauseWriter
+  {
+    typedef std::set<std::vector<int> > ClauseSet;
+    DirectClauseWriter(ClauseSet& clauseSet)
+    : m_clauseSet(clauseSet)
+    { }
+
+    static Ptr create(ClauseSet& clauseSet)
+    {
+      return std::make_shared<DirectClauseWriter>(clauseSet);
+    }
+
+    void writeClause(std::vector<int> const & clause) override
+    {
+      std::vector<int> clauseCopy(clause);
+      std::sort(clauseCopy.begin(), clauseCopy.end());
+      m_clauseSet.insert(clauseCopy);
+    }
+
+    ClauseSet & m_clauseSet;
+  };
+
+
+
   // ----------------------- Function -------------------------
   // ** Intro to dumpCnf
   //     writes the set of clauses for a given func
@@ -262,7 +324,7 @@ namespace {
   };
   DumpCnfResult dumpCnf(DdManager * manager,
               bdd_ptr func,
-              std::ostream & outputStream,
+              IClauseWriter & clauseWriter,
               CnfDumpCache & cnfDumpCache,
               std::string const & debugIndent)
   {
@@ -282,7 +344,7 @@ namespace {
       // cnfVar(zero) = cnfVar(one) * -1
       int clause = result * (zero == func ? -1 : 1);
       blif_solve_log(DEBUG, debugIndent << "adding 1 clause '" << clause << " 0' for func " << (zero == func ? "zero" : "one"))
-      outputStream << clause << " 0\n";
+      clauseWriter.writeSingletonClause(clause);
       return DumpCnfResult(result, 1);
     }
     
@@ -301,9 +363,9 @@ namespace {
     auto tfunc = cuddT(funcRegular); if (func != funcRegular) tfunc = Cudd_Not(tfunc);
     auto efunc = cuddE(funcRegular); if (func != funcRegular) efunc = Cudd_Not(efunc);
     blif_solve_log_bdd(DEBUG, debugIndent << "dumping left branch ", manager, tfunc);
-    auto tdcr = dumpCnf(manager, tfunc, outputStream, cnfDumpCache, debugIndent + "  ");
+    auto tdcr = dumpCnf(manager, tfunc, clauseWriter, cnfDumpCache, debugIndent + "  ");
     blif_solve_log_bdd(DEBUG, debugIndent << "dumping right branch ", manager, efunc);
-    auto edcr = dumpCnf(manager, efunc, outputStream, cnfDumpCache, debugIndent + "  ");
+    auto edcr = dumpCnf(manager, efunc, clauseWriter, cnfDumpCache, debugIndent + "  ");
     auto t = tdcr.tseytinVar;
     auto e = edcr.tseytinVar;
 
@@ -330,10 +392,10 @@ namespace {
     // r <-> IfThenElse(v, t, e)
     // == (!r or !v or t) and (!r or v or e) and (r or v or !e) and (r or !v or !t)
     auto v = cnfDumpCache.getCnfVarForBddVar(vidx);
-    outputStream << -r << " " << -v << " " <<  t << " 0\n"
-                 << -r << " " <<  v << " " <<  e << " 0\n"
-                 <<  r << " " <<  v << " " << -e << " 0\n"
-                 <<  r << " " << -v << " " << -t << " 0\n";
+    clauseWriter.writeClause({  -r,     -v,     t   });
+    clauseWriter.writeClause({  -r,      v,     e   });
+    clauseWriter.writeClause({   r,      v,    -e   });
+    clauseWriter.writeClause({   r,     -v,    -t   });
 
     blif_solve_log_bdd(DEBUG,
                        debugIndent << "adding 4 clauses on tseytin vars " 
@@ -361,6 +423,7 @@ namespace blif_solve {
     CnfDumpCache cnfDumpCache(manager, allVars);
     std::string const clauseFile = outputPath + ".clauses.txt";
     std::ofstream clauseOut(clauseFile);
+    auto clauseWriter = FileClauseWriter::create(clauseOut);
     int numClauses = 0;
 
     
@@ -370,9 +433,9 @@ namespace blif_solve {
     for (auto ulit = upperLimit.cbegin(); ulit != upperLimit.cend(); ++ulit)
     {
       blif_solve_log_bdd(DEBUG, "dumping cnf for upper limit func", manager, *ulit);
-      auto dcr = dumpCnf(manager, *ulit, clauseOut, cnfDumpCache, "");
+      auto dcr = dumpCnf(manager, *ulit, *clauseWriter, cnfDumpCache, "");
       numClauses += dcr.numClauses;
-      clauseOut << dcr.tseytinVar << " 0\n";
+      clauseWriter->writeSingletonClause(dcr.tseytinVar);
       ++numClauses;
     }
 
@@ -381,23 +444,22 @@ namespace blif_solve {
     // process lowerLimit functions
     if (!lowerLimit.empty())
     {
-      std::vector<int> llTseytins;
-      llTseytins.reserve(lowerLimit.size());
+      std::vector<int> llTseytinNegs;
+      llTseytinNegs.reserve(lowerLimit.size());
       for (auto llit = lowerLimit.cbegin(); llit != lowerLimit.cend(); ++llit)
       {
         blif_solve_log_bdd(DEBUG, "dumping cnf for func", manager, *llit);
-        auto dcr = dumpCnf(manager, *llit, clauseOut, cnfDumpCache, "");
+        auto dcr = dumpCnf(manager, *llit, *clauseWriter, cnfDumpCache, "");
         numClauses += dcr.numClauses;
-        llTseytins.push_back(dcr.tseytinVar);
+        llTseytinNegs.push_back(-dcr.tseytinVar);
       }
       // write the negation of all lower limit tseytins into a single clause
-      for (auto llt: llTseytins)
-        clauseOut << -llt << " ";
-      clauseOut << "0\n";
+      clauseWriter->writeClause(llTseytinNegs);
       ++numClauses;
     }
 
     // done processing clauses
+    clauseWriter.reset();
     clauseOut.close();
 
 
@@ -427,5 +489,27 @@ namespace blif_solve {
       cnfDumpCache.debugAllCnfVars();
 
   }
+
+
+
+  void dumpCnf(DdManager* manager,
+               int highestVarNum,
+               bdd_ptr_set const & funcs,
+               std::set<std::vector<int> >& clauseSet)
+  {
+    CnfDumpCache cdc(manager, bdd_ptr_set());
+    for (int i = 1; i <= highestVarNum; ++i)
+    {
+      cdc.addCnfVarForIndependentVar(i);
+    }
+    auto clauseWriter = DirectClauseWriter::create(clauseSet);
+    
+    for (auto func: funcs)
+    {
+      auto dcr = dumpCnf(manager, func, *clauseWriter, cdc, "");
+      clauseWriter->writeSingletonClause(dcr.tseytinVar);
+    }
+  }
+
 
 } // end namespace blif_solve

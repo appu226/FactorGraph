@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include <dd/dd.h>
 #include <string>
+#include <set>
+#include <vector>
 
 namespace blif_solve {
 
@@ -58,5 +60,10 @@ namespace blif_solve {
                                bdd_ptr_set const & upperLimit,
                                bdd_ptr_set const & lowerLimit,
                                std::string const & outputPath);
+
+  void dumpCnf(DdManager* manager,
+               int highestVarNum,
+               bdd_ptr_set const & funcs,
+               std::set<std::vector<int> >& clauses);
 
 } // end namespace blif_solve

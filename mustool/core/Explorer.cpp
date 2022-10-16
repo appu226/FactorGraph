@@ -160,6 +160,14 @@ bool Explorer::mark_inconsistent_pair(int c1, int c2)
     return solver->addClause(msClause) && topSolver->addClause(msClause);
 }
 
+bool Explorer::mark_inconsistent_set(const std::vector<int>& clauseIndices)
+{
+    vec<Lit> msClause;
+    for (auto ci: clauseIndices)
+      msClause.push(~mkLit(ci));
+    return solver->addClause(msClause) && topSolver->addClause(msClause);
+}
+
 vector<bool> Explorer::get_bot_unexplored(vector<bool> top){
         botSolver->rnd_pol = false;
         for(int i = 0; i < vars; i++)

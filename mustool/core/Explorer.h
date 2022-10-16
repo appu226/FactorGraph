@@ -29,6 +29,7 @@ public:
     bool block_up(MUS& mus);
     bool block_down(const std::vector<bool> & formula);
     bool mark_inconsistent_pair(int c1, int c2);
+	bool mark_inconsistent_set(const std::vector<int>& clauseIndices);
 	std::vector<bool> get_unexplored(uint8_t polarity = 0, bool rnd_pol = false);
 	std::vector<bool> get_bot_unexplored(std::vector<bool>);
 	std::vector<bool> get_top_unexplored(std::vector<bool>);

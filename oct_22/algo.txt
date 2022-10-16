@@ -1,0 +1,30 @@
+1. Run a sat solver on Phi. If un-sat, terminate.
+2. Parse the qdimacs Phi and convert to a BDD based factor graph
+   Merge a few factors and variables based on some heuristics.
+   Make sure not to merge quantified and non-quantified variables.
+3. Run the factor graph algorithm, get an over-approximation in the form of a set of to-be-conjoined BDDs S
+4. Convert S into CNFs using tseytin transformations.
+   Lets call this CNF form F.
+   Make sure the variable naming in F is consistent with the original qdimacs Phi.
+   F is guaranteed to be sat, because of step 1.
+5. Drop all non-quantified variables from Phi to get Psi
+   Make resulting duplicate clauses unique by adding dummy variables (make sure dummy variables are absolutely unique, not clashing with F).
+   Initialize a MUST solver M on Psi
+6. For all clause pairs (c1, c2) in Psi whose "assignments" are inconsistent
+   Mark {c1, c2} and all super sets as "explored" in M
+   // so that only consistent assignments are generated (property P1)
+7. Start generating MUS-es from M
+   For every generated MUS m, with corresponding "assignment" x_m:
+8.     Run MUST for x_m \union F
+       // mustool/custom_minisat/Solver.h 
+           // bool    solve        (const vec<Lit>& assumps); // Search for a model that respects a given set of assumptions.
+9.     If an MUS p is found: // property P2 not satisfied
+10.        Let { y_1, y_2, ... y_k } be the set of variable assignments in p \intersection x_m
+           // this set is guaranteed to be non-empty because of the check in step 1.
+           Let S_i be the set of clauses that enforce assignment y_i (for all i in 1...k)
+           Let C_S be the cartesian product of { S_1, ... S_k }
+12.        For all c in C_S mark c (and all its super sets) as explored in M
+13.    Else: // property P2 is also satisfied
+14.        F = F \and \neg x_m  // guaranteed to be sat, because Phi is sat, and Phi => \exists X Phi => F \and \neg x_m 
+           // Solver::addClause
+15. Final answer is F
