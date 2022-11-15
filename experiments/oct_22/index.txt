@@ -1,0 +1,18 @@
+All timings are in seconds.
+
+nClauses      -> number of clauses in input cnf
+nVars         -> number of variables in input cnf
+parseTim      -> time taken to parse cnf
+bddCreat      -> time taken to create bdds of clauses
+mergeTim      -> time taken to merge factor and variable BDDs based on Largest Support Set input parameter
+FG Creat      -> time taken to create Factor Graph from merged factors and variables
+FG Iters      -> number of iterations to reach factor graph convergence
+FG Conv       -> time taken to converge Factor Graph
+CNF Creat     -> time taken to convert Factor Graph solution to CNF
+nSoln         -> number of MUSes found by MUST that added a clause to final solution
+nDisabledSets -> number of disabled sets in MUST problem space due to MUSes that satisfied Factor Graph
+numMus        -> total number of MUSes found
+case name     -> test case name
+
+
+nClauses | nVars    | parseTim | bddCreat | mergeTim | FG Creat | FG Iters | FG Conv  | CNF Creat| nSoln    | nDisabledSets    | numMus   | case name
