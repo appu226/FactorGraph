@@ -5,6 +5,8 @@ nVars         -> number of variables in input cnf
 parseTim      -> time taken to parse cnf
 bddCreat      -> time taken to create bdds of clauses
 mergeTim      -> time taken to merge factor and variable BDDs based on Largest Support Set input parameter
+mergedFn      -> number of factors after merging
+mergedVr      -> number of variables after merging
 FG Creat      -> time taken to create Factor Graph from merged factors and variables
 FG Iters      -> number of iterations to reach factor graph convergence
 FG Conv       -> time taken to converge Factor Graph
@@ -15,4 +17,4 @@ numMus        -> total number of MUSes found
 case name     -> test case name
 
 
-nClauses | nVars    | parseTim | bddCreat | mergeTim | FG Creat | FG Iters | FG Conv  | CNF Creat| nSoln    | nDisabledSets    | numMus   | case name
+nClauses | nVars    | parseTim | bddCreat | mergeTim | mergedFn | mergedVr | FG Creat | FG Iters | FG Conv  | CNF Creat| nSoln    | nDisabledSets    | numMus   | case name
