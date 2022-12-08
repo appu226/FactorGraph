@@ -49,6 +49,7 @@ struct CommandLineOptions {
   std::string inputFile;
   bool computeExactUsingBdd;
   std::optional<std::string> outputFile;
+  bool runMusTool;
 };
 
 struct Oct22MucCallback: public MucCallback
@@ -162,14 +163,17 @@ int main(int argc, char const * const * const argv)
   blif_solve_log(INFO, "Factor graph result converted to cnf in "
       << blif_solve::duration(start) << " secs");
 
-  start = blif_solve::now();                                            // run mustool
-  auto mustMaster = createMustMaster(*qdimacs, factorGraphCnf);
-  mustMaster->enumerate();
-  blif_solve_log(INFO, "Must exploration finished in " << blif_solve::duration(start) << " sec");
+  if (clo.runMusTool)                                                     // run mustool
+  {
+    start = blif_solve::now();
+    auto mustMaster = createMustMaster(*qdimacs, factorGraphCnf);
+    mustMaster->enumerate();
+    blif_solve_log(INFO, "Must exploration finished in " << blif_solve::duration(start) << " sec");
 
-  if (clo.outputFile.has_value())                                       // write results
-    writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
-  blif_solve_log(INFO, "Done");
+    if (clo.outputFile.has_value())                                       // write results
+      writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
+    blif_solve_log(INFO, "Done");
+  }
   return 0;
 }
 
@@ -280,10 +284,17 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
         false,
         std::optional<std::string>()
     );
+  auto runMusTool =
+    std::make_shared<CommandLineOption<bool> >(
+        "--runMusTool",
+        "Whether to run MUS tool (default true)",
+        false,
+        std::optional<bool>(true)
+    );
   
   // parse the command line
   blif_solve::parse(
-      {  largestSupportSet, inputFile, verbosity, computeExactUsingBdd, outputFile },
+      {  largestSupportSet, inputFile, verbosity, computeExactUsingBdd, outputFile, runMusTool },
       argc,
       argv);
 
@@ -296,7 +307,8 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
     *(largestSupportSet->value),
     *(inputFile->value),
     *(computeExactUsingBdd->value),
-    outputFile->value
+    outputFile->value,
+    *(runMusTool->value)
   };
 }
 
