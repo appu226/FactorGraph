@@ -77,6 +77,7 @@ struct Oct22MucCallback: public MucCallback
   AssignmentToClauseIndicesMap m_assignmentToClauseIndicesMap;
   Minisat::Solver m_factorGraphResultSolver;
   std::weak_ptr<Master> m_mustMaster;
+  std::set<std::set<int> > m_conflictSetCache;
 };
 
 
@@ -528,22 +529,29 @@ void Oct22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
   else
   {
     const auto & conflicts = m_factorGraphResultSolver.conflict;
-    std::vector<std::set<int> const *> conflictClauses;
+    std::set<int> conflictSetCacheCheck;
     for (int i = 0; i < conflicts.size(); ++i)
-    {
-      auto conflictLit = conflicts[i];
-      int var = Minisat::var(conflictLit) * (Minisat::sign(conflictLit) ? 1 : -1);
-      auto acimit = m_assignmentToClauseIndicesMap.find(var);
-      assert(acimit != m_assignmentToClauseIndicesMap.cend());
-      conflictClauses.push_back(&acimit->second);
-    }
+        conflictSetCacheCheck.insert(conflicts[i].x);
     int numDisabled = 0;
-    auto disabler = [&master, &numDisabled](const std::vector<int> & clauseIndices) { 
-      master->explorer->mark_inconsistent_set(clauseIndices);
-      ++numDisabled;
-    };
-    std::vector<int> inconsistentIndices;
-    forAllCartesian(conflictClauses.cbegin(), conflictClauses.cend(), inconsistentIndices, disabler);
+    if (m_conflictSetCache.count(conflictSetCacheCheck) == 0)
+    {
+      m_conflictSetCache.insert(conflictSetCacheCheck);
+      std::vector<std::set<int> const *> conflictClauses;
+      for (int i = 0; i < conflicts.size(); ++i)
+      {
+        auto conflictLit = conflicts[i];
+        int var = Minisat::var(conflictLit) * (Minisat::sign(conflictLit) ? 1 : -1);
+        auto acimit = m_assignmentToClauseIndicesMap.find(var);
+        assert(acimit != m_assignmentToClauseIndicesMap.cend());
+        conflictClauses.push_back(&acimit->second);
+      }
+      auto disabler = [&master, &numDisabled](const std::vector<int> & clauseIndices) { 
+        master->explorer->mark_inconsistent_set(clauseIndices);
+        ++numDisabled;
+      };
+      std::vector<int> inconsistentIndices;
+      forAllCartesian(conflictClauses.cbegin(), conflictClauses.cend(), inconsistentIndices, disabler);
+    }
     blif_solve_log(INFO, "Disabled " << numDisabled << " sets from must solver.");
   }
 
