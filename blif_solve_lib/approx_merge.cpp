@@ -109,12 +109,7 @@ namespace {
     if (isF1Quantified != isF2Quantified)
       return std::optional<double>();
     auto manager = f1->manager;
-    auto combinedSupportSet = bdd_dup(f1->supportSet);
-    bdd_and_accumulate(manager, &combinedSupportSet, f2->supportSet);
-    for (auto neigh: f1->neighbours)
-      bdd_and_accumulate(manager, &combinedSupportSet, neigh->supportSet);
-    for (auto neigh: f2->neighbours)
-      bdd_and_accumulate(manager, &combinedSupportSet, neigh->supportSet);
+    auto combinedSupportSet = bdd_cube_union(manager, f1->supportSet, f2->supportSet);
     int unionSize = bdd_size(combinedSupportSet);
     bdd_free(manager, combinedSupportSet);
     if (unionSize > largestSupportSet)
