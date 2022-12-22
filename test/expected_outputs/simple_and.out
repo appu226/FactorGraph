@@ -16,7 +16,7 @@
 1111  1
 [INFO] Executing over approximating method FactorGraphApprox
 [INFO] processing 1 partitions
-[INFO] largestSupportSet 30, numConvergence:1
+[INFO] largestSupportSet: 30, largestBddSize: 1000000000, numConvergence: 1
 [INFO] Initiating message passing
 [INFO] Factor graph messages have converged in 3 iterations
 [INFO] Ran 1 FactorGraph convergences

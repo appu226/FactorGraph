@@ -306,8 +306,10 @@ namespace {
     public:
 
       FactorGraphImpl(int largestSupportSet,
+                      int largestBddSize,
                       var_score::GraphPrinter::CPtr const & graphPrinter)
         : m_largestSupportSet(largestSupportSet),
+          m_largestBddSize(largestBddSize),
           m_graphPrinter(graphPrinter)
       { }
 
@@ -354,6 +356,7 @@ namespace {
                                               *fgm.getNewFactors(),
                                               *fgm.getQuantifiedVars(),
                                               m_largestSupportSet,
+                                              m_largestBddSize,
                                               blif_solve::MergeHints(manager),
                                               std::set<bdd_ptr>());
         std::vector<BddWrapper> mergedFactors, mergedVariables;
@@ -463,6 +466,7 @@ namespace {
 
     private:
       int m_largestSupportSet;
+      int m_largestBddSize;
       var_score::GraphPrinter::CPtr m_graphPrinter;
   };
 
@@ -503,9 +507,9 @@ namespace var_score
     return std::make_shared<EarlyQuantificationImpl>();
   }
 
-  ApproximationMethod::CPtr ApproximationMethod::createFactorGraph(int largestSupportSet, GraphPrinter::CPtr const & graphPrinter)
+  ApproximationMethod::CPtr ApproximationMethod::createFactorGraph(int largestSupportSet, int largestBddSize, GraphPrinter::CPtr const & graphPrinter)
   {
-    return std::make_shared<FactorGraphImpl>(largestSupportSet, graphPrinter);
+    return std::make_shared<FactorGraphImpl>(largestSupportSet, largestBddSize, graphPrinter);
   }
 
   void ApproximationMethod::runUnitTests(DdManager * manager)

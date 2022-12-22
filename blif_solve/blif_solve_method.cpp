@@ -232,9 +232,11 @@ namespace {
   {
     public:
       FactorGraphApprox(int largestSupportSet,
+                        int largestBddSize,
                         int numConvergence, 
                         std::string dotDumpPath):
         m_largestSupportSet(largestSupportSet),
+        m_largestBddSize(largestBddSize),
         m_numConvergence(numConvergence),
         m_dotDumpPath(dotDumpPath)
       { }
@@ -242,7 +244,9 @@ namespace {
       bdd_ptr_set solve(BlifFactors const & blifFactors) const override
       {
         // setup
-        blif_solve_log(INFO, "largestSupportSet " << m_largestSupportSet << ", numConvergence:" << m_numConvergence);
+        blif_solve_log(INFO, "largestSupportSet: " << m_largestSupportSet
+                               << ", largestBddSize: " << m_largestBddSize
+                               << ", numConvergence: " << m_numConvergence);
         auto funcs = blifFactors.getFactors();      // the set of functions
         auto nonPiVars = blifFactors.getNonPiVars();
         auto ddm = blifFactors.getDdManager();
@@ -257,7 +261,7 @@ namespace {
         {
           // group the funcs in the factor graph
           auto start = now();
-          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, MergeHints(ddm), qv);
+          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, m_largestBddSize, MergeHints(ddm), qv);
           auto & funcGroups = *mergeResults.factors;
           blif_solve_log(INFO, "Grouped func nodes in " << duration(start) << " secs");
           start = now();
@@ -356,6 +360,7 @@ namespace {
 
     private:
       int m_largestSupportSet;
+      int m_largestBddSize;
       int m_numConvergence;
       std::string m_dotDumpPath;
   }; // end of class FactorGraphApprox
@@ -484,10 +489,11 @@ namespace blif_solve
 
   BlifSolveMethodCptr BlifSolveMethod::createFactorGraphApprox(
       int largestSupportSet,
+      int largestBddSize,
       int numConvergence,
       std::string const & dotDumpPath)
   {
-    return std::make_shared<FactorGraphApprox>(largestSupportSet, numConvergence, dotDumpPath);
+    return std::make_shared<FactorGraphApprox>(largestSupportSet, largestBddSize, numConvergence, dotDumpPath);
   }
 
   BlifSolveMethodCptr BlifSolveMethod::createAcyclicViaForAll()

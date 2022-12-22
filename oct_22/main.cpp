@@ -46,6 +46,7 @@ SOFTWARE.
 // struct to contain parse command line options
 struct CommandLineOptions {
   int largestSupportSet;
+  int largestBddSize;
   std::string inputFile;
   bool computeExactUsingBdd;
   std::optional<std::string> outputFile;
@@ -87,7 +88,7 @@ struct Oct22MucCallback: public MucCallback
 CommandLineOptions parseClo(int argc, char const * const * const argv);
 int main(int argc, char const * const * const argv);
 std::shared_ptr<DdManager> ddm_init();
-fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd, int largestSupportSet);
+fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd, int largestSupportSet, int largestBddSize);
 std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string & inputFilePath);
 std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs,
                                          const Oct22MucCallback::CnfPtr& factorGraphCnf);
@@ -150,7 +151,7 @@ int main(int argc, char const * const * const argv)
   auto bdds = dd::QdimacsToBdd::createFromQdimacs(ddm.get(), *qdimacs); // create bdds
   blif_solve_log(INFO, "Created bdds in " << blif_solve::duration(start) << " sec");
 
-  auto fg = createFactorGraph(ddm.get(), *bdds, clo.largestSupportSet); // merge factors and create factor graph
+  auto fg = createFactorGraph(ddm.get(), *bdds, clo.largestSupportSet, clo.largestBddSize); // merge factors and create factor graph
 
   start = blif_solve::now();
   auto numIterations = fg->converge();                                  // converge factor graph
@@ -196,7 +197,7 @@ std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string& inputFilePath)
 
 
 // create factor graph
-fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& bdds, int largestSupportSet)
+fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& bdds, int largestSupportSet, int largestBddSize)
 {
   auto start = blif_solve::now();
   std::vector<bdd_ptr> factors, variables;
@@ -226,7 +227,7 @@ fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd&
       quantifiedVariableSet.insert(v.getCountedBdd());
   
   // merge factors and variables
-  auto mergeResults = blif_solve::merge(ddm, factors, variables, largestSupportSet, blif_solve::MergeHints(ddm), quantifiedVariableSet);
+  auto mergeResults = blif_solve::merge(ddm, factors, variables, largestSupportSet, largestBddSize, blif_solve::MergeHints(ddm), quantifiedVariableSet);
   blif_solve_log(INFO, "Merged to " 
                        << mergeResults.factors->size() << " factors and "
                        << mergeResults.variables->size() << "variables in "
@@ -260,6 +261,13 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
         "largest allowed support set size while clumping cnf factors",
         false,
         50);
+  auto largestBddSize =
+    std::make_shared<CommandLineOption<int> >(
+      "--largestBddSize",
+      "largest allowed bdd size while clumping cnf factors",
+      false,
+      1000*1000*1000
+    );
   auto inputFile =
     std::make_shared<CommandLineOption<std::string> >(
         "--inputFile",
@@ -295,7 +303,7 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
   
   // parse the command line
   blif_solve::parse(
-      {  largestSupportSet, inputFile, verbosity, computeExactUsingBdd, outputFile, runMusTool },
+      {  largestSupportSet, largestBddSize, inputFile, verbosity, computeExactUsingBdd, outputFile, runMusTool },
       argc,
       argv);
 
@@ -306,6 +314,7 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
   // return the rest of the options
   return CommandLineOptions{
     *(largestSupportSet->value),
+    *(largestBddSize->value),
     *(inputFile->value),
     *(computeExactUsingBdd->value),
     outputFile->value,

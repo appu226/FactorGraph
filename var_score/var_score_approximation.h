@@ -43,7 +43,7 @@ namespace var_score
 
       static CPtr createExact();
       static CPtr createEarlyQuantification();
-      static CPtr createFactorGraph(int largestSupportSet, GraphPrinter::CPtr const & graphPrinter);
+      static CPtr createFactorGraph(int largestSupportSet, int largestBddSize, GraphPrinter::CPtr const & graphPrinter);
 
       virtual void process(
           BddWrapper const & q, 

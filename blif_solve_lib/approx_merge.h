@@ -64,6 +64,7 @@ namespace blif_solve
           const std::vector<bdd_ptr> & factors, 
           const std::vector<bdd_ptr> & variables, 
           int largestSupportSet,
+          int largestBddSize,
           const MergeHints& mergeHints,
           const std::set<bdd_ptr>& quantifiedVariables);
 

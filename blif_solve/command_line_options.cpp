@@ -37,6 +37,7 @@ namespace blif_solve {
     verbosity(WARNING),
     diffOutputPath(),
     largestSupportSet(30),
+    largestBddSize(1*1000*1000*1000),
     numConvergence(1),
     clippingDepth(100),
     numLoVarsToQuantify(0),
@@ -99,6 +100,13 @@ namespace blif_solve {
         if (argi >= argc)
           usage("size of largest support set  missing after --largest_support_set flag");
         largestSupportSet = std::atoi(argv[argi]);
+      }
+      else if(arg == "--largest_bdd_size")
+      {
+        ++argi;
+        if (argi >= argc)
+          usage("size of largest bdd size missing after --largest_bdd_size flag");
+          largestBddSize = std::atoi(argv[argi]);
       }
       else if (arg == "--num_convergence")
       {
@@ -166,6 +174,8 @@ namespace blif_solve {
               << "\t\t                               in dimacs files (header and clauses separate)\n"
               << "\t\t--largest_support_set        : size of the largest support set allowed while\n"
               << "\t\t                                 grouping variables\n"
+              << "\t\t--largest_bdd_size           : size of the largest bdd allowed while grouping\n"
+              << "\t\t                                  functions\n"
               << "\t\t--num_convergence            : number of times to run message passing algorithm\n"
               << "\t\t--verbosity v                : set verbosity level to v;\n"
               << "\t\t                               must be one of QUIET/ERROR/WARNING/INFO/DEBUG\n"
