@@ -194,6 +194,7 @@ blif_solve::BlifSolveMethodCptr createBlifSolveMethod(std::string const & bsmStr
   else if ("FactorGraphApprox" == bsmStr)
     return blif_solve::BlifSolveMethod::createFactorGraphApprox(
         clo.largestSupportSet,
+        clo.largestBddSize,
         clo.numConvergence,
         clo.dotDumpPath);
   else if ("AcyclicViaForAll" == bsmStr)

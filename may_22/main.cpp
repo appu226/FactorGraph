@@ -47,6 +47,7 @@ SOFTWARE.
 // struct to contain parse command line options
 struct CommandLineOptions {
   int largestSupportSet;
+  int largestBddSize;
   int maxMucSize;
   std::string inputFile;
   bool computeExact;
@@ -69,6 +70,7 @@ struct May22MucCallback: public MucCallback
                    const double mucMergeWeight,
                    const dd::BddVectorWrapper& factors,
                    const dd::BddVectorWrapper& variables,
+                   const double largestBddSize,
                    const double largestSupportSet);
 
   void processMuc(const std::vector<std::vector<int> >& muc) override;
@@ -92,6 +94,7 @@ struct May22MucCallback: public MucCallback
   dd::BddVectorWrapper m_factors;
   dd::BddVectorWrapper m_variables;
   double m_largestSupportSet;
+  double m_largestBddSize;
   dd::BddWrapper m_factorGraphResult;
   ClauseDataMap m_clauseData;
 };
@@ -110,7 +113,8 @@ std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs,
                                          const double mucMergeWeight,
                                          const dd::BddVectorWrapper& factors,
                                          const dd::BddVectorWrapper& variables,
-                                         const double largestSupportSet);
+                                         const double largestSupportSet,
+                                         const double largestBddSize);
 dd::BddWrapper getFactorGraphResult(DdManager* ddm, const fgpp::FactorGraph& fg, const dd::QdimacsToBdd& qdimacsToBdd);
 fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm,
                                          dd::BddVectorWrapper const & factors);
@@ -161,7 +165,9 @@ int main(int argc, char const * const * const argv)
     blif_solve_log_bdd(DEBUG, "exact result:", ddm.get(), exactResult.getUncountedBdd());
   }
 
-  auto mustMaster = createMustMaster(*qdimacs, bdds, clo.mucMergeWeight, factors, variables, clo.largestSupportSet);
+  auto mustMaster = createMustMaster(*qdimacs, bdds, clo.mucMergeWeight,
+                                     factors, variables, 
+                                     clo.largestSupportSet, clo.largestBddSize);
   mustMaster->enumerate();
 
   blif_solve_log(INFO, "Done");
@@ -243,6 +249,13 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
         "largest allowed support set size while clumping cnf factors",
         false,
         50);
+  auto largestBddSize =
+    std::make_shared<CommandLineOption<int> >(
+      "--largestBddSize",
+      "largest allowed bdd size while clumping cnf factors",
+      false,
+      1*1000*1000*1000
+    );
   auto maxMucSize =
     std::make_shared<CommandLineOption<int> >(
         "--maxMucSize",
@@ -277,7 +290,7 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
   
   // parse the command line
   blif_solve::parse(
-      {  largestSupportSet, maxMucSize, inputFile, verbosity, computeExact, mucMergeWeight },
+      {  largestSupportSet, largestBddSize, maxMucSize, inputFile, verbosity, computeExact, mucMergeWeight },
       argc,
       argv);
 
@@ -288,6 +301,7 @@ CommandLineOptions parseClo(int argc, char const * const * const argv)
   // return the rest of the options
   return CommandLineOptions{
     *(largestSupportSet->value),
+    *(largestBddSize->value),
     *(maxMucSize->value),
     *(inputFile->value),
     *(computeExact->value),
@@ -321,7 +335,8 @@ std::shared_ptr<Master> createMustMaster(
   const double mucMergeWeight,
   const dd::BddVectorWrapper& factors,
   const dd::BddVectorWrapper& variables,
-  const double largestSupportSet)
+  const double largestSupportSet,
+  const double largestBddSize)
 {
   // check that we have exactly one quantifier which happens to be existential
   assert(qdimacs.quantifiers.size() == 1);
@@ -339,7 +354,8 @@ std::shared_ptr<Master> createMustMaster(
   typedef std::set<int> LiteralSet;
   std::set<LiteralSet> outputClauseSet;   // remember where each outputClause is stored
   std::map<int, std::set<size_t> > nonQuantifiedLiteralToOutputClausePosMap;
-  auto mucCallback = std::make_shared<May22MucCallback>(qdimacsToBdd->ddManager, qdimacsToBdd, mucMergeWeight, factors, variables, largestSupportSet);
+  auto mucCallback = std::make_shared<May22MucCallback>(qdimacsToBdd->ddManager, qdimacsToBdd, mucMergeWeight, 
+                                                        factors, variables, largestSupportSet, largestBddSize);
   for (const auto & clause: qdimacs.clauses)
   {
     LiteralSet quantifiedLiterals, nonQuantifiedLiterals, nextOutputClause;
@@ -448,7 +464,8 @@ May22MucCallback::May22MucCallback(DdManager* ddManager,
                                    const double mucMergeWeight,
                                    const dd::BddVectorWrapper& factors,
                                    const dd::BddVectorWrapper& variables,
-                                   const double largestSupportSet): 
+                                   const double largestSupportSet,
+                                   const double largestBddSize): 
   m_ddManager(ddManager),
   m_qdimacsToBdd(qdimacsToBdd),
   m_quantifiedVariables(),
@@ -457,6 +474,7 @@ May22MucCallback::May22MucCallback(DdManager* ddManager,
   m_factors(factors),
   m_variables(variables),
   m_largestSupportSet(largestSupportSet),
+  m_largestBddSize(largestBddSize),
   m_factorGraphResult(bdd_one(ddManager), ddManager),
   m_clauseData()
 {
@@ -533,7 +551,7 @@ void May22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
     blif_solve_log(INFO, "NOT nice: counter example does indeed satisfy FG solution.");
     mergeAllPairs(funcNodes, m_mergeHints, m_mucMergeWeight);
     mergeAllPairs(varNodes, m_mergeHints, m_mucMergeWeight);
-    auto mergeResults = blif_solve::merge(m_ddManager, *m_factors, *m_variables, m_largestSupportSet, m_mergeHints, m_quantifiedVariables);
+    auto mergeResults = blif_solve::merge(m_ddManager, *m_factors, *m_variables, m_largestSupportSet, m_largestBddSize, m_mergeHints, m_quantifiedVariables);
     auto factorGraph = createFactorGraph(m_ddManager, dd::BddVectorWrapper(*mergeResults.factors, m_ddManager));
     for (const auto & varsToMerge: *mergeResults.variables)
     {

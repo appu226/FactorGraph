@@ -102,12 +102,20 @@ namespace {
 
 
   std::optional<double>
-    getCompatibility(AmNode * f1, AmNode * f2, const int largestSupportSet, const double hint, const std::set<bdd_ptr>& quantifiedVariables)
+    getCompatibility(AmNode * f1, AmNode * f2, const int largestSupportSet, const int largestBddSize, const double hint, const std::set<bdd_ptr>& quantifiedVariables)
   {
     bool isF1Quantified = quantifiedVariables.count(f1->supportSet);
     bool isF2Quantified = quantifiedVariables.count(f2->supportSet);
     if (isF1Quantified != isF2Quantified)
       return std::optional<double>();
+    auto combinedBddSize = bdd_size(f1->node) + bdd_size(f2->node);
+    if (combinedBddSize > largestBddSize)
+    {
+#ifdef DEBUG_MERGE
+      std::cout << "cannot merge " << f1 << " and " << f2 << " because combinedBddSize " << combinedBddSize << " is larger than largestBddSize " << largestBddSize << std::endl;
+#endif
+      return std::optional<double>();
+    }
     auto manager = f1->manager;
     auto combinedSupportSet = bdd_cube_union(manager, f1->supportSet, f2->supportSet);
     int unionSize = bdd_size(combinedSupportSet);
@@ -234,6 +242,7 @@ namespace blif_solve
           const std::vector<bdd_ptr> & factors, 
           const std::vector<bdd_ptr> & variables, 
           int largestSupportSet,
+          int largestBddSize,
           const MergeHints& hintsInput,
           const std::set<bdd_ptr>& quantifiedVariables)
   {
@@ -273,7 +282,7 @@ namespace blif_solve
     for (auto & f1: funcNodes) {
       for (auto & f2: funcNodes) {
         if (f1 < f2 && f1->isConnectedTo(*f2)) {
-          auto optPriority = getCompatibility(f1.get(), f2.get(), largestSupportSet, hints.getWeight(f1->node, f2->node), qf);
+          auto optPriority = getCompatibility(f1.get(), f2.get(), largestSupportSet, largestBddSize, hints.getWeight(f1->node, f2->node), qf);
           if (optPriority) {
             mergers.push_back(std::make_unique<AmMerger>(f1.get(), f2.get()));
             auto merger = mergers.back().get();
@@ -288,7 +297,7 @@ namespace blif_solve
     for (auto & v1: varNodes) {
       for (auto & v2: varNodes) {
         if (v1 < v2) {
-          auto optPriority = getCompatibility(v1.get(), v2.get(), largestSupportSet, hints.getWeight(v1->node, v2->node), qv);
+          auto optPriority = getCompatibility(v1.get(), v2.get(), largestSupportSet, largestBddSize, hints.getWeight(v1->node, v2->node), qv);
           if (optPriority) {
             mergers.push_back(std::make_unique<AmMerger>(v1.get(), v2.get()));
             auto merger = mergers.back().get();
@@ -349,7 +358,7 @@ namespace blif_solve
           if (oldMergerSet.count(otherNode) != 0)
             continue;
           oldMergerSet.insert(otherNode);
-          auto optPriority = getCompatibility(mergedNode, otherNode, largestSupportSet, hints.getWeight(mergedNode->node, otherNode->node), quantified);
+          auto optPriority = getCompatibility(mergedNode, otherNode, largestSupportSet, largestBddSize, hints.getWeight(mergedNode->node, otherNode->node), quantified);
           if (optPriority)
           {
             mergers.push_back(std::make_unique<AmMerger>(mergedNode, otherNode));

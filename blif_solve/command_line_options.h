@@ -47,6 +47,8 @@ namespace blif_solve {
     std::string diffOutputPath;
     // largest allowed support set while grouping vars
     int largestSupportSet;
+    // largest bdd size allowed while grouping functions
+    int largestBddSize;
     // number of convergences to perform
     int numConvergence;
     // maximum depth to use while clipping
