@@ -28,6 +28,7 @@ SOFTWARE.
 #include <sstream>
 #include <stdexcept>
 #include <cstdlib>
+#include <iostream>
 
 namespace blif_solve {
 

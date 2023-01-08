@@ -59,6 +59,7 @@ namespace dd
       long double countMinterms(int numVars = -1) const;
 
       BddWrapper existentialQuantification(const BddWrapper & variables) const;
+      BddWrapper universalQuantification(const BddWrapper & variables) const;
 
       BddWrapper varWithLowestIndex() const;
       BddWrapper one() const;
