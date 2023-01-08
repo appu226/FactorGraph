@@ -21,3 +21,4 @@ echo >> ${RESULT_ROOT}/test_environment.txt
 echo $0 $* >> ${RESULT_ROOT}/test_environment.txt
 
 cat ${TEST_CASE_LIST_FILE} | xargs --max-procs=${TEST_PROCESS_COUNT} -I TEST_CASE ./run_test.sh TEST_CASE
+
