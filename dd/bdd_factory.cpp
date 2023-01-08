@@ -123,6 +123,11 @@ namespace dd
     return BddWrapper(bdd_forsome(m_manager, m_bdd, variables.m_bdd), m_manager);
   }
 
+  BddWrapper BddWrapper::universalQuantification(const BddWrapper & variables) const
+  {
+    return BddWrapper(bdd_forall(m_manager, m_bdd, variables.m_bdd), m_manager);
+  }
+
   BddWrapper BddWrapper::varWithLowestIndex() const
   {
     return BddWrapper(bdd_new_var_with_index(m_manager, bdd_get_lowest_index(m_manager, getUncountedBdd())), m_manager);

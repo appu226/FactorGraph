@@ -99,6 +99,8 @@ Oct22MucCallback::CnfPtr convertToCnf(DdManager* ddm,
 void writeResult(const Oct22MucCallback::Cnf& cnf,
                  const dd::Qdimacs& qdimacs,
                  const std::string& outputFile);
+bdd_ptr computeExact(const dd::QdimacsToBdd& qdimacsToBdd);
+
 
 
 
@@ -173,8 +175,17 @@ int main(int argc, char const * const * const argv)
 
     if (clo.outputFile.has_value())                                       // write results
       writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
-    blif_solve_log(INFO, "Done");
   }
+
+  bdd_ptr exactResult = 0;
+  if (clo.computeExactUsingBdd)
+  {
+    exactResult = computeExact(*bdds);
+    
+  }
+  if (exactResult)
+    bdd_free(ddm.get(), exactResult);
+  blif_solve_log(INFO, "Done");
   return 0;
 }
 
@@ -684,3 +695,23 @@ void writeResult(const Oct22MucCallback::Cnf& cnf,
                        << " in " << blif_solve::duration(start) << " sec.");
 }
 
+bdd_ptr computeExact(const dd::QdimacsToBdd& bdds)
+{
+  auto startTime = blif_solve::now();
+  blif_solve_log(INFO, "Computing exact result using Bdds");
+  auto ddm = bdds.ddManager;
+  dd::BddWrapper conjunction(bdd_one(ddm), ddm);
+  for (const auto & clause: bdds.clauses)
+    conjunction = conjunction * dd::BddWrapper(bdd_dup(clause.second), ddm);
+  for(auto qit = bdds.quantifications.rbegin(); qit != bdds.quantifications.rend(); ++qit)
+  {
+    const auto & quantifier = **qit;
+    dd::BddWrapper quantifiedVariables(bdd_dup(quantifier.quantifiedVariables), ddm);
+    if (quantifier.quantifierType == dd::Quantifier::Exists)
+      conjunction = conjunction.existentialQuantification(quantifiedVariables);
+    else
+      conjunction = conjunction.universalQuantification(quantifiedVariables);
+  }
+  blif_solve_log(INFO, "Computed exact result in " << blif_solve::duration(startTime) << " sec");
+  return conjunction.getCountedBdd();
+}
