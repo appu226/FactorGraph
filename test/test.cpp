@@ -49,7 +49,7 @@ SOFTWARE.
 #include "testApproxMerge.h"
 #include "testVarScoreQuantification.h"
 
-void testOct22();
+void testOct22(DdManager * manager);
 void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
 void testIsConnectedComponent(DdManager * manager);
@@ -90,7 +90,7 @@ int main()
     testDotty(manager);
     testFactorGraphImpl(manager);
     testQdimacsParser(manager);
-    testOct22();
+    testOct22(manager);
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -105,11 +105,9 @@ int main()
 
 
 
-void testOct22()
+void testOct22(DdManager* manager)
 {
-  DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
   oct_22::test(manager);
-  free(manager);
 }
 
 

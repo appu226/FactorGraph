@@ -424,7 +424,7 @@ DdNode * cuddBddAndAbstractMultiRecur(
     // Notice that t == fe implies that fe does not depend on the
     // variables in the Cube.
     if (t == one || std::find(ev.cbegin(), ev.cend(), t) != ev.cend()) {
-      cache.insert(fSet, r);
+      cache.insert(fSet, t);
       return t;
     }
 
