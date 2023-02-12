@@ -79,6 +79,7 @@ namespace oct_22 {
       AssignmentToClauseIndicesMap m_assignmentToClauseIndicesMap;
       Minisat::Solver m_factorGraphResultSolver;
       std::weak_ptr<Master> m_mustMaster;
+      std::clock_t m_explorationStartTime;
     };
 
     // function declarations
