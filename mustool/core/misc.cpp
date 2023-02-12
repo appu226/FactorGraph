@@ -36,13 +36,13 @@ void print_formula_int(vector<bool> f){
 	cout << endl;	
 }
 
-void print_err(string m){
+void print_err(string m, bool exitProgram){
 	cout << endl;
 	cout << "########## ########## ########## ########## ########## " << endl;
 	cout << m << endl;
 	cout << "########## ########## ########## ########## ########## " << endl;
 	cout << endl << endl << endl;
-	exit(1);
+	if (exitProgram) exit(1);
 }
 
 bool ends_with(std::string const & value, std::string const & ending)

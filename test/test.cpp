@@ -36,17 +36,20 @@ SOFTWARE.
 #include <factor_graph/fgpp.h>
 #include <dd/qdimacs.h>
 #include <dd/qdimacs_to_bdd.h>
+#include <oct_22/oct_22_lib.h>
 
 #include <memory>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 
 #include "testApproxMerge.h"
 #include "testVarScoreQuantification.h"
 
+void testOct22();
 void testCuddBddAndAbstractMulti(DdManager * manager);
 void testCnfDump(DdManager * manager);
 void testIsConnectedComponent(DdManager * manager);
@@ -87,6 +90,7 @@ int main()
     testDotty(manager);
     testFactorGraphImpl(manager);
     testQdimacsParser(manager);
+    testOct22();
 
     std::cout << "SUCCESS" << std::endl;
 
@@ -97,6 +101,15 @@ int main()
     std::cout << "[ERROR] " << e.what() << std::endl;
     return -1;
   }
+}
+
+
+
+void testOct22()
+{
+  DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
+  oct_22::test(manager);
+  free(manager);
 }
 
 
@@ -609,27 +622,30 @@ void testCuddBddAndAbstractMulti(DdManager * manager)
   int const numTests = 5000;
   int const numFuncsPerTest = 3;
   int const maxDepth = 2;
+  int const seed = 4321;
   std::vector<DdNode *> vars;
   for (int vi = 0; vi < numVars; ++vi)
     vars.push_back(bdd_new_var_with_index(manager, vi));
   int const totalMinTerms = 1 << numVars;
   int const totalFuncs = 1 << totalMinTerms;
+  std::default_random_engine randEng(4321);
+  std::uniform_int_distribution<int> funcGen(0, totalFuncs), varGen(0, numVars);
   for (int itest = 0; itest < numTests; ++itest)
   {
     std::set<DdNode *> funcs;
     for (int ifunc = 0; ifunc < numFuncsPerTest; ++ifunc)
     {
-      int const funcAsInteger = rand() % totalFuncs;
+      int const funcAsInteger = funcGen(randEng);
       auto f = makeFunc(manager, numVars, funcAsInteger);
       funcs.insert(f);
     }
     
-    const int numVarsToBeQuantified = rand() % numVars;
+    const int numVarsToBeQuantified = varGen(randEng);
     DdNode * cube = bdd_one(manager);
     for (int iqv = 0; iqv < numVarsToBeQuantified; ++iqv)
     {
       auto temp = cube;
-      auto varIndex = rand() % numVars;
+      auto varIndex = varGen(randEng);
       cube = bdd_cube_union(manager, cube, bdd_new_var_with_index(manager, varIndex));
       bdd_free(manager, temp);
     }

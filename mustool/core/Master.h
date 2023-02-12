@@ -46,6 +46,7 @@ public:
 	Explorer* explorer;
 	SatSolver* satSolver; 
 	string sat_solver;
+	bool exit_if_satisfiable;
 
 	Master(string filename, string alg);
 	Master(int numVars, const vector<vector<int> > & clauses, const string& alg);
@@ -58,7 +59,7 @@ public:
 	Formula grow_formula(Formula& f);
 	void write_mus_to_file(MUS& f);
 	void validate_mus(Formula &f);
-	void enumerate();
+	bool enumerate();
 	void setMucCallback(const MucCallback::Ptr & mucCallback) { if (satSolver) satSolver->mucCallback = mucCallback; }
 	
 	//reMUS algorithm functions

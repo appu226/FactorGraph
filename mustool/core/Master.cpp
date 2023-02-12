@@ -51,6 +51,7 @@ Master::Master(string filename, string alg)
     unex_sat = unex_unsat = 0;
     hash = random_number();
     satSolver->hash = hash;
+    exit_if_satisfiable = true;
 }
 
 Master::Master(int numVars, const vector<vector<int> >& clauses, const string& alg) {
@@ -73,6 +74,7 @@ Master::Master(int numVars, const vector<vector<int> >& clauses, const string& a
     unex_sat = unex_unsat = 0;
     hash = random_number();
     satSolver->hash = hash;
+    exit_if_satisfiable = true;
 }
 
 Master::~Master(){
@@ -176,12 +178,15 @@ void Master::mark_MUS(MUS& f, bool block_unex){
     satSolver->processMuc(f.bool_mus);
 }
 
-void Master::enumerate(){
+bool Master::enumerate(){
     initial_time = chrono::high_resolution_clock::now();
     cout << "running algorithm: " << algorithm << endl;
     Formula whole(dimension, true);
     if(is_valid(whole))
-        print_err("the input instance is satisfiable");
+    {
+        print_err("the input instance is satisfiable", exit_if_satisfiable);
+        return false;
+    }
 
     if(algorithm == "remus"){
         find_all_muses_duality_based_remus(Formula (dimension, true), Formula (dimension, false), 0);
@@ -192,6 +197,6 @@ void Master::enumerate(){
     else if(algorithm == "marco"){
         marco_base();
     }
-    return;
+    return true;
 }
 
