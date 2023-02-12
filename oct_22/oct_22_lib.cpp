@@ -55,10 +55,13 @@ namespace oct_22 {
       blif_solve_log(DEBUG, "Adding clause " << setToString(solverClause) << " to sat solver");
       m_factorGraphResultSolver.addClause(solverClause);
     }
+    m_explorationStartTime = blif_solve::now();
   }
   
   void Oct22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
   {
+    blif_solve_log(INFO, "MUS exploration finished in " << blif_solve::duration(m_explorationStartTime) << " sec");
+    auto processStart = blif_solve::now();
     if (blif_solve::getVerbosity() >= blif_solve::DEBUG)
     {
       std::stringstream mucss;
@@ -129,9 +132,8 @@ namespace oct_22 {
       forAllCartesian(conflictClauses.cbegin(), conflictClauses.cend(), inconsistentIndices, disabler);
       blif_solve_log(INFO, "Disabled " << numDisabled << " sets from must solver.");
     }
-  
-  
-   
+    blif_solve_log(INFO, "MUC processing finished in " << blif_solve::duration(processStart) << " sec");
+    m_explorationStartTime = blif_solve::now();
   }
   
   void 

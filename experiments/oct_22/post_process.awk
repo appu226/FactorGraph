@@ -2,7 +2,7 @@ function casename(file, a, n) {
     n = split(file, a, "/")
     return a[n-1]
 } 
-/BEGIN/ {numClausesAddedToSolution=0; disabledSets=0; numMus=0}
+/BEGIN/ { numClausesAddedToSolution=0; disabledSets=0; numMus=0; exploreTime=0; mucProcessTime=0; done="" }
 /Parsed qdimacs file in with/ {numClauses=$7; numVars=$10; qdimacsParsingTime=$13;}
 /Created bdds in/ {bddCreationTime=$5}
 /Merged to [0-9]* factors and [0-9]*variables in [0-9\.]* sec/ {mergeTime=$9; mergedFn=$4; mergedVr=substr($7, 0, length($7)-9);}
@@ -12,4 +12,7 @@ function casename(file, a, n) {
 /Adding clause/ {numClausesAddedToSolution++}
 /sets from must solver/ {disabledSets += $3}
 /Found MUS/ {numMus++}
-END {printf("%8s | %8s | %8.2f | %8.2f | %8.2f | %8s | %8s | %8.2f | %8s | %8.2f | %8.2f | %8s | %16s | %8s | %s\n", numClauses, numVars, qdimacsParsingTime, bddCreationTime, mergeTime, mergedFn, mergedVr, factorGraphCreationTime, factorGraphIterations, factorGraphConvergenceTime, cnfConversionTime, numClausesAddedToSolution, disabledSets, numMus, casename(FILENAME))}
+/MUS exploration finished in/ { exploreTime += $6 }
+/MUC processing finished in/ { mucProcessTime += $6 }
+/Done/ {done="Y"}
+END {printf("%8s | %8s | %8.2f | %8.2f | %8.2f | %8s | %8s | %8.2f | %8s | %8.2f | %8.2f | %8s | %16s | %8s | %11.3f | %11.3f | %4s | %s\n", numClauses, numVars, qdimacsParsingTime, bddCreationTime, mergeTime, mergedFn, mergedVr, factorGraphCreationTime, factorGraphIterations, factorGraphConvergenceTime, cnfConversionTime, numClausesAddedToSolution, disabledSets, numMus, exploreTime, mucProcessTime, done, casename(FILENAME))}

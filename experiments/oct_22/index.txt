@@ -14,7 +14,10 @@ CNF Creat     -> time taken to convert Factor Graph solution to CNF
 nSoln         -> number of MUSes found by MUST that added a clause to final solution
 nDisabledSets -> number of disabled sets in MUST problem space due to MUSes that satisfied Factor Graph
 numMus        -> total number of MUSes found
+exploreTime   -> time spent by mustool finding MUSes
+mucProcTime   -> time spent processing MUSes
+done          -> whether processing finished (Y) or timed out (<blank>)
 case name     -> test case name
 
 
-nClauses | nVars    | parseTim | bddCreat | mergeTim | mergedFn | mergedVr | FG Creat | FG Iters | FG Conv  | CNF Creat| nSoln    | nDisabledSets    | numMus   | case name
+nClauses | nVars    | parseTim | bddCreat | mergeTim | mergedFn | mergedVr | FG Creat | FG Iters | FG Conv  | CNF Creat| nSoln    | nDisabledSets    | numMus   | exploreTime | mucProcTime | done | case name
