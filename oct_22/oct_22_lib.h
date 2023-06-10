@@ -51,35 +51,49 @@ namespace oct_22 {
         bool computeExactUsingBdd;
         std::optional<std::string> outputFile;
         bool runMusTool;
+        bool mustMinimalizeAssignments;
     };
 
+
+    typedef std::set<int> Clause;
+    typedef std::set<int> Assignments;
 
     struct Oct22MucCallback: public MucCallback
     {
       typedef std::set<std::vector<int> > Cnf;
       typedef std::shared_ptr<Cnf> CnfPtr;
-      typedef std::set<int> Clause;
-      typedef std::set<int> Assignments;
       typedef std::map<Clause, Assignments> ClauseToAssignmentMap;
+      typedef std::map<Clause, int>  ClauseToMarkerVariableMap;
       typedef std::map<int, std::set<int> > AssignmentToClauseIndicesMap;
-    
-      Oct22MucCallback(const CnfPtr& factorGraphCnf);
+      typedef std::map<int, std::set<size_t> > AssignmentToMarkerPositionsMap;
+      typedef Minisat::vec<Minisat::Lit> Assumptions;
+      Oct22MucCallback(const CnfPtr& factorGraphCnf, int numMustVariables, bool mustMinimalizeAssignments);
     
       void processMuc(const std::vector<std::vector<int> >& muc) override;
-      void addClause(const Clause& clause, int clauseIndex, const Assignments& assignments);
+      void addClause(int markerVariable, const Clause& clause, int clauseIndex, const Assignments& assignments);
       void addFakeClause(int fakeVariable, int clauseIndex);
     
       void setMustMaster(const std::shared_ptr<Master>& mustMaster) {
         m_mustMaster = mustMaster;
       }
+
+      const AssignmentToClauseIndicesMap& getAssignmentToClauseIndicesMap() const { return m_assignmentToClauseIndicesMap; }
+      Assignments minimalizeAssignments(const Assignments& inputAssignments);
+      Assumptions createAssumptionsWithAllMarkersFalse() const;
+      void disableAllMissingAssignments(Assumptions& assumptions, const Assignments& assignments);
       
       private:
       CnfPtr m_factorGraphCnf;
+      int m_numMustVariables;
+      bool m_mustMinimalizeAssignments;
       ClauseToAssignmentMap m_clauseToAssignmentMap;
       AssignmentToClauseIndicesMap m_assignmentToClauseIndicesMap;
+      AssignmentToMarkerPositionsMap m_assignmentToMarkerPositionsMap;
+      Assumptions m_assumptionsWithAllMarkersFalse;
       Minisat::Solver m_factorGraphResultSolver;
       std::weak_ptr<Master> m_mustMaster;
       std::clock_t m_explorationStartTime;
+      Minisat::Solver m_minimalizationSolver;
     };
 
     // function declarations
@@ -89,7 +103,8 @@ namespace oct_22 {
     fgpp::FactorGraph::Ptr createFactorGraph(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd, int largestSupportSet, int largestBddSize);
     std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string & inputFilePath);
     std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs,
-                                             const Oct22MucCallback::CnfPtr& factorGraphCnf);
+                                             const Oct22MucCallback::CnfPtr& factorGraphCnf,
+                                             bool mustMinimalizeAssignments);
     std::vector<dd::BddWrapper> getFactorGraphResults(DdManager* ddm, const fgpp::FactorGraph& fg, const dd::QdimacsToBdd& qdimacsToBdd);
     dd::BddWrapper getExactResult(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
     Oct22MucCallback::CnfPtr convertToCnf(DdManager* ddm, 

@@ -28,8 +28,13 @@ SOFTWARE.
 
 namespace oct_22 {
 
-  Oct22MucCallback::Oct22MucCallback(const CnfPtr& factorGraphCnf)
+  Oct22MucCallback::Oct22MucCallback(
+    const CnfPtr& factorGraphCnf, 
+    int numMustVariables,
+    bool mustMinimalizeAssignments)
   {
+    m_numMustVariables = numMustVariables;
+    m_mustMinimalizeAssignments = mustMinimalizeAssignments;
     m_factorGraphCnf = factorGraphCnf;
   
     int maxVar = 0;
@@ -56,6 +61,8 @@ namespace oct_22 {
       m_factorGraphResultSolver.addClause(solverClause);
     }
     m_explorationStartTime = blif_solve::now();
+    for (int i = 0; i <= numMustVariables; ++i)
+      m_minimalizationSolver.newVar();
   }
   
   void Oct22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
@@ -75,7 +82,7 @@ namespace oct_22 {
     }
     auto master = m_mustMaster.lock();
     assert(master);
-    std::set<int> assignments;
+    Assignments assignments;
     for (const auto& mucClause: muc) {
       Clause clause(mucClause.cbegin(), mucClause.cend());
       auto camit = m_clauseToAssignmentMap.find(clause);
@@ -87,6 +94,8 @@ namespace oct_22 {
         assignments.insert(mucAssignment);
       }
     }
+    if (m_mustMinimalizeAssignments)
+      assignments = minimalizeAssignments(assignments);
     Minisat::vec<Minisat::Lit> assumps;
     assumps.capacity(assignments.size());
     for (auto x: assignments)
@@ -138,6 +147,7 @@ namespace oct_22 {
   
   void 
     Oct22MucCallback::addClause(
+      int markerVariable,
       const Clause& clause,
       int clauseIndex,
       const Assignments& assignments)
@@ -152,7 +162,19 @@ namespace oct_22 {
     }
     m_clauseToAssignmentMap.insert(std::make_pair(clause, assignments));
     for (auto assignment: assignments)
+    {
       m_assignmentToClauseIndicesMap[assignment].insert(clauseIndex);
+      m_assignmentToMarkerPositionsMap[assignment].insert(m_assumptionsWithAllMarkersFalse.size());
+    }
+    m_assumptionsWithAllMarkersFalse.push(Minisat::mkLit(std::abs(markerVariable), false));
+    
+    auto solverMarkerVar = m_minimalizationSolver.newVar();
+    assert(solverMarkerVar == markerVariable);
+    Assumptions minimalizationSolverClause;
+    minimalizationSolverClause.capacity(clause.size());
+    for (auto lit: clause)
+      minimalizationSolverClause.push(Minisat::mkLit(std::abs(lit), lit > 0));
+    m_minimalizationSolver.addClause(minimalizationSolverClause);
   }
   
   
@@ -164,6 +186,82 @@ namespace oct_22 {
     Clause fakeClause;
     fakeClause.insert(fakeVariable);
     m_clauseToAssignmentMap.insert(std::make_pair(fakeClause, Assignments()));
+  }
+
+
+  Oct22MucCallback::Assumptions Oct22MucCallback::createAssumptionsWithAllMarkersFalse() const
+  {
+    return m_assumptionsWithAllMarkersFalse;
+  }
+
+  void Oct22MucCallback::disableAllMissingAssignments(Assumptions& assumptions, const Assignments& assignments)
+  {
+    for(int lit = -(m_numMustVariables - 1); lit < m_numMustVariables; ++lit)
+    {
+      if (lit == 0 || assignments.count(lit) > 0)
+        continue;
+      auto mpIt = m_assignmentToMarkerPositionsMap.find(lit);
+      if (mpIt != m_assignmentToMarkerPositionsMap.end())
+      {
+        for (const auto mp: mpIt->second)
+        {
+          auto oldLit = assumptions[mp];
+          assumptions[mp] = Minisat::mkLit(Minisat::var(oldLit), true);
+        }
+      }
+    }
+  }
+
+
+  Assignments Oct22MucCallback::minimalizeAssignments(const Assignments& inputAssignments)
+  {
+    // initialize solver
+
+    // initialize assumptions with all marker variables set to true
+    Assumptions assumptions = createAssumptionsWithAllMarkersFalse();
+    disableAllMissingAssignments(assumptions, inputAssignments);
+
+    Assignments result = inputAssignments;
+    bool continueMinimalization = true; // assume that the assignments contain an MUC
+    while(continueMinimalization)
+    {
+      continueMinimalization = false;
+      std::cout << "trying to minimalize { ";
+      for (auto a: result)
+        std::cout << a << ", ";
+      std::cout << " }" << std::endl;
+      for (auto ir = result.cbegin(), nextir = result.cbegin(); !continueMinimalization && ir != result.cend(); ir = nextir)
+      {
+        ++nextir;
+        auto assignmentToCheck = *ir;
+        std::cout << "checking assignment " << assignmentToCheck << std::endl;
+        auto nextAssumptions = assumptions;
+        auto a2mvit = m_assignmentToMarkerPositionsMap.find(assignmentToCheck);
+        if (a2mvit != m_assignmentToMarkerPositionsMap.end())
+        {
+          for (auto markerPos: a2mvit->second)
+          {
+            auto oldLit = nextAssumptions[static_cast<int>(markerPos)];
+            nextAssumptions[static_cast<int>(markerPos)] = Minisat::mkLit(Minisat::var(oldLit), true);
+          }
+          bool isSat = m_minimalizationSolver.solve(nextAssumptions);
+          std::cout << "sat solver returned " << (isSat ? "true" : "false") << std::endl;
+          if (!isSat)
+            continueMinimalization = true;
+        }
+        else
+        {
+          std::cout << "trivially droppable" << std::endl;
+          continueMinimalization = true;
+        }
+        if (continueMinimalization)
+        {
+          assumptions = nextAssumptions;
+          result.erase(ir);
+        }
+      }
+    }
+    return result;
   }
 
 
@@ -310,10 +408,19 @@ namespace oct_22 {
           false,
           std::optional<bool>(true)
       );
+    auto minimalizeAssignments =
+      std::make_shared<CommandLineOption<bool> >(
+        "--minimalizeAssignments",
+        "Whether to minimalize assignments found by must",
+        false,
+        std::optional<bool>(true)
+      );
     
     // parse the command line
     blif_solve::parse(
-        {  largestSupportSet, largestBddSize, inputFile, verbosity, computeExactUsingBdd, outputFile, runMusTool },
+        {  largestSupportSet, largestBddSize, inputFile, verbosity, 
+           computeExactUsingBdd, outputFile, runMusTool, 
+           minimalizeAssignments },
         argc,
         argv);
   
@@ -328,7 +435,8 @@ namespace oct_22 {
       *(inputFile->value),
       *(computeExactUsingBdd->value),
       outputFile->value,
-      *(runMusTool->value)
+      *(runMusTool->value),
+      *(minimalizeAssignments->value)
     };
   }
   
@@ -354,7 +462,8 @@ namespace oct_22 {
   // initialize must
   std::shared_ptr<Master> createMustMaster(
     const dd::Qdimacs& qdimacs,
-    const Oct22MucCallback::CnfPtr& factorGraphCnf)
+    const Oct22MucCallback::CnfPtr& factorGraphCnf,
+    bool mustMinimalizeAssignments)
   {
     // check that we have exactly one quantifier which happens to be existential
     assert(qdimacs.quantifiers.size() == 1);
@@ -368,11 +477,8 @@ namespace oct_22 {
     //   - filtering out clauses with no quantified variables
     //   - keeping only the quantified variables
     // create map from non-quantified literals to positions of clauses in the 'outputClauses' vector
-    using Clause = Oct22MucCallback::Clause;
     std::vector<std::vector<int> > outputClauses;
-    std::set<Clause> outputClauseSet;   // remember where each outputClause is stored
-    std::map<int, std::set<size_t> > nonQuantifiedLiteralToOutputClausePosMap;
-    auto mucCallback = std::make_shared<Oct22MucCallback>(factorGraphCnf);
+    auto mucCallback = std::make_shared<Oct22MucCallback>(factorGraphCnf, numMustVariables, mustMinimalizeAssignments);
     for (const auto & clause: qdimacs.clauses)
     {
       Clause quantifiedLiterals, reversedNonQuantifiedLiterals, nextOutputClause;
@@ -384,33 +490,18 @@ namespace oct_22 {
       if (quantifiedLiterals.empty()) // skip if no quantified variables
         continue;
       size_t outputClausePos;  // find the position of this clause in 'outputClauses'
-      if (outputClauseSet.count(quantifiedLiterals) == 0)
-      {
-        // if it's not already in 'outputClauses', then add it to the end
-        outputClausePos = outputClauses.size();
-        mucCallback->addClause(quantifiedLiterals, outputClausePos, reversedNonQuantifiedLiterals);
-        outputClauses.push_back(std::vector<int>(quantifiedLiterals.cbegin(), quantifiedLiterals.cend()));
-        nextOutputClause = quantifiedLiterals;
-        outputClauseSet.insert(quantifiedLiterals);
-      }
-      else
-      {
-        // if it's already present, add a new fake variable to the clause to make it unique
-        ++numMustVariables;
-        nextOutputClause = quantifiedLiterals;
-        nextOutputClause.insert(numMustVariables);
-        outputClausePos = outputClauses.size();
-        mucCallback->addClause(nextOutputClause, outputClausePos, reversedNonQuantifiedLiterals);
-        outputClauses.push_back(std::vector<int>(nextOutputClause.cbegin(), nextOutputClause.cend()));
-  
-        // also add a new clause that's the negative of the fake variable
-        mucCallback->addFakeClause(-numMustVariables, outputClauses.size());
-        outputClauses.push_back(std::vector<int>(1, -numMustVariables));
-  
-        // no need to add these to the outputClauseSet, because they have a unique variable
-      }
-      for (const auto literal: reversedNonQuantifiedLiterals)
-        nonQuantifiedLiteralToOutputClausePosMap[literal].insert(outputClausePos);
+      
+      // add a new fake variable to the clause to make it unique
+      ++numMustVariables;
+      nextOutputClause = quantifiedLiterals;
+      nextOutputClause.insert(numMustVariables);
+      outputClausePos = outputClauses.size();
+      mucCallback->addClause(numMustVariables, nextOutputClause, outputClausePos, reversedNonQuantifiedLiterals);
+      outputClauses.push_back(std::vector<int>(nextOutputClause.cbegin(), nextOutputClause.cend()));
+
+      // also add a new clause that's the negative of the fake variable
+      mucCallback->addFakeClause(-numMustVariables, outputClauses.size());
+      outputClauses.push_back(std::vector<int>(1, -numMustVariables));
     }
   
     // create the MUST Master using outputClauses
@@ -430,33 +521,38 @@ namespace oct_22 {
     // find pairs of output clauses with opposite signs of a non-quantified variable
     // pass these pairs into the solver to indicate inconsistent sets of clauses
     std::set<std::pair<int, int> > inconsistentPairs;
+    const auto& nonQuantifiedLiteralToOutputClausePosMap = mucCallback->getAssignmentToClauseIndicesMap();
     for (const auto & qvXcids: nonQuantifiedLiteralToOutputClausePosMap)
     {
       int qv = qvXcids.first;
       if (qv < 0) continue;  // skip half due to symmetry
       const auto& cids = qvXcids.second;
-      const auto& opp_cids = nonQuantifiedLiteralToOutputClausePosMap[-qv];
-      const auto printOutputClause = [&](int id) -> std::string {
-        std::stringstream result;
-        result << "{ ";
-        for (const auto lit: outputClauses[id]) {
-          result << lit << ", ";
-        }
-        result << "}";
-        return result.str();
-      };
-      for (int cid: cids)
-        for (int opp_cid: opp_cids)
-        {
-          int minId = (cid < opp_cid ? cid : opp_cid);
-          int maxId = (cid > opp_cid ? cid : opp_cid);
-          if (minId == maxId || inconsistentPairs.count(std::make_pair(minId, maxId)) > 0)
-            continue;
-          blif_solve_log(DEBUG, "marking inconsistent: " << printOutputClause(minId) << " " << printOutputClause(maxId)
-            << " because of " << qv);
-          result->explorer->mark_inconsistent_pair(minId, maxId);
-          inconsistentPairs.insert(std::make_pair(minId, maxId));
-        }
+      auto opp_cids_it = nonQuantifiedLiteralToOutputClausePosMap.find(-qv);
+      if (opp_cids_it != nonQuantifiedLiteralToOutputClausePosMap.cend())
+      {
+        const auto& opp_cids = opp_cids_it->second;
+        const auto printOutputClause = [&](int id) -> std::string {
+          std::stringstream ss;
+          ss << "{ ";
+          for (const auto lit: outputClauses[id]) {
+            ss << lit << ", ";
+          }
+          ss << "}";
+          return ss.str();
+        };
+        for (int cid: cids)
+          for (int opp_cid: opp_cids)
+          {
+            int minId = (cid < opp_cid ? cid : opp_cid);
+            int maxId = (cid > opp_cid ? cid : opp_cid);
+            if (minId == maxId || inconsistentPairs.count(std::make_pair(minId, maxId)) > 0)
+              continue;
+            blif_solve_log(DEBUG, "marking inconsistent: " << printOutputClause(minId) << " " << printOutputClause(maxId)
+              << " because of " << qv);
+            result->explorer->mark_inconsistent_pair(minId, maxId);
+            inconsistentPairs.insert(std::make_pair(minId, maxId));
+          }
+      }
   
     }
   
@@ -603,7 +699,7 @@ namespace oct_22 {
     auto factorGraphResults = getFactorGraphResults(manager, *fg, *bdds);
     auto factorGraphCnf = convertToCnf(manager, bdds->numVariables + (2 * bdds->clauses.size()), factorGraphResults);
 
-    auto mustMaster = createMustMaster(qdimacs, factorGraphCnf);
+    auto mustMaster = createMustMaster(qdimacs, factorGraphCnf, true);
     mustMaster->enumerate();
 
     auto exactResult = computeExact(*bdds);
