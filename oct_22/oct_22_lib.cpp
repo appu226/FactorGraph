@@ -26,6 +26,72 @@ SOFTWARE.
 #include <mustool/core/Master.h>
 #include <mustool/mcsmus/minisat/core/mcsmus_Solver.h>
 
+namespace {
+  void disableClauseHelper(
+    std::vector<int>& clauseIndicesToBeDisabled,
+    const std::set<int>& clauseIndicesToSkip,
+    std::vector<std::set<int> const *>::const_iterator clauseIndicesPerAssignmentBeginIt,
+    std::vector<std::set<int> const *>::const_iterator clauseIndicesPerAssignmentEndIt,
+    Explorer* explorer,
+    int& disableCount
+  ) {
+    if (clauseIndicesPerAssignmentBeginIt == clauseIndicesPerAssignmentEndIt)
+    {
+      explorer->mark_inconsistent_set(clauseIndicesToBeDisabled);
+      ++disableCount;
+      return;
+    }
+    const auto& clauseIndicesForNextLiteral = **clauseIndicesPerAssignmentBeginIt;
+    ++clauseIndicesPerAssignmentBeginIt;
+    std::set<int> newClauseIndicesToSkip = clauseIndicesToSkip;
+    newClauseIndicesToSkip.insert(clauseIndicesForNextLiteral.cbegin(), clauseIndicesForNextLiteral.cend());
+    bool areAllClausesSkipped = true;
+    for (auto ci: clauseIndicesForNextLiteral)
+    {
+      if (clauseIndicesToSkip.count(ci) == 0) // NOT to be skipped
+      {
+        areAllClausesSkipped = false;
+        clauseIndicesToBeDisabled.push_back(ci);
+        disableClauseHelper(
+          clauseIndicesToBeDisabled, 
+          newClauseIndicesToSkip, 
+          clauseIndicesPerAssignmentBeginIt, 
+          clauseIndicesPerAssignmentEndIt,
+          explorer,
+          disableCount);
+        clauseIndicesToBeDisabled.pop_back();
+      }
+    }
+    if (areAllClausesSkipped)
+    {
+      disableClauseHelper(
+        clauseIndicesToBeDisabled, 
+        clauseIndicesToSkip, 
+        clauseIndicesPerAssignmentBeginIt, 
+        clauseIndicesPerAssignmentEndIt, 
+        explorer,
+        disableCount);
+    }
+  }
+
+  void disableClause(
+    const std::vector<std::set<int> const *> & clauseIndicesPerAssignment,
+    Explorer* explorer,
+    int& disableCount
+  ) {
+    std::vector<int> clauseIndicesToBeDisabled;
+    std::set<int> clauseIndicesToSkip;
+    disableClauseHelper(
+      clauseIndicesToBeDisabled, 
+      clauseIndicesToSkip, 
+      clauseIndicesPerAssignment.cbegin(),
+      clauseIndicesPerAssignment.cend(),
+      explorer,
+      disableCount);
+  }
+}
+
+
 namespace oct_22 {
 
   Oct22MucCallback::Oct22MucCallback(
@@ -133,12 +199,14 @@ namespace oct_22 {
         assert(acimit != m_assignmentToClauseIndicesMap.cend());
         conflictClauses.push_back(&acimit->second);
       }
-      auto disabler = [&master, &numDisabled](const std::vector<int> & clauseIndices) { 
-        master->explorer->mark_inconsistent_set(clauseIndices);
-        ++numDisabled;
-      };
-      std::vector<int> inconsistentIndices;
-      forAllCartesian(conflictClauses.cbegin(), conflictClauses.cend(), inconsistentIndices, disabler);
+
+      disableClause(conflictClauses, master->explorer, numDisabled);
+      // auto disabler = [&master, &numDisabled](const std::vector<int> & clauseIndices) { 
+      //   master->explorer->mark_inconsistent_set(clauseIndices);
+      //   ++numDisabled;
+      // };
+      // std::vector<int> inconsistentIndices;
+      // forAllCartesian(conflictClauses.cbegin(), conflictClauses.cend(), inconsistentIndices, disabler);
       blif_solve_log(INFO, "Disabled " << numDisabled << " sets from must solver.");
     }
     blif_solve_log(INFO, "MUC processing finished in " << blif_solve::duration(processStart) << " sec");
@@ -226,15 +294,10 @@ namespace oct_22 {
     while(continueMinimalization)
     {
       continueMinimalization = false;
-      std::cout << "trying to minimalize { ";
-      for (auto a: result)
-        std::cout << a << ", ";
-      std::cout << " }" << std::endl;
       for (auto ir = result.cbegin(), nextir = result.cbegin(); !continueMinimalization && ir != result.cend(); ir = nextir)
       {
         ++nextir;
         auto assignmentToCheck = *ir;
-        std::cout << "checking assignment " << assignmentToCheck << std::endl;
         auto nextAssumptions = assumptions;
         auto a2mvit = m_assignmentToMarkerPositionsMap.find(assignmentToCheck);
         if (a2mvit != m_assignmentToMarkerPositionsMap.end())
@@ -245,15 +308,11 @@ namespace oct_22 {
             nextAssumptions[static_cast<int>(markerPos)] = Minisat::mkLit(Minisat::var(oldLit), true);
           }
           bool isSat = m_minimalizationSolver.solve(nextAssumptions);
-          std::cout << "sat solver returned " << (isSat ? "true" : "false") << std::endl;
           if (!isSat)
             continueMinimalization = true;
         }
         else
-        {
-          std::cout << "trivially droppable" << std::endl;
           continueMinimalization = true;
-        }
         if (continueMinimalization)
         {
           assumptions = nextAssumptions;
