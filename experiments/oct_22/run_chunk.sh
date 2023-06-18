@@ -3,7 +3,7 @@ export TIME_OUT=7200
 export LARGEST_SUPPORT_SET=40
 export LARGEST_BDD_SIZE=100
 export TEST_CASE_ROOT=../../../../data_sets/bfss
-export RESULT_ROOT=results_20230617
+export RESULT_ROOT=../../../../data_sets/results_20230617_$1
 export TEST_PROCESS_COUNT=4
 export TEST_CASE_LIST_FILE=all_case_chunks/chunk$1
 
