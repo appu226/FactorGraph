@@ -1,0 +1,4 @@
+#!/bin/sh
+
+docker ps -a | grep factorgraph_oct22 | cut -f 1 -d ' ' | xargs docker rm
+docker rmi factorgraph_oct22
