@@ -1,0 +1,22 @@
+sudo apt update
+sudo apt -y install docker.io
+
+sudo groupadd -f docker
+sudo usermod -aG docker azureuser
+newgrp docker
+
+docker pull parakram/factorgraph_oct22:v2
+mkdir data_sets
+git clone https://github.com/BooleanFunctionalSynthesis/bfss.git data_sets/bfss
+
+
+-----aa------
+docker run --volume /home/azureuser/data_sets:/home/data_sets parakram/factorgraph_oct22:v2 aa
+
+
+-----ab------
+docker run --volume /home/azureuser/data_sets:/home/data_sets parakram/factorgraph_oct22:v2 ab
+
+
+-----ac------
+docker run --volume /home/azureuser/data_sets:/home/data_sets parakram/factorgraph_oct22:v2 ac

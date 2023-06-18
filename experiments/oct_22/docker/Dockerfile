@@ -20,6 +20,7 @@ RUN git clone https://github.com/appu226/FactorGraph.git FactorGraph \
     && cd FactorGraph \
     && cmake -S . -B build/out -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     && make -j -C build/out && build/out/test/test1
+RUN cd FactorGraph && git pull && echo 3vms
 
 WORKDIR /home/fguser/FactorGraph/experiments/oct_22
 
