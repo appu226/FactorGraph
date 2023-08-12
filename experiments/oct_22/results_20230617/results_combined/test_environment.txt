@@ -1,0 +1,9 @@
+export TIME_OUT=7200 sec
+export LARGEST_SUPPORT_SET=40
+export LARGEST_BDD_SIZE=100
+export TEST_CASE_ROOT=../../../../data_sets/bfss
+export RESULT_ROOT=../../../../data_sets/results_20230617_ac
+export TEST_PROCESS_COUNT=4
+export TEST_CASE_LIST_FILE=all_case_chunks/chunkac
+
+./run_chunk.sh ac
