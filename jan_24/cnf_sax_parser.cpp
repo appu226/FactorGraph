@@ -24,7 +24,7 @@ namespace jan_24 {
         {
             if (line.size() == 0)
                 continue;
-            else if (line[0] == 'c')
+            else if (line[0] == 'c' || line[0] == '/' || line[0] == '#')
                 parseComment(line);
             else if (line[0] == 'p')
             {

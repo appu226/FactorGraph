@@ -1,9 +1,14 @@
 cmake_minimum_required (VERSION 3.8)
 
 set (CMAKE_CXX_STANDARD 17)
+
+
 set (PATH_cudd ${CMAKE_CURRENT_SOURCE_DIR}/../cudd-3.0.0)
-link_directories (${PATH_cudd}/include ${PATH_cudd}/cudd/.libs)
+set (PATH_kissat ${CMAKE_CURRENT_SOURCE_DIR}/../kissat)
+link_directories (${PATH_cudd}/include ${PATH_cudd}/cudd/.libs ${PATH_kissat}/build)
 include_directories (${CMAKE_SOURCE_DIR})
+
+
 enable_testing ()
 
 project ("FactorGraph")

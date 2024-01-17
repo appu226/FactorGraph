@@ -1,7 +1,9 @@
 from __future__ import annotations
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from distutils.cmd import Command
+from enum import Enum
 import logging
 import os
 import shutil
@@ -16,7 +18,7 @@ import sys
 LogLevelMapping: dict[str, int] = {
     'QUIET': logging.CRITICAL,
     'ERROR': logging.ERROR,
-    'WARN': logging.WARN,
+    'WARNING': logging.WARN,
     'INFO': logging.INFO,
     'DEBUG': logging.DEBUG
 }
@@ -29,17 +31,23 @@ LogLevelMapping: dict[str, int] = {
 ######## utility class for generating standard file names ########
 class FileNameGen:
     root_file_name: str
+    original_qdimacs: str
+    bfss_input: str
+    bfss_output: str
+    kissat_input: str
+    kissat_output: str
+    final_preprocessed_result: str
     def __init__(self: FileNameGen, root_file_name: str):
+        if root_file_name.endswith(".qdimacs"):
+            root_file_name = root_file_name[0:-len(".qdimacs")]
         self.root_file_name = root_file_name
+        self.original_qdimacs = root_file_name + "_original.qdimacs"
+        self.bfss_input = root_file_name + "_bfss_input.qdimacs"
+        self.bfss_output = self.bfss_input + ".noUnary"
+        self.kissat_input = self.bfss_output
+        self.kissat_output = root_file_name + "_kissat_input.qdimacs"
+        self.final_preprocessed_result = root_file_name + "_preprocessed.qdimacs"
 
-    def original_qdimacs(self: FileNameGen) -> str:
-        return self.root_file_name + ".original.qdimacs"
-    
-    def bfss_input(self: FileNameGen) -> str:
-        return self.root_file_name + ".bfss_input.qdimacs"
-    
-    def bfss_output(self: FileNameGen) -> str:
-        return self.root_file_name + ".bfss_utput.qdimacs"
 
 
 
@@ -58,6 +66,8 @@ class CommandLineOptions:
     kissat_timeout_seconds: int
     preprocess_timeout_seconds: int
     verbosity: str
+    factor_graph_bin: str
+    bfss_bin: str
 
     @staticmethod
     def parse() -> CommandLineOptions:
@@ -81,10 +91,14 @@ class CommandLineOptions:
         ap.add_argument("--verbosity", type=str, required=False, default="ERROR",
                         choices=list(LogLevelMapping.keys()),
                         help="Total timeout for all pre-processing rounds")
+        ap.add_argument("--factor_graph_bin", type=str, required=True,
+                        help="Path to factor graph build outputs folder (e.g. build/out)")
+        ap.add_argument("--bfss_bin", type=str, required=True,
+                        help="Path to bfss binaries folder")
         args = ap.parse_args()
 
         logging.basicConfig(
-            format='%(asctime)s %(levelname)-8s %(message)s',
+            format='[%(levelname)s] [%(asctime)s] %(message)s',
             level=LogLevelMapping[args.verbosity],
             datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -95,7 +109,9 @@ class CommandLineOptions:
                                   run_kissat_preprocess=args.run_kissat_preprocess,
                                   kissat_timeout_seconds=args.kissat_timeout_seconds,
                                   preprocess_timeout_seconds=args.preprocess_timeout_seconds,
-                                  verbosity=args.verbosity)
+                                  verbosity=args.verbosity,
+                                  factor_graph_bin=args.factor_graph_bin,
+                                  bfss_bin=args.bfss_bin)
 
 
 
@@ -105,8 +121,8 @@ class CommandLineOptions:
 def prepare_output_folder(clo: CommandLineOptions) -> FileNameGen:
     os.makedirs(clo.output_root, exist_ok=True)
     new_file_root = FileNameGen(os.path.join(clo.output_root, os.path.basename(clo.test_case_path)))
-    shutil.copyfile(clo.test_case_path, new_file_root.original_qdimacs())
-    logging.debug(f"Test case copied from {clo.test_case_path} to {new_file_root.original_qdimacs()}")
+    shutil.copyfile(clo.test_case_path, new_file_root.original_qdimacs)
+    logging.debug(f"Test case copied from {clo.test_case_path} to {new_file_root.original_qdimacs}")
     return new_file_root
 
 
@@ -117,8 +133,82 @@ def prepare_output_folder(clo: CommandLineOptions) -> FileNameGen:
 
 ########          remove all quantifiers except innermost              ########
 ######## then add all remaining vars as outermost universal quantifier ########
-def convert_qdimacs_to_bfss_input(fng: FileNameGen, verbosity) -> None:
-    subprocess.run(["build/out/jan_24/innermost_existential", "--inputFile", fng.original_qdimacs(), "--outputFile", fng.bfss_input(), "--addUniversalQuantifier", "1", "--verbosity", verbosity])
+def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions) -> None:
+    subprocess.run([
+        os.path.join(clo.factor_graph_bin, "jan_24", "innermost_existential"),
+        "--inputFile", fng.original_qdimacs,
+        "--outputFile", fng.bfss_input,
+        "--addUniversalQuantifier", "1",
+        "--verbosity", clo.verbosity])
+
+
+
+
+
+###### time calculation functions ######
+def compute_deadline(seconds_to_deadline: int) -> datetime:
+    return datetime.now() + timedelta(seconds=float(seconds_to_deadline))
+
+def remaining_time(deadline: datetime) -> float:
+    return (deadline - datetime.now()).total_seconds()
+
+
+
+
+
+class FinalPreprocessOutput(Enum):
+    BFSS_INPUT = 0
+    KISSAT_INPUT = 1
+
+
+
+
+
+def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> int:
+    time_left = min(float(clo.bfss_timeout_seconds), remaining_time(deadline))
+    if time_left < 0:
+        return -1
+    return_code = -1
+    readCnf_process = subprocess.Popen([os.path.join(clo.bfss_bin, 'readCnf'), os.path.basename(fng.bfss_input)], cwd=clo.output_root, stdout=subprocess.DEVNULL)
+    try:
+        return_code = readCnf_process.wait(time_left)
+    except subprocess.TimeoutExpired:
+        return_code = -1
+        logging.info(f"bfss timed out in {time_left} secs for {fng.bfss_input}")
+        readCnf_process.kill()
+    return return_code
+
+
+
+
+
+def convert_bfss_output_to_kissat(fng: FileNameGen) -> int:
+    return 0 # kissat works directly on bfss output
+
+
+
+
+
+def run_kissat(fng: FileNameGen, deadline: datetime, max_time_taken: float) -> int:
+    raise RuntimeError("run_kissat not yet implemented")
+
+
+
+
+
+
+
+def compare_bfss_input_and_kissat_output(fng: FileNameGen) -> bool:
+    raise RuntimeError("compare_bfss_input_and_kissat_output not yet implemented")
+
+
+
+
+
+
+def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
+    raise RuntimeError("compare_kissat_output_to_bfss not yet implemented")
+
 
 
 
@@ -132,7 +222,30 @@ def main() -> int:
 
     fng = prepare_output_folder(clo)
 
-    convert_qdimacs_to_bfss_input(fng, clo.verbosity)
+    convert_qdimacs_to_bfss_input(fng, clo)
+
+    change = True
+    preprocess_deadline = compute_deadline(clo.preprocess_timeout_seconds)
+    final_preprocess_output: FinalPreprocessOutput = FinalPreprocessOutput.BFSS_INPUT
+
+    while change and remaining_time(preprocess_deadline) > 0:
+        if run_bfss(fng, clo, preprocess_deadline) != 0:
+            logging.debug("run_bfss gave non-zero return code")
+            break
+        if convert_bfss_output_to_kissat(fng) != 0:
+            logging.debug("convert_bfss_output_to_kissat gave non-zero return code")
+            break
+        final_preprocess_output = FinalPreprocessOutput.KISSAT_INPUT
+        if run_kissat(fng, preprocess_deadline, clo.kissat_timeout_seconds) != 0:
+            logging.debug("run_kissat gave non-zero return code")
+            break
+        change = compare_bfss_input_and_kissat_output(fng)
+        if convert_kissat_output_to_bfss(fng) != 0:
+            logging.debug("convert_kissat_output_to_bfss gave non-zero return code")
+            break
+        final_preprocess_output = FinalPreprocessOutput.BFSS_INPUT
+        logging.debug("Finished pre-processing round")
+        
 
     logging.info("jan_24 Done!")
     return 0

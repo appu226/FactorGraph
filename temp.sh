@@ -2,10 +2,10 @@
 
 
 ##### jan_24 #####
-python3 jan_24/jan_24.py --test_case_path ../../data_sets/bfss/benchmarks/Factorization/qdimacs/factorization8.qdimacs --output_root temp --verbosity INFO
+python3 jan_24/jan_24.py --test_case_path ../../data_sets/bfss/benchmarks/Factorization/qdimacs/factorization8.qdimacs --output_root temp --verbosity DEBUG --factor_graph_bin=/home/parakram/Software/DDP/FactorGraph/src/build/out --bfss_bin=/home/parakram/Software/DDP/bfss/bin
 
 
-
+# build/out/jan_24/kissat_preprocess --verbosity DEBUG --inputFile temp/factorization8_bfss_input.qdimacs.noUnary --outputFile temp/factorization8_bfss_input_new.qdimacs
 
 
 
