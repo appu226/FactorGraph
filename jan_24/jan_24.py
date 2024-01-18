@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+import ctypes
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from distutils.cmd import Command
@@ -45,7 +46,7 @@ class FileNameGen:
         self.bfss_input = root_file_name + "_bfss_input.qdimacs"
         self.bfss_output = self.bfss_input + ".noUnary"
         self.kissat_input = self.bfss_output
-        self.kissat_output = root_file_name + "_kissat_input.qdimacs"
+        self.kissat_output = root_file_name + "_kissat_output.qdimacs"
         self.final_preprocessed_result = root_file_name + "_preprocessed.qdimacs"
 
 
@@ -169,7 +170,9 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> i
     if time_left < 0:
         return -1
     return_code = -1
-    readCnf_process = subprocess.Popen([os.path.join(clo.bfss_bin, 'readCnf'), os.path.basename(fng.bfss_input)], cwd=clo.output_root, stdout=subprocess.DEVNULL)
+    cmd = [os.path.join(clo.bfss_bin, 'readCnf'), os.path.basename(fng.bfss_input)]
+    logging.debug(f"Running command: {cmd}")
+    readCnf_process = subprocess.Popen(cmd, cwd=clo.output_root, stdout=subprocess.DEVNULL)
     try:
         return_code = readCnf_process.wait(time_left)
     except subprocess.TimeoutExpired:
@@ -189,8 +192,24 @@ def convert_bfss_output_to_kissat(fng: FileNameGen) -> int:
 
 
 
-def run_kissat(fng: FileNameGen, deadline: datetime, max_time_taken: float) -> int:
-    raise RuntimeError("run_kissat not yet implemented")
+def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> int:
+    time_left = min(float(clo.kissat_timeout_seconds), remaining_time(deadline))
+    if time_left < 0:
+        return -1
+    return_code = -1
+    cmd = [os.path.join(clo.factor_graph_bin, "jan_24", "kissat_preprocess"), 
+           "--inputFile", fng.kissat_input,
+           "--outputFile", fng.kissat_output,
+           "--verbosity", clo.verbosity]
+    logging.debug(f"Running command: {cmd}")
+    kissat_process = subprocess.Popen(cmd, cwd=clo.output_root)
+    try:
+        return_code = kissat_process.wait(time_left)
+    except subprocess.TimeoutExpired:
+        return_code = -1
+        logging.info(f"kissat timed out in {time_left} secs for {fng.kissat_input}")
+        kissat_process.kill()
+    return return_code
 
 
 
@@ -198,8 +217,15 @@ def run_kissat(fng: FileNameGen, deadline: datetime, max_time_taken: float) -> i
 
 
 
-def compare_bfss_input_and_kissat_output(fng: FileNameGen) -> bool:
-    raise RuntimeError("compare_bfss_input_and_kissat_output not yet implemented")
+def compare_bfss_input_and_kissat_output(fng: FileNameGen, clo: CommandLineOptions, c_functions: ctypes.CDLL) -> bool:
+    result = c_functions.compare_bfss_input_and_kissat_output(bytes(fng.bfss_input, 'UTF-8'), bytes(fng.kissat_output, 'UTF-8'))
+    if result == 1:
+        return True
+    elif result == 0:
+        return False
+    else:
+        raise RuntimeError(f"compare bfss_input_and_kissat_output returned {result} indicating an error.")
+
 
 
 
@@ -220,6 +246,10 @@ def main() -> int:
     logging.info("jan_24 Starting...")
     logging.debug(clo)
 
+    so_file = os.path.join(clo.factor_graph_bin, "jan_24", "libcheck_progress.so")
+    c_functions = ctypes.CDLL(so_file)
+    c_functions.setVerbosity(bytes(clo.verbosity, "UTF-8"))
+
     fng = prepare_output_folder(clo)
 
     convert_qdimacs_to_bfss_input(fng, clo)
@@ -236,10 +266,10 @@ def main() -> int:
             logging.debug("convert_bfss_output_to_kissat gave non-zero return code")
             break
         final_preprocess_output = FinalPreprocessOutput.KISSAT_INPUT
-        if run_kissat(fng, preprocess_deadline, clo.kissat_timeout_seconds) != 0:
+        if run_kissat(fng, clo, preprocess_deadline) != 0:
             logging.debug("run_kissat gave non-zero return code")
             break
-        change = compare_bfss_input_and_kissat_output(fng)
+        change = compare_bfss_input_and_kissat_output(fng, clo, c_functions)
         if convert_kissat_output_to_bfss(fng) != 0:
             logging.debug("convert_kissat_output_to_bfss gave non-zero return code")
             break

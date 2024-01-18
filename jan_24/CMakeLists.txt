@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 3.8)
 
 add_library (cnf_sax_parser "cnf_sax_parser.h" "cnf_sax_parser.cpp")
 
+add_library (check_progress SHARED "compare_bfss_input_and_kissat_output.cpp")
+target_link_libraries(check_progress blif_solve_lib cnf_sax_parser)
+
 add_executable (innermost_existential "innermost_existential.cpp")
 target_link_libraries (innermost_existential blif_solve_lib cnf_sax_parser)
 
