@@ -78,6 +78,7 @@ int main(int argc, char const * const * const argv)
 
     kissat_eliminate_variables(kw.solver, kw.quantifiedVars.data(), kw.quantifiedVars.size());
 
+    blif_solve_log(DEBUG, "Writing to " << clo.outputFile);
     kw.dumpToFile(clo.outputFile);
 
     blif_solve_log(INFO, "Finished kissat_preprocess.");
@@ -243,6 +244,7 @@ void KissatWrapper::dumpToFile(const std::string& fileName)
     for (auto i = 0; i < result_size; ++i)
     {
         fout << cnf_array[i] << (cnf_array[i] == 0 ? '\n' : ' ');
-    }   
+    }
+    fout << std::endl;
     
 }

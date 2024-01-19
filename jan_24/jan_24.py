@@ -38,9 +38,14 @@ class FileNameGen:
     kissat_input: str
     kissat_output: str
     final_preprocessed_result: str
-    def __init__(self: FileNameGen, root_file_name: str):
-        if root_file_name.endswith(".qdimacs"):
-            root_file_name = root_file_name[0:-len(".qdimacs")]
+    def __init__(self: FileNameGen, output_root: str, src_file_path: str):
+        SUFFIX = ".qdimacs"
+        root_file_name = os.path.basename(src_file_path)
+        if root_file_name.endswith(SUFFIX):
+            root_file_name = root_file_name[0:-len(SUFFIX)]
+        else:
+            raise RuntimeError(f"Filename {src_file_path} does not end in {SUFFIX}")
+        root_file_name = os.path.join(output_root, root_file_name)
         self.root_file_name = root_file_name
         self.original_qdimacs = root_file_name + "_original.qdimacs"
         self.bfss_input = root_file_name + "_bfss_input.qdimacs"
@@ -121,10 +126,10 @@ class CommandLineOptions:
 ######## create output folder, copy test case, create a simplified test case
 def prepare_output_folder(clo: CommandLineOptions) -> FileNameGen:
     os.makedirs(clo.output_root, exist_ok=True)
-    new_file_root = FileNameGen(os.path.join(clo.output_root, os.path.basename(clo.test_case_path)))
-    shutil.copyfile(clo.test_case_path, new_file_root.original_qdimacs)
-    logging.debug(f"Test case copied from {clo.test_case_path} to {new_file_root.original_qdimacs}")
-    return new_file_root
+    fng = FileNameGen(clo.output_root, clo.test_case_path)
+    shutil.copyfile(clo.test_case_path, fng.original_qdimacs)
+    logging.debug(f"Test case copied from {clo.test_case_path} to {fng.original_qdimacs}")
+    return fng
 
 
 
@@ -171,7 +176,8 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> i
         return -1
     return_code = -1
     cmd = [os.path.join(clo.bfss_bin, 'readCnf'), os.path.basename(fng.bfss_input)]
-    logging.debug(f"Running command: {cmd}")
+    sp = ' '
+    logging.debug(f"Running command: {sp.join(cmd)} at cwd {clo.output_root}")
     readCnf_process = subprocess.Popen(cmd, cwd=clo.output_root, stdout=subprocess.DEVNULL)
     try:
         return_code = readCnf_process.wait(time_left)
@@ -201,8 +207,9 @@ def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) ->
            "--inputFile", fng.kissat_input,
            "--outputFile", fng.kissat_output,
            "--verbosity", clo.verbosity]
-    logging.debug(f"Running command: {cmd}")
-    kissat_process = subprocess.Popen(cmd, cwd=clo.output_root)
+    sp = ' '
+    logging.debug(f"Running command: {sp.join(cmd)}")
+    kissat_process = subprocess.Popen(cmd)
     try:
         return_code = kissat_process.wait(time_left)
     except subprocess.TimeoutExpired:
@@ -217,8 +224,8 @@ def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) ->
 
 
 
-def compare_bfss_input_and_kissat_output(fng: FileNameGen, clo: CommandLineOptions, c_functions: ctypes.CDLL) -> bool:
-    result = c_functions.compare_bfss_input_and_kissat_output(bytes(fng.bfss_input, 'UTF-8'), bytes(fng.kissat_output, 'UTF-8'))
+def bfss_input_equals_kissat_output(fng: FileNameGen, clo: CommandLineOptions, c_functions: ctypes.CDLL) -> bool:
+    result = c_functions.bfss_input_equals_kissat_output(bytes(fng.bfss_input, 'UTF-8'), bytes(fng.kissat_output, 'UTF-8'))
     if result == 1:
         return True
     elif result == 0:
@@ -233,7 +240,8 @@ def compare_bfss_input_and_kissat_output(fng: FileNameGen, clo: CommandLineOptio
 
 
 def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
-    raise RuntimeError("compare_kissat_output_to_bfss not yet implemented")
+    shutil.copy(fng.kissat_output, fng.bfss_input)
+    return 0
 
 
 
@@ -255,6 +263,7 @@ def main() -> int:
     convert_qdimacs_to_bfss_input(fng, clo)
 
     change = True
+    round = 1
     preprocess_deadline = compute_deadline(clo.preprocess_timeout_seconds)
     final_preprocess_output: FinalPreprocessOutput = FinalPreprocessOutput.BFSS_INPUT
 
@@ -269,12 +278,14 @@ def main() -> int:
         if run_kissat(fng, clo, preprocess_deadline) != 0:
             logging.debug("run_kissat gave non-zero return code")
             break
-        change = compare_bfss_input_and_kissat_output(fng, clo, c_functions)
+        change = not bfss_input_equals_kissat_output(fng, clo, c_functions)
+        logging.debug(f"Progress in round {round}: {change}")
         if convert_kissat_output_to_bfss(fng) != 0:
             logging.debug("convert_kissat_output_to_bfss gave non-zero return code")
             break
         final_preprocess_output = FinalPreprocessOutput.BFSS_INPUT
-        logging.debug("Finished pre-processing round")
+        logging.debug(f"Finished pre-processing round {round}")
+        round = round + 1
         
 
     logging.info("jan_24 Done!")
