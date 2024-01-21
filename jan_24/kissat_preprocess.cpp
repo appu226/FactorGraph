@@ -186,7 +186,8 @@ void KissatWrapper::dumpToFile(const std::string& fileName)
             newUniversallyQuantifiedVars.push_back(v);
 
     std::ofstream fout(fileName);
-    fout << "p cnf " << numVars << ' ' << newNumClauses << "0\n";
+    fout << "p cnf " << numVars << ' ' << newNumClauses << "\n";
+    blif_solve_log(DEBUG, "kissat_preprocess writing results with " << numVars << " vars and " << newNumClauses << " clauses");
     if (newUniversallyQuantifiedVars.size() > 0)
     {
         fout << "a ";
