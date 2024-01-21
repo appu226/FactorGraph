@@ -38,6 +38,8 @@ class FileNameGen:
     kissat_input: str
     kissat_output: str
     final_preprocessed_result: str
+    factor_graph_input: str
+    factor_graph_output: str
     def __init__(self: FileNameGen, output_root: str, src_file_path: str):
         SUFFIX = ".qdimacs"
         root_file_name = os.path.basename(src_file_path)
@@ -50,9 +52,11 @@ class FileNameGen:
         self.original_qdimacs = root_file_name + "_original.qdimacs"
         self.bfss_input = root_file_name + "_bfss_input.qdimacs"
         self.bfss_output = self.bfss_input + ".noUnary"
-        self.kissat_input = self.bfss_output
+        self.kissat_input = root_file_name + "_kissat_input.qdimacs"
         self.kissat_output = root_file_name + "_kissat_output.qdimacs"
         self.final_preprocessed_result = root_file_name + "_preprocessed.qdimacs"
+        self.factor_graph_input = root_file_name + "_factor_graph_input.qdimacs"
+        self.factor_graph_output = root_file_name + "_factor_graph_output.qdimacs"
 
 
 
@@ -162,14 +166,6 @@ def remaining_time(deadline: datetime) -> float:
 
 
 
-class FinalPreprocessOutput(Enum):
-    BFSS_INPUT = 0
-    KISSAT_INPUT = 1
-
-
-
-
-
 def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> int:
     time_left = min(float(clo.bfss_timeout_seconds), remaining_time(deadline))
     if time_left < 0:
@@ -190,11 +186,12 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> i
 
 
 
-
-def convert_bfss_output_to_kissat(fng: FileNameGen) -> int:
-    return 0 # kissat works directly on bfss output
-
-
+def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions) -> None:
+    subprocess.run([
+        os.path.join(clo.factor_graph_bin, "jan_24", "remove_unaries"),
+        "--inputFile", fng.bfss_output,
+        "--outputFile", fng.kissat_input,
+        "--verbosity", clo.verbosity])
 
 
 
@@ -246,6 +243,17 @@ def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
 
 
 
+def convert_preprocess_output_to_factor_graph(preprocess_output: str, factor_graph_input: str, clo: CommandLineOptions) -> None:
+    subprocess.run([
+        os.path.join(clo.factor_graph_bin, "jan_24", "innermost_existential"),
+        "--inputFile", preprocess_output,
+        "--outputFile", factor_graph_input,
+        "--addUniversalQuantifier", "0",
+        "--verbosity", clo.verbosity])
+
+
+
+
 
 
 ########## main application ###########
@@ -265,28 +273,29 @@ def main() -> int:
     change = True
     round = 1
     preprocess_deadline = compute_deadline(clo.preprocess_timeout_seconds)
-    final_preprocess_output: FinalPreprocessOutput = FinalPreprocessOutput.BFSS_INPUT
+    final_preprocess_output: str = ""
 
     while change and remaining_time(preprocess_deadline) > 0:
         if run_bfss(fng, clo, preprocess_deadline) != 0:
             logging.debug("run_bfss gave non-zero return code")
             break
-        if convert_bfss_output_to_kissat(fng) != 0:
-            logging.debug("convert_bfss_output_to_kissat gave non-zero return code")
-            break
-        final_preprocess_output = FinalPreprocessOutput.KISSAT_INPUT
+        convert_bfss_output_to_kissat(fng, clo) # no conversion required because kissat directly takes bfss_output
+        final_preprocess_output = fng.kissat_input
+
+
         if run_kissat(fng, clo, preprocess_deadline) != 0:
             logging.debug("run_kissat gave non-zero return code")
             break
         change = not bfss_input_equals_kissat_output(fng, clo, c_functions)
         logging.debug(f"Progress in round {round}: {change}")
-        if convert_kissat_output_to_bfss(fng) != 0:
-            logging.debug("convert_kissat_output_to_bfss gave non-zero return code")
-            break
-        final_preprocess_output = FinalPreprocessOutput.BFSS_INPUT
+        convert_kissat_output_to_bfss(fng)
+        final_preprocess_output = fng.bfss_input
+        
+        
         logging.debug(f"Finished pre-processing round {round}")
         round = round + 1
-        
+
+    convert_preprocess_output_to_factor_graph(final_preprocess_output, fng.factor_graph_input, clo)
 
     logging.info("jan_24 Done!")
     return 0

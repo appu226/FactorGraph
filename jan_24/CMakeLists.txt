@@ -8,6 +8,9 @@ target_link_libraries(check_progress blif_solve_lib cnf_sax_parser)
 add_executable (innermost_existential "innermost_existential.cpp")
 target_link_libraries (innermost_existential blif_solve_lib cnf_sax_parser)
 
+add_executable (remove_unaries "remove_unaries.cpp")
+target_link_libraries (remove_unaries blif_solve_lib cnf_sax_parser)
+
 add_executable (kissat_preprocess "kissat_preprocess.cpp")
 target_include_directories (kissat_preprocess PUBLIC ${PATH_kissat}/..)
 target_link_libraries (kissat_preprocess cnf_sax_parser blif_solve_lib kissat)

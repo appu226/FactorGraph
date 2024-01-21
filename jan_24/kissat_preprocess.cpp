@@ -22,17 +22,6 @@ struct CommandLineOptions {
 
 int get_kissat_verbosity();
 
-class UnaryCollector: public jan_24::ICnfSaxParser
-{
-    public:
-    void parseComment(const std::string& line) override { }
-    void parsePHeader(const std::string& line, int numVars, int numClauses) override { }
-    void parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int> & literalsTerminatedWithZero) override { }
-    void parseClause(const std::string& line, const std::vector<int> & literalsTerminatedWithZero) override;
-
-    std::unordered_set<int> unaries;
-};
-
 
 class KissatWrapper: public jan_24::ICnfSaxParser
 {
@@ -59,14 +48,6 @@ int main(int argc, char const * const * const argv)
 {
     auto clo = CommandLineOptions::parse(argc, argv);
     blif_solve_log(INFO, "Starting kissat_preprocess.");
-
-    UnaryCollector uc;
-    {
-        std::ifstream fin(clo.inputFile);
-        uc.parse(fin);
-    }
-    blif_solve_log(DEBUG, "Found " << uc.unaries.size() << " unaries.");
-
 
     KissatWrapper kw;
     auto solver = kw.solver;
@@ -147,25 +128,6 @@ int get_kissat_verbosity()
             return 3;
     }
     return 3;
-}
-
-
-
-
-
-
-
-
-void UnaryCollector::parseClause(
-    const std::string& line, 
-    const std::vector<int> & literalsTerminatedWithZero)
-{
-    if (literalsTerminatedWithZero.size() != 2 || literalsTerminatedWithZero[1] != 0)
-        return;
-    int unary = literalsTerminatedWithZero[0];
-    if (unaries.count(-unary) > 0)
-        throw std::runtime_error("Found conflicting unaries " + std::to_string(unary) + " and " + std::to_string(-unary));
-    unaries.insert(unary);
 }
 
 

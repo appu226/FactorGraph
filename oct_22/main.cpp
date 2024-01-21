@@ -55,9 +55,29 @@ int main(int argc, char const * const * const argv)
 
   start = blif_solve::now();                                            // factor graph result to CNF
   auto factorGraphResults = oct_22::getFactorGraphResults(ddm.get(), *fg, *bdds);
+  bool allOne = true;
+  bool someZero = false;
+  for (const auto& fgr: factorGraphResults)
+  {
+    if (!fgr.isOne())
+      allOne = false;
+    if (fgr.isZero())
+      someZero = true;
+  }
+  if (allOne)
+  {
+    blif_solve_log(INFO, "All factor graph results are ONE.");
+  }
+
   auto factorGraphCnf = oct_22::convertToCnf(ddm.get(), bdds->numVariables + (2 * bdds->clauses.size()), factorGraphResults);
   blif_solve_log(INFO, "Factor graph result converted to cnf in "
       << blif_solve::duration(start) << " secs");
+  if (someZero)
+  {
+    blif_solve_log(INFO, "Some factor graph result was ZERO.");
+    oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
+    return 0;
+  }
 
   if (clo.runMusTool)                                                     // run mustool
   {
@@ -65,10 +85,10 @@ int main(int argc, char const * const * const argv)
     auto mustMaster = oct_22::createMustMaster(*qdimacs, factorGraphCnf, clo.mustMinimalizeAssignments);
     mustMaster->enumerate();
     blif_solve_log(INFO, "Must exploration finished in " << blif_solve::duration(start) << " sec");
-
-    if (clo.outputFile.has_value())                                       // write results
-      oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
   }
+
+  if (clo.outputFile.has_value())                                       // write results
+    oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
 
   if (clo.computeExactUsingBdd)
   {
