@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-add_library (dd 
+add_library (dd SHARED
   "bdd_factory.h" "bdd_partition.h" "bnet.h" "cuddAndAbsMulti.h" "dd.h" "disjoint_set.h"
   "dotty.h" "lru_cache.h" "max_heap.h" "ntr.h" "optional.h" "bnet.c" "ntr.c" "ntrHeap.c"
   "ntrMflow.c" "bdd_factory.cpp" "bdd_partition.cpp" "cuddAndAbsMulti.cpp" "dd.cpp"

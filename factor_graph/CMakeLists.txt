@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-add_library (factor_graph 
+add_library (factor_graph SHARED
   "factor_graph.h" "hash_table.h" "qbf.h" "srt.h" "factor_graph.cpp"
   "hash_table.cpp" "qbf.cpp" "srt.cpp" "fgpp.h" "fgpp.cpp")
 
