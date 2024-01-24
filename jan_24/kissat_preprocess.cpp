@@ -119,11 +119,11 @@ int get_kissat_verbosity()
         case blif_solve::QUIET:
             return 0;
         case blif_solve::ERROR:
-            return 1;
+            return 0;
         case blif_solve::WARNING:
-            return 1;
+            return 0;
         case blif_solve::INFO:
-            return 2;
+            return 1;
         case blif_solve::DEBUG:
             return 3;
     }
@@ -142,8 +142,9 @@ KissatWrapper::~KissatWrapper()
     kissat_release(solver);
 }
 
-void KissatWrapper::parsePHeader(const std::string&, int parsedNumVars, int)
+void KissatWrapper::parsePHeader(const std::string&, int parsedNumVars, int parsedNumClauses)
 {
+    blif_solve_log(INFO, "kissat_preprocess processing problem with " << parsedNumVars << " total variables and " << parsedNumClauses << " clauses.");
     numVars = parsedNumVars;
 }
 
@@ -151,6 +152,7 @@ void KissatWrapper::parseQuantifierLine(const std::string&, char quantifier, con
 {
     if (quantifier == 'e')
     {
+        blif_solve_log(INFO, "kissat_preprocess processing problem with " << (literalsTerminatedWithZero.size() - 1) << " quantified variables.");
         quantifiedVars = literalsTerminatedWithZero;
         quantifiedVars.pop_back();
     }
@@ -187,7 +189,7 @@ void KissatWrapper::dumpToFile(const std::string& fileName)
 
     std::ofstream fout(fileName);
     fout << "p cnf " << numVars << ' ' << newNumClauses << "\n";
-    blif_solve_log(DEBUG, "kissat_preprocess writing results with " << numVars << " vars and " << newNumClauses << " clauses");
+    blif_solve_log(INFO, "kissat_preprocess writing results with " << numVars << " total vars, " << newExistentiallyQuantifiedVars.size() << " quantified variables, and " << newNumClauses << " clauses");
     if (newUniversallyQuantifiedVars.size() > 0)
     {
         fout << "a ";
