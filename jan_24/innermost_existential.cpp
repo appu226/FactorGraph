@@ -80,10 +80,11 @@ void InnermostExistentialSaxParser::parseComment(const std::string& line) {
 void InnermostExistentialSaxParser::parsePHeader(
     const std::string& line, 
     int numVars, 
-    int // numClauses unused parameter
+    int numClauses
 ) { 
     m_numVars = numVars;
     m_fout << line << '\n';
+    blif_solve_log(DEBUG, "innermost_existential writing result with " << numVars << " vars and " << numClauses << " clauses");
 }
 void InnermostExistentialSaxParser::parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int>& literalsTerminatedWithZero) {
     if (quantifier == 'e')

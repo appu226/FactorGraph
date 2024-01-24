@@ -212,6 +212,7 @@ void ResultWriter::parseComment(const std::string& line)
 void ResultWriter::parsePHeader(const std::string& line, int numVars, int)
 {
     m_fout << "p cnf " << numVars << ' ' << m_numClauses << '\n';
+    blif_solve_log(DEBUG, "Remove Unaries writing result with " << numVars << " vars and " << m_numClauses << " clauses");
 }
 void ResultWriter::parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int> & literalsTerminatedWithZero)
 {

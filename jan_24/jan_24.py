@@ -10,6 +10,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 
 
@@ -78,6 +79,11 @@ class CommandLineOptions:
     verbosity: str
     factor_graph_bin: str
     bfss_bin: str
+    largest_bdd_size: str
+    largest_support_set: str
+    factor_graph_timeout_seconds: str
+    run_mus_tool: str
+    minimalize_assignments: str
 
     @staticmethod
     def parse() -> CommandLineOptions:
@@ -105,6 +111,19 @@ class CommandLineOptions:
                         help="Path to factor graph build outputs folder (e.g. build/out)")
         ap.add_argument("--bfss_bin", type=str, required=True,
                         help="Path to bfss binaries folder")
+        ap.add_argument("--largest_bdd_size", type=int, required=False,
+                        help="Largest BDD size while merging factors for factor graph algorithm",
+                        default=100)
+        ap.add_argument("--largest_support_set", type=int, required=False,
+                        help="Largest support set while merging factors/variables for factor graph algorithm",
+                        default=20)
+        ap.add_argument("--factor_graph_timeout_seconds", type=int, required=False,
+                        help="Timeout for factor graph (and must exploration) in seconds",
+                        default=1200)
+        ap.add_argument("--run_mus_tool", type=bool, required=False, default=True,
+                        help="Whether to run MUST or not")
+        ap.add_argument("--minimalize_assignments", type=bool, required=False, default=True,
+                        help="Whether to minimalize assignments found by MUST")
         args = ap.parse_args()
 
         logging.basicConfig(
@@ -121,7 +140,12 @@ class CommandLineOptions:
                                   preprocess_timeout_seconds=args.preprocess_timeout_seconds,
                                   verbosity=args.verbosity,
                                   factor_graph_bin=args.factor_graph_bin,
-                                  bfss_bin=args.bfss_bin)
+                                  bfss_bin=args.bfss_bin,
+                                  largest_bdd_size=str(args.largest_bdd_size),
+                                  largest_support_set=str(args.largest_support_set),
+                                  factor_graph_timeout_seconds=str(args.factor_graph_timeout_seconds),
+                                  run_mus_tool = "1" if args.run_mus_tool else "0",
+                                  minimalize_assignments = "1" if args.minimalize_assignments else "0")
 
 
 
@@ -255,6 +279,38 @@ def convert_preprocess_output_to_factor_graph(preprocess_output: str, factor_gra
 
 
 
+def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> None:
+    time_left = float(clo.factor_graph_timeout_seconds)
+    return_code = -1
+    cmd = [os.path.join(clo.factor_graph_bin, "oct_22", "oct_22"), 
+           "--inputFile", fng.factor_graph_input,
+           "--outputFile", fng.factor_graph_output,
+           "--verbosity", clo.verbosity,
+           "--largestSupportSet", clo.largest_support_set,
+           "--largestBddSize", clo.largest_bdd_size,
+           "--runMusTool", clo.run_mus_tool,
+           "--minimalizeAssignments", clo.minimalize_assignments]
+    sp = ' '
+    logging.debug(f"Running command: {sp.join(cmd)}")
+    factor_graph_process = subprocess.Popen(cmd)
+    try:
+        return_code = factor_graph_process.wait(time_left)
+    except subprocess.TimeoutExpired:
+        return_code = -1
+        logging.info(f"factor graph timed out in {time_left} secs for {fng.factor_graph_input}")
+        factor_graph_process.kill()
+    return
+# --largestSupportSet:	largest allowed support set size while clumping cnf factors
+# --largestBddSize:	largest allowed bdd size while clumping cnf factors
+# --inputFile:	Input qdimacs file with exactly one quantifier which is existential	[Mandatory]
+# --verbosity:	Log verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)
+# --computeExactUsingBdd:	Compute exact solution (default false)
+# --outputFile:	Cnf file with result
+# --runMusTool:	Whether to run MUS tool (default true)
+# --minimalizeAssignments:	Whether to minimalize assignments found by must
+
+
+
 
 ########## main application ###########
 def main() -> int:
@@ -266,9 +322,12 @@ def main() -> int:
     c_functions = ctypes.CDLL(so_file)
     c_functions.setVerbosity(bytes(clo.verbosity, "UTF-8"))
 
+    program_start_time = time.time()
     fng = prepare_output_folder(clo)
 
     convert_qdimacs_to_bfss_input(fng, clo)
+    input_prepared_time = time.time()
+    logging.info(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
 
     change = True
     round = 1
@@ -295,7 +354,16 @@ def main() -> int:
         logging.debug(f"Finished pre-processing round {round}")
         round = round + 1
 
+    preprocessing_finished_time = time.time()
+    logging.info(f"Finished proprocessing in {round - 1} rounds, in {preprocessing_finished_time - input_prepared_time} seconds.")
+
     convert_preprocess_output_to_factor_graph(final_preprocess_output, fng.factor_graph_input, clo)
+    factor_graph_input_prepared_time = time.time()
+    logging.info(f"Factor graph input prepared in {factor_graph_input_prepared_time - preprocessing_finished_time} seconds")
+
+    run_factor_graph(fng, clo)
+    factor_graph_finished_time = time.time()
+    logging.info(f"Factor graph and must finished in {factor_graph_finished_time - factor_graph_input_prepared_time} seconds")
 
     logging.info("jan_24 Done!")
     return 0
