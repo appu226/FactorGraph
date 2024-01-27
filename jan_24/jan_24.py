@@ -5,26 +5,13 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from distutils.cmd import Command
 from enum import Enum
+from jan_24_common import LogLevelMapping
 import logging
 import os
 import shutil
 import subprocess
 import sys
 import time
-
-
-
-
-
-###### utility enum for parsing log verbosity ######
-LogLevelMapping: dict[str, int] = {
-    'QUIET': logging.CRITICAL,
-    'ERROR': logging.ERROR,
-    'WARNING': logging.WARN,
-    'INFO': logging.INFO,
-    'DEBUG': logging.DEBUG
-}
-
 
 
 
