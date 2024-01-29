@@ -116,7 +116,8 @@ class CommandLineOptions:
         logging.basicConfig(
             format='[%(levelname)s] [%(asctime)s] %(message)s',
             level=LogLevelMapping[args.verbosity],
-            datefmt='%Y-%m-%d %H:%M:%S')
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[logging.StreamHandler(sys.stdout)])
 
         return CommandLineOptions(test_case_path=args.test_case_path,
                                   output_root=args.output_root,
