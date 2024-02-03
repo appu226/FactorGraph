@@ -30,6 +30,17 @@ SOFTWARE.
 
 namespace dd
 {
+
+  ManagerWrapper::ManagerWrapper(DdManager* v_manager):
+    manager(v_manager)
+  { }
+
+  ManagerWrapper::~ManagerWrapper()
+  {
+    if (manager)
+        Cudd_Quit(manager);
+  }
+
   BddWrapper::BddWrapper(bdd_ptr myBdd, DdManager * manager) :
     m_bdd(myBdd),
     m_manager(manager)

@@ -35,6 +35,14 @@ namespace dd
 {
 
 
+  class ManagerWrapper {
+    public:
+      ManagerWrapper(DdManager* v_manager);
+      ~ManagerWrapper();
+      DdManager* manager;
+  };
+
+
   class BddWrapper
   {
     public:

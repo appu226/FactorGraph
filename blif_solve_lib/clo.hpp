@@ -96,7 +96,7 @@ namespace blif_solve {
         CommandLineOption(const std::string & name,
                           const std::string & help,
                           bool isMandatory = false,
-                          const std::optional<TVal> & defaultValue = std::make_optional<TVal>()):
+                          const std::optional<TVal> & defaultValue = std::optional<TVal>()):
           CloInterface(name, help, isMandatory),
           value(defaultValue)
         { }

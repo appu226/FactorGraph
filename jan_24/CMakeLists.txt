@@ -14,3 +14,6 @@ target_link_libraries (remove_unaries blif_solve_lib cnf_sax_parser)
 add_executable (kissat_preprocess "kissat_preprocess.cpp")
 target_include_directories (kissat_preprocess PUBLIC ${PATH_kissat}/..)
 target_link_libraries (kissat_preprocess cnf_sax_parser blif_solve_lib kissat)
+
+add_executable (factorization_debugger "factorization_debugger.cpp")
+target_link_libraries(factorization_debugger blif_solve_lib cnf_sax_parser dd)
