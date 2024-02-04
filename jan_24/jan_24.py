@@ -156,12 +156,15 @@ def prepare_output_folder(clo: CommandLineOptions) -> FileNameGen:
 ########          remove all quantifiers except innermost              ########
 ######## then add all remaining vars as outermost universal quantifier ########
 def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions) -> None:
-    subprocess.run([
+    cmd = [
         os.path.join(clo.factor_graph_bin, "jan_24", "innermost_existential"),
         "--inputFile", fng.original_qdimacs,
         "--outputFile", fng.bfss_input,
         "--addUniversalQuantifier", "1",
-        "--verbosity", clo.verbosity])
+        "--verbosity", clo.verbosity]
+    sp = ' '
+    logging.debug(f"Running command: {sp.join(cmd)}")
+    subprocess.run(cmd)
 
 
 
@@ -199,11 +202,14 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> i
 
 
 def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions) -> None:
-    subprocess.run([
+    cmd = [
         os.path.join(clo.factor_graph_bin, "jan_24", "remove_unaries"),
         "--inputFile", fng.bfss_output,
         "--outputFile", fng.kissat_input,
-        "--verbosity", clo.verbosity])
+        "--verbosity", clo.verbosity]
+    sp = ' '
+    logging.debug(f"Running command: {sp.join(cmd)}")
+    subprocess.run(cmd)
 
 
 
@@ -249,6 +255,7 @@ def bfss_input_equals_kissat_output(fng: FileNameGen, clo: CommandLineOptions, c
 
 
 def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
+    logging.debug(f"Running command: cp {fng.kissat_input} {fng.bfss_input}")
     shutil.copy(fng.kissat_output, fng.bfss_input)
     return 0
 
@@ -256,12 +263,15 @@ def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
 
 
 def convert_preprocess_output_to_factor_graph(preprocess_output: str, factor_graph_input: str, clo: CommandLineOptions) -> None:
-    subprocess.run([
+    cmd = [
         os.path.join(clo.factor_graph_bin, "jan_24", "innermost_existential"),
         "--inputFile", preprocess_output,
         "--outputFile", factor_graph_input,
         "--addUniversalQuantifier", "0",
-        "--verbosity", clo.verbosity])
+        "--verbosity", clo.verbosity]
+    sp = ' '
+    logging.debug(f"Running command: {sp.join(cmd)}")
+    subprocess.run(cmd)
 
 
 
