@@ -41,9 +41,11 @@ namespace dd {
   struct BddQuantification {
     Quantifier::QuantifierType quantifierType;
     bdd_ptr quantifiedVariables;
+    std::set<int> quantifiedVarIndices;
     bool operator == (const BddQuantification& that) const { 
       return quantifierType == that.quantifierType 
-        && quantifiedVariables == that.quantifiedVariables; 
+        && quantifiedVariables == that.quantifiedVariables
+        && quantifiedVarIndices == that.quantifiedVarIndices; 
     }
   };
   typedef std::unique_ptr<BddQuantification> BddQuantificationUPtr;

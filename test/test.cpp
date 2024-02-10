@@ -156,9 +156,9 @@ void testQdimacsParser(DdManager* manager)
   
   auto VV = [manager](int i)->BddWrapper { return BddWrapper(bdd_new_var_with_index(manager, i), manager); };
   BddWrapper c1 = VV(1) * VV(4), c2 = VV(2), c3 = VV(3);
-  assert((*qtb->quantifications[0] == BddQuantification{ForAll, c1.getUncountedBdd()}));
-  assert((*qtb->quantifications[1] == BddQuantification{Exists, c2.getUncountedBdd()}));
-  assert((*qtb->quantifications[2] == BddQuantification{ForAll, c3.getUncountedBdd()}));
+  assert((*qtb->quantifications[0] == BddQuantification{ForAll, c1.getUncountedBdd(), {1, 4}}));
+  assert((*qtb->quantifications[1] == BddQuantification{Exists, c2.getUncountedBdd(), {2}}));
+  assert((*qtb->quantifications[2] == BddQuantification{ForAll, c3.getUncountedBdd(), {3}}));
 
   assert(qtb->clauses.size() == 6);
   for (const auto & ecv: expectedClauses)

@@ -49,7 +49,7 @@ namespace dd {
       while (getline(is, line))
       {
         // skip comments and empty lines
-        if (line.empty() || line[0] == 'c')
+        if (line.empty() || line[0] == 'c' || line[0] == '/')
           continue;
         else if (startsWith(line, "p cnf ", 6))
         {

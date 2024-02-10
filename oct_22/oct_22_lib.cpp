@@ -25,6 +25,8 @@ SOFTWARE.
 #include "oct_22_lib.h"
 #include <mustool/core/Master.h>
 #include <mustool/mcsmus/minisat/core/mcsmus_Solver.h>
+#include <unordered_set>
+#include <unordered_map>
 
 namespace {
   void disableClauseHelper(
@@ -717,17 +719,32 @@ namespace oct_22 {
     blif_solve_log(INFO, "Computing exact result using Bdds");
     auto ddm = bdds.ddManager;
     dd::BddWrapper conjunction(bdd_one(ddm), ddm);
+
+
+    std::unordered_map<int, std::unordered_set<bdd_ptr>> varToClauseMap;
+    std::unordered_set<bdd_ptr> alreadyConjoinedClauses;
     for (const auto & clause: bdds.clauses)
-      conjunction = conjunction * dd::BddWrapper(bdd_dup(clause.second), ddm);
-    for(auto qit = bdds.quantifications.rbegin(); qit != bdds.quantifications.rend(); ++qit)
     {
-      const auto & quantifier = **qit;
-      dd::BddWrapper quantifiedVariables(bdd_dup(quantifier.quantifiedVariables), ddm);
-      if (quantifier.quantifierType == dd::Quantifier::Exists)
-        conjunction = conjunction.existentialQuantification(quantifiedVariables);
-      else
-        conjunction = conjunction.universalQuantification(quantifiedVariables);
+      for (auto lit : clause.first)
+          varToClauseMap[std::abs(lit)].insert(clause.second);
     }
+    if (bdds.quantifications.size() != 1 || bdds.quantifications[0]->quantifierType != dd::Quantifier::Exists)
+      throw std::runtime_error("Expecting exactly one quantifier in qdimacs, which has to be Existential.");
+    const auto & quantifiedVarIndices = bdds.quantifications[0]->quantifiedVarIndices;
+    for (const auto varIndex: quantifiedVarIndices)
+    {
+      for (const auto quantifiedClause: varToClauseMap[varIndex])
+      {
+        if (alreadyConjoinedClauses.count(quantifiedClause) > 0)
+          continue;
+        alreadyConjoinedClauses.insert(quantifiedClause);
+        blif_solve_log(DEBUG, "Conjoining clause");
+        conjunction = conjunction * dd::BddWrapper(bdd_dup(quantifiedClause), ddm);
+      }
+      blif_solve_log(DEBUG, "Eliminating variable " << varIndex);
+      conjunction = conjunction.existentialQuantification(dd::BddWrapper(bdd_new_var_with_index(ddm, varIndex), ddm));
+    }
+
     blif_solve_log(INFO, "Computed exact result in " << blif_solve::duration(startTime) << " sec");
     return conjunction.getCountedBdd();
   }

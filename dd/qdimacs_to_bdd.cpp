@@ -63,7 +63,10 @@ namespace dd {
       BddWrapper quantifiedVariables = one; // start with True
       for (const auto vin: qin.variables)
         quantifiedVariables = quantifiedVariables.cubeUnion(result->getBdd(vin));
-      result->quantifications.push_back(std::make_unique<BddQuantification>(BddQuantification{qin.quantifierType, quantifiedVariables.getCountedBdd()}));
+      result->quantifications.push_back(std::make_unique<BddQuantification>(BddQuantification{
+        qin.quantifierType,
+        quantifiedVariables.getCountedBdd(), 
+        std::set<int>(qin.variables.cbegin(), qin.variables.cend())}));
     }
 
 
