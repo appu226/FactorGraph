@@ -49,14 +49,16 @@ namespace {
     bdd_ptr supportSet;
     std::list<AmNode *> neighbours;
     std::list<AmMerger *> mergers;
+    std::string name;
 
-    AmNode(NodeType type, DdManager * manager, bdd_ptr node):
-      type(type),
-      manager(manager),
-      node(bdd_dup(node)),
-      supportSet(type == Func ? bdd_support(manager, node) : node),
+    AmNode(NodeType v_type, DdManager * v_manager, bdd_ptr v_node, const std::string& v_name):
+      type(v_type),
+      manager(v_manager),
+      node(bdd_dup(v_node)),
+      supportSet(v_type == Func ? bdd_support(v_manager, v_node) : v_node),
       neighbours(),
-      mergers()
+      mergers(),
+      name(v_name)
     { }
 
     bool isConnectedTo(const AmNode & that) const
@@ -159,6 +161,33 @@ namespace {
     return blif_solve::MergeHints::FactorPair{bw(bdd_dup(f1), manager), bw(bdd_dup(f2), manager)};
   }
 
+
+  std::vector<std::string> checkNamesInput(const std::vector<std::string>& names, size_t numberOfNodes, char const * const nodeType)
+  {
+    if (nodeType == nullptr || nodeType[0] == '\0')
+      throw std::runtime_error("blif_solve::checkNamesInput: nodeType can neither be null nor empty string");
+    auto numberOfNames = names.size();
+    if (numberOfNames > 0 && numberOfNames != numberOfNodes)
+      throw std::runtime_error("blif_solve::merge : mismatching inputs " + std::to_string(numberOfNodes) + " bdds and " + std::to_string(numberOfNames) + " names for " + nodeType + " nodes.");
+    if (numberOfNames > 0)
+      return names;
+    std::vector<std::string> result;
+    result.reserve(numberOfNodes);
+    char namePrefix = nodeType[0];
+    for (size_t i = 1; i <= numberOfNodes; ++i)
+      result.push_back(namePrefix + std::to_string(i));
+    return result;
+  }
+
+  std::string mergedName(const std::string& name1, const std::string& name2)
+  {
+#ifdef DEBUG
+     return name1 + " && " + name2;
+#else
+     return "";
+#endif
+  }
+
 } // end anonymous namespace
 
 
@@ -244,20 +273,25 @@ namespace blif_solve
           int largestSupportSet,
           int largestBddSize,
           const MergeHints& hintsInput,
-          const std::set<bdd_ptr>& quantifiedVariables)
+          const std::set<bdd_ptr>& quantifiedVariables,
+          const std::vector<std::string> & v_factorNames,
+          const std::vector<std::string> & v_variableNames)
   {
+    auto factorNames = checkNamesInput(v_factorNames, factors.size(), "Factor");
+    auto variableNames = checkNamesInput(v_variableNames, variables.size(), "Variable");
+
     MergeHints hints = hintsInput;
     // create func nodes
     std::vector<std::unique_ptr<AmNode> > funcNodes;
     std::set<bdd_ptr> mergedFactors(factors.cbegin(), factors.cend());
-    for (auto factor: factors)
-      funcNodes.push_back(std::make_unique<AmNode>(AmNode::Func, manager, factor));
+    for (size_t fidx = 0; fidx < factors.size(); ++fidx)
+      funcNodes.push_back(std::make_unique<AmNode>(AmNode::Func, manager, factors[fidx], factorNames[fidx]));
 
     // create var nodes
     std::vector<std::unique_ptr<AmNode> > varNodes;
     std::set<bdd_ptr> mergedVariables(variables.cbegin(), variables.cend());
-    for (auto variable: variables)
-      varNodes.push_back(std::make_unique<AmNode>(AmNode::Var, manager, variable));
+    for (size_t vidx = 0; vidx < variables.size(); ++vidx)
+      varNodes.push_back(std::make_unique<AmNode>(AmNode::Var, manager, variables[vidx], variableNames[vidx]));
 
     // copy quantifiedVariables set
     std::set<bdd_ptr> qv;
@@ -324,7 +358,7 @@ namespace blif_solve
       if (isQuantified && quantified.count(mergedBdd) == 0) quantified.insert(bdd_dup(mergedBdd));
       hints.merge(merger->node1->node, merger->node2->node, mergedBdd);
       auto & nodeVec = merger->node1->type == AmNode::Func ? funcNodes : varNodes;
-      nodeVec.push_back(std::make_unique<AmNode>(merger->node1->type, manager, mergedBdd));
+      nodeVec.push_back(std::make_unique<AmNode>(merger->node1->type, manager, mergedBdd, mergedName(merger->node1->name, merger->node2->name)));
       bdd_free(manager, mergedBdd);
       auto mergedNode = nodeVec.back().get();
       auto & mergeSet = merger->node1->type == AmNode::Func ? mergedFactors : mergedVariables;

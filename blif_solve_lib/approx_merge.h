@@ -55,8 +55,11 @@ namespace blif_solve
   struct MergeResults
   {
     typedef std::shared_ptr<std::vector<bdd_ptr> > FactorVec;
+    typedef std::shared_ptr<std::vector<std::string> > NameVec;
     FactorVec factors;
     FactorVec variables;
+    NameVec factorNames;
+    NameVec variableNames;
   };
 
   MergeResults 
@@ -66,6 +69,8 @@ namespace blif_solve
           int largestSupportSet,
           int largestBddSize,
           const MergeHints& mergeHints,
-          const std::set<bdd_ptr>& quantifiedVariables);
+          const std::set<bdd_ptr>& quantifiedVariables,
+          const std::vector<std::string> & factorNames,
+          const std::vector<std::string> & variableNames);
 
 } // end namespace blif_solve

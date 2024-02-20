@@ -75,6 +75,7 @@ int main(int const argc, char const * const * const argv)
     auto ddm = ddm_init();
     auto cnfBdd = parseCnfBdd(clo->inputFile, ddm->manager);
     const int MaxNumber = (1 << clo->bitVars.size()) - 1;
+    bool fail = false;
     for (int n = 1; n <=  MaxNumber; ++n)
     {
         auto expected = checkFactorizationViaMath(n, MaxNumber);
@@ -85,11 +86,12 @@ int main(int const argc, char const * const * const argv)
         }
         else
         {
+            fail = true;
             blif_solve_log(INFO, "\x1B[31m" << n << " FAILed\033[0m (expected: " << b2s(expected) << ", computed: " << b2s(computed) << ")");
         }
     }
     blif_solve_log(INFO, "DONE");
-    return 0;
+    return fail ? 1 : 0;
 }
 
 

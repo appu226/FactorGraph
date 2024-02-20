@@ -19,6 +19,8 @@ scripts/prefix.sh 6s365r_bdd scripts/smoke/6s365r_bdd.sh
 
 scripts/prefix.sh simplify_qdimacs scripts/smoke/simplify_qdimacs.sh
 
+scripts/prefix.sh oct_22 scripts/smoke/oct_22.sh
+
 rm -rf temp
 
 echo

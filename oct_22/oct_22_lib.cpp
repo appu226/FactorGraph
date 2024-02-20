@@ -396,7 +396,8 @@ namespace oct_22 {
         quantifiedVariableSet.insert(v.getCountedBdd());
     
     // merge factors and variables
-    auto mergeResults = blif_solve::merge(ddm, factors, variables, largestSupportSet, largestBddSize, blif_solve::MergeHints(ddm), quantifiedVariableSet);
+    std::vector<std::string> emptyNameVec;
+    auto mergeResults = blif_solve::merge(ddm, factors, variables, largestSupportSet, largestBddSize, blif_solve::MergeHints(ddm), quantifiedVariableSet, emptyNameVec, emptyNameVec);
     blif_solve_log(INFO, "Merged to " 
                          << mergeResults.factors->size() << " factors and "
                          << mergeResults.variables->size() << "variables in "

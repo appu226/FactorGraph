@@ -133,7 +133,8 @@ void testApproxMerge(DdManager * manager)
   auto wrapperToBdd = [&](const BddWrapper & bddWrapper) { return bddWrapper.getUncountedBdd(); };
   auto functionBdds = mapVector<bdd_ptr>(functions, wrapperToBdd);
   auto variableBdds = mapVector<bdd_ptr>(variables, wrapperToBdd);
-  auto mergeResults = blif_solve::merge(manager, functionBdds, variableBdds, LargestSupportSet, LargestBddSize, hints, std::set<bdd_ptr>());
+  std::vector<std::string> emptyNameVec;
+  auto mergeResults = blif_solve::merge(manager, functionBdds, variableBdds, LargestSupportSet, LargestBddSize, hints, std::set<bdd_ptr>(), emptyNameVec, emptyNameVec);
 
   auto bddToWrapper = [&](const bdd_ptr & in) { return BddWrapper(in, manager); };
   auto mergedFunctions = mapVector<BddWrapper>(*mergeResults.factors, bddToWrapper);
@@ -164,7 +165,7 @@ void testApproxMerge(DdManager * manager)
   for (auto variable: mergedVariables) actualFullVar = actualFullVar * variable;
   assert(expectedFullVar.getUncountedBdd() == actualFullVar.getUncountedBdd());
 
-  auto fullMergeResults = blif_solve::merge(manager, functionBdds, variableBdds, NumVars + 1, LargestBddSize, hints, std::set<bdd_ptr>());
+  auto fullMergeResults = blif_solve::merge(manager, functionBdds, variableBdds, NumVars + 1, LargestBddSize, hints, std::set<bdd_ptr>(), emptyNameVec, emptyNameVec);
   auto fullMergeFunctions = mapVector<BddWrapper>(*fullMergeResults.factors, bddToWrapper);
   auto fullMergeVariables = mapVector<BddWrapper>(*fullMergeResults.variables, bddToWrapper);
   assert(fullMergeFunctions.size() == 1);

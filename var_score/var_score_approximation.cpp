@@ -352,13 +352,16 @@ namespace {
             // not a neighbor, copy as is
             fgm.addNonQFactor(factor);
         }
+        std::vector<std::string> emptyNameVec;
         auto mergeResults = blif_solve::merge(manager,
                                               *fgm.getNewFactors(),
                                               *fgm.getQuantifiedVars(),
                                               m_largestSupportSet,
                                               m_largestBddSize,
                                               blif_solve::MergeHints(manager),
-                                              std::set<bdd_ptr>());
+                                              std::set<bdd_ptr>(),
+                                              emptyNameVec,
+                                              emptyNameVec);
         std::vector<BddWrapper> mergedFactors, mergedVariables;
         for (auto factor: *mergeResults.factors)
         {

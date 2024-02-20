@@ -551,7 +551,8 @@ void May22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
     blif_solve_log(INFO, "NOT nice: counter example does indeed satisfy FG solution.");
     mergeAllPairs(funcNodes, m_mergeHints, m_mucMergeWeight);
     mergeAllPairs(varNodes, m_mergeHints, m_mucMergeWeight);
-    auto mergeResults = blif_solve::merge(m_ddManager, *m_factors, *m_variables, m_largestSupportSet, m_largestBddSize, m_mergeHints, m_quantifiedVariables);
+    std::vector<std::string> emptyNameVec;
+    auto mergeResults = blif_solve::merge(m_ddManager, *m_factors, *m_variables, m_largestSupportSet, m_largestBddSize, m_mergeHints, m_quantifiedVariables, emptyNameVec, emptyNameVec);
     auto factorGraph = createFactorGraph(m_ddManager, dd::BddVectorWrapper(*mergeResults.factors, m_ddManager));
     for (const auto & varsToMerge: *mergeResults.variables)
     {

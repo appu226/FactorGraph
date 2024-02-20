@@ -261,7 +261,8 @@ namespace {
         {
           // group the funcs in the factor graph
           auto start = now();
-          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, m_largestBddSize, MergeHints(ddm), qv);
+          std::vector<std::string> emptyNameVec;
+          auto mergeResults = merge(ddm, *funcs, *nonPiVars, m_largestSupportSet, m_largestBddSize, MergeHints(ddm), qv, emptyNameVec, emptyNameVec);
           auto & funcGroups = *mergeResults.factors;
           blif_solve_log(INFO, "Grouped func nodes in " << duration(start) << " secs");
           start = now();
