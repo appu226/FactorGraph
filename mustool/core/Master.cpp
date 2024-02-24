@@ -163,15 +163,15 @@ void Master::mark_MUS(MUS& f, bool block_unex){
     explorer->block_up(f);
 
     chrono::high_resolution_clock::time_point now = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>( now - initial_time ).count() / float(1000000);
-        cout << "Found MUS #" << muses.size() <<  ", mus dimension: " << f.dimension;
-    cout << ", checks: " << satSolver->checks << ", time: " << duration;
-    cout << ", unex sat: " << unex_sat << ", unex unsat: " << unex_unsat << ", criticals: " << explorer->criticals;
-    cout << ", intersections: " << std::count(explorer->mus_intersection.begin(), explorer->mus_intersection.end(), true);
-    cout << ", union: " << std::count(explorer->mus_union.begin(), explorer->mus_union.end(), true) << ", dimension: " << dimension;
-    cout << ", seed dimension: " << f.seed_dimension << ", shrink duration: " << f.duration;
-    cout << ", shrinks: " << satSolver->shrinks;
-    cout << endl;
+    // auto duration = chrono::duration_cast<chrono::microseconds>( now - initial_time ).count() / float(1000000);
+    //     cout << "Found MUS #" << muses.size() <<  ", mus dimension: " << f.dimension;
+    // cout << ", checks: " << satSolver->checks << ", time: " << duration;
+    // cout << ", unex sat: " << unex_sat << ", unex unsat: " << unex_unsat << ", criticals: " << explorer->criticals;
+    // cout << ", intersections: " << std::count(explorer->mus_intersection.begin(), explorer->mus_intersection.end(), true);
+    // cout << ", union: " << std::count(explorer->mus_union.begin(), explorer->mus_union.end(), true) << ", dimension: " << dimension;
+    // cout << ", seed dimension: " << f.seed_dimension << ", shrink duration: " << f.duration;
+    // cout << ", shrinks: " << satSolver->shrinks;
+    // cout << endl;
 
     if(output_file != "")
         write_mus_to_file(f);
@@ -180,7 +180,7 @@ void Master::mark_MUS(MUS& f, bool block_unex){
 
 bool Master::enumerate(){
     initial_time = chrono::high_resolution_clock::now();
-    cout << "running algorithm: " << algorithm << endl;
+    // cout << "running algorithm: " << algorithm << endl;
     Formula whole(dimension, true);
     if(is_valid(whole))
     {

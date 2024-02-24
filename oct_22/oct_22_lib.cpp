@@ -370,7 +370,8 @@ namespace oct_22 {
   {
     auto start = blif_solve::now();
     std::vector<bdd_ptr> factors, variables;
-    std::set<dd::BddWrapper> variableWrapperSet;
+    std::vector<std::string> factorNames, variableNames;
+    std::set<std::pair<int, dd::BddWrapper> > variableWrapperSet;
     std::set<dd::BddWrapper> quantifiedVariableWrapperSet;
     std::set<bdd_ptr> quantifiedVariableSet;
   
@@ -378,10 +379,22 @@ namespace oct_22 {
     for (const auto & kv: bdds.clauses)
     {
         factors.push_back(kv.second);
+        std::stringstream factorNameSs;
         for (auto v: kv.first)
-            variableWrapperSet.insert(bdds.getBdd(v > 0 ? v : -v));
+        {
+            auto av = v > 0 ? v : -v;
+            variableWrapperSet.insert(std::make_pair(av, bdds.getBdd(av)));
+            factorNameSs << v << " OR ";
+        }
+        factorNames.push_back(factorNameSs.str());
+        if (factorNames.back().size() >= 3)
+            factorNames.back() = factorNames.back().substr(0, factorNames.back().size() - 3);
     }
-    for (const auto &v: variableWrapperSet) variables.push_back(v.getUncountedBdd());
+    for (const auto &v: variableWrapperSet) 
+    {
+        variables.push_back(v.second.getUncountedBdd());
+        variableNames.push_back(std::to_string(v.first));
+    }
     
     // get quantified variables
     assert(bdds.quantifications.size() == 1 && bdds.quantifications.front()->quantifierType == dd::Quantifier::Exists);
@@ -396,12 +409,20 @@ namespace oct_22 {
         quantifiedVariableSet.insert(v.getCountedBdd());
     
     // merge factors and variables
-    std::vector<std::string> emptyNameVec;
-    auto mergeResults = blif_solve::merge(ddm, factors, variables, largestSupportSet, largestBddSize, blif_solve::MergeHints(ddm), quantifiedVariableSet, emptyNameVec, emptyNameVec);
+    auto mergeResults = blif_solve::merge(ddm, factors, variables, largestSupportSet, largestBddSize, blif_solve::MergeHints(ddm), quantifiedVariableSet, factorNames, variableNames);
     blif_solve_log(INFO, "Merged to " 
                          << mergeResults.factors->size() << " factors and "
                          << mergeResults.variables->size() << "variables in "
                          << blif_solve::duration(start) << " sec");
+#ifdef DEBUG_MERGE
+    blif_solve_log(DEBUG, "====================== Merged factor nodes ==================== ");
+    for (const auto & fn: *mergeResults.factorNames)
+      blif_solve_log(DEBUG, fn);
+    blif_solve_log(DEBUG, "===================== Merged variable nodes =================== ");
+    for (const auto & vn: *mergeResults.variableNames)
+      blif_solve_log(DEBUG, vn);
+    blif_solve_log(DEBUG, "=============================================================== ");
+#endif
     
     // create factor graph using merged factors
     start = blif_solve::now();

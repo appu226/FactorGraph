@@ -32,6 +32,7 @@ SOFTWARE.
 #include <stdexcept>
 #include <iostream>
 #include <optional>
+#include <unordered_map>
 
 namespace {
 
@@ -98,6 +99,46 @@ namespace {
     {
       if (node1->type != node2->type)
         throw std::runtime_error("AmMerger::AmMerger: node1 and node2 types must match");
+    }
+
+  };
+
+  struct NodeData {
+    std::string name;
+    int count;
+  };
+
+  struct NodeCounterSet {
+
+    std::unordered_map<bdd_ptr, NodeData> data;
+
+    void addNode(bdd_ptr node, const std::string& name)
+    {
+      if (data.count(node)) 
+        data[node].count++;
+      else
+        data[node] = {name, 1};
+    }
+
+    void removeNode(bdd_ptr node)
+    {
+      auto nit = data.find(node);
+      if (nit == data.end())
+        throw std::runtime_error("Error: Attempting to erase non-existent node");
+      nit->second.count--;
+      if (nit->second.count == 0)
+        data.erase(nit);
+    }
+
+    void getAllData(std::vector<bdd_ptr> & nodes, std::vector<std::string> & names) const
+    {
+      nodes.reserve(data.size());
+      names.reserve(data.size());
+      for (const auto& dit: data)
+      {
+        nodes.push_back(bdd_dup(dit.first));
+        names.push_back(dit.second.name);
+      }
     }
 
   };
@@ -181,7 +222,7 @@ namespace {
 
   std::string mergedName(const std::string& name1, const std::string& name2)
   {
-#ifdef DEBUG
+#ifdef DEBUG_MERGE
      return name1 + " && " + name2;
 #else
      return "";
@@ -283,15 +324,21 @@ namespace blif_solve
     MergeHints hints = hintsInput;
     // create func nodes
     std::vector<std::unique_ptr<AmNode> > funcNodes;
-    std::set<bdd_ptr> mergedFactors(factors.cbegin(), factors.cend());
+    NodeCounterSet mergedFactors;
     for (size_t fidx = 0; fidx < factors.size(); ++fidx)
+    {
       funcNodes.push_back(std::make_unique<AmNode>(AmNode::Func, manager, factors[fidx], factorNames[fidx]));
+      mergedFactors.addNode(factors[fidx], factorNames[fidx]);
+    }
 
     // create var nodes
     std::vector<std::unique_ptr<AmNode> > varNodes;
-    std::set<bdd_ptr> mergedVariables(variables.cbegin(), variables.cend());
+    NodeCounterSet mergedVariables;
     for (size_t vidx = 0; vidx < variables.size(); ++vidx)
+    {
       varNodes.push_back(std::make_unique<AmNode>(AmNode::Var, manager, variables[vidx], variableNames[vidx]));
+      mergedVariables.addNode(variables[vidx], variableNames[vidx]);
+    }
 
     // copy quantifiedVariables set
     std::set<bdd_ptr> qv;
@@ -362,9 +409,9 @@ namespace blif_solve
       bdd_free(manager, mergedBdd);
       auto mergedNode = nodeVec.back().get();
       auto & mergeSet = merger->node1->type == AmNode::Func ? mergedFactors : mergedVariables;
-      mergeSet.erase(merger->node1->node);
-      mergeSet.erase(merger->node2->node);
-      mergeSet.insert(mergedNode->node);
+      mergeSet.removeNode(merger->node1->node);
+      mergeSet.removeNode(merger->node2->node);
+      mergeSet.addNode(mergedNode->node, mergedNode->name);
 
       // merge the neighbour lists
       {
@@ -403,10 +450,12 @@ namespace blif_solve
       }
     }
     MergeResults result;
-    result.factors = std::make_shared<std::vector<bdd_ptr> >(mergedFactors.cbegin(), mergedFactors.cend());
-    result.variables = std::make_shared<std::vector<bdd_ptr> >(mergedVariables.cbegin(), mergedVariables.cend());
-    for (auto factor: *result.factors) bdd_dup(factor);
-    for (auto variable: *result.variables) bdd_dup(variable);
+    result.factors = std::make_shared<std::vector<bdd_ptr> >();
+    result.factorNames = std::make_shared<std::vector<std::string>>();
+    mergedFactors.getAllData(*result.factors, *result.factorNames);
+    result.variables = std::make_shared<std::vector<bdd_ptr> >();
+    result.variableNames = std::make_shared<std::vector<std::string>>();
+    mergedVariables.getAllData(*result.variables, *result.variableNames);
     for (auto q: qv) bdd_free(manager, q);
     return result;
 

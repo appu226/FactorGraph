@@ -17,3 +17,6 @@ target_link_libraries (kissat_preprocess cnf_sax_parser blif_solve_lib kissat)
 
 add_executable (factorization_debugger "factorization_debugger.cpp")
 target_link_libraries(factorization_debugger blif_solve_lib cnf_sax_parser dd)
+
+add_executable (fgtest "fgtest.cpp")
+target_link_libraries(fgtest blif_solve_lib dd)
