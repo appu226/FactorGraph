@@ -73,4 +73,15 @@ namespace blif_solve
           const std::vector<std::string> & factorNames,
           const std::vector<std::string> & variableNames);
 
+  MergeResults
+    varElimMerge(DdManager * manager,
+                 const std::vector<bdd_ptr> & factors, 
+                 const std::vector<bdd_ptr> & variables, 
+                 int largestSupportSet,
+                 int largestBddSize,
+                 const MergeHints& mergeHints,
+                 const std::set<bdd_ptr>& quantifiedVariables,
+                 const std::vector<std::string> & factorNames,
+                 const std::vector<std::string> & variableNames);
+
 } // end namespace blif_solve
