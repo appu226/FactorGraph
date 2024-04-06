@@ -20,3 +20,6 @@ target_link_libraries(factorization_debugger blif_solve_lib cnf_sax_parser dd)
 
 add_executable (fgtest "fgtest.cpp")
 target_link_libraries(fgtest blif_solve_lib dd)
+
+add_executable(compare_cnf "compare_cnf.cpp")
+target_link_libraries(compare_cnf blif_solve_lib dd cnf_sax_parser)

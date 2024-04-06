@@ -28,6 +28,7 @@ SOFTWARE.
 #include <memory>
 #include <set>
 #include <stdexcept>
+#include <unordered_set>
 
 
 extern "C" {
@@ -40,7 +41,55 @@ extern "C" {
     //         1 -> match
     //         anything else -> error
     int bfss_input_equals_kissat_output(char const * const bfss_input_path, char const * const kissat_output_path);
+
+
+    // fetch diagnostics about a cnf file
+    // return arguments are passed by reference
+    void diagnostics(char const * const cnf_input_path, 
+                     bool & error,
+                     int & numHeaderVars,
+                     int & numClauses,
+                     int & numRelevantVars,
+                     int & numQuantifiedVars);
 }
+
+
+
+
+
+
+
+
+class DiagnosticsSaxParser: public jan_24::ICnfSaxParser
+{
+    public:
+    DiagnosticsSaxParser() :
+        m_innermostExistentialVariables(),
+        m_relevantVariables(),
+        m_numHeaderVars(),
+        m_numClauses()
+    { }
+
+    void parseComment(const std::string& line) override;
+    void parsePHeader(const std::string& line, int numVars, int numClauses) override;
+    void parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int> & literalsTerminatedWithZero) override;
+    void parseClause(const std::string& line, const std::vector<int> & literalsTerminatedWithZero) override;
+
+    void summarize(int & numHeaderVars, int & numClauses, int& numRelevantVars, int & numQuantifiedClauses) const;
+
+    private:
+    std::unordered_set<int> m_innermostExistentialVariables;
+    std::unordered_set<int> m_relevantVariables;
+    int m_numHeaderVars;
+    int m_numClauses;
+};
+
+
+
+
+
+
+
 
 
 
@@ -134,6 +183,49 @@ int bfss_input_equals_kissat_output(char const * const bfss_input_path, char con
 
 
 
+void diagnostics(char const * const cnf_input_path, 
+                     bool & error,
+                     int & numHeaderVars,
+                     int & numClauses,
+                     int & numRelevantVars,
+                     int & numQuantifiedVars)
+{
+    error = false;
+    try {
+        std::ifstream fin(cnf_input_path);
+        if (!fin.good())
+        {
+            error = true;
+            blif_solve_log(ERROR, "Exception in call to diagnostics: error reading cnf file '" << cnf_input_path << '\'');
+            return;
+        }
+        DiagnosticsSaxParser dsp;
+        dsp.parse(fin);
+        dsp.summarize(numHeaderVars, numClauses, numRelevantVars, numQuantifiedVars);
+    }
+    catch (const std::bad_alloc&)
+    {
+        error = true;
+        blif_solve_log(ERROR, "bad_alloc in call to diagnostics.");
+        throw;
+    }
+    catch (const std::exception& e)
+    {
+        error = true;
+        blif_solve_log(ERROR, "Exception in call to diagnostics: " << e.what());
+    }
+    catch (...)
+    {
+        error = true;
+        blif_solve_log(ERROR, "Unknown exception in call to diagnostics.");
+    }
+}
+
+
+
+
+
+
 
 
 bool QDimacs::operator==(const QDimacs& that) const
@@ -172,4 +264,39 @@ void QDimacsParser::parseQuantifierLine(const std::string&, char quantifier, con
 void QDimacsParser::parseClause(const std::string& , const std::vector<int> & literalsTerminatedWithZero)
 {
     qdimacs.clauses.insert(std::set<int>(literalsTerminatedWithZero.cbegin(), literalsTerminatedWithZero.cend()));
+}
+
+
+
+
+
+
+void DiagnosticsSaxParser::parseComment(const std::string& line) { }
+void DiagnosticsSaxParser::parsePHeader(const std::string& line, int numVars, int numClauses)
+{
+    m_numHeaderVars = numVars;
+    m_numClauses = numClauses;
+}
+void DiagnosticsSaxParser::parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int> & literalsTerminatedWithZero)
+{
+    if (quantifier == 'e')
+    {
+        m_innermostExistentialVariables.clear();
+        m_innermostExistentialVariables.insert(literalsTerminatedWithZero.cbegin(), literalsTerminatedWithZero.cend());
+        m_innermostExistentialVariables.erase(0);
+    }
+}
+void DiagnosticsSaxParser::parseClause(const std::string& line, const std::vector<int> & literalsTerminatedWithZero)
+{
+    for (auto l: literalsTerminatedWithZero)
+        if (l != 0)
+            m_relevantVariables.insert(l > 0 ? l : -l);
+    
+}
+void DiagnosticsSaxParser::summarize(int & numHeaderVars, int & numClauses, int& numRelevantVars, int & numQuantifiedVariables) const
+{
+    numHeaderVars = m_numHeaderVars;
+    numClauses = m_numClauses;
+    numRelevantVars = static_cast<int>(m_relevantVariables.size());
+    numQuantifiedVariables = static_cast<int>(m_innermostExistentialVariables.size());
 }

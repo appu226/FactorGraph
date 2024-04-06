@@ -37,6 +37,21 @@ import time
 
 
 
+
+def str2bool(s: str | bool) -> bool:
+    if isinstance(s, bool):
+        return s
+    elif s.lower() in ['0', 'n', 'no', 'f', 'false']:
+        return False
+    elif s.lower() in ['1', 'y', 'yes', 't', 'true']:
+        return True
+    else:
+        raise argparse.ArgumentTypeError("Not a boolean value.")
+
+
+
+
+
 ######## utility class for generating standard file names ########
 class FileNameGen:
     root_file_name: str
@@ -66,6 +81,51 @@ class FileNameGen:
         self.factor_graph_input = root_file_name + "_factor_graph_input.qdimacs"
         self.factor_graph_output = root_file_name + "_factor_graph_output.qdimacs"
 
+
+
+
+
+
+@dataclass
+class QdimacsDiagnostics:
+    error: bool
+    numHeaderVars: int
+    numClauses: int
+    numRelevantVars: int
+    numQuantifiedVars: int
+
+
+
+
+
+
+def parseDiagnostics(qdimacsFilePath: str, c_functions: ctypes.CDLL) -> QdimacsDiagnostics :
+    error = ctypes.c_bool()
+    numHeaderVars = ctypes.c_int()
+    numClauses = ctypes.c_int()
+    numRelevantVars = ctypes.c_int()
+    numQuantifiedVars = ctypes.c_int()
+    c_functions.diagnostics(bytes(qdimacsFilePath, 'UTF-8'),
+                            ctypes.byref(error),
+                            ctypes.byref(numHeaderVars),
+                            ctypes.byref(numClauses),
+                            ctypes.byref(numRelevantVars),
+                            ctypes.byref(numQuantifiedVars))
+    return QdimacsDiagnostics(error.value,
+                              numHeaderVars.value,
+                              numClauses.value,
+                              numRelevantVars.value,
+                              numQuantifiedVars.value)
+
+
+
+
+
+pde = "ERROR"
+pdo = "OK"
+def printDiagnostics(qdimacsFilePath: str, operation: str, c_functions: ctypes.CDLL) -> None:
+    diag = parseDiagnostics(qdimacsFilePath, c_functions)
+    logging.info(f"[DIAG] [{operation}] {pde if diag.error else pdo} {diag.numHeaderVars} {diag.numClauses} {diag.numRelevantVars} {diag.numQuantifiedVars}")
 
 
 
@@ -101,11 +161,11 @@ class CommandLineOptions:
                         help="Path to test case QDimacs file")
         ap.add_argument("--output_root", type=str, required=True,
                         help="Path to results folder")
-        ap.add_argument("--run_bfss_preprocess", type=bool, required=False, default=True,
+        ap.add_argument("--run_bfss_preprocess", type=str2bool, required=False, default=True,
                         help="Whether to run BFSS pre-processing or not")
         ap.add_argument("--bfss_timeout_seconds", type=int, required=False, default=60,
                         help="Timeout, in seconds, for a round of bfss pre-processing")
-        ap.add_argument("--run_kissat_preprocess", type=bool, required=False, default=True,
+        ap.add_argument("--run_kissat_preprocess", type=str2bool, required=False, default=True,
                         help="Whether to run Kissat pre-processing or not")
         ap.add_argument("--kissat_timeout_seconds", type=int, required=False, default=60,
                         help="Timeout, in seconds, for a round of kissat pre-processing")
@@ -127,9 +187,9 @@ class CommandLineOptions:
         ap.add_argument("--factor_graph_timeout_seconds", type=int, required=False,
                         help="Timeout for factor graph (and must exploration) in seconds",
                         default=1200)
-        ap.add_argument("--run_mus_tool", type=bool, required=False, default=True,
+        ap.add_argument("--run_mus_tool", type=str2bool, required=False, default=True,
                         help="Whether to run MUST or not")
-        ap.add_argument("--minimalize_assignments", type=bool, required=False, default=True,
+        ap.add_argument("--minimalize_assignments", type=str2bool, required=False, default=True,
                         help="Whether to minimalize assignments found by MUST")
         args = ap.parse_args()
 
@@ -138,6 +198,8 @@ class CommandLineOptions:
             level=LogLevelMapping[args.verbosity],
             datefmt='%Y-%m-%d %H:%M:%S',
             handlers=[logging.StreamHandler(sys.stdout)])
+
+        print("args.run_mus_tool = " + str(args.run_mus_tool))
 
         return CommandLineOptions(test_case_path=args.test_case_path,
                                   output_root=args.output_root,
@@ -152,19 +214,20 @@ class CommandLineOptions:
                                   largest_bdd_size=str(args.largest_bdd_size),
                                   largest_support_set=str(args.largest_support_set),
                                   factor_graph_timeout_seconds=str(args.factor_graph_timeout_seconds),
-                                  run_mus_tool = "1" if args.run_mus_tool else "0",
-                                  minimalize_assignments = "1" if args.minimalize_assignments else "0")
+                                  run_mus_tool = "1" if bool(args.run_mus_tool) else "0",
+                                  minimalize_assignments = "1" if bool(args.minimalize_assignments) else "0")
 
 
 
 
 
 ######## create output folder, copy test case, create a simplified test case
-def prepare_output_folder(clo: CommandLineOptions) -> FileNameGen:
+def prepare_output_folder(clo: CommandLineOptions, c_functions: ctypes.CDLL) -> FileNameGen:
     os.makedirs(clo.output_root, exist_ok=True)
     fng = FileNameGen(clo.output_root, clo.test_case_path)
     shutil.copyfile(clo.test_case_path, fng.original_qdimacs)
     logging.debug(f"Test case copied from {clo.test_case_path} to {fng.original_qdimacs}")
+    printDiagnostics(fng.original_qdimacs, "Original", c_functions)
     return fng
 
 
@@ -175,7 +238,7 @@ def prepare_output_folder(clo: CommandLineOptions) -> FileNameGen:
 
 ########          remove all quantifiers except innermost              ########
 ######## then add all remaining vars as outermost universal quantifier ########
-def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions) -> None:
+def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions, c_functions: ctypes.CDLL) -> None:
     cmd = [
         os.path.join(clo.factor_graph_bin, "jan_24", "innermost_existential"),
         "--inputFile", fng.original_qdimacs,
@@ -184,6 +247,7 @@ def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions) -> 
         "--verbosity", clo.verbosity]
     sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
+    printDiagnostics(fng.bfss_input, "Prep", c_functions)
     subprocess.run(cmd)
 
 
@@ -201,7 +265,7 @@ def remaining_time(deadline: datetime) -> float:
 
 
 
-def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> int:
+def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime, c_functions: ctypes.CDLL) -> int:
     time_left = min(float(clo.bfss_timeout_seconds), remaining_time(deadline))
     if time_left < 0:
         return -1
@@ -212,6 +276,7 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> i
     readCnf_process = subprocess.Popen(cmd, cwd=clo.output_root, stdout=subprocess.DEVNULL)
     try:
         return_code = readCnf_process.wait(time_left)
+        printDiagnostics(fng.bfss_output, "Bfss", c_functions)
     except subprocess.TimeoutExpired:
         return_code = -1
         logging.info(f"bfss timed out in {time_left} secs for {fng.bfss_input}")
@@ -221,7 +286,7 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> i
 
 
 
-def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions) -> None:
+def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions, c_functions: ctypes.CDLL) -> None:
     cmd = [
         os.path.join(clo.factor_graph_bin, "jan_24", "remove_unaries"),
         "--inputFile", fng.bfss_output,
@@ -230,10 +295,11 @@ def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions) -> 
     sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
     subprocess.run(cmd)
+    printDiagnostics(fng.kissat_input, "RemoveUnaries", c_functions)
 
 
 
-def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) -> int:
+def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime, c_functions: ctypes.CDLL) -> int:
     time_left = min(float(clo.kissat_timeout_seconds), remaining_time(deadline))
     if time_left < 0:
         return -1
@@ -247,6 +313,7 @@ def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime) ->
     kissat_process = subprocess.Popen(cmd)
     try:
         return_code = kissat_process.wait(time_left)
+        printDiagnostics(fng.kissat_output, "Kissat", c_functions)
     except subprocess.TimeoutExpired:
         return_code = -1
         logging.info(f"kissat timed out in {time_left} secs for {fng.kissat_input}")
@@ -328,7 +395,7 @@ def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> None:
 # --minimalizeAssignments:	Whether to minimalize assignments found by must
 
 
-
+#TODO: check return code at every stage
 
 ########## main application ###########
 def main() -> int:
@@ -341,9 +408,9 @@ def main() -> int:
     c_functions.setVerbosity(bytes(clo.verbosity, "UTF-8"))
 
     program_start_time = time.time()
-    fng = prepare_output_folder(clo)
+    fng = prepare_output_folder(clo, c_functions)
 
-    convert_qdimacs_to_bfss_input(fng, clo)
+    convert_qdimacs_to_bfss_input(fng, clo, c_functions)
     input_prepared_time = time.time()
     logging.info(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
 
@@ -353,14 +420,14 @@ def main() -> int:
     final_preprocess_output: str = ""
 
     while change and remaining_time(preprocess_deadline) > 0:
-        if run_bfss(fng, clo, preprocess_deadline) != 0:
+        if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
             logging.debug("run_bfss gave non-zero return code")
             break
-        convert_bfss_output_to_kissat(fng, clo) # no conversion required because kissat directly takes bfss_output
+        convert_bfss_output_to_kissat(fng, clo, c_functions) # no conversion required because kissat directly takes bfss_output
         final_preprocess_output = fng.kissat_input
 
 
-        if run_kissat(fng, clo, preprocess_deadline) != 0:
+        if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
             logging.debug("run_kissat gave non-zero return code")
             break
         change = not bfss_input_equals_kissat_output(fng, clo, c_functions)
