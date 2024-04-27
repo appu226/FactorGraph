@@ -90,9 +90,11 @@ class FileNameGen:
 class QdimacsDiagnostics:
     error: bool
     numHeaderVars: int
-    numClauses: int
-    numRelevantVars: int
-    numQuantifiedVars: int
+    numHeaderQuantifiedVars: int
+    numHeaderClauses: int
+    numActualVars: int
+    numActualQuantifiedVars: int
+    numActualClauses: int
 
 
 
@@ -102,20 +104,26 @@ class QdimacsDiagnostics:
 def parseDiagnostics(qdimacsFilePath: str, c_functions: ctypes.CDLL) -> QdimacsDiagnostics :
     error = ctypes.c_bool()
     numHeaderVars = ctypes.c_int()
-    numClauses = ctypes.c_int()
-    numRelevantVars = ctypes.c_int()
-    numQuantifiedVars = ctypes.c_int()
+    numHeaderQuantifiedVars = ctypes.c_int()
+    numHeaderClauses = ctypes.c_int()
+    numActualVars = ctypes.c_int()
+    numActualQuantifiedVars = ctypes.c_int()
+    numActualClauses = ctypes.c_int()
     c_functions.diagnostics(bytes(qdimacsFilePath, 'UTF-8'),
                             ctypes.byref(error),
                             ctypes.byref(numHeaderVars),
-                            ctypes.byref(numClauses),
-                            ctypes.byref(numRelevantVars),
-                            ctypes.byref(numQuantifiedVars))
+                            ctypes.byref(numHeaderQuantifiedVars),
+                            ctypes.byref(numHeaderClauses),
+                            ctypes.byref(numActualVars),
+                            ctypes.byref(numActualQuantifiedVars),
+                            ctypes.byref(numActualClauses))
     return QdimacsDiagnostics(error.value,
                               numHeaderVars.value,
-                              numClauses.value,
-                              numRelevantVars.value,
-                              numQuantifiedVars.value)
+                              numHeaderQuantifiedVars.value,
+                              numHeaderClauses.value,
+                              numActualVars.value,
+                              numActualQuantifiedVars.value,
+                              numActualClauses.value)
 
 
 
@@ -123,9 +131,19 @@ def parseDiagnostics(qdimacsFilePath: str, c_functions: ctypes.CDLL) -> QdimacsD
 
 pde = "ERROR"
 pdo = "OK"
+sp = ' '
+
+def pad(input: str, final_length: int) -> str:
+    if len(input) > final_length:
+        return input
+    output = input
+    for i in range(final_length - len(input)):
+        output = output + ' '
+    return output
+
 def printDiagnostics(qdimacsFilePath: str, operation: str, c_functions: ctypes.CDLL) -> None:
     diag = parseDiagnostics(qdimacsFilePath, c_functions)
-    logging.info(f"[DIAG] [{operation}] {pde if diag.error else pdo} {diag.numHeaderVars} {diag.numClauses} {diag.numRelevantVars} {diag.numQuantifiedVars}")
+    logging.info(f"[DIAG] [{pad(operation, 15)}] Status: {pde if diag.error else pdo} NumHeaderVars: {diag.numHeaderVars} NumHeaderQuantifiedVars: {diag.numHeaderQuantifiedVars} NumHeaderClauses: {diag.numHeaderClauses} NumActualVars: {diag.numActualVars} NumActualQuantifiedVars: {diag.numActualQuantifiedVars} NumActualClauses: {diag.numActualClauses}")
 
 
 
@@ -245,10 +263,9 @@ def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions, c_f
         "--outputFile", fng.bfss_input,
         "--addUniversalQuantifier", "1",
         "--verbosity", clo.verbosity]
-    sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
-    printDiagnostics(fng.bfss_input, "Prep", c_functions)
     subprocess.run(cmd)
+    printDiagnostics(fng.bfss_input, "Prep", c_functions)
 
 
 
@@ -271,7 +288,6 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime, c_fu
         return -1
     return_code = -1
     cmd = [os.path.join(clo.bfss_bin, 'readCnf'), os.path.basename(fng.bfss_input)]
-    sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)} at cwd {clo.output_root}")
     readCnf_process = subprocess.Popen(cmd, cwd=clo.output_root, stdout=subprocess.DEVNULL)
     try:
@@ -292,7 +308,6 @@ def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions, c_f
         "--inputFile", fng.bfss_output,
         "--outputFile", fng.kissat_input,
         "--verbosity", clo.verbosity]
-    sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
     subprocess.run(cmd)
     printDiagnostics(fng.kissat_input, "RemoveUnaries", c_functions)
@@ -308,7 +323,6 @@ def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime, c_
            "--inputFile", fng.kissat_input,
            "--outputFile", fng.kissat_output,
            "--verbosity", clo.verbosity]
-    sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
     kissat_process = subprocess.Popen(cmd)
     try:
@@ -342,7 +356,7 @@ def bfss_input_equals_kissat_output(fng: FileNameGen, clo: CommandLineOptions, c
 
 
 def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
-    logging.debug(f"Running command: cp {fng.kissat_input} {fng.bfss_input}")
+    logging.debug(f"Running command: cp {fng.kissat_output} {fng.bfss_input}")
     shutil.copy(fng.kissat_output, fng.bfss_input)
     return 0
 
@@ -356,7 +370,6 @@ def convert_preprocess_output_to_factor_graph(preprocess_output: str, factor_gra
         "--outputFile", factor_graph_input,
         "--addUniversalQuantifier", "0",
         "--verbosity", clo.verbosity]
-    sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
     subprocess.run(cmd)
 
@@ -375,7 +388,6 @@ def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> None:
            "--largestBddSize", clo.largest_bdd_size,
            "--runMusTool", clo.run_mus_tool,
            "--minimalizeAssignments", clo.minimalize_assignments]
-    sp = ' '
     logging.debug(f"Running command: {sp.join(cmd)}")
     factor_graph_process = subprocess.Popen(cmd)
     try:

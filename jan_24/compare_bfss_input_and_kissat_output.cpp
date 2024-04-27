@@ -48,9 +48,11 @@ extern "C" {
     void diagnostics(char const * const cnf_input_path, 
                      bool & error,
                      int & numHeaderVars,
-                     int & numClauses,
-                     int & numRelevantVars,
-                     int & numQuantifiedVars);
+                     int & numHeaderQuantifiedVars,
+                     int & numHeaderClauses,
+                     int & numActualVars,
+                     int & numActualQuantifiedVars,
+                     int & numActualClauses);
 }
 
 
@@ -59,29 +61,45 @@ extern "C" {
 
 
 
+struct SetHash
+{
+    size_t operator()(const std::set<int>& s) const
+    {
+        size_t seed = 0;
+        std::hash<int> hasher;
+        for (auto i: s)
+        {
+            seed ^= hasher(i) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        }
+        return seed;
+    }
+};
+
+
 
 class DiagnosticsSaxParser: public jan_24::ICnfSaxParser
 {
     public:
-    DiagnosticsSaxParser() :
-        m_innermostExistentialVariables(),
-        m_relevantVariables(),
-        m_numHeaderVars(),
-        m_numClauses()
-    { }
 
     void parseComment(const std::string& line) override;
     void parsePHeader(const std::string& line, int numVars, int numClauses) override;
     void parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int> & literalsTerminatedWithZero) override;
     void parseClause(const std::string& line, const std::vector<int> & literalsTerminatedWithZero) override;
 
-    void summarize(int & numHeaderVars, int & numClauses, int& numRelevantVars, int & numQuantifiedClauses) const;
+    void summarize(int & numHeaderVars,
+                   int & numHeaderQuantifiedVars,
+                   int & numHeaderClauses,
+                   int & numActualVars,
+                   int & numActualQuantifiedVars,
+                   int & numActualClauses) const;
 
     private:
-    std::unordered_set<int> m_innermostExistentialVariables;
-    std::unordered_set<int> m_relevantVariables;
     int m_numHeaderVars;
-    int m_numClauses;
+    int m_numHeaderQuantifiedVars;
+    int m_numHeaderClauses;
+    std::unordered_set<int> m_actualVars;
+    std::unordered_set<int> m_innermostExistentialVariables;
+    std::unordered_set<std::set<int>, SetHash > m_actualClauses;
 };
 
 
@@ -184,11 +202,13 @@ int bfss_input_equals_kissat_output(char const * const bfss_input_path, char con
 
 
 void diagnostics(char const * const cnf_input_path, 
-                     bool & error,
-                     int & numHeaderVars,
-                     int & numClauses,
-                     int & numRelevantVars,
-                     int & numQuantifiedVars)
+                 bool & error,
+                 int & numHeaderVars,
+                 int & numHeaderQuantifiedVars,
+                 int & numHeaderClauses,
+                 int & numActualVars,
+                 int & numActualQuantifiedVars,
+                 int & numActualClauses)
 {
     error = false;
     try {
@@ -201,7 +221,7 @@ void diagnostics(char const * const cnf_input_path,
         }
         DiagnosticsSaxParser dsp;
         dsp.parse(fin);
-        dsp.summarize(numHeaderVars, numClauses, numRelevantVars, numQuantifiedVars);
+        dsp.summarize(numHeaderVars, numHeaderQuantifiedVars, numHeaderClauses, numActualVars, numActualQuantifiedVars, numActualClauses);
     }
     catch (const std::bad_alloc&)
     {
@@ -275,7 +295,7 @@ void DiagnosticsSaxParser::parseComment(const std::string& line) { }
 void DiagnosticsSaxParser::parsePHeader(const std::string& line, int numVars, int numClauses)
 {
     m_numHeaderVars = numVars;
-    m_numClauses = numClauses;
+    m_numHeaderClauses = numClauses;
 }
 void DiagnosticsSaxParser::parseQuantifierLine(const std::string& line, char quantifier, const std::vector<int> & literalsTerminatedWithZero)
 {
@@ -284,19 +304,32 @@ void DiagnosticsSaxParser::parseQuantifierLine(const std::string& line, char qua
         m_innermostExistentialVariables.clear();
         m_innermostExistentialVariables.insert(literalsTerminatedWithZero.cbegin(), literalsTerminatedWithZero.cend());
         m_innermostExistentialVariables.erase(0);
+        m_numHeaderQuantifiedVars = literalsTerminatedWithZero.size();
+        if (m_numHeaderQuantifiedVars > 0) --m_numHeaderQuantifiedVars;
     }
 }
 void DiagnosticsSaxParser::parseClause(const std::string& line, const std::vector<int> & literalsTerminatedWithZero)
 {
     for (auto l: literalsTerminatedWithZero)
         if (l != 0)
-            m_relevantVariables.insert(l > 0 ? l : -l);
+            m_actualVars.insert(l > 0 ? l : -l);
+    std::set<int> clause(literalsTerminatedWithZero.cbegin(), literalsTerminatedWithZero.cend());
+    clause.erase(0);
+    m_actualClauses.insert(std::move(clause));
     
 }
-void DiagnosticsSaxParser::summarize(int & numHeaderVars, int & numClauses, int& numRelevantVars, int & numQuantifiedVariables) const
+void DiagnosticsSaxParser::summarize(
+    int & numHeaderVars,
+    int & numHeaderQuantifiedVars,
+    int & numHeaderClauses,
+    int & numActualVars,
+    int & numActualQuantifiedVars,
+    int & numActualClauses) const
 {
-    numHeaderVars = m_numHeaderVars;
-    numClauses = m_numClauses;
-    numRelevantVars = static_cast<int>(m_relevantVariables.size());
-    numQuantifiedVariables = static_cast<int>(m_innermostExistentialVariables.size());
+    numHeaderClauses = m_numHeaderClauses;
+    numHeaderQuantifiedVars = m_numHeaderQuantifiedVars;
+    numHeaderClauses = m_numHeaderClauses;
+    numActualVars = m_actualVars.size();
+    numActualQuantifiedVars = m_innermostExistentialVariables.size();
+    numActualClauses = m_actualClauses.size();
 }
