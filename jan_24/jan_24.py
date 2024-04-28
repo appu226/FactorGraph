@@ -36,7 +36,10 @@ import time
 
 
 
-
+######## some debug printing utilities ########
+pde = "ERROR"
+pdo = "OK"
+sp = ' '
 
 def str2bool(s: str | bool) -> bool:
     if isinstance(s, bool):
@@ -47,6 +50,17 @@ def str2bool(s: str | bool) -> bool:
         return True
     else:
         raise argparse.ArgumentTypeError("Not a boolean value.")
+
+def pad(input: str, final_length: int) -> str:
+    if len(input) > final_length:
+        return input
+    output = input
+    for i in range(final_length - len(input)):
+        output = output + ' '
+    return output
+
+
+
 
 
 
@@ -86,6 +100,7 @@ class FileNameGen:
 
 
 
+######## Diagnostics about a specific qdimacs file ########
 @dataclass
 class QdimacsDiagnostics:
     error: bool
@@ -95,11 +110,6 @@ class QdimacsDiagnostics:
     numActualVars: int
     numActualQuantifiedVars: int
     numActualClauses: int
-
-
-
-
-
 
 def parseDiagnostics(qdimacsFilePath: str, c_functions: ctypes.CDLL) -> QdimacsDiagnostics :
     error = ctypes.c_bool()
@@ -125,25 +135,70 @@ def parseDiagnostics(qdimacsFilePath: str, c_functions: ctypes.CDLL) -> QdimacsD
                               numActualQuantifiedVars.value,
                               numActualClauses.value)
 
+def serializeDiagnostics(diag: QdimacsDiagnostics) -> str:
+    return f"Status: {pde if diag.error else pdo} NumHeaderVars: {diag.numHeaderVars} NumHeaderQuantifiedVars: {diag.numHeaderQuantifiedVars} NumHeaderClauses: {diag.numHeaderClauses} NumActualVars: {diag.numActualVars} NumActualQuantifiedVars: {diag.numActualQuantifiedVars} NumActualClauses: {diag.numActualClauses}"
 
 
 
 
-pde = "ERROR"
-pdo = "OK"
-sp = ' '
 
-def pad(input: str, final_length: int) -> str:
-    if len(input) > final_length:
-        return input
-    output = input
-    for i in range(final_length - len(input)):
-        output = output + ' '
-    return output
 
-def printDiagnostics(qdimacsFilePath: str, operation: str, c_functions: ctypes.CDLL) -> None:
-    diag = parseDiagnostics(qdimacsFilePath, c_functions)
-    logging.info(f"[DIAG] [{pad(operation, 15)}] Status: {pde if diag.error else pdo} NumHeaderVars: {diag.numHeaderVars} NumHeaderQuantifiedVars: {diag.numHeaderQuantifiedVars} NumHeaderClauses: {diag.numHeaderClauses} NumActualVars: {diag.numActualVars} NumActualQuantifiedVars: {diag.numActualQuantifiedVars} NumActualClauses: {diag.numActualClauses}")
+######## struct to capture how many Vars/Clauses etc  ########
+######## were eliminated by a SINGLE step in the algo ########
+@dataclass
+class QdimacsProgress:
+    numVarChange: int = 0
+    numQuantifiedVarChange: int = 0
+    numClauseChange: int = 0
+    timeTakenSeconds: float = 0
+
+
+
+
+
+
+######## struct to capture how many vars/clauses etc ########
+######## ALL steps in the algo have eliminated       ########
+class PreprocessorProgress:
+    current_diagnostics: QdimacsDiagnostics
+    all_progress: dict[str, QdimacsProgress]
+    c_functions: ctypes.CDLL
+
+    def __init__(self, origQdimacsFilePath: str, c_functions: ctypes.CDLL):
+        self.current_diagnostics = parseDiagnostics(origQdimacsFilePath, c_functions)
+        self.all_progress = {}
+        self.c_functions = c_functions
+        original_operation = "original"
+        logging.debug(f"[DIAG] [{pad(original_operation, 15)}] {serializeDiagnostics(self.current_diagnostics)}")
+
+    def checkProgress(self, operation: str, qdimacsFilePath: str, timeTakenSeconds: float) -> bool:
+        new_diag = parseDiagnostics(qdimacsFilePath, self.c_functions)
+        logging.debug(f"[DIAG] [{pad(operation, 15)}] {serializeDiagnostics(new_diag)}")
+        if new_diag.error:
+            logging.error(f"Error while collecting diagnostics from {qdimacsFilePath}")
+            return False
+        
+        if operation not in self.all_progress:
+            self.all_progress[operation] = QdimacsProgress()
+        operation_progress = self.all_progress[operation]
+
+        operation_progress.numVarChange += new_diag.numActualVars - self.current_diagnostics.numActualVars
+        operation_progress.numQuantifiedVarChange += new_diag.numActualQuantifiedVars - self.current_diagnostics.numActualQuantifiedVars
+        operation_progress.numClauseChange += new_diag.numActualClauses - self.current_diagnostics.numActualClauses
+        operation_progress.timeTakenSeconds += timeTakenSeconds
+
+        if new_diag.numActualVars > self.current_diagnostics.numActualVars:
+            raise RuntimeError(f"Number of actual variables has increased from {self.current_diagnostics.numActualVars} to {new_diag.numActualVars} in {qdimacsFilePath}")
+        if new_diag.numActualQuantifiedVars > self.current_diagnostics.numActualQuantifiedVars:
+            raise RuntimeError(f"Number of actual quantified variables has increased from {self.current_diagnostics.numActualQuantifiedVars} to {new_diag.numActualQuantifiedVars} in {qdimacsFilePath}")
+        progress = new_diag.numActualVars < self.current_diagnostics.numActualVars or new_diag.numActualQuantifiedVars < self.current_diagnostics.numActualQuantifiedVars
+        self.current_diagnostics = new_diag
+        return progress
+    
+    def summarize(self) -> None:
+        for operation in self.all_progress:
+            prog = self.all_progress[operation]
+            logging.info(f"[PREP] [{pad(operation, 15)}] numVarChange: {prog.numVarChange} numQuantifiedVarChange: {prog.numQuantifiedVarChange} numClauseChange: {prog.numClauseChange} timeTakenSeconds: {prog.timeTakenSeconds}")
 
 
 
@@ -245,7 +300,6 @@ def prepare_output_folder(clo: CommandLineOptions, c_functions: ctypes.CDLL) -> 
     fng = FileNameGen(clo.output_root, clo.test_case_path)
     shutil.copyfile(clo.test_case_path, fng.original_qdimacs)
     logging.debug(f"Test case copied from {clo.test_case_path} to {fng.original_qdimacs}")
-    printDiagnostics(fng.original_qdimacs, "Original", c_functions)
     return fng
 
 
@@ -265,7 +319,6 @@ def convert_qdimacs_to_bfss_input(fng: FileNameGen, clo: CommandLineOptions, c_f
         "--verbosity", clo.verbosity]
     logging.debug(f"Running command: {sp.join(cmd)}")
     subprocess.run(cmd)
-    printDiagnostics(fng.bfss_input, "Prep", c_functions)
 
 
 
@@ -292,7 +345,6 @@ def run_bfss(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime, c_fu
     readCnf_process = subprocess.Popen(cmd, cwd=clo.output_root, stdout=subprocess.DEVNULL)
     try:
         return_code = readCnf_process.wait(time_left)
-        printDiagnostics(fng.bfss_output, "Bfss", c_functions)
     except subprocess.TimeoutExpired:
         return_code = -1
         logging.info(f"bfss timed out in {time_left} secs for {fng.bfss_input}")
@@ -310,7 +362,6 @@ def convert_bfss_output_to_kissat(fng: FileNameGen, clo: CommandLineOptions, c_f
         "--verbosity", clo.verbosity]
     logging.debug(f"Running command: {sp.join(cmd)}")
     subprocess.run(cmd)
-    printDiagnostics(fng.kissat_input, "RemoveUnaries", c_functions)
 
 
 
@@ -327,7 +378,6 @@ def run_kissat(fng: FileNameGen, clo: CommandLineOptions, deadline: datetime, c_
     kissat_process = subprocess.Popen(cmd)
     try:
         return_code = kissat_process.wait(time_left)
-        printDiagnostics(fng.kissat_output, "Kissat", c_functions)
     except subprocess.TimeoutExpired:
         return_code = -1
         logging.info(f"kissat timed out in {time_left} secs for {fng.kissat_input}")
@@ -377,7 +427,7 @@ def convert_preprocess_output_to_factor_graph(preprocess_output: str, factor_gra
 
 
 
-def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> None:
+def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> int:
     time_left = float(clo.factor_graph_timeout_seconds)
     return_code = -1
     cmd = [os.path.join(clo.factor_graph_bin, "oct_22", "oct_22"), 
@@ -396,7 +446,7 @@ def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> None:
         return_code = -1
         logging.info(f"factor graph timed out in {time_left} secs for {fng.factor_graph_input}")
         factor_graph_process.kill()
-    return
+    return return_code
 # --largestSupportSet:	largest allowed support set size while clumping cnf factors
 # --largestBddSize:	largest allowed bdd size while clumping cnf factors
 # --inputFile:	Input qdimacs file with exactly one quantifier which is existential	[Mandatory]
@@ -421,10 +471,13 @@ def main() -> int:
 
     program_start_time = time.time()
     fng = prepare_output_folder(clo, c_functions)
+    preprog = PreprocessorProgress(fng.original_qdimacs, c_functions)
+    logging.info(f"[original] {serializeDiagnostics(parseDiagnostics(fng.original_qdimacs, c_functions))}")
 
     convert_qdimacs_to_bfss_input(fng, clo, c_functions)
     input_prepared_time = time.time()
-    logging.info(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
+    logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
+    preprog.checkProgress("init", fng.bfss_input, input_prepared_time - program_start_time)
 
     change = True
     round = 1
@@ -432,19 +485,28 @@ def main() -> int:
     final_preprocess_output: str = ""
 
     while change and remaining_time(preprocess_deadline) > 0:
+        change = False
+
+
+        t1 = time.time()
         if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
             logging.debug("run_bfss gave non-zero return code")
             break
-        convert_bfss_output_to_kissat(fng, clo, c_functions) # no conversion required because kissat directly takes bfss_output
+        convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
+        t2 = time.time()
+        change = change or preprog.checkProgress("bfss", fng.kissat_input, t2 - t1)
         final_preprocess_output = fng.kissat_input
 
 
+
+        t1 = time.time()
         if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
             logging.debug("run_kissat gave non-zero return code")
             break
-        change = not bfss_input_equals_kissat_output(fng, clo, c_functions)
         logging.debug(f"Progress in round {round}: {change}")
         convert_kissat_output_to_bfss(fng)
+        t2 = time.time()
+        change = change or preprog.checkProgress("kissat", fng.bfss_input, t2 - t1)
         final_preprocess_output = fng.bfss_input
         
         
@@ -453,6 +515,7 @@ def main() -> int:
 
     preprocessing_finished_time = time.time()
     logging.info(f"Finished proprocessing in {round - 1} rounds, in {preprocessing_finished_time - input_prepared_time} seconds.")
+    preprog.summarize()
 
     convert_preprocess_output_to_factor_graph(final_preprocess_output, fng.factor_graph_input, clo)
     factor_graph_input_prepared_time = time.time()
