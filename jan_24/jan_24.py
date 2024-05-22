@@ -200,6 +200,9 @@ class PreprocessorProgress:
             prog = self.all_progress[operation]
             logging.info(f"[PREP] [{pad(operation, 15)}] numVarChange: {prog.numVarChange} numQuantifiedVarChange: {prog.numQuantifiedVarChange} numClauseChange: {prog.numClauseChange} timeTakenSeconds: {prog.timeTakenSeconds}")
 
+    def isSolved(self):
+        return self.current_diagnostics.numActualQuantifiedVars == 0
+
 
 
 
@@ -488,25 +491,32 @@ def main() -> int:
         change = False
 
 
+
+        if preprog.isSolved():
+            logging.info("skipping run_bfss as problem is already solved")
+            break
         t1 = time.time()
         if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
-            logging.debug("run_bfss gave non-zero return code")
+            logging.info("run_bfss gave non-zero return code")
             break
         convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
         t2 = time.time()
-        change = change or preprog.checkProgress("bfss", fng.kissat_input, t2 - t1)
+        change = preprog.checkProgress("bfss", fng.kissat_input, t2 - t1) or change
         final_preprocess_output = fng.kissat_input
 
 
 
+        if preprog.isSolved():
+            logging.info("skipping run_kissat as problem is already solved")
+            break
         t1 = time.time()
         if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
-            logging.debug("run_kissat gave non-zero return code")
+            logging.info("run_kissat gave non-zero return code")
             break
         logging.debug(f"Progress in round {round}: {change}")
         convert_kissat_output_to_bfss(fng)
         t2 = time.time()
-        change = change or preprog.checkProgress("kissat", fng.bfss_input, t2 - t1)
+        change = preprog.checkProgress("kissat", fng.bfss_input, t2 - t1) or change
         final_preprocess_output = fng.bfss_input
         
         
@@ -517,13 +527,17 @@ def main() -> int:
     logging.info(f"Finished proprocessing in {round - 1} rounds, in {preprocessing_finished_time - input_prepared_time} seconds.")
     preprog.summarize()
 
-    convert_preprocess_output_to_factor_graph(final_preprocess_output, fng.factor_graph_input, clo)
-    factor_graph_input_prepared_time = time.time()
-    logging.info(f"Factor graph input prepared in {factor_graph_input_prepared_time - preprocessing_finished_time} seconds")
+    if preprog.current_diagnostics.numActualQuantifiedVars > 0:
+        convert_preprocess_output_to_factor_graph(final_preprocess_output, fng.factor_graph_input, clo)
+        factor_graph_input_prepared_time = time.time()
+        logging.info(f"Factor graph input prepared in {factor_graph_input_prepared_time - preprocessing_finished_time} seconds")
 
-    run_factor_graph(fng, clo)
-    factor_graph_finished_time = time.time()
-    logging.info(f"Factor graph and must finished in {factor_graph_finished_time - factor_graph_input_prepared_time} seconds")
+        run_factor_graph(fng, clo)
+        factor_graph_finished_time = time.time()
+        logging.info(f"Factor graph and must finished in {factor_graph_finished_time - factor_graph_input_prepared_time} seconds")
+    else:
+        shutil.copy(final_preprocess_output, fng.factor_graph_output)
+        logging.info("Factor graph skipped as pre-processing solved the problem")
 
     logging.info("jan_24 Done!")
     return 0

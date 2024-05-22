@@ -99,6 +99,7 @@ class DiagnosticsSaxParser: public jan_24::ICnfSaxParser
     int m_numHeaderClauses;
     std::unordered_set<int> m_actualVars;
     std::unordered_set<int> m_innermostExistentialVariables;
+    std::unordered_set<int> m_actualQuantifiedVars;
     std::unordered_set<std::set<int>, SetHash > m_actualClauses;
 };
 
@@ -304,15 +305,19 @@ void DiagnosticsSaxParser::parseQuantifierLine(const std::string& line, char qua
         m_innermostExistentialVariables.clear();
         m_innermostExistentialVariables.insert(literalsTerminatedWithZero.cbegin(), literalsTerminatedWithZero.cend());
         m_innermostExistentialVariables.erase(0);
-        m_numHeaderQuantifiedVars = literalsTerminatedWithZero.size();
-        if (m_numHeaderQuantifiedVars > 0) --m_numHeaderQuantifiedVars;
+        m_numHeaderQuantifiedVars = m_innermostExistentialVariables.size();
     }
 }
 void DiagnosticsSaxParser::parseClause(const std::string& line, const std::vector<int> & literalsTerminatedWithZero)
 {
     for (auto l: literalsTerminatedWithZero)
         if (l != 0)
-            m_actualVars.insert(l > 0 ? l : -l);
+        {
+            int actualVar = (l > 0 ? l : -l);
+            m_actualVars.insert(actualVar);
+            if (m_innermostExistentialVariables.count(actualVar) > 0)
+                m_actualQuantifiedVars.insert(actualVar);
+        }
     std::set<int> clause(literalsTerminatedWithZero.cbegin(), literalsTerminatedWithZero.cend());
     clause.erase(0);
     m_actualClauses.insert(std::move(clause));
@@ -326,10 +331,10 @@ void DiagnosticsSaxParser::summarize(
     int & numActualQuantifiedVars,
     int & numActualClauses) const
 {
-    numHeaderClauses = m_numHeaderClauses;
+    numHeaderVars = m_numHeaderVars;
     numHeaderQuantifiedVars = m_numHeaderQuantifiedVars;
     numHeaderClauses = m_numHeaderClauses;
     numActualVars = m_actualVars.size();
-    numActualQuantifiedVars = m_innermostExistentialVariables.size();
+    numActualQuantifiedVars = m_actualQuantifiedVars.size();
     numActualClauses = m_actualClauses.size();
 }
