@@ -249,7 +249,7 @@ class CommandLineOptions:
                         help="Total timeout for all pre-processing rounds")
         ap.add_argument("--verbosity", type=str, required=False, default="ERROR",
                         choices=list(LogLevelMapping.keys()),
-                        help="Total timeout for all pre-processing rounds")
+                        help="Logging verbosity")
         ap.add_argument("--factor_graph_bin", type=str, required=True,
                         help="Path to factor graph build outputs folder (e.g. build/out)")
         ap.add_argument("--bfss_bin", type=str, required=True,
