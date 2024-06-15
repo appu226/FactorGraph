@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from io import TextIOWrapper
+from jan_24_common import add_padding
 import os
 import re
 import sys
@@ -312,19 +313,6 @@ def print_help():
 #TODO
 def find_test_cases(results_folder: str) -> list[str]:
     return [f for f in os.listdir(results_folder) if f.endswith(".qdimacs.log")]
-
-
-
-
-
-def add_padding(table: list[list[str]]) -> None:
-    for icol in range(len(table[0])):
-        max_size: int = 0
-        for irow in range(len(table)):
-            max_size = max(max_size, len(table[irow][icol]))
-        for irow in range(len(table)):
-            cell = table[irow][icol]
-            table[irow][icol] = cell + (" " * (max_size - len(cell))) 
 
 
 

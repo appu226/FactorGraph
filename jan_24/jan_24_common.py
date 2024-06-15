@@ -30,3 +30,15 @@ LogLevelMapping: dict[str, int] = {
     'INFO': logging.INFO,
     'DEBUG': logging.DEBUG
 }
+
+
+
+
+def add_padding(table: list[list[str]]) -> None:
+    for icol in range(len(table[0])):
+        max_size: int = 0
+        for irow in range(len(table)):
+            max_size = max(max_size, len(table[irow][icol]))
+        for irow in range(len(table)):
+            cell = table[irow][icol]
+            table[irow][icol] = cell + (" " * (max_size - len(cell))) 
