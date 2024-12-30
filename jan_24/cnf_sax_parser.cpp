@@ -52,6 +52,7 @@ namespace jan_24 {
                 parseComment(line);
             else if (line[0] == 'p')
             {
+                while(line.back() == ' ') line.pop_back();
                 std::smatch p_header_match;
                 if (!std::regex_match(line, p_header_match, p_header_regex))
                     throw std::runtime_error("Could not match p header line {" + line + '}');
