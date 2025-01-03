@@ -1,0 +1,1 @@
+python3 jan_24/caqe_runner.py --caqe_executable_path /home/supratik/parakram/jan_24/caqe/target/release/caqe --timeout_seconds 1800 --input_folder /home/supratik/parakram/jan_24/all_test_cases --output_folder /home/supratik/parakram/jan_24/caqe_full_test --test_case_list_path /home/supratik/parakram/jan_24/FactorGraph/jan_24/full_list --num_processes 10 --verbosity INFO
