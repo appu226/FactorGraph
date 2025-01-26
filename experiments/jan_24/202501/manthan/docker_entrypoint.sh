@@ -2,6 +2,9 @@
 
 source manthan-venv/bin/activate
 
-echo full command is $*
+echo docker started for test case $*
 
-python manthan.py $1
+python /manthan/manthan.py $* 2>&1 | tee /workspace/manthan_run.log
+cp /manthan/*.v /workspace
+
+exit $?

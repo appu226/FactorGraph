@@ -15,6 +15,7 @@ RUN ["/bin/bash", "-c", "python3 -m venv manthan-venv && source manthan-venv/bin
 RUN ["/bin/bash", "-c", "source manthan-venv/bin/activate && chmod +x configure_dependencies.sh && ./configure_dependencies.sh --all"]
 
 COPY docker_entrypoint.sh /manthan
+RUN mkdir /workspace
 
 ENTRYPOINT ["/manthan/docker_entrypoint.sh"]
 
