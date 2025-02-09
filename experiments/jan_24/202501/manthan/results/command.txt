@@ -1,0 +1,1 @@
+python3 manthan_bulk_run.py --manthan_image_name manthan_parakram --timeout_seconds 1800 --input_folder ../../../../../all_test_cases --output_folder results --num_processes 20
