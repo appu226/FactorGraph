@@ -1,0 +1,907 @@
+TestCase                                                                      | Status     | TimeTaken          
+QBFEval2018_sortnetsort10.AE.stepl.008.qdimacs                                | Timed out  | 1815.3503015041351 
+QBFEval2018_ntrivil_query42_1344n.qdimacs                                     | Timed out  | 1813.7063958644867 
+QBFEval2017_query25_query42_1344n.qdimacs                                     | Timed out  | 1815.4410614967346 
+Arithmetic_decomposition32.qdimacs                                            | Timed out  | 1827.5832471847534 
+QBFEval2018_small-seq-fixpoint-3.qdimacs                                      | Timed out  | 1812.7216336727142 
+QBFEval2017_sortnetsort10.AE.stepl.012.qdimacs                                | Timed out  | 1811.9015519618988 
+QBFEval2017_trueque_query42_1344n.qdimacs                                     | Timed out  | 1811.596179485321  
+QBFEval2018_small-seq-fixpoint-7.qdimacs                                      | Timed out  | 1812.9944891929626 
+QBFEval2018_cache-coherence-3-fixpoint-3.qdimacs                              | Successful | 1773.631376504898  
+QBFEval2017_AR-fixpoint-10.qdimacs                                            | Timed out  | 1812.6199440956116 
+QBFEval2017_stmt17_63_70.qdimacs                                              | Timed out  | 1817.9547653198242 
+QBFEval2018_query36_query42_1344n.qdimacs                                     | Timed out  | 1811.3933010101318 
+Arithmetic_equalization128.qdimacs                                            | Timed out  | 1814.905913591385  
+QBFEval2018_rankfunc53_unsigned_64.qdimacs                                    | Timed out  | 1813.6573963165283 
+QBFEval2017_itc-b13-fixpoint-9.qdimacs                                        | Timed out  | 1815.156188249588  
+QBFEval2017_GuidanceService2.qdimacs                                          | Timed out  | 1828.2172026634216 
+QBFEval2018_Q_2-3_v-80-100_r-11.9.qdimacs                                     | Failed     | 20.456210613250732 
+QBFEval2017_stmt47_290_340.qdimacs                                            | Timed out  | 1811.4517257213593 
+Arithmetic_max1024.qdimacs                                                    | Timed out  | 1811.8655858039856 
+QBFEval2018_ceiling256.qdimacs                                                | Successful | 134.25403118133545 
+QBFEval2018_stmt23_72_76.qdimacs                                              | Timed out  | 1811.9996330738068 
+QBFEval2017_stmt17_63_78.qdimacs                                              | Timed out  | 1811.9434342384338 
+Arithmetic_ceiling32.qdimacs                                                  | Successful | 12.679606199264526 
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#3.s#17.asp.qdimacs                   | Failed     | 0.13339781761169434
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#9.s#60.asp.qdimacs                   | Failed     | 0.06645369529724121
+QBFEval2018_Q_2-3_v-80-100_r-11.1.qdimacs                                     | Failed     | 16.361531972885132 
+QBFEval2017_itc-b13-fixpoint-1.qdimacs                                        | Successful | 25.649527311325073 
+QBFEval2018_sortnetsort10.AE.stepl.004.qdimacs                                | Timed out  | 1811.098494052887  
+QBFEval2017_small-swap2-fixpoint-10.qdimacs                                   | Successful | 1074.7926454544067 
+QBFEval2017_small-pipeline-fixpoint-10.qdimacs                                | Timed out  | 1817.5870985984802 
+QBFEval2018_small-equiv-fixpoint-2.qdimacs                                    | Timed out  | 1837.4736485481262 
+QBFEval2018_Q_2-3_v-80-100_r-11.5.qdimacs                                     | Failed     | 34.185269594192505 
+QBFEval2018_stmt44_554_604.qdimacs                                            | Successful | 269.77230429649353 
+Disjunctive_Decomposition_neclaftp2002_all_bit_differing_from_cycle.qdimacs   | Timed out  | 1812.5366611480713 
+QBFEval2018_stmt28_73_97.qdimacs                                              | Timed out  | 1812.2300493717194 
+QBFEval2017_rankfunc35_signed_64.qdimacs                                      | Timed out  | 1811.435194015503  
+QBFEval2018_query01_query42_1344n.qdimacs                                     | Timed out  | 1811.8230831623077 
+QBFEval2018_stmt50_343_392.qdimacs                                            | Timed out  | 1811.4182319641113 
+QBFEval2017_amba4c7n.sat.qdimacs                                              | Timed out  | 1815.254540681839  
+QBFEval2018_rankfunc49_unsigned_64.qdimacs                                    | Timed out  | 1827.324568271637  
+QBFEval2018_eijkbs3330.qdimacs                                                | Timed out  | 1811.3549625873566 
+Disjunctive_Decomposition_bobsynth11neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1811.9278948307037 
+QBFEval2018_driver_c9n.sat.qdimacs                                            | Timed out  | 1811.1807625293732 
+QBFEval2018_stmt19_137_408.qdimacs                                            | Successful | 316.7041356563568  
+QBFEval2018_stmt28_68_69.qdimacs                                              | Timed out  | 1811.8065032958984 
+QBFEval2018_rankfunc54_unsigned_64.qdimacs                                    | Timed out  | 1811.2031400203705 
+QBFEval2017_cycle_sched_2_10_1.sat.qdimacs                                    | Timed out  | 1811.3133761882782 
+QBFEval2018_query58_query42_1344n.qdimacs                                     | Timed out  | 1811.2355697154999 
+QBFEval2017_stmt41_286_385.qdimacs                                            | Timed out  | 1814.991067647934  
+Disjunctive_Decomposition_bobtuint06neg_all_bit_differing_from_cycle.qdimacs  | Successful | 162.10924291610718 
+QBFEval2017_stmt53_208_245.qdimacs                                            | Timed out  | 1810.980474472046  
+Arithmetic_subtraction64.qdimacs                                              | Successful | 14.364726781845093 
+QBFEval2018_query07_query42_1344n.qdimacs                                     | Timed out  | 1811.2794580459595 
+QBFEval2017_load_full_3_comp5_REAL.sat.qdimacs                                | Failed     | 1651.9791040420532 
+QBFEval2017_amba5b5n.sat.qdimacs                                              | Timed out  | 1811.512310743332  
+QBFEval2017_ctrl.e#1.a#3.E#112.A#48.c#.w#5.s#27.asp.qdimacs                   | Failed     | 0.10079216957092285
+QBFEval2017_stmt23_88_92.qdimacs                                              | Timed out  | 1812.7422106266022 
+QBFEval2017_stmt31_22_328.qdimacs                                             | Timed out  | 1811.300143480301  
+QBFEval2017_query23_query42_1344n.qdimacs                                     | Timed out  | 1811.4468097686768 
+QBFEval2018_amba2f9n.sat.qdimacs                                              | Timed out  | 1811.080574274063  
+Disjunctive_Decomposition_bobtuint21neg_all_bit_differing_from_cycle.qdimacs  | Successful | 167.09644889831543 
+QBFEval2018_driver_a10y.sat.qdimacs                                           | Timed out  | 1811.3750803470612 
+QBFEval2017_query10_query34_1344n.qdimacs                                     | Timed out  | 1811.4924433231354 
+QBFEval2018_mult9.sat.qdimacs                                                 | Timed out  | 1811.2760376930237 
+QBFEval2018_mult_bool_matrix_18_18_18.sat.qdimacs                             | Timed out  | 1812.3246626853943 
+QBFEval2017_sdlx-fixpoint-7.qdimacs                                           | Timed out  | 1812.7941138744354 
+QBFEval2017_ltl2dba_U1-4_comp4_REAL.sat.qdimacs                               | Timed out  | 1812.5052707195282 
+QBFEval2018_stmt19_352_359.qdimacs                                            | Successful | 642.5719356536865  
+Disjunctive_Decomposition_bobtuint19neg_all_bit_differing_from_cycle.qdimacs  | Successful | 171.97877979278564 
+QBFEval2018_stmt17_62_98.qdimacs                                              | Timed out  | 1811.844716310501  
+QBFEval2017_stmt53_296_346.qdimacs                                            | Timed out  | 1811.3211359977722 
+QBFEval2018_query54_query42_1344n.qdimacs                                     | Timed out  | 1811.0657596588135 
+QBFEval2017_stmt19_66_214.qdimacs                                             | Successful | 118.16136741638184 
+QBFEval2018_Q_2-3_v-80-100_r-13.9.qdimacs                                     | Failed     | 15.807829856872559 
+QBFEval2018_reachqu_query71_1344n.qdimacs                                     | Timed out  | 1811.4743463993073 
+Disjunctive_Decomposition_neclaftp3001_all_bit_differing_from_cycle.qdimacs   | Timed out  | 1812.136394739151  
+Disjunctive_Decomposition_bobsmhdlc2_all_bit_differing_from_cycle.qdimacs     | Successful | 62.04628896713257  
+QBFEval2018_usb-phy-fixpoint-2.qdimacs                                        | Timed out  | 1811.4094746112823 
+QBFEval2018_ci.e#1.a#3.E#40.A#60.c#400.w#2.s#1.asp.qdimacs                    | Failed     | 0.09758472442626953
+QBFEval2017_cache-coherence-2-fixpoint-5.qdimacs                              | Timed out  | 1811.7039115428925 
+QBFEval2017_query49_ntrivil_1344n.qdimacs                                     | Timed out  | 1811.0878818035126 
+QBFEval2018_stmt21_143_403.qdimacs                                            | Successful | 290.2939910888672  
+QBFEval2017_stmt41_262_275.qdimacs                                            | Successful | 32.3718159198761   
+QBFEval2018_stmt17_74_90.qdimacs                                              | Timed out  | 1812.2767055034637 
+QBFEval2018_small-swap1-fixpoint-7.qdimacs                                    | Timed out  | 1815.1263167858124 
+QBFEval2018_Q_2-3_v-80-100_r-13.5.qdimacs                                     | Failed     | 20.688085079193115 
+QBFEval2017_rankfunc56_signed_64.qdimacs                                      | Timed out  | 1810.9596872329712 
+QBFEval2018_stmt19_65_87.qdimacs                                              | Timed out  | 1812.4748470783234 
+QBFEval2018_query05_query31_1344n.qdimacs                                     | Timed out  | 1814.378934621811  
+QBFEval2018_floor128.qdimacs                                                  | Successful | 24.434000492095947 
+QBFEval2017_nreachq_query11_1344n.qdimacs                                     | Timed out  | 1811.519520521164  
+QBFEval2018_Q_2-3_v-80-100_r-13.1.qdimacs                                     | Failed     | 15.778505802154541 
+Disjunctive_Decomposition_bobtuint25neg_all_bit_differing_from_cycle.qdimacs  | Successful | 153.49400281906128 
+QBFEval2018_driver_d9y.sat.qdimacs                                            | Timed out  | 1811.1418578624725 
+QBFEval2018_stmt21_71_354.qdimacs                                             | Successful | 194.42896270751953 
+QBFEval2017_ctrl.e#1.a#3.E#134.A#48.c#.w#9.s#40.asp.qdimacs                   | Failed     | 0.11792588233947754
+QBFEval2018_stmt19_87_95.qdimacs                                              | Timed out  | 1816.3670840263367 
+QBFEval2018_small-pipeline-fixpoint-3.qdimacs                                 | Timed out  | 1813.9514644145966 
+QBFEval2017_sortnetsort7.AE.stepl.005.qdimacs                                 | Timed out  | 1813.568264245987  
+QBFEval2018_stmt17_70_86.qdimacs                                              | Timed out  | 1822.9755795001984 
+QBFEval2018_oski3ub5i_c0to255.sat.qdimacs                                     | Timed out  | 1813.6765401363373 
+QBFEval2018_ActivityService.qdimacs                                           | Timed out  | 1812.3620688915253 
+QBFEval2017_rankfunc35_unsigned_64.qdimacs                                    | Timed out  | 1812.2232658863068 
+Disjunctive_Decomposition_bobsmcodic_all_bit_differing_from_cycle.qdimacs     | Timed out  | 1812.520967721939  
+Disjunctive_Decomposition_pdtpmssfeistel_all_bit_differing_from_cycle.qdimacs | Timed out  | 1811.295329093933  
+QBFEval2018_sortnetsort9.AE.stepl.007.qdimacs                                 | Timed out  | 1811.1634213924408 
+QBFEval2017_driver_b8n.sat.qdimacs                                            | Timed out  | 1812.5333366394043 
+QBFEval2018_stmt17_70_82.qdimacs                                              | Timed out  | 1812.4977297782898 
+QBFEval2017_query60_query10_1344n.qdimacs                                     | Timed out  | 1813.4182007312775 
+QBFEval2018_stmt85_300_399.qdimacs                                            | Timed out  | 1812.4407217502594 
+QBFEval2018_oski3ub5i_c0to511.sat.qdimacs                                     | Timed out  | 1814.5990087985992 
+QBFEval2018_ctrl.e#1.a#3.E#124.A#48.c#.w#7.s#50.asp.qdimacs                   | Failed     | 0.5771763324737549 
+QBFEval2017_ltl2dba_Q4_comp4_REAL.sat.qdimacs                                 | Timed out  | 1825.3455367088318 
+QBFEval2018_ci.e#1.a#3.E#40.A#60.c#384.w#6.s#8.asp.qdimacs                    | Failed     | 0.3222975730895996 
+QBFEval2017_6s289rb05233_c0to63.sat.qdimacs                                   | Timed out  | 1812.252529144287  
+QBFEval2017_rankfunc48_signed_64.qdimacs                                      | Timed out  | 1811.9998741149902 
+QBFEval2017_sortnetsort7.AE.stepl.009.qdimacs                                 | Timed out  | 1811.6327741146088 
+QBFEval2018_query52_query42_1344n.qdimacs                                     | Timed out  | 1811.676681280136  
+QBFEval2018_stmt32_329_378.qdimacs                                            | Timed out  | 1811.4780712127686 
+QBFEval2018_stmt23_66_96.qdimacs                                              | Timed out  | 1812.0923581123352 
+QBFEval2018_query10_query45_1344n.qdimacs                                     | Timed out  | 1813.296021938324  
+QBFEval2017_sortnetsort8.AE.stepl.006.qdimacs                                 | Timed out  | 1812.075546503067  
+Arithmetic_equalization512.qdimacs                                            | Timed out  | 1813.9966826438904 
+QBFEval2018_cycle_sched_4_7_1.sat.qdimacs                                     | Timed out  | 1827.7517082691193 
+QBFEval2017_stmt23_92_96.qdimacs                                              | Timed out  | 1813.7502791881561 
+Disjunctive_Decomposition_kenflashp01_all_bit_differing_from_cycle.qdimacs    | Timed out  | 1811.8719320297241 
+QBFEval2018_reachqu_query42_1344n.qdimacs                                     | Timed out  | 1812.7275092601776 
+QBFEval2018_rankfunc48_signed_64.qdimacs                                      | Timed out  | 1811.6919283866882 
+Disjunctive_Decomposition_bobtuint11neg_all_bit_differing_from_cycle.qdimacs  | Successful | 154.2078890800476  
+QBFEval2018_cache-coherence-2-fixpoint-5.qdimacs                              | Timed out  | 1811.7373542785645 
+QBFEval2017_query50_query06_1344n.qdimacs                                     | Timed out  | 1811.2802937030792 
+QBFEval2018_ethernet-fixpoint-2.qdimacs                                       | Successful | 1670.4057273864746 
+QBFEval2018_itc-b13-fixpoint-2.qdimacs                                        | Successful | 109.54517984390259 
+QBFEval2017_bs128y.sat.qdimacs                                                | Successful | 1376.394216299057  
+QBFEval2018_itc-b13-fixpoint-6.qdimacs                                        | Timed out  | 1811.248901605606  
+QBFEval2017_small-bug1-fixpoint-10.qdimacs                                    | Successful | 7.462384462356567  
+Disjunctive_Decomposition_bobsynth06neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1812.0715155601501 
+QBFEval2017_LoginService.qdimacs                                              | Timed out  | 1812.5822758674622 
+QBFEval2018_stmt21_84_364.qdimacs                                             | Timed out  | 1811.345605134964  
+QBFEval2018_ci.e#1.a#3.E#40.A#60.c#288.w#6.s#2.asp.qdimacs                    | Failed     | 0.15558600425720215
+QBFEval2017_small-dyn-partition-fixpoint-6.qdimacs                            | Successful | 23.4428653717041   
+QBFEval2017_query51_query42_1344n.qdimacs                                     | Timed out  | 1811.4793560504913 
+QBFEval2017_stmt19_65_95.qdimacs                                              | Timed out  | 1811.7624006271362 
+QBFEval2017_stmt19_83_91.qdimacs                                              | Timed out  | 1813.086315870285  
+Arithmetic_intermediate32.qdimacs                                             | Timed out  | 1813.1112868785858 
+QBFEval2017_stmt21_354_403.qdimacs                                            | Timed out  | 1812.4812281131744 
+Arithmetic_intermediate128.qdimacs                                            | Failed     | 90.25795865058899  
+QBFEval2017_stmt22_6_414.qdimacs                                              | Successful | 183.6152777671814  
+QBFEval2017_rankfunc48_unsigned_64.qdimacs                                    | Timed out  | 1811.517686843872  
+QBFEval2018_query42_query42_1344n.qdimacs                                     | Timed out  | 1811.8841276168823 
+QBFEval2018_query51_query57_1344n.qdimacs                                     | Timed out  | 1811.4824562072754 
+QBFEval2017_genbuf14b4y.sat.qdimacs                                           | Timed out  | 1811.438386440277  
+QBFEval2018_sdlx-fixpoint-6.qdimacs                                           | Timed out  | 1811.7840731143951 
+QBFEval2017_small-dyn-partition-fixpoint-2.qdimacs                            | Successful | 8.254044532775879  
+QBFEval2017_trivial_query42_1344n.qdimacs                                     | Timed out  | 1811.6948170661926 
+QBFEval2017_rankfunc55_unsigned_64.qdimacs                                    | Timed out  | 1811.0600883960724 
+QBFEval2017_query08_query42_1344n.qdimacs                                     | Timed out  | 1816.1108710765839 
+QBFEval2017_AR-fixpoint-8.qdimacs                                             | Timed out  | 1814.4781572818756 
+QBFEval2017_small-swap2-fixpoint-7.qdimacs                                    | Successful | 406.1521143913269  
+QBFEval2018_rankfunc56_signed_64.qdimacs                                      | Timed out  | 1811.171882390976  
+QBFEval2017_query57_query42_1344n.qdimacs                                     | Timed out  | 1811.102380990982  
+QBFEval2018_amba3b5y.sat.qdimacs                                              | Timed out  | 1811.9932408332825 
+QBFEval2017_small-swap1-fixpoint-8.qdimacs                                    | Timed out  | 1811.4516832828522 
+QBFEval2017_add20y.sat.qdimacs                                                | Timed out  | 1811.1445178985596 
+QBFEval2017_small-bug1-fixpoint-3.qdimacs                                     | Successful | 5.5452721118927    
+Arithmetic_min64.qdimacs                                                      | Timed out  | 1811.1973271369934 
+Disjunctive_Decomposition_bobsm9234_all_bit_differing_from_cycle.qdimacs      | Timed out  | 1811.1235897541046 
+QBFEval2018_stmt21_319_418.qdimacs                                            | Timed out  | 1811.4502019882202 
+QBFEval2017_rankfunc52_unsigned_64.qdimacs                                    | Timed out  | 1814.8208498954773 
+QBFEval2018_stmt31_276_328.qdimacs                                            | Timed out  | 1813.6085472106934 
+QBFEval2018_nxquery_query50_1344n.qdimacs                                     | Timed out  | 1814.0753445625305 
+QBFEval2018_small-seq-fixpoint-10.qdimacs                                     | Failed     | 1435.5685691833496 
+QBFEval2017_AR-fixpoint-4.qdimacs                                             | Timed out  | 1812.2520492076874 
+QBFEval2018_NotificationServiceImpl2.qdimacs                                  | Timed out  | 1811.9273483753204 
+QBFEval2017_query60_query42_1344n.qdimacs                                     | Timed out  | 1811.248766899109  
+QBFEval2017_query54_query58_1344n.qdimacs                                     | Timed out  | 1815.3156123161316 
+QBFEval2018_sortnetsort9.AE.stepl.012.qdimacs                                 | Timed out  | 1811.086174249649  
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#9.s#1.asp.qdimacs                    | Failed     | 0.06469559669494629
+Disjunctive_Decomposition_bobtuint06_all_bit_differing_from_cycle.qdimacs     | Successful | 158.10443019866943 
+QBFEval2017_query31_query50_1344n.qdimacs                                     | Timed out  | 1811.122719526291  
+QBFEval2017_small-swap1-fixpoint-4.qdimacs                                    | Timed out  | 1812.8285632133484 
+QBFEval2017_stmt47_340_389.qdimacs                                            | Timed out  | 1811.6509704589844 
+QBFEval2017_rankfunc38_signed_64.qdimacs                                      | Successful | 41.0401828289032   
+QBFEval2018_sortnetsort7.AE.stepl.009.qdimacs                                 | Timed out  | 1811.2634010314941 
+QBFEval2018_AR-fixpoint-6.qdimacs                                             | Timed out  | 1812.105319261551  
+QBFEval2018_sortnetsort10.AE.stepl.011.qdimacs                                | Timed out  | 1811.3632860183716 
+QBFEval2018_query48_query42_1344n.qdimacs                                     | Timed out  | 1812.0114736557007 
+QBFEval2018_query71_query31_1344n.qdimacs                                     | Timed out  | 1811.2503588199615 
+QBFEval2017_query04_query42_1344n.qdimacs                                     | Timed out  | 1811.6047909259796 
+QBFEval2018_sortnetsort8.AE.stepl.006.qdimacs                                 | Timed out  | 1811.4845106601715 
+Disjunctive_Decomposition_bobsynthetic2_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1812.0514824390411 
+QBFEval2018_AR-fixpoint-2.qdimacs                                             | Timed out  | 1811.635590314865  
+QBFEval2018_query33_query57_1344n.qdimacs                                     | Timed out  | 1812.2164103984833 
+QBFEval2017_small-pipeline-fixpoint-3.qdimacs                                 | Timed out  | 1811.797660112381  
+QBFEval2018_beemskbn1f1_c0to7.sat.qdimacs                                     | Timed out  | 1818.6488854885101 
+QBFEval2018_sortnetsort7.AE.stepl.005.qdimacs                                 | Timed out  | 1827.4035682678223 
+QBFEval2018_rankfunc61_unsigned_64.qdimacs                                    | Timed out  | 1812.6943056583405 
+QBFEval2017_usb-phy-fixpoint-5.qdimacs                                        | Timed out  | 1812.519790172577  
+QBFEval2017_query33_query42_1344n.qdimacs                                     | Timed out  | 1811.5114440917969 
+QBFEval2017_sortnetsort10.AE.stepl.007.qdimacs                                | Timed out  | 1811.9733889102936 
+QBFEval2017_sortnetsort9.AE.stepl.007.qdimacs                                 | Timed out  | 1811.2485854625702 
+QBFEval2017_usb-phy-fixpoint-1.qdimacs                                        | Successful | 108.70189142227173 
+QBFEval2017_stmt28_73_85.qdimacs                                              | Timed out  | 1812.2350118160248 
+QBFEval2018_neclaftp2002.qdimacs                                              | Failed     | 802.6286692619324  
+QBFEval2018_stmt31_190_227.qdimacs                                            | Timed out  | 1814.4848084449768 
+QBFEval2018_genbuf9b4n.sat.qdimacs                                            | Timed out  | 1813.1101069450378 
+Factorization_factorization10.qdimacs                                         | Successful | 70.98106408119202  
+QBFEval2017_rankfunc41_unsigned_64.qdimacs                                    | Timed out  | 1811.7400634288788 
+QBFEval2017_stmt46_111_238.qdimacs                                            | Timed out  | 1811.192363500595  
+Arithmetic_intermediate512.qdimacs                                            | Timed out  | 1811.425903558731  
+QBFEval2018_query26_query42_1344n.qdimacs                                     | Timed out  | 1811.024823665619  
+QBFEval2018_query44_query26_1344n.qdimacs                                     | Timed out  | 1811.1496365070343 
+QBFEval2017_genbuf8b4n.sat.qdimacs                                            | Timed out  | 1811.3980131149292 
+Disjunctive_Decomposition_bobtuint15neg_all_bit_differing_from_cycle.qdimacs  | Successful | 153.6471507549286  
+QBFEval2017_PhaseService.qdimacs                                              | Timed out  | 1811.307817697525  
+QBFEval2018_stmt17_78_90.qdimacs                                              | Timed out  | 1811.807988166809  
+QBFEval2018_rankfunc35_signed_64.qdimacs                                      | Timed out  | 1814.327841758728  
+QBFEval2017_cycle_sched_12_2_1.sat.qdimacs                                    | Timed out  | 1813.1833550930023 
+QBFEval2018_pi-bus-fixpoint-1.qdimacs                                         | Timed out  | 1814.472135066986  
+QBFEval2018_stmt17_78_94.qdimacs                                              | Timed out  | 1824.31045460701   
+QBFEval2017_ethernet-fixpoint-4.qdimacs                                       | Timed out  | 1814.5286598205566 
+Arithmetic_max64.qdimacs                                                      | Successful | 14.956392765045166 
+Factorization_factorization14.qdimacs                                         | Timed out  | 1811.3241324424744 
+QBFEval2017_intermediate256.qdimacs                                           | Timed out  | 1811.4405345916748 
+QBFEval2018_query11_query42_1344n.qdimacs                                     | Timed out  | 1811.637208223343  
+Disjunctive_Decomposition_bobsmhdlc3_all_bit_differing_from_cycle.qdimacs     | Timed out  | 1811.0112833976746 
+Arithmetic_min256.qdimacs                                                     | Timed out  | 1811.1535897254944 
+QBFEval2017_small-equiv-fixpoint-1.qdimacs                                    | Timed out  | 1811.828003168106  
+QBFEval2017_small-synabs-fixpoint-10.qdimacs                                  | Successful | 245.48046016693115 
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#7.s#1.asp.qdimacs                    | Failed     | 0.10025429725646973
+QBFEval2017_stmt28_68_73.qdimacs                                              | Timed out  | 1811.4039175510406 
+QBFEval2017_small-equiv-fixpoint-5.qdimacs                                    | Timed out  | 1812.2243783473969 
+QBFEval2017_query02_query42_1344n.qdimacs                                     | Timed out  | 1811.3193430900574 
+Disjunctive_Decomposition_bobtuint29neg_all_bit_differing_from_cycle.qdimacs  | Successful | 157.4013111591339  
+QBFEval2018_stmt17_78_98.qdimacs                                              | Timed out  | 1812.9508790969849 
+QBFEval2018_sdlx-fixpoint-3.qdimacs                                           | Timed out  | 1811.6275091171265 
+QBFEval2017_small-dyn-partition-fixpoint-7.qdimacs                            | Successful | 29.991464614868164 
+QBFEval2018_ci.e#1.a#3.E#40.A#60.c#408.w#2.s#2.asp.qdimacs                    | Failed     | 0.09694266319274902
+QBFEval2018_oski3ub5i_c0to63.sat.qdimacs                                      | Timed out  | 1812.2627816200256 
+QBFEval2018_stmt17_74_78.qdimacs                                              | Timed out  | 1811.9336140155792 
+QBFEval2018_query42_query45_1344n.qdimacs                                     | Timed out  | 1811.6533391475677 
+Arithmetic_ceiling64.qdimacs                                                  | Successful | 82.34116768836975  
+Arithmetic_decomposition512.qdimacs                                           | Timed out  | 1811.0945026874542 
+Disjunctive_Decomposition_bobsynth07neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1812.1718590259552 
+QBFEval2017_stmt21_181_218.qdimacs                                            | Timed out  | 1811.2497997283936 
+QBFEval2017_driver_a10y.sat.qdimacs                                           | Timed out  | 1811.2926378250122 
+QBFEval2017_eequery_query42_1344n.qdimacs                                     | Timed out  | 1811.3372411727905 
+QBFEval2018_stmt17_62_78.qdimacs                                              | Timed out  | 1812.8816714286804 
+QBFEval2017_small-dyn-partition-fixpoint-3.qdimacs                            | Successful | 12.50728178024292  
+QBFEval2018_sdlx-fixpoint-7.qdimacs                                           | Timed out  | 1812.4721364974976 
+Disjunctive_Decomposition_bobtuint10neg_all_bit_differing_from_cycle.qdimacs  | Successful | 154.8174443244934  
+Disjunctive_Decomposition_pdtpmsgigamax_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1811.0979747772217 
+QBFEval2018_neclaftp4001.qdimacs                                              | Failed     | 192.48663020133972 
+QBFEval2017_stmt19_180_352.qdimacs                                            | Successful | 334.7089366912842  
+Arithmetic_max512.qdimacs                                                     | Timed out  | 1811.2822153568268 
+Disjunctive_Decomposition_kenflashp12_all_bit_differing_from_cycle.qdimacs    | Timed out  | 1811.123611688614  
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#7.s#7.asp.qdimacs                    | Failed     | 0.10531044006347656
+QBFEval2018_cache-coherence-2-fixpoint-4.qdimacs                              | Successful | 1495.9480595588684 
+QBFEval2018_stmt21_310_360.qdimacs                                            | Timed out  | 1812.20010471344   
+QBFEval2018_itc-b13-fixpoint-3.qdimacs                                        | Successful | 390.9699409008026  
+QBFEval2018_ethernet-fixpoint-3.qdimacs                                       | Timed out  | 1812.6772379875183 
+Arithmetic_decomposition64.qdimacs                                            | Timed out  | 1811.497548341751  
+QBFEval2018_rankfunc59_unsigned_64.qdimacs                                    | Timed out  | 1811.237907409668  
+QBFEval2018_stmt46_289_388.qdimacs                                            | Timed out  | 1811.282459974289  
+QBFEval2017_query24_query42_1344n.qdimacs                                     | Timed out  | 1815.3916726112366 
+QBFEval2018_GuidanceService2.qdimacs                                          | Timed out  | 1811.3686439990997 
+QBFEval2017_stmt19_90_408.qdimacs                                             | Timed out  | 1811.2276020050049 
+QBFEval2018_itc-b13-fixpoint-7.qdimacs                                        | Timed out  | 1817.1614081859589 
+QBFEval2018_stmt21_178_258.qdimacs                                            | Successful | 377.5516505241394  
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#7.s#60.asp.qdimacs                   | Failed     | 0.1522812843322754 
+Arithmetic_subtraction512.qdimacs                                             | Timed out  | 1812.1021292209625 
+QBFEval2017_nxquery_query42_1344n.qdimacs                                     | Timed out  | 1812.789800643921  
+QBFEval2018_decomposition256.qdimacs                                          | Timed out  | 1811.8687069416046 
+QBFEval2018_stmt52_295_394.qdimacs                                            | Timed out  | 1811.9049715995789 
+QBFEval2017_rankfunc31_unsigned_64.qdimacs                                    | Timed out  | 1821.0430755615234 
+QBFEval2018_query31_query42_1344n.qdimacs                                     | Timed out  | 1811.657254934311  
+QBFEval2017_small-swap1-fixpoint-5.qdimacs                                    | Timed out  | 1811.2777962684631 
+QBFEval2018_stmt27_16_224.qdimacs                                             | Successful | 74.58615016937256  
+QBFEval2017_rankfunc34_signed_64.qdimacs                                      | Timed out  | 1811.533475637436  
+QBFEval2017_query60_query45_1344n.qdimacs                                     | Timed out  | 1811.1440513134003 
+QBFEval2017_stmt19_79_83.qdimacs                                              | Timed out  | 1811.9943444728851 
+QBFEval2017_small-swap2-fixpoint-6.qdimacs                                    | Successful | 299.0981752872467  
+QBFEval2017_query15_query42_1344n.qdimacs                                     | Timed out  | 1812.3281149864197 
+QBFEval2018_stmt23_66_76.qdimacs                                              | Timed out  | 1811.9003195762634 
+QBFEval2017_small-bug1-fixpoint-6.qdimacs                                     | Successful | 7.511821269989014  
+QBFEval2018_stmt27_149_224.qdimacs                                            | Timed out  | 1811.1786921024323 
+QBFEval2017_pdtpmsrotate32.qdimacs                                            | Timed out  | 1811.922991514206  
+QBFEval2018_query60_query44_1344n.qdimacs                                     | Timed out  | 1811.2672622203827 
+Arithmetic_subtraction32.qdimacs                                              | Successful | 9.256216526031494  
+QBFEval2018_eijkbs4863.qdimacs                                                | Timed out  | 1811.2494864463806 
+Disjunctive_Decomposition_bobsmfpu_all_bit_differing_from_cycle.qdimacs       | Timed out  | 1811.074474811554  
+QBFEval2018_query06_query42_1344n.qdimacs                                     | Timed out  | 1811.778864622116  
+QBFEval2018_query34_query11_1344n.qdimacs                                     | Timed out  | 1811.8009107112885 
+QBFEval2017_small-swap1-fixpoint-9.qdimacs                                    | Timed out  | 1817.6616079807281 
+QBFEval2017_stmt19_79_87.qdimacs                                              | Timed out  | 1814.2782144546509 
+QBFEval2018_stmt27_93_98.qdimacs                                              | Successful | 193.1119339466095  
+QBFEval2018_small-synabs-fixpoint-3.qdimacs                                   | Successful | 29.717867851257324 
+QBFEval2018_rankfunc2_unsigned_64.qdimacs                                     | Timed out  | 1811.1628804206848 
+QBFEval2018_ActivityService2.qdimacs                                          | Timed out  | 1812.3713779449463 
+QBFEval2018_rankfunc57_unsigned_64.qdimacs                                    | Timed out  | 1811.6073348522186 
+QBFEval2017_query33_query45_1344n.qdimacs                                     | Timed out  | 1810.891839981079  
+QBFEval2018_query31_reachqu_1344n.qdimacs                                     | Timed out  | 1811.2928493022919 
+QBFEval2018_rankfunc48_unsigned_16.qdimacs                                    | Timed out  | 1811.2826750278473 
+QBFEval2018_nreachq_query54_1344n.qdimacs                                     | Timed out  | 1812.4215607643127 
+QBFEval2017_small-pipeline-fixpoint-2.qdimacs                                 | Timed out  | 1811.5153830051422 
+QBFEval2017_rankfunc49_signed_64.qdimacs                                      | Timed out  | 1811.4416863918304 
+QBFEval2017_usb-phy-fixpoint-4.qdimacs                                        | Timed out  | 1811.7635307312012 
+QBFEval2018_stmt17_82_86.qdimacs                                              | Timed out  | 1815.876101732254  
+QBFEval2018_query48_exquery_1344n.qdimacs                                     | Timed out  | 1811.2576930522919 
+QBFEval2017_sortnetsort10.AE.stepl.006.qdimacs                                | Timed out  | 1811.6168894767761 
+QBFEval2017_sortnetsort9.AE.stepl.006.qdimacs                                 | Timed out  | 1811.3482015132904 
+QBFEval2017_stmt22_311_370.qdimacs                                            | Timed out  | 1811.3933503627777 
+QBFEval2017_query71_query42_1344n.qdimacs                                     | Timed out  | 1811.2092416286469 
+QBFEval2018_stmt19_75_95.qdimacs                                              | Timed out  | 1813.0120027065277 
+QBFEval2017_stmt19_64_87.qdimacs                                              | Timed out  | 1812.1001670360565 
+QBFEval2017_query33_query51_1344n.qdimacs                                     | Timed out  | 1817.288206577301  
+QBFEval2017_kenflashp04.qdimacs                                               | Timed out  | 1811.1155977249146 
+QBFEval2017_mult_bool_matrix_dyn_9_5.sat.qdimacs                              | Timed out  | 1811.3147506713867 
+QBFEval2017_stmt19_368_417.qdimacs                                            | Timed out  | 1821.5425803661346 
+Arithmetic_subtraction128.qdimacs                                             | Successful | 94.54993605613708  
+QBFEval2018_query04_query25_1344n.qdimacs                                     | Timed out  | 1810.9764029979706 
+QBFEval2018_sortnetsort7.AE.stepl.008.qdimacs                                 | Timed out  | 1811.8528199195862 
+QBFEval2017_cache-coherence-3-fixpoint-2.qdimacs                              | Successful | 894.6927871704102  
+QBFEval2018_query55_query42_1344n.qdimacs                                     | Timed out  | 1810.9412219524384 
+Disjunctive_Decomposition_bobtuintorneg_all_bit_differing_from_cycle.qdimacs  | Successful | 155.340252161026   
+QBFEval2018_sortnetsort10.AE.stepl.010.qdimacs                                | Timed out  | 1811.3464419841766 
+QBFEval2017_rankfunc38_unsigned_64.qdimacs                                    | Successful | 36.265613079071045 
+QBFEval2017_ActivityService.qdimacs                                           | Timed out  | 1811.7117228507996 
+Disjunctive_Decomposition_kenflashp02_all_bit_differing_from_cycle.qdimacs    | Timed out  | 1811.166612625122  
+QBFEval2018_cycle_sched_4_4_2.sat.qdimacs                                     | Timed out  | 1812.2937247753143 
+QBFEval2018_query71_query36_1344n.qdimacs                                     | Timed out  | 1811.2068870067596 
+Arithmetic_max128.qdimacs                                                     | Successful | 36.69682288169861  
+QBFEval2018_stmt21_71_413.qdimacs                                             | Timed out  | 1811.6239013671875 
+QBFEval2017_bs128n.sat.qdimacs                                                | Timed out  | 1811.5348105430603 
+QBFEval2018_stmt39_285_335.qdimacs                                            | Timed out  | 1811.8791100978851 
+QBFEval2018_ctrl.e#1.a#3.E#120.A#48.c#.w#3.s#3.asp.qdimacs                    | Failed     | 0.14856362342834473
+Disjunctive_Decomposition_pdtpmsmiim_all_bit_differing_from_cycle.qdimacs     | Timed out  | 1811.1789383888245 
+QBFEval2018_rankfunc51_signed_64.qdimacs                                      | Timed out  | 1812.0659546852112 
+QBFEval2017_stmt5_731_730.qdimacs                                             | Successful | 26.992501974105835 
+QBFEval2018_stmt17_86_98.qdimacs                                              | Timed out  | 1812.2250626087189 
+QBFEval2017_small-seq-fixpoint-2.qdimacs                                      | Successful | 1119.4902591705322 
+QBFEval2017_small-seq-fixpoint-6.qdimacs                                      | Timed out  | 1812.3303246498108 
+QBFEval2017_small-equiv-fixpoint-4.qdimacs                                    | Timed out  | 1811.7177107334137 
+Disjunctive_Decomposition_bobtuint14neg_all_bit_differing_from_cycle.qdimacs  | Successful | 157.89963960647583 
+QBFEval2018_mult_bool_matrix_12_13_11.sat.qdimacs                             | Timed out  | 1813.9576992988586 
+QBFEval2017_stmt23_67_92.qdimacs                                              | Timed out  | 1811.826494693756  
+QBFEval2018_amba2c7n.sat.qdimacs                                              | Timed out  | 1811.5725920200348 
+QBFEval2018_query64_query42_1344n.qdimacs                                     | Timed out  | 1811.0420367717743 
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#3.s#26.asp.qdimacs                   | Failed     | 0.10053491592407227
+Arithmetic_decomposition128.qdimacs                                           | Timed out  | 1813.4793965816498 
+QBFEval2017_ethernet-fixpoint-1.qdimacs                                       | Successful | 354.22950410842896 
+Disjunctive_Decomposition_bobtuint28neg_all_bit_differing_from_cycle.qdimacs  | Successful | 159.87972140312195 
+QBFEval2018_stmt28_68_81.qdimacs                                              | Timed out  | 1811.9610278606415 
+QBFEval2017_load_3c_comp_comp6_REAL.sat.qdimacs                               | Timed out  | 1813.1427710056305 
+QBFEval2017_rankfunc60_unsigned_32.qdimacs                                    | Timed out  | 1812.8258855342865 
+QBFEval2018_stmt21_70_369.qdimacs                                             | Successful | 214.9784860610962  
+QBFEval2017_small-equiv-fixpoint-8.qdimacs                                    | Timed out  | 1812.424358844757  
+QBFEval2018_query02_query44_1344n.qdimacs                                     | Timed out  | 1811.1010510921478 
+QBFEval2018_stmt19_3_401.qdimacs                                              | Timed out  | 1811.6424198150635 
+QBFEval2017_stmt28_89_97.qdimacs                                              | Timed out  | 1813.3366117477417 
+QBFEval2017_small-swap1-fixpoint-10.qdimacs                                   | Timed out  | 1812.0750532150269 
+QBFEval2018_kenflashp12.qdimacs                                               | Timed out  | 1812.172285079956  
+QBFEval2018_stmt19_64_91.qdimacs                                              | Timed out  | 1815.869826078415  
+QBFEval2017_stmt19_75_83.qdimacs                                              | Timed out  | 1812.1824507713318 
+Disjunctive_Decomposition_bobsynthetic_all_bit_differing_from_cycle.qdimacs   | Timed out  | 1811.808361530304  
+QBFEval2018_Q_2-3_v-80-100_r-11.0.qdimacs                                     | Failed     | 15.725762367248535 
+QBFEval2018_sortnetsort10.AE.stepl.005.qdimacs                                | Timed out  | 1814.6881732940674 
+QBFEval2018_mult_bool_matrix_10_9_11.sat.qdimacs                              | Timed out  | 1813.026969909668  
+QBFEval2018_stmt17_63_82.qdimacs                                              | Timed out  | 1818.5452427864075 
+QBFEval2017_query50_query42_1344n.qdimacs                                     | Timed out  | 1811.0856006145477 
+Arithmetic_intermediate64.qdimacs                                             | Timed out  | 1811.2255549430847 
+QBFEval2018_Q_2-3_v-80-100_r-11.4.qdimacs                                     | Failed     | 12.613585233688354 
+QBFEval2018_small-equiv-fixpoint-3.qdimacs                                    | Timed out  | 1811.647432565689  
+QBFEval2017_itc-b13-fixpoint-4.qdimacs                                        | Successful | 813.9290225505829  
+QBFEval2017_rankfunc55_unsigned_32.qdimacs                                    | Timed out  | 1811.3342938423157 
+QBFEval2017_stmt17_82_94.qdimacs                                              | Timed out  | 1812.4934084415436 
+QBFEval2018_sortnetsort10.AE.stepl.009.qdimacs                                | Timed out  | 1811.2944555282593 
+QBFEval2017_query36_query25_1344n.qdimacs                                     | Timed out  | 1811.2818479537964 
+QBFEval2017_stmt17_94_98.qdimacs                                              | Timed out  | 1815.3262050151825 
+Disjunctive_Decomposition_bobsmhdlc1_all_bit_differing_from_cycle.qdimacs     | Successful | 61.496572732925415 
+QBFEval2018_small-seq-fixpoint-2.qdimacs                                      | Successful | 788.6167991161346  
+QBFEval2017_rankfunc51_signed_64.qdimacs                                      | Timed out  | 1813.9515144824982 
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#5.s#1.asp.qdimacs                    | Failed     | 0.10588908195495605
+QBFEval2018_exquery_query42_1344n.qdimacs                                     | Timed out  | 1811.0818803310394 
+QBFEval2018_small-seq-fixpoint-6.qdimacs                                      | Timed out  | 1812.9127082824707 
+QBFEval2018_cache-coherence-3-fixpoint-2.qdimacs                              | Successful | 1000.7189025878906 
+QBFEval2018_query42_query06_1344n.qdimacs                                     | Timed out  | 1811.9487006664276 
+QBFEval2018_mult_bool_matrix_dyn_9_5.sat.qdimacs                              | Timed out  | 1812.4647943973541 
+QBFEval2017_load_2c_comp_comp7_REAL.sat.qdimacs                               | Timed out  | 1812.2931847572327 
+QBFEval2017_itc-b13-fixpoint-8.qdimacs                                        | Timed out  | 1811.9488725662231 
+QBFEval2018_Q_2-3_v-80-100_r-11.8.qdimacs                                     | Failed     | 12.818408012390137 
+QBFEval2018_UserServiceImpl.qdimacs                                           | Timed out  | 1811.4057412147522 
+QBFEval2018_stmt19_64_99.qdimacs                                              | Timed out  | 1812.1172070503235 
+Disjunctive_Decomposition_bobtuint07neg_all_bit_differing_from_cycle.qdimacs  | Successful | 173.54381775856018 
+QBFEval2017_sdlx-fixpoint-2.qdimacs                                           | Timed out  | 1811.1795868873596 
+Arithmetic_min32.qdimacs                                                      | Failed     | 1390.8090286254883 
+QBFEval2017_ctrl.e#1.a#3.E#118.A#48.c#.w#5.s#7.asp.qdimacs                    | Failed     | 0.0992424488067627 
+QBFEval2017_sdlx-fixpoint-6.qdimacs                                           | Timed out  | 1812.8250560760498 
+QBFEval2017_rankfunc58_unsigned_64.qdimacs                                    | Timed out  | 1811.2576780319214 
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#5.s#60.asp.qdimacs                   | Failed     | 0.06366705894470215
+QBFEval2017_stmt19_71_95.qdimacs                                              | Timed out  | 1812.2275104522705 
+Disjunctive_Decomposition_bobtuint20neg_all_bit_differing_from_cycle.qdimacs  | Successful | 160.79226160049438 
+QBFEval2017_query64_query11_1344n.qdimacs                                     | Timed out  | 1811.053908586502  
+Arithmetic_ceiling256.qdimacs                                                 | Timed out  | 1811.1421647071838 
+QBFEval2018_stmt41_336_385.qdimacs                                            | Timed out  | 1811.3632872104645 
+QBFEval2017_ctrl.e#1.a#3.E#116.A#48.c#.w#7.s#56.asp.qdimacs                   | Failed     | 0.1510777473449707 
+QBFEval2017_query09_query42_1344n.qdimacs                                     | Timed out  | 1813.929399728775  
+QBFEval2018_beemldelec4b1_c0to127.sat.qdimacs                                 | Timed out  | 1812.9258608818054 
+QBFEval2018_itc-b13-fixpoint-10.qdimacs                                       | Timed out  | 1813.351963043213  
+QBFEval2018_ltl2dba_C2-8_comp4_REAL.sat.qdimacs                               | Timed out  | 1812.5462682247162 
+QBFEval2018_rankfunc49_signed_64.qdimacs                                      | Timed out  | 1811.4591736793518 
+Arithmetic_subtraction1024.qdimacs                                            | Timed out  | 1811.7224671840668 
+QBFEval2018_query45_query42_1344n.qdimacs                                     | Timed out  | 1816.4835093021393 
+QBFEval2018_ConcreteActivityService.qdimacs                                   | Timed out  | 1811.9572076797485 
+QBFEval2018_stmt124_966_965.qdimacs                                           | Successful | 27.4115948677063   
+QBFEval2018_mult_bool_matrix_17_17_17.sat.qdimacs                             | Timed out  | 1819.2510964870453 
+QBFEval2018_axquery_query42_1344n.qdimacs                                     | Timed out  | 1810.9890322685242 
+QBFEval2018_intermediate256.qdimacs                                           | Timed out  | 1811.2758810520172 
+QBFEval2018_eequery_query64_1344n.qdimacs                                     | Timed out  | 1811.03666305542   
+QBFEval2018_small-swap1-fixpoint-6.qdimacs                                    | Timed out  | 1811.0762257575989 
+QBFEval2018_driver_c9y.sat.qdimacs                                            | Timed out  | 1812.5211198329926 
+QBFEval2017_stmt19_302_352.qdimacs                                            | Timed out  | 1812.8505327701569 
+QBFEval2018_query21_query42_1344n.qdimacs                                     | Timed out  | 1811.5044181346893 
+QBFEval2018_Q_2-3_v-80-100_r-13.4.qdimacs                                     | Failed     | 16.17549180984497  
+QBFEval2017_stmt25_597_598.qdimacs                                            | Successful | 37.47743225097656  
+QBFEval2018_Q_2-3_v-80-100_r-13.0.qdimacs                                     | Failed     | 15.822724103927612 
+QBFEval2018_query31_eequery_1344n.qdimacs                                     | Timed out  | 1811.0242564678192 
+Disjunctive_Decomposition_bobtuint18neg_all_bit_differing_from_cycle.qdimacs  | Successful | 154.77488803863525 
+QBFEval2018_stmt29_275_376.qdimacs                                            | Timed out  | 1819.8877563476562 
+Disjunctive_Decomposition_neclaftp2001_all_bit_differing_from_cycle.qdimacs   | Timed out  | 1812.733139038086  
+Disjunctive_Decomposition_bobtuint24neg_all_bit_differing_from_cycle.qdimacs  | Successful | 163.32957673072815 
+QBFEval2017_rankfunc51_unsigned_64.qdimacs                                    | Timed out  | 1811.6550867557526 
+QBFEval2018_Q_2-3_v-80-100_r-13.8.qdimacs                                     | Failed     | 15.065977811813354 
+QBFEval2018_stmt22_320_370.qdimacs                                            | Timed out  | 1812.0279302597046 
+QBFEval2018_usb-phy-fixpoint-3.qdimacs                                        | Timed out  | 1812.0533831119537 
+QBFEval2017_ltl2dba_E6_comp2_REAL.sat.qdimacs                                 | Timed out  | 1812.3582091331482 
+QBFEval2017_query05_query42_1344n.qdimacs                                     | Timed out  | 1811.2560861110687 
+QBFEval2018_query10_query42_1344n.qdimacs                                     | Timed out  | 1812.701173067093  
+QBFEval2017_sortnetsort7.AE.stepl.008.qdimacs                                 | Timed out  | 1811.546927690506  
+QBFEval2017_query03_query42_1344n.qdimacs                                     | Timed out  | 1821.740861415863  
+QBFEval2018_query64_query01_1344n.qdimacs                                     | Timed out  | 1811.0208995342255 
+QBFEval2018_ltl2dpa_C26_comp2_REAL.sat.qdimacs                                | Timed out  | 1811.4650893211365 
+QBFEval2017_stmt19_133_217.qdimacs                                            | Failed     | 140.63616681098938 
+QBFEval2018_stmt23_66_67.qdimacs                                              | Timed out  | 1811.5538499355316 
+QBFEval2018_ctrl.e#1.a#3.E#110.A#48.c#.w#9.s#13.asp.qdimacs                   | Failed     | 0.0963437557220459 
+QBFEval2018_stmt25_52_53.qdimacs                                              | Successful | 176.90204286575317 
+QBFEval2018_driver_a9n.sat.qdimacs                                            | Timed out  | 1811.465990304947  
+QBFEval2018_cycle_sched_6_7_1.sat.qdimacs                                     | Timed out  | 1811.8740956783295 
+QBFEval2017_query52_query25_1344n.qdimacs                                     | Timed out  | 1811.5538988113403 
+QBFEval2018_query27_query42_1344n.qdimacs                                     | Timed out  | 1811.2929923534393 
+QBFEval2017_oski3ub5i_c0to63.sat.qdimacs                                      | Timed out  | 1812.7101526260376 
+QBFEval2018_small-pipeline-fixpoint-2.qdimacs                                 | Timed out  | 1812.1314454078674 
+QBFEval2017_small-dyn-partition-fixpoint-10.qdimacs                           | Successful | 51.74024724960327  
+QBFEval2017_query34_query42_1344n.qdimacs                                     | Timed out  | 1811.294444322586  
+QBFEval2017_rankfunc56_unsigned_64.qdimacs                                    | Timed out  | 1811.1280946731567 
+Arithmetic_max32.qdimacs                                                      | Successful | 7.612464427947998  
+QBFEval2017_bobtuint31neg.qdimacs                                             | Successful | 146.73676252365112 
+QBFEval2018_stmt44_40_387.qdimacs                                             | Timed out  | 1811.959107875824  
+QBFEval2017_stmt17_70_78.qdimacs                                              | Timed out  | 1812.1975214481354 
+QBFEval2018_cycle_sched_6_6_2.sat.qdimacs                                     | Timed out  | 1812.6469509601593 
+Arithmetic_floor256.qdimacs                                                   | Timed out  | 1813.980896949768  
+Disjunctive_Decomposition_bobsmhdlc_all_bit_differing_from_cycle.qdimacs      | Successful | 64.18989634513855  
+Arithmetic_floor128.qdimacs                                                   | Successful | 121.2213134765625  
+QBFEval2018_query05_query42_1344n.qdimacs                                     | Timed out  | 1811.5096900463104 
+QBFEval2017_small-bug1-fixpoint-8.qdimacs                                     | Successful | 161.39258313179016 
+QBFEval2018_stmt17_70_90.qdimacs                                              | Timed out  | 1813.5938649177551 
+QBFEval2017_small-swap2-fixpoint-8.qdimacs                                    | Successful | 542.056704044342   
+Disjunctive_Decomposition_pdtpmsns3_all_bit_differing_from_cycle.qdimacs      | Timed out  | 1811.0307052135468 
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#3.s#60.asp.qdimacs                   | Failed     | 0.07588696479797363
+QBFEval2017_query49_query42_1344n.qdimacs                                     | Timed out  | 1814.4775178432465 
+QBFEval2017_stmt41_336_385.qdimacs                                            | Timed out  | 1811.8367586135864 
+QBFEval2018_sortnetsort9.AE.stepl.011.qdimacs                                 | Timed out  | 1811.8406059741974 
+QBFEval2017_amba3b5y.sat.qdimacs                                              | Timed out  | 1822.4169297218323 
+QBFEval2017_small-swap1-fixpoint-7.qdimacs                                    | Timed out  | 1811.7112402915955 
+QBFEval2017_small-bug1-fixpoint-4.qdimacs                                     | Successful | 6.4457104206085205 
+QBFEval2017_query31_eequery_1344n.qdimacs                                     | Timed out  | 1818.9089832305908 
+QBFEval2018_ctrl.e#1.a#3.E#134.A#48.c#.w#9.s#40.asp.qdimacs                   | Failed     | 0.6240692138671875 
+Disjunctive_Decomposition_bobtuint09neg_all_bit_differing_from_cycle.qdimacs  | Successful | 150.8835461139679  
+QBFEval2018_stmt2_976_999.qdimacs                                             | Timed out  | 1812.375671863556  
+QBFEval2018_ctrl.e#1.a#3.E#118.A#48.c#.w#5.s#7.asp.qdimacs                    | Failed     | 0.09591794013977051
+QBFEval2018_rankfunc59_signed_64.qdimacs                                      | Timed out  | 1811.1834988594055 
+Disjunctive_Decomposition_bobtuint12neg_all_bit_differing_from_cycle.qdimacs  | Successful | 295.96220993995667 
+QBFEval2017_eequery_query64_1344n.qdimacs                                     | Timed out  | 1811.0126616954803 
+QBFEval2018_stmt17_70_98.qdimacs                                              | Timed out  | 1815.9043231010437 
+QBFEval2017_query21_query42_1344n.qdimacs                                     | Timed out  | 1811.2849397659302 
+QBFEval2017_ctrl.e#1.a#3.E#124.A#48.c#.w#7.s#50.asp.qdimacs                   | Failed     | 0.09335088729858398
+Disjunctive_Decomposition_eijkbs1512_all_bit_differing_from_cycle.qdimacs     | Successful | 1354.6936240196228 
+QBFEval2018_query34_query42_1344n.qdimacs                                     | Timed out  | 1811.7173538208008 
+QBFEval2017_small-dyn-partition-fixpoint-5.qdimacs                            | Successful | 18.385605096817017 
+Arithmetic_ceiling1024.qdimacs                                                | Timed out  | 1811.7045767307281 
+QBFEval2017_IssueServiceImpl.qdimacs                                          | Timed out  | 1811.156841993332  
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#3.s#1.asp.qdimacs                    | Failed     | 0.06564855575561523
+QBFEval2017_cycle_sched_6_6_2.sat.qdimacs                                     | Timed out  | 1811.4487917423248 
+QBFEval2017_query27_query42_1344n.qdimacs                                     | Timed out  | 1811.0050275325775 
+QBFEval2018_stmt23_92_96.qdimacs                                              | Timed out  | 1812.4700937271118 
+QBFEval2017_stmt21_70_369.qdimacs                                             | Successful | 228.80903244018555 
+QBFEval2018_stmt41_160_235.qdimacs                                            | Timed out  | 1811.2393956184387 
+QBFEval2018_sdlx-fixpoint-5.qdimacs                                           | Timed out  | 1811.9132671356201 
+QBFEval2018_itc-b13-fixpoint-9.qdimacs                                        | Timed out  | 1811.9067134857178 
+QBFEval2017_small-dyn-partition-fixpoint-1.qdimacs                            | Successful | 5.231659650802612  
+QBFEval2018_stmt5_731_730.qdimacs                                             | Successful | 25.78612470626831  
+QBFEval2018_query03_query42_1344n.qdimacs                                     | Timed out  | 1811.0421071052551 
+Arithmetic_floor1024.qdimacs                                                  | Timed out  | 1841.1017236709595 
+QBFEval2017_query64_query01_1344n.qdimacs                                     | Timed out  | 1811.825718164444  
+QBFEval2017_small-dyn-partition-fixpoint-9.qdimacs                            | Successful | 39.85489344596863  
+QBFEval2017_rankfunc41_signed_64.qdimacs                                      | Timed out  | 1811.3437235355377 
+QBFEval2018_itc-b13-fixpoint-1.qdimacs                                        | Successful | 28.147934913635254 
+QBFEval2018_ethernet-fixpoint-1.qdimacs                                       | Successful | 620.077553987503   
+QBFEval2017_stmt21_71_413.qdimacs                                             | Timed out  | 1811.461139202118  
+QBFEval2018_cache-coherence-2-fixpoint-6.qdimacs                              | Timed out  | 1811.9539263248444 
+Arithmetic_floor32.qdimacs                                                    | Successful | 8.536837100982666  
+QBFEval2018_query52_query25_1344n.qdimacs                                     | Timed out  | 1810.9042506217957 
+QBFEval2018_itc-b13-fixpoint-5.qdimacs                                        | Successful | 1731.1522135734558 
+QBFEval2018_sdlx-fixpoint-9.qdimacs                                           | Timed out  | 1814.109590768814  
+QBFEval2017_query10_query42_1344n.qdimacs                                     | Timed out  | 1811.895502090454  
+QBFEval2018_stmt19_65_95.qdimacs                                              | Timed out  | 1811.9184291362762 
+QBFEval2018_stmt19_83_91.qdimacs                                              | Timed out  | 1824.0542414188385 
+QBFEval2018_rankfunc35_unsigned_64.qdimacs                                    | Timed out  | 1811.47536110878   
+Arithmetic_ceiling512.qdimacs                                                 | Timed out  | 1811.326566696167  
+QBFEval2018_cache-coherence-2-fixpoint-2.qdimacs                              | Successful | 364.4183099269867  
+QBFEval2018_rankfunc52_signed_64.qdimacs                                      | Timed out  | 1811.2757363319397 
+QBFEval2018_intermediate128.qdimacs                                           | Failed     | 79.95635914802551  
+QBFEval2018_stmt22_6_414.qdimacs                                              | Successful | 162.54721999168396 
+QBFEval2017_rankfunc54_signed_64.qdimacs                                      | Timed out  | 1811.1727056503296 
+QBFEval2017_stmt17_78_94.qdimacs                                              | Timed out  | 1812.3759934902191 
+QBFEval2018_bs128y.sat.qdimacs                                                | Successful | 1631.5907793045044 
+QBFEval2017_small-equiv-fixpoint-2.qdimacs                                    | Timed out  | 1811.4007596969604 
+QBFEval2018_query36_query25_1344n.qdimacs                                     | Timed out  | 1811.6297161579132 
+Arithmetic_ceiling128.qdimacs                                                 | Successful | 327.5082540512085  
+QBFEval2017_small-seq-fixpoint-4.qdimacs                                      | Timed out  | 1812.5212721824646 
+QBFEval2018_PhaseService.qdimacs                                              | Timed out  | 1811.2991836071014 
+QBFEval2018_stmt19_90_408.qdimacs                                             | Timed out  | 1812.313101530075  
+QBFEval2017_stmt17_78_90.qdimacs                                              | Timed out  | 1811.876240491867  
+QBFEval2017_exquery_query42_1344n.qdimacs                                     | Timed out  | 1810.9572505950928 
+QBFEval2017_IterationService.qdimacs                                          | Timed out  | 1811.459644794464  
+QBFEval2017_rankfunc53_unsigned_64.qdimacs                                    | Timed out  | 1815.5214445590973 
+QBFEval2018_stmt28_68_73.qdimacs                                              | Timed out  | 1811.6949961185455 
+QBFEval2017_ethernet-fixpoint-3.qdimacs                                       | Timed out  | 1812.431970834732  
+QBFEval2018_stmt19_133_217.qdimacs                                            | Failed     | 151.77940344810486 
+QBFEval2017_stmt17_78_98.qdimacs                                              | Timed out  | 1812.3611903190613 
+QBFEval2017_ctrl.e#1.a#3.E#130.A#48.c#.w#7.s#11.asp.qdimacs                   | Failed     | 0.14994001388549805
+QBFEval2018_pi-bus-fixpoint-2.qdimacs                                         | Timed out  | 1815.0926327705383 
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#9.s#60.asp.qdimacs                   | Failed     | 0.06067204475402832
+QBFEval2018_query50_query42_1344n.qdimacs                                     | Timed out  | 1811.299034357071  
+QBFEval2017_stmt22_320_370.qdimacs                                            | Timed out  | 1811.3451552391052 
+QBFEval2017_query45_query42_1344n.qdimacs                                     | Timed out  | 1810.9921445846558 
+QBFEval2018_sortnetsort7.AE.stepl.006.qdimacs                                 | Timed out  | 1811.1646566390991 
+QBFEval2017_axquery_query42_1344n.qdimacs                                     | Timed out  | 1811.5498085021973 
+QBFEval2018_sortnetsort8.AE.stepl.009.qdimacs                                 | Timed out  | 1811.4150390625    
+QBFEval2018_add20y.sat.qdimacs                                                | Timed out  | 1811.2806885242462 
+QBFEval2017_sortnetsort9.AE.stepl.004.qdimacs                                 | Timed out  | 1811.4260804653168 
+QBFEval2017_usb-phy-fixpoint-2.qdimacs                                        | Timed out  | 1811.2932584285736 
+QBFEval2017_sortnetsort10.AE.stepl.004.qdimacs                                | Timed out  | 1811.178017616272  
+Disjunctive_Decomposition_bobtuint31neg_all_bit_differing_from_cycle.qdimacs  | Successful | 159.1624195575714  
+QBFEval2018_query64_query11_1344n.qdimacs                                     | Timed out  | 1811.031910419464  
+QBFEval2018_query09_query42_1344n.qdimacs                                     | Timed out  | 1811.7078828811646 
+QBFEval2017_small-pipeline-fixpoint-4.qdimacs                                 | Timed out  | 1811.6215245723724 
+Disjunctive_Decomposition_bobsynth01neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1814.160663843155  
+QBFEval2018_rankfunc31_signed_64.qdimacs                                      | Timed out  | 1812.760867357254  
+QBFEval2017_stmt29_275_376.qdimacs                                            | Timed out  | 1811.3730216026306 
+Disjunctive_Decomposition_eijkbs4863_all_bit_differing_from_cycle.qdimacs     | Timed out  | 1811.459772825241  
+QBFEval2017_neclaftp2002.qdimacs                                              | Failed     | 930.8322958946228  
+QBFEval2018_sortnetsort10.AE.stepl.012.qdimacs                                | Timed out  | 1811.4706935882568 
+QBFEval2018_stmt28_73_85.qdimacs                                              | Timed out  | 1812.5570294857025 
+Arithmetic_floor512.qdimacs                                                   | Timed out  | 1811.4133994579315 
+Disjunctive_Decomposition_bobtuint16neg_all_bit_differing_from_cycle.qdimacs  | Successful | 166.1011996269226  
+QBFEval2017_driver_c9y.sat.qdimacs                                            | Timed out  | 1810.9556272029877 
+QBFEval2018_cycle_sched_2_10_1.sat.qdimacs                                    | Timed out  | 1811.1849191188812 
+QBFEval2017_rankfunc54_unsigned_64.qdimacs                                    | Timed out  | 1811.4915301799774 
+QBFEval2017_small-pipeline-fixpoint-8.qdimacs                                 | Timed out  | 1816.7642314434052 
+QBFEval2017_stmt27_16_224.qdimacs                                             | Successful | 325.5372064113617  
+QBFEval2017_rankfunc49_unsigned_64.qdimacs                                    | Timed out  | 1811.7865524291992 
+QBFEval2018_stmt19_302_352.qdimacs                                            | Timed out  | 1817.686199426651  
+QBFEval2018_ctrl.e#1.a#3.E#112.A#48.c#.w#5.s#27.asp.qdimacs                   | Failed     | 0.09115195274353027
+QBFEval2018_AR-fixpoint-1.qdimacs                                             | Timed out  | 1813.9850234985352 
+QBFEval2018_stmt25_597_598.qdimacs                                            | Successful | 39.8455696105957   
+QBFEval2018_sortnetsort8.AE.stepl.005.qdimacs                                 | Timed out  | 1810.9765782356262 
+QBFEval2017_sortnetsort10.AE.stepl.008.qdimacs                                | Timed out  | 1811.211725473404  
+QBFEval2017_sortnetsort9.AE.stepl.008.qdimacs                                 | Timed out  | 1811.2704622745514 
+QBFEval2017_cycle_sched_4_4_2.sat.qdimacs                                     | Timed out  | 1811.3570170402527 
+QBFEval2017_rankfunc34_unsigned_64.qdimacs                                    | Timed out  | 1811.5318858623505 
+QBFEval2017_rankfunc31_signed_64.qdimacs                                      | Timed out  | 1812.5072693824768 
+QBFEval2017_query71_query36_1344n.qdimacs                                     | Timed out  | 1820.479721546173  
+QBFEval2018_query33_query51_1344n.qdimacs                                     | Timed out  | 1811.2310013771057 
+QBFEval2017_rankfunc61_unsigned_64.qdimacs                                    | Timed out  | 1811.3155310153961 
+QBFEval2017_query04_query25_1344n.qdimacs                                     | Timed out  | 1811.9048073291779 
+QBFEval2017_query55_query42_1344n.qdimacs                                     | Timed out  | 1811.575834274292  
+QBFEval2018_pdtpmsrotate32.qdimacs                                            | Timed out  | 1811.1772570610046 
+QBFEval2017_stmt28_68_69.qdimacs                                              | Timed out  | 1811.6061239242554 
+QBFEval2017_stmt27_149_224.qdimacs                                            | Timed out  | 1811.0775773525238 
+QBFEval2017_mult9.sat.qdimacs                                                 | Timed out  | 1811.227130651474  
+QBFEval2017_sdlx-fixpoint-4.qdimacs                                           | Timed out  | 1812.2715497016907 
+Arithmetic_decomposition256.qdimacs                                           | Timed out  | 1811.579095363617  
+QBFEval2017_query48_exquery_1344n.qdimacs                                     | Timed out  | 1811.2527911663055 
+QBFEval2017_mult_bool_matrix_12_13_11.sat.qdimacs                             | Failed     | 1735.0997142791748 
+QBFEval2017_sdlx-fixpoint-8.qdimacs                                           | Timed out  | 1813.9358851909637 
+QBFEval2018_query33_query45_1344n.qdimacs                                     | Timed out  | 1811.5969970226288 
+QBFEval2018_stmt23_88_92.qdimacs                                              | Timed out  | 1820.1328811645508 
+QBFEval2017_nreachq_query54_1344n.qdimacs                                     | Timed out  | 1812.5883798599243 
+Arithmetic_max256.qdimacs                                                     | Successful | 582.5791912078857  
+QBFEval2017_stmt52_295_394.qdimacs                                            | Timed out  | 1811.371068239212  
+QBFEval2018_stmt17_63_70.qdimacs                                              | Timed out  | 1811.4634890556335 
+QBFEval2018_GuidanceService.qdimacs                                           | Timed out  | 1811.1577792167664 
+QBFEval2017_stmt21_178_258.qdimacs                                            | Successful | 254.4711172580719  
+QBFEval2017_falsequ_query42_1344n.qdimacs                                     | Timed out  | 1811.5051822662354 
+QBFEval2017_itc-b13-fixpoint-2.qdimacs                                        | Successful | 116.20793056488037 
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#7.s#7.asp.qdimacs                    | Failed     | 0.11283707618713379
+QBFEval2017_query02_query44_1344n.qdimacs                                     | Timed out  | 1811.6171264648438 
+Disjunctive_Decomposition_bobtuint22neg_all_bit_differing_from_cycle.qdimacs  | Successful | 193.62737464904785 
+QBFEval2018_Q_2-3_v-80-100_r-11.2.qdimacs                                     | Failed     | 16.16571307182312  
+QBFEval2018_small-equiv-fixpoint-5.qdimacs                                    | Timed out  | 1811.9836220741272 
+QBFEval2017_itc-b13-fixpoint-6.qdimacs                                        | Timed out  | 1811.711760044098  
+Arithmetic_subtraction256.qdimacs                                             | Successful | 295.138165473938   
+QBFEval2017_query64_query42_1344n.qdimacs                                     | Timed out  | 1810.9592566490173 
+QBFEval2018_bobtuint31neg.qdimacs                                             | Successful | 140.15930843353271 
+QBFEval2017_stmt44_40_387.qdimacs                                             | Timed out  | 1811.1549110412598 
+QBFEval2018_pdtpmsmiim.qdimacs                                                | Timed out  | 1810.9750876426697 
+QBFEval2018_Q_2-3_v-80-100_r-11.6.qdimacs                                     | Failed     | 13.238786697387695 
+QBFEval2018_small-equiv-fixpoint-1.qdimacs                                    | Timed out  | 1839.5578026771545 
+QBFEval2018_stmt1_79_80.qdimacs                                               | Successful | 215.1397545337677  
+QBFEval2018_small-seq-fixpoint-8.qdimacs                                      | Timed out  | 1813.8029696941376 
+QBFEval2017_stmt46_289_388.qdimacs                                            | Timed out  | 1816.1609399318695 
+QBFEval2017_stmt28_73_97.qdimacs                                              | Timed out  | 1812.4892699718475 
+Factorization_factorization8.qdimacs                                          | Successful | 15.845139026641846 
+Disjunctive_Decomposition_bobsynth09neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1811.659701347351  
+Disjunctive_Decomposition_bobtuint05neg_all_bit_differing_from_cycle.qdimacs  | Successful | 160.42038464546204 
+QBFEval2018_cycle_sched_12_2_1.sat.qdimacs                                    | Timed out  | 1811.1406462192535 
+QBFEval2018_rankfunc41_unsigned_64.qdimacs                                    | Timed out  | 1811.357411623001  
+QBFEval2018_stmt19_313_412.qdimacs                                            | Timed out  | 1812.9225959777832 
+Disjunctive_Decomposition_neclaftp4001_all_bit_differing_from_cycle.qdimacs   | Successful | 471.82464575767517 
+QBFEval2017_sortnetsort9.AE.stepl.011.qdimacs                                 | Timed out  | 1811.1963930130005 
+QBFEval2017_sortnetsort10.AE.stepl.011.qdimacs                                | Timed out  | 1818.8394758701324 
+QBFEval2018_stmt17_63_78.qdimacs                                              | Timed out  | 1812.070612192154  
+QBFEval2018_small-seq-fixpoint-4.qdimacs                                      | Timed out  | 1812.2207701206207 
+Disjunctive_Decomposition_bobsynth12neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1820.426201581955  
+QBFEval2018_stmt21_181_218.qdimacs                                            | Timed out  | 1811.9349763393402 
+QBFEval2017_stmt17_70_82.qdimacs                                              | Timed out  | 1811.5129568576813 
+QBFEval2018_rankfunc55_unsigned_64.qdimacs                                    | Timed out  | 1811.0589890480042 
+QBFEval2018_rankfunc48_unsigned_64.qdimacs                                    | Timed out  | 1811.3626811504364 
+Disjunctive_Decomposition_bobtuint26neg_all_bit_differing_from_cycle.qdimacs  | Successful | 169.07171440124512 
+Arithmetic_equalization32.qdimacs                                             | Successful | 78.75609874725342  
+QBFEval2017_mult_bool_matrix_dyn_7_7.sat.qdimacs                              | Timed out  | 1811.5360145568848 
+QBFEval2018_rankfunc41_signed_64.qdimacs                                      | Timed out  | 1811.487209558487  
+Disjunctive_Decomposition_pdtpmsrotate32_all_bit_differing_from_cycle.qdimacs | Timed out  | 1824.1293451786041 
+QBFEval2017_rankfunc52_signed_64.qdimacs                                      | Timed out  | 1811.5864808559418 
+QBFEval2017_stmt21_84_215.qdimacs                                             | Successful | 113.25160241127014 
+QBFEval2017_stmt19_87_95.qdimacs                                              | Timed out  | 1812.1706092357635 
+QBFEval2017_stmt17_70_86.qdimacs                                              | Timed out  | 1812.4977233409882 
+QBFEval2018_rankfunc54_signed_64.qdimacs                                      | Timed out  | 1811.2002770900726 
+QBFEval2018_sortnetsort9.AE.stepl.008.qdimacs                                 | Timed out  | 1811.1961238384247 
+QBFEval2017_sortnetsort8.AE.stepl.005.qdimacs                                 | Timed out  | 1811.0861141681671 
+QBFEval2017_load_4c_comp_comp4_REAL.sat.qdimacs                               | Timed out  | 1816.715743780136  
+QBFEval2018_eequery_query42_1344n.qdimacs                                     | Timed out  | 1816.8042373657227 
+QBFEval2018_ci.e#1.a#3.E#40.A#60.c#408.w#2.s#1.asp.qdimacs                    | Failed     | 0.11290264129638672
+QBFEval2017_ctrl.e#1.a#3.E#120.A#48.c#.w#3.s#3.asp.qdimacs                    | Failed     | 0.05693840980529785
+QBFEval2017_ceiling256.qdimacs                                                | Successful | 137.68312668800354 
+QBFEval2017_sortnetsort7.AE.stepl.006.qdimacs                                 | Timed out  | 1813.455085515976  
+QBFEval2018_sortnetsort9.AE.stepl.004.qdimacs                                 | Timed out  | 1812.4786050319672 
+QBFEval2017_sortnetsort8.AE.stepl.009.qdimacs                                 | Timed out  | 1811.1749045848846 
+QBFEval2017_query42_query45_1344n.qdimacs                                     | Timed out  | 1815.946659564972  
+QBFEval2018_decomposition128.qdimacs                                          | Timed out  | 1810.9875195026398 
+QBFEval2018_small-swap1-fixpoint-4.qdimacs                                    | Timed out  | 1811.6214904785156 
+QBFEval2017_query06_query42_1344n.qdimacs                                     | Timed out  | 1811.258959054947  
+QBFEval2017_query34_query11_1344n.qdimacs                                     | Timed out  | 1811.367074251175  
+QBFEval2018_query21_query58_1344n.qdimacs                                     | Timed out  | 1812.0938675403595 
+QBFEval2017_eijkbs3330.qdimacs                                                | Timed out  | 1813.4772326946259 
+QBFEval2018_6s289rb05233_c0to63.sat.qdimacs                                   | Timed out  | 1812.67516207695   
+QBFEval2018_Q_2-3_v-80-100_r-13.6.qdimacs                                     | Failed     | 16.984246492385864 
+QBFEval2017_rankfunc59_signed_64.qdimacs                                      | Timed out  | 1811.3798911571503 
+QBFEval2017_rankfunc2_unsigned_64.qdimacs                                     | Timed out  | 1825.03129196167   
+QBFEval2018_stmt19_368_417.qdimacs                                            | Timed out  | 1812.3310282230377 
+QBFEval2018_rankfunc52_unsigned_64.qdimacs                                    | Timed out  | 1811.3439252376556 
+Arithmetic_decomposition1024.qdimacs                                          | Timed out  | 1811.6251366138458 
+QBFEval2018_Q_2-3_v-80-100_r-13.2.qdimacs                                     | Failed     | 15.283380270004272 
+QBFEval2017_query60_query44_1344n.qdimacs                                     | Timed out  | 1811.1434988975525 
+QBFEval2017_cache-coherence-2-fixpoint-2.qdimacs                              | Successful | 394.9096200466156  
+QBFEval2017_query31_query42_1344n.qdimacs                                     | Timed out  | 1811.3343012332916 
+QBFEval2018_stmt22_311_370.qdimacs                                            | Timed out  | 1811.5247704982758 
+QBFEval2018_usb-phy-fixpoint-5.qdimacs                                        | Timed out  | 1811.8629083633423 
+QBFEval2017_itc-b13-fixpoint-10.qdimacs                                       | Timed out  | 1812.7151370048523 
+QBFEval2018_stmt29_226_376.qdimacs                                            | Timed out  | 1811.2408993244171 
+QBFEval2018_small-swap1-fixpoint-8.qdimacs                                    | Timed out  | 1811.186678647995  
+QBFEval2018_query60_query45_1344n.qdimacs                                     | Timed out  | 1811.3898730278015 
+QBFEval2017_stmt17_74_90.qdimacs                                              | Timed out  | 1812.3675301074982 
+QBFEval2018_usb-phy-fixpoint-1.qdimacs                                        | Successful | 106.39145255088806 
+QBFEval2018_nxquery_query42_1344n.qdimacs                                     | Timed out  | 1811.0347318649292 
+Disjunctive_Decomposition_kenflashp04_all_bit_differing_from_cycle.qdimacs    | Timed out  | 1810.985051870346  
+QBFEval2017_sdlx-fixpoint-10.qdimacs                                          | Timed out  | 1813.5423746109009 
+QBFEval2017_stmt19_65_87.qdimacs                                              | Timed out  | 1812.0325639247894 
+QBFEval2018_query33_query42_1344n.qdimacs                                     | Timed out  | 1811.4629590511322 
+QBFEval2017_sdlx-fixpoint-9.qdimacs                                           | Timed out  | 1813.29132938385   
+QBFEval2017_query33_query57_1344n.qdimacs                                     | Timed out  | 1811.9434814453125 
+QBFEval2017_rankfunc55_signed_64.qdimacs                                      | Timed out  | 1811.0976688861847 
+QBFEval2017_beemskbn1f1_c0to7.sat.qdimacs                                     | Timed out  | 1815.1293714046478 
+QBFEval2017_stmt31_276_328.qdimacs                                            | Timed out  | 1816.2284843921661 
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#9.s#1.asp.qdimacs                    | Failed     | 0.3511958122253418 
+Arithmetic_min128.qdimacs                                                     | Timed out  | 1811.0587759017944 
+QBFEval2017_stmt21_71_354.qdimacs                                             | Successful | 190.72523498535156 
+QBFEval2018_rankfunc53_signed_64.qdimacs                                      | Timed out  | 1811.3875257968903 
+QBFEval2017_NotificationServiceImpl2.qdimacs                                  | Timed out  | 1815.6111896038055 
+QBFEval2018_query04_query42_1344n.qdimacs                                     | Timed out  | 1811.1496767997742 
+QBFEval2017_sdlx-fixpoint-1.qdimacs                                           | Successful | 32.41818284988403  
+QBFEval2018_ci.e#1.a#3.E#40.A#60.c#416.w#2.s#3.asp.qdimacs                    | Failed     | 0.10188436508178711
+QBFEval2018_stmt19_66_214.qdimacs                                             | Successful | 113.3144793510437  
+QBFEval2018_stmt19_71_95.qdimacs                                              | Timed out  | 1812.2543330192566 
+QBFEval2017_rankfunc57_unsigned_64.qdimacs                                    | Timed out  | 1811.1501574516296 
+QBFEval2017_sdlx-fixpoint-5.qdimacs                                           | Timed out  | 1811.5493700504303 
+QBFEval2017_rankfunc48_unsigned_16.qdimacs                                    | Timed out  | 1812.0065851211548 
+Arithmetic_intermediate1024.qdimacs                                           | Timed out  | 1815.0335505008698 
+QBFEval2017_query48_query42_1344n.qdimacs                                     | Timed out  | 1812.431467294693  
+QBFEval2017_query71_query31_1344n.qdimacs                                     | Timed out  | 1811.2966833114624 
+QBFEval2018_small-equiv-fixpoint-8.qdimacs                                    | Timed out  | 1816.179391860962  
+QBFEval2018_rankfunc58_signed_64.qdimacs                                      | Timed out  | 1811.2603936195374 
+Arithmetic_floor64.qdimacs                                                    | Successful | 13.647826433181763 
+QBFEval2018_query02_query42_1344n.qdimacs                                     | Timed out  | 1815.8981308937073 
+QBFEval2018_stmt17_82_94.qdimacs                                              | Timed out  | 1812.8249549865723 
+QBFEval2018_rankfunc60_unsigned_32.qdimacs                                    | Timed out  | 1815.5607814788818 
+QBFEval2018_small-seq-fixpoint-1.qdimacs                                      | Successful | 354.14035749435425 
+QBFEval2018_cache-coherence-3-fixpoint-1.qdimacs                              | Successful | 198.31206154823303 
+QBFEval2018_small-seq-fixpoint-5.qdimacs                                      | Timed out  | 1812.9148843288422 
+QBFEval2017_sortnetsort9.AE.stepl.010.qdimacs                                 | Timed out  | 1818.9093437194824 
+QBFEval2017_sortnetsort10.AE.stepl.010.qdimacs                                | Timed out  | 1812.696631193161  
+Disjunctive_Decomposition_bobtuint23neg_all_bit_differing_from_cycle.qdimacs  | Successful | 231.44829177856445 
+QBFEval2017_query11_query42_1344n.qdimacs                                     | Timed out  | 1828.6967701911926 
+QBFEval2018_stmt21_354_403.qdimacs                                            | Timed out  | 1811.7356252670288 
+QBFEval2017_query60_query33_1344n.qdimacs                                     | Timed out  | 1811.1881070137024 
+QBFEval2018_stmt19_75_83.qdimacs                                              | Timed out  | 1822.3162968158722 
+QBFEval2017_stmt19_64_91.qdimacs                                              | Timed out  | 1812.6880946159363 
+QBFEval2017_ConcreteActivityService.qdimacs                                   | Timed out  | 1811.4365174770355 
+QBFEval2018_stmt17_82_98.qdimacs                                              | Timed out  | 1812.246081829071  
+QBFEval2017_itc-b13-fixpoint-3.qdimacs                                        | Successful | 379.15969133377075 
+QBFEval2018_IssueServiceImpl.qdimacs                                          | Timed out  | 1811.3995790481567 
+Disjunctive_Decomposition_bobsynth13neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1817.5775215625763 
+QBFEval2018_small-equiv-fixpoint-4.qdimacs                                    | Timed out  | 1825.0158951282501 
+QBFEval2018_Q_2-3_v-80-100_r-11.3.qdimacs                                     | Failed     | 28.1707181930542   
+QBFEval2017_itc-b13-fixpoint-7.qdimacs                                        | Timed out  | 1811.7897646427155 
+QBFEval2017_rankfunc61_signed_64.qdimacs                                      | Timed out  | 1811.5572001934052 
+QBFEval2018_Q_2-3_v-80-100_r-11.7.qdimacs                                     | Failed     | 16.437089443206787 
+Arithmetic_min1024.qdimacs                                                    | Timed out  | 1811.9978206157684 
+QBFEval2018_stmt17_94_98.qdimacs                                              | Timed out  | 1812.8584351539612 
+QBFEval2017_query10_query06_1344n.qdimacs                                     | Timed out  | 1811.4881656169891 
+QBFEval2018_small-seq-fixpoint-9.qdimacs                                      | Timed out  | 1813.601310968399  
+QBFEval2017_query26_query42_1344n.qdimacs                                     | Timed out  | 1811.9719676971436 
+QBFEval2018_stmt9_445_446.qdimacs                                             | Successful | 23.79947280883789  
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#3.s#26.asp.qdimacs                   | Failed     | 0.06793546676635742
+Disjunctive_Decomposition_bobtuint04neg_all_bit_differing_from_cycle.qdimacs  | Successful | 161.23344373703003 
+Disjunctive_Decomposition_bobsynth08neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1829.7482378482819 
+QBFEval2018_small-pipeline-fixpoint-1.qdimacs                                 | Successful | 318.86434984207153 
+QBFEval2018_ltl2dba_C2-6_comp3_REAL.sat.qdimacs                               | Timed out  | 1811.5536634922028 
+Disjunctive_Decomposition_kenoopp1_all_bit_differing_from_cycle.qdimacs       | Timed out  | 1812.0144250392914 
+QBFEval2018_small-synabs-fixpoint-10.qdimacs                                  | Successful | 255.59404134750366 
+QBFEval2017_query42_query42_1344n.qdimacs                                     | Timed out  | 1812.2896213531494 
+QBFEval2017_query51_query57_1344n.qdimacs                                     | Timed out  | 1816.8883836269379 
+QBFEval2017_nreachq_query42_1344n.qdimacs                                     | Timed out  | 1812.1520845890045 
+Disjunctive_Decomposition_eijkbs3330_all_bit_differing_from_cycle.qdimacs     | Timed out  | 1814.4672663211823 
+QBFEval2018_trivial_query42_1344n.qdimacs                                     | Timed out  | 1811.003518819809  
+QBFEval2017_sortnetsort7.AE.stepl.007.qdimacs                                 | Timed out  | 1811.5501012802124 
+QBFEval2017_genbuf12b4y.sat.qdimacs                                           | Timed out  | 1811.3583171367645 
+QBFEval2017_floor128.qdimacs                                                  | Successful | 19.414326190948486 
+QBFEval2017_stmt23_66_67.qdimacs                                              | Timed out  | 1811.8397917747498 
+QBFEval2017_pi-bus-fixpoint-2.qdimacs                                         | Timed out  | 1818.5836265087128 
+QBFEval2017_sortnetsort8.AE.stepl.008.qdimacs                                 | Timed out  | 1811.0981924533844 
+QBFEval2018_sortnetsort9.AE.stepl.005.qdimacs                                 | Timed out  | 1811.6200785636902 
+QBFEval2018_query51_query42_1344n.qdimacs                                     | Timed out  | 1810.9531371593475 
+QBFEval2017_rankfunc59_unsigned_64.qdimacs                                    | Timed out  | 1811.9231774806976 
+Disjunctive_Decomposition_bobtuint27neg_all_bit_differing_from_cycle.qdimacs  | Successful | 148.33272194862366 
+Arithmetic_equalization1024.qdimacs                                           | Timed out  | 1811.7189230918884 
+QBFEval2018_ctrl.e#1.a#3.E#128.A#48.c#.w#7.s#1.asp.qdimacs                    | Failed     | 0.06609582901000977
+QBFEval2017_query71_query34_1344n.qdimacs                                     | Timed out  | 1811.0675518512726 
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#7.s#60.asp.qdimacs                   | Failed     | 0.1530780792236328 
+QBFEval2018_load_2c_comp_comp7_REAL.sat.qdimacs                               | Timed out  | 1814.6135396957397 
+QBFEval2018_stmt17_70_78.qdimacs                                              | Timed out  | 1812.103610754013  
+QBFEval2018_stay24n.sat.qdimacs                                               | Timed out  | 1811.699132680893  
+QBFEval2017_reachqu_query42_1344n.qdimacs                                     | Timed out  | 1811.5695071220398 
+QBFEval2018_IterationService.qdimacs                                          | Timed out  | 1811.2710235118866 
+QBFEval2018_stmt46_111_238.qdimacs                                            | Timed out  | 1835.1498935222626 
+QBFEval2018_query50_query06_1344n.qdimacs                                     | Timed out  | 1811.315950870514  
+QBFEval2017_sortnetsort8.AE.stepl.004.qdimacs                                 | Timed out  | 1810.935451745987  
+QBFEval2018_sortnetsort9.AE.stepl.009.qdimacs                                 | Timed out  | 1810.9782664775848 
+QBFEval2018_query54_query58_1344n.qdimacs                                     | Timed out  | 1810.8367829322815 
+QBFEval2018_query31_query50_1344n.qdimacs                                     | Timed out  | 1811.1906199455261 
+QBFEval2018_stmt16_818_819.qdimacs                                            | Successful | 15.332706928253174 
+QBFEval2018_usb-phy-fixpoint-4.qdimacs                                        | Timed out  | 1811.8119015693665 
+QBFEval2018_stmt31_22_328.qdimacs                                             | Timed out  | 1811.6374897956848 
+QBFEval2017_stmt31_190_227.qdimacs                                            | Timed out  | 1811.2899117469788 
+QBFEval2018_small-swap1-fixpoint-9.qdimacs                                    | Timed out  | 1811.1219191551208 
+Disjunctive_Decomposition_neclaftp4002_all_bit_differing_from_cycle.qdimacs   | Successful | 260.8613007068634  
+Arithmetic_intermediate256.qdimacs                                            | Timed out  | 1811.14355301857   
+QBFEval2017_small-seq-fixpoint-10.qdimacs                                     | Timed out  | 1814.8990902900696 
+QBFEval2017_nxquery_query50_1344n.qdimacs                                     | Timed out  | 1811.0748636722565 
+QBFEval2018_small-swap1-fixpoint-5.qdimacs                                    | Timed out  | 1810.9757940769196 
+QBFEval2018_rankfunc31_unsigned_64.qdimacs                                    | Timed out  | 1811.2124392986298 
+QBFEval2017_query44_query42_1344n.qdimacs                                     | Timed out  | 1811.8661692142487 
+QBFEval2018_Q_2-3_v-80-100_r-13.7.qdimacs                                     | Failed     | 15.956542253494263 
+QBFEval2018_stmt47_340_389.qdimacs                                            | Timed out  | 1821.8610253334045 
+QBFEval2018_query08_query42_1344n.qdimacs                                     | Timed out  | 1813.202360868454  
+QBFEval2018_Q_2-3_v-80-100_r-13.3.qdimacs                                     | Failed     | 17.699090719223022 
+QBFEval2017_ltl2dba_C2-8_comp4_REAL.sat.qdimacs                               | Timed out  | 1811.3622970581055 
+Arithmetic_min512.qdimacs                                                     | Timed out  | 1811.2510340213776 
+QBFEval2017_small-bug1-fixpoint-5.qdimacs                                     | Successful | 5.559708118438721  
+QBFEval2018_nreachq_query11_1344n.qdimacs                                     | Timed out  | 1811.707384109497  
+QBFEval2017_small-swap2-fixpoint-5.qdimacs                                    | Successful | 181.83210277557373 
+QBFEval2017_stmt19_352_359.qdimacs                                            | Successful | 582.0777132511139  
+QBFEval2018_rankfunc51_unsigned_64.qdimacs                                    | Timed out  | 1811.4659736156464 
+QBFEval2017_query05_query31_1344n.qdimacs                                     | Timed out  | 1810.922152519226  
+Disjunctive_Decomposition_bobtuint13neg_all_bit_differing_from_cycle.qdimacs  | Successful | 178.10866117477417 
+QBFEval2018_stmt41_286_385.qdimacs                                            | Timed out  | 1811.8678531646729 
+QBFEval2017_GuidanceService.qdimacs                                           | Timed out  | 1811.4706847667694 
+QBFEval2018_reachqu_query64_1344n.qdimacs                                     | Timed out  | 1811.5993235111237 
+QBFEval2018_stmt53_208_245.qdimacs                                            | Timed out  | 1811.3729665279388 
+QBFEval2017_AR-fixpoint-6.qdimacs                                             | Timed out  | 1812.842563867569  
+QBFEval2017_small-swap2-fixpoint-9.qdimacs                                    | Successful | 1101.8872201442719 
+QBFEval2017_small-bug1-fixpoint-9.qdimacs                                     | Successful | 7.360783576965332  
+QBFEval2018_query49_ntrivil_1344n.qdimacs                                     | Timed out  | 1811.2676780223846 
+QBFEval2018_stmt19_79_87.qdimacs                                              | Timed out  | 1811.643682718277  
+QBFEval2017_stmt27_93_98.qdimacs                                              | Successful | 180.67840933799744 
+Disjunctive_Decomposition_bobsynth04neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1811.6422300338745 
+Disjunctive_Decomposition_bobtuint08neg_all_bit_differing_from_cycle.qdimacs  | Successful | 189.25700187683105 
+QBFEval2017_stmt23_66_76.qdimacs                                              | Timed out  | 1812.0348989963531 
+QBFEval2017_query54_query42_1344n.qdimacs                                     | Timed out  | 1811.0992238521576 
+QBFEval2017_AR-fixpoint-2.qdimacs                                             | Timed out  | 1811.25346493721   
+QBFEval2018_sortnetsort9.AE.stepl.010.qdimacs                                 | Timed out  | 1811.1437504291534 
+QBFEval2018_stmt19_79_83.qdimacs                                              | Timed out  | 1811.8663699626923 
+QBFEval2017_stmt19_137_408.qdimacs                                            | Successful | 729.2912731170654  
+QBFEval2017_driver_c9n.sat.qdimacs                                            | Timed out  | 1811.0101494789124 
+QBFEval2017_small-swap1-fixpoint-6.qdimacs                                    | Timed out  | 1811.0649919509888 
+QBFEval2017_query10_query45_1344n.qdimacs                                     | Timed out  | 1811.3257653713226 
+QBFEval2017_stmt17_62_78.qdimacs                                              | Timed out  | 1811.5959720611572 
+QBFEval2017_ctrl.e#1.a#3.E#110.A#48.c#.w#9.s#13.asp.qdimacs                   | Failed     | 0.1737678050994873 
+QBFEval2018_rankfunc56_unsigned_64.qdimacs                                    | Timed out  | 1811.8501839637756 
+QBFEval2017_stmt50_343_392.qdimacs                                            | Timed out  | 1811.3754353523254 
+QBFEval2018_bs128n.sat.qdimacs                                                | Timed out  | 1811.318947315216  
+QBFEval2017_stmt17_74_78.qdimacs                                              | Timed out  | 1812.007145166397  
+QBFEval2018_sdlx-fixpoint-8.qdimacs                                           | Timed out  | 1817.8353281021118 
+QBFEval2018_ethernet-fixpoint-4.qdimacs                                       | Timed out  | 1812.5435497760773 
+QBFEval2018_itc-b13-fixpoint-4.qdimacs                                        | Successful | 745.2969257831573  
+QBFEval2018_floor256.qdimacs                                                  | Successful | 113.55831146240234 
+QBFEval2018_stmt21_181_369.qdimacs                                            | Timed out  | 1811.1768262386322 
+QBFEval2017_query52_query42_1344n.qdimacs                                     | Timed out  | 1810.9413771629333 
+QBFEval2018_AR-fixpoint-10.qdimacs                                            | Timed out  | 1811.7433187961578 
+QBFEval2017_small-dyn-partition-fixpoint-4.qdimacs                            | Successful | 15.798256635665894 
+QBFEval2018_stmt47_290_340.qdimacs                                            | Timed out  | 1815.0146925449371 
+QBFEval2017_oski3ub5i_c0to511.sat.qdimacs                                     | Timed out  | 1812.3768336772919 
+QBFEval2017_ctrl.e#1.a#3.E#122.A#48.c#.w#3.s#51.asp.qdimacs                   | Failed     | 0.06623411178588867
+QBFEval2018_itc-b13-fixpoint-8.qdimacs                                        | Timed out  | 1811.6412539482117 
+QBFEval2018_sdlx-fixpoint-4.qdimacs                                           | Timed out  | 1811.3679339885712 
+Factorization_factorization12.qdimacs                                         | Successful | 638.1802742481232  
+QBFEval2017_query42_query60_1344n.qdimacs                                     | Timed out  | 1812.005690574646  
+QBFEval2017_query01_query42_1344n.qdimacs                                     | Timed out  | 1810.8861212730408 
+QBFEval2018_stmt23_67_92.qdimacs                                              | Timed out  | 1811.5772581100464 
+QBFEval2017_ethernet-fixpoint-2.qdimacs                                       | Successful | 1386.8591055870056 
+Disjunctive_Decomposition_bobsm5378d2_all_bit_differing_from_cycle.qdimacs    | Timed out  | 1810.8681304454803 
+QBFEval2017_amba2c7n.sat.qdimacs                                              | Timed out  | 1811.3911757469177 
+QBFEval2018_rankfunc61_signed_64.qdimacs                                      | Timed out  | 1811.2325778007507 
+QBFEval2017_mult_bool_matrix_18_18_18.sat.qdimacs                             | Timed out  | 1812.3420994281769 
+QBFEval2017_decomposition128.qdimacs                                          | Timed out  | 1811.2713596820831 
+QBFEval2018_pi-bus-fixpoint-3.qdimacs                                         | Timed out  | 1813.9671838283539 
+Factorization_factorization16.qdimacs                                         | Timed out  | 1810.970412492752  
+Arithmetic_equalization64.qdimacs                                             | Successful | 258.4342441558838  
+QBFEval2017_query36_query42_1344n.qdimacs                                     | Timed out  | 1810.9276938438416 
+QBFEval2017_genbuf7b4n.sat.qdimacs                                            | Timed out  | 1811.1569380760193 
+QBFEval2017_rankfunc58_signed_64.qdimacs                                      | Timed out  | 1811.0903415679932 
+QBFEval2018_driver_b8n.sat.qdimacs                                            | Timed out  | 1811.1372759342194 
+QBFEval2018_stmt28_89_97.qdimacs                                              | Timed out  | 1811.892816543579  
+QBFEval2017_small-equiv-fixpoint-3.qdimacs                                    | Timed out  | 1811.8879067897797 
+QBFEval2017_small-seq-fixpoint-1.qdimacs                                      | Successful | 151.58011627197266 
+QBFEval2017_stmt85_300_399.qdimacs                                            | Timed out  | 1811.3940584659576 
+QBFEval2017_stmt19_3_401.qdimacs                                              | Timed out  | 1811.9713609218597 
+QBFEval2017_stmt21_84_364.qdimacs                                             | Timed out  | 1811.513656616211  
+QBFEval2017_small-equiv-fixpoint-7.qdimacs                                    | Timed out  | 1812.7446575164795 
+QBFEval2017_ntrivil_query42_1344n.qdimacs                                     | Timed out  | 1810.9768793582916 
+QBFEval2018_query25_query42_1344n.qdimacs                                     | Timed out  | 1811.0074656009674 
+QBFEval2018_stmt19_83_412.qdimacs                                             | Timed out  | 1811.1589896678925 
+Disjunctive_Decomposition_bobtuint30neg_all_bit_differing_from_cycle.qdimacs  | Successful | 145.02692818641663 
+QBFEval2018_AR-fixpoint-4.qdimacs                                             | Timed out  | 1811.092624425888  
+QBFEval2017_cache-coherence-3-fixpoint-1.qdimacs                              | Successful | 166.71529960632324 
+QBFEval2018_kenflashp04.qdimacs                                               | Timed out  | 1810.9683496952057 
+QBFEval2017_stmt17_82_86.qdimacs                                              | Timed out  | 1811.954290151596  
+QBFEval2018_stmt19_64_87.qdimacs                                              | Timed out  | 1811.9955415725708 
+QBFEval2017_stmt19_75_95.qdimacs                                              | Timed out  | 1816.4575464725494 
+QBFEval2017_query30_query42_1344n.qdimacs                                     | Timed out  | 1811.0379521846771 
+QBFEval2018_sdlx-fixpoint-10.qdimacs                                          | Timed out  | 1812.636438369751  
+QBFEval2017_small-pipeline-fixpoint-9.qdimacs                                 | Timed out  | 1812.423614025116  
+QBFEval2018_ceiling128.qdimacs                                                | Successful | 18.704415321350098 
+QBFEval2018_small-swap1-fixpoint-10.qdimacs                                   | Timed out  | 1810.9887654781342 
+QBFEval2017_sortnetsort10.AE.stepl.009.qdimacs                                | Timed out  | 1811.026217699051  
+QBFEval2018_sortnetsort8.AE.stepl.004.qdimacs                                 | Timed out  | 1810.8481180667877 
+QBFEval2017_query58_query42_1344n.qdimacs                                     | Timed out  | 1810.9587092399597 
+QBFEval2017_small-pipeline-fixpoint-1.qdimacs                                 | Successful | 148.68144822120667 
+Disjunctive_Decomposition_bobtuint17neg_all_bit_differing_from_cycle.qdimacs  | Successful | 161.32882285118103 
+QBFEval2018_rankfunc58_unsigned_64.qdimacs                                    | Timed out  | 1811.1905574798584 
+QBFEval2018_stmt41_262_275.qdimacs                                            | Successful | 35.364559173583984 
+QBFEval2017_query07_query42_1344n.qdimacs                                     | Timed out  | 1811.1671397686005 
+QBFEval2018_sortnetsort7.AE.stepl.007.qdimacs                                 | Timed out  | 1811.2798974514008 
+Arithmetic_equalization256.qdimacs                                            | Timed out  | 1811.744250535965  
+QBFEval2018_AR-fixpoint-8.qdimacs                                             | Timed out  | 1811.584011554718  
+QBFEval2017_stmt21_143_403.qdimacs                                            | Successful | 264.6391451358795  
+QBFEval2017_sortnetsort9.AE.stepl.005.qdimacs                                 | Timed out  | 1810.9124166965485 
+QBFEval2017_sortnetsort10.AE.stepl.005.qdimacs                                | Timed out  | 1810.9493670463562 
+QBFEval2018_stmt53_296_346.qdimacs                                            | Timed out  | 1811.1074390411377 
+QBFEval2018_sortnetsort8.AE.stepl.008.qdimacs                                 | Timed out  | 1811.2916948795319 
+Disjunctive_Decomposition_bobsynth00neg_all_bit_differing_from_cycle.qdimacs  | Timed out  | 1811.7072834968567 
+QBFEval2018_ctrl.e#1.a#3.E#116.A#48.c#.w#7.s#56.asp.qdimacs                   | Failed     | 0.12517333030700684
+QBFEval2017_rankfunc53_signed_64.qdimacs                                      | Timed out  | 1815.6473095417023 
+QBFEval2017_small-pipeline-fixpoint-5.qdimacs                                 | Timed out  | 1811.8190445899963 
+QBFEval2017_ctrl.e#1.a#3.E#128.A#48.c#.w#5.s#60.asp.qdimacs                   | Failed     | 0.15517377853393555
