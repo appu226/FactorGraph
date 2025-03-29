@@ -42,41 +42,61 @@ int main(int argc, char const * const * const argv)
 
   start = blif_solve::now();
   auto ddm = oct_22::ddm_init();                                                // init cudd
-  auto bdds = dd::QdimacsToBdd::createFromQdimacs(ddm.get(), *qdimacs); // create bdds
-  blif_solve_log(INFO, "Created bdds in " << blif_solve::duration(start) << " sec");
-
-  auto fg = oct_22::createFactorGraph(ddm.get(), *bdds, clo.largestSupportSet, clo.largestBddSize); // merge factors and create factor graph
-
-  start = blif_solve::now();
-  auto numIterations = fg->converge();                                  // converge factor graph
-  blif_solve_log(INFO, "Factor graph converged after " 
-      << numIterations << " iterations in "
-      << blif_solve::duration(start) << " secs");
-
-  start = blif_solve::now();                                            // factor graph result to CNF
-  auto factorGraphResults = oct_22::getFactorGraphResults(ddm.get(), *fg, *bdds);
-  bool allOne = true;
-  bool someZero = false;
-  for (const auto& fgr: factorGraphResults)
+  std::shared_ptr<dd::QdimacsToBdd> bdds;
+  if (clo.runFg || clo.computeExactUsingBdd)
   {
-    if (!fgr.isOne())
-      allOne = false;
-    if (fgr.isZero())
-      someZero = true;
+    bdds = dd::QdimacsToBdd::createFromQdimacs(ddm.get(), *qdimacs); // create bdds
+    blif_solve_log(INFO, "Created bdds in " << blif_solve::duration(start) << " sec");
   }
-  if (allOne)
+  else
   {
-    blif_solve_log(INFO, "All factor graph results are ONE.");
+    blif_solve_log(INFO, "Skipping bdd creation");
   }
 
-  auto factorGraphCnf = oct_22::convertToCnf(ddm.get(), bdds->numVariables + (2 * bdds->clauses.size()), factorGraphResults);
-  blif_solve_log(INFO, "Factor graph result converted to cnf in "
-      << blif_solve::duration(start) << " secs");
-  if (someZero)
+
+  oct_22::Oct22MucCallback::CnfPtr factorGraphCnf;
+  if (clo.runFg)
   {
-    blif_solve_log(INFO, "Some factor graph result was ZERO.");
-    oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
-    return 0;
+    auto fg = oct_22::createFactorGraph(ddm.get(), *bdds, clo.largestSupportSet, clo.largestBddSize); // merge factors and create factor graph
+
+    start = blif_solve::now();
+    auto numIterations = fg->converge();                                  // converge factor graph
+    blif_solve_log(INFO, "Factor graph converged after " 
+        << numIterations << " iterations in "
+        << blif_solve::duration(start) << " secs");
+
+    start = blif_solve::now();                                            // factor graph result to CNF
+    auto factorGraphResults = oct_22::getFactorGraphResults(ddm.get(), *fg, *bdds);
+    bool allOne = true;
+    bool someZero = false;
+    for (const auto& fgr: factorGraphResults)
+    {
+      if (!fgr.isOne())
+        allOne = false;
+      if (fgr.isZero())
+        someZero = true;
+    }
+    if (allOne)
+    {
+      blif_solve_log(INFO, "All factor graph results are ONE.");
+    }
+
+    factorGraphCnf = oct_22::convertToCnf(ddm.get(), bdds->numVariables + (2 * bdds->clauses.size()), factorGraphResults);
+    blif_solve_log(INFO, "Factor graph result converted to cnf in "
+        << blif_solve::duration(start) << " secs");
+    if (someZero)
+    {
+      blif_solve_log(INFO, "Some factor graph result was ZERO.");
+      oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
+      return 0;
+    }
+  }
+  else
+  {
+    blif_solve_log(INFO, "Skipping factor graph");
+    std::vector<dd::BddWrapper> trueClauses;
+    trueClauses.push_back(dd::BddWrapper(bdd_one(ddm.get()), ddm.get()));
+    factorGraphCnf = oct_22::convertToCnf(ddm.get(), qdimacs->numVariables, trueClauses);
   }
 
   if (clo.runMusTool)                                                     // run mustool

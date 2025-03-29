@@ -23,8 +23,6 @@ import argparse
 import ctypes
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from distutils.cmd import Command
-from enum import Enum
 from jan_24_common import LogLevelMapping
 import logging
 import os
@@ -214,9 +212,8 @@ class PreprocessorProgress:
 class CommandLineOptions:
     test_case_path: str
     output_root: str
-    run_bfss_preprocess: bool
+    run_preprocess: bool
     bfss_timeout_seconds: int
-    run_kissat_preprocess: bool
     kissat_timeout_seconds: int
     preprocess_timeout_seconds: int
     verbosity: str
@@ -226,6 +223,7 @@ class CommandLineOptions:
     largest_support_set: str
     factor_graph_timeout_seconds: str
     run_mus_tool: str
+    run_factor_graph: str
     minimalize_assignments: str
 
     @staticmethod
@@ -237,12 +235,10 @@ class CommandLineOptions:
                         help="Path to test case QDimacs file")
         ap.add_argument("--output_root", type=str, required=True,
                         help="Path to results folder")
-        ap.add_argument("--run_bfss_preprocess", type=str2bool, required=False, default=True,
-                        help="Whether to run BFSS pre-processing or not")
+        ap.add_argument("--run_preprocess", type=str2bool, required=False, default=True,
+                        help="Whether to run Kissat+BFSS pre-processing or not")
         ap.add_argument("--bfss_timeout_seconds", type=int, required=False, default=60,
                         help="Timeout, in seconds, for a round of bfss pre-processing")
-        ap.add_argument("--run_kissat_preprocess", type=str2bool, required=False, default=True,
-                        help="Whether to run Kissat pre-processing or not")
         ap.add_argument("--kissat_timeout_seconds", type=int, required=False, default=60,
                         help="Timeout, in seconds, for a round of kissat pre-processing")
         ap.add_argument("--preprocess_timeout_seconds", type=int, required=False, default=600,
@@ -265,6 +261,8 @@ class CommandLineOptions:
                         default=1200)
         ap.add_argument("--run_mus_tool", type=str2bool, required=False, default=True,
                         help="Whether to run MUST or not")
+        ap.add_argument("--run_factor_graph", type=str2bool, required=False, default=True,
+                        help="Whether to run factor graph algorithm or not")
         ap.add_argument("--minimalize_assignments", type=str2bool, required=False, default=True,
                         help="Whether to minimalize assignments found by MUST")
         args = ap.parse_args()
@@ -275,13 +273,10 @@ class CommandLineOptions:
             datefmt='%Y-%m-%d %H:%M:%S',
             handlers=[logging.StreamHandler(sys.stdout)])
 
-        print("args.run_mus_tool = " + str(args.run_mus_tool))
-
         return CommandLineOptions(test_case_path=args.test_case_path,
                                   output_root=args.output_root,
-                                  run_bfss_preprocess=args.run_bfss_preprocess,
+                                  run_preprocess=args.run_preprocess,
                                   bfss_timeout_seconds=args.bfss_timeout_seconds,
-                                  run_kissat_preprocess=args.run_kissat_preprocess,
                                   kissat_timeout_seconds=args.kissat_timeout_seconds,
                                   preprocess_timeout_seconds=args.preprocess_timeout_seconds,
                                   verbosity=args.verbosity,
@@ -291,6 +286,7 @@ class CommandLineOptions:
                                   largest_support_set=str(args.largest_support_set),
                                   factor_graph_timeout_seconds=str(args.factor_graph_timeout_seconds),
                                   run_mus_tool = "1" if bool(args.run_mus_tool) else "0",
+                                  run_factor_graph = "1" if bool(args.run_factor_graph) else "0",
                                   minimalize_assignments = "1" if bool(args.minimalize_assignments) else "0")
 
 
@@ -440,6 +436,7 @@ def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> int:
            "--largestSupportSet", clo.largest_support_set,
            "--largestBddSize", clo.largest_bdd_size,
            "--runMusTool", clo.run_mus_tool,
+           "--runFg", clo.run_factor_graph,
            "--minimalizeAssignments", clo.minimalize_assignments]
     logging.debug(f"Running command: {sp.join(cmd)}")
     factor_graph_process = subprocess.Popen(cmd)
@@ -450,14 +447,6 @@ def run_factor_graph(fng: FileNameGen, clo: CommandLineOptions) -> int:
         logging.info(f"factor graph timed out in {time_left} secs for {fng.factor_graph_input}")
         factor_graph_process.kill()
     return return_code
-# --largestSupportSet:	largest allowed support set size while clumping cnf factors
-# --largestBddSize:	largest allowed bdd size while clumping cnf factors
-# --inputFile:	Input qdimacs file with exactly one quantifier which is existential	[Mandatory]
-# --verbosity:	Log verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)
-# --computeExactUsingBdd:	Compute exact solution (default false)
-# --outputFile:	Cnf file with result
-# --runMusTool:	Whether to run MUS tool (default true)
-# --minimalizeAssignments:	Whether to minimalize assignments found by must
 
 
 #TODO: check return code at every stage
@@ -477,55 +466,60 @@ def main() -> int:
     preprog = PreprocessorProgress(fng.original_qdimacs, c_functions)
     logging.info(f"[original] {serializeDiagnostics(parseDiagnostics(fng.original_qdimacs, c_functions))}")
 
-    convert_qdimacs_to_bfss_input(fng, clo, c_functions)
-    input_prepared_time = time.time()
-    logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
-    preprog.checkProgress("init", fng.bfss_input, input_prepared_time - program_start_time)
+    if clo.run_preprocess:
+        convert_qdimacs_to_bfss_input(fng, clo, c_functions)
+        input_prepared_time = time.time()
+        logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
+        preprog.checkProgress("init", fng.bfss_input, input_prepared_time - program_start_time)
 
-    change = True
-    round = 1
-    preprocess_deadline = compute_deadline(clo.preprocess_timeout_seconds)
-    final_preprocess_output: str = ""
+        change = True
+        round = 1
+        preprocess_deadline = compute_deadline(clo.preprocess_timeout_seconds)
+        final_preprocess_output: str = ""
 
-    while change and remaining_time(preprocess_deadline) > 0:
-        change = False
-
-
-
-        if preprog.isSolved():
-            logging.info("skipping run_bfss as problem is already solved")
-            break
-        t1 = time.time()
-        if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
-            logging.info("run_bfss gave non-zero return code")
-            break
-        convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
-        t2 = time.time()
-        change = preprog.checkProgress("bfss", fng.kissat_input, t2 - t1) or change
-        final_preprocess_output = fng.kissat_input
+        while change and remaining_time(preprocess_deadline) > 0:
+            change = False
 
 
 
-        if preprog.isSolved():
-            logging.info("skipping run_kissat as problem is already solved")
-            break
-        t1 = time.time()
-        if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
-            logging.info("run_kissat gave non-zero return code")
-            break
-        logging.debug(f"Progress in round {round}: {change}")
-        convert_kissat_output_to_bfss(fng)
-        t2 = time.time()
-        change = preprog.checkProgress("kissat", fng.bfss_input, t2 - t1) or change
-        final_preprocess_output = fng.bfss_input
-        
-        
-        logging.debug(f"Finished pre-processing round {round}")
-        round = round + 1
+            if preprog.isSolved():
+                logging.info("skipping run_bfss as problem is already solved")
+                break
+            t1 = time.time()
+            if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
+                logging.info("run_bfss gave non-zero return code")
+                break
+            convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
+            t2 = time.time()
+            change = preprog.checkProgress("bfss", fng.kissat_input, t2 - t1) or change
+            final_preprocess_output = fng.kissat_input
 
-    preprocessing_finished_time = time.time()
-    logging.info(f"Finished proprocessing in {round - 1} rounds, in {preprocessing_finished_time - input_prepared_time} seconds.")
-    preprog.summarize()
+
+
+            if preprog.isSolved():
+                logging.info("skipping run_kissat as problem is already solved")
+                break
+            t1 = time.time()
+            if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
+                logging.info("run_kissat gave non-zero return code")
+                break
+            logging.debug(f"Progress in round {round}: {change}")
+            convert_kissat_output_to_bfss(fng)
+            t2 = time.time()
+            change = preprog.checkProgress("kissat", fng.bfss_input, t2 - t1) or change
+            final_preprocess_output = fng.bfss_input
+            
+            
+            logging.debug(f"Finished pre-processing round {round}")
+            round = round + 1
+
+        preprocessing_finished_time = time.time()
+        logging.info(f"Finished proprocessing in {round - 1} rounds, in {preprocessing_finished_time - input_prepared_time} seconds.")
+        preprog.summarize()
+    else:
+        logging.info("Skipping pre-processing as requested")
+        preprocessing_finished_time = time.time()
+        final_preprocess_output = fng.original_qdimacs
 
     if preprog.current_diagnostics.numActualQuantifiedVars > 0:
         convert_preprocess_output_to_factor_graph(final_preprocess_output, fng.factor_graph_input, clo)

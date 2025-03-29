@@ -53,6 +53,7 @@ class CommandLineOptions:
     largest_support_set: str
     factor_graph_timeout_seconds: int
     run_mus_tool: bool
+    run_factor_graph: bool
     minimalize_assignments: bool
 
 
@@ -73,6 +74,7 @@ class CommandLineOptions:
                 "--largest_support_set", self.largest_support_set,
                 "--factor_graph_timeout_seconds", str(self.factor_graph_timeout_seconds),
                 "--run_mus_tool", "1" if self.run_mus_tool else "0",
+                "--run_factor_graph", "1" if self.run_factor_graph else "0",
                 "--minimalize_assignments", "1" if self.minimalize_assignments else "0"
             ]
             return result
@@ -132,6 +134,8 @@ def parse_args(argv: list[str]) -> CommandLineOptions:
                     default=1200)
     ap.add_argument("--run_mus_tool", type=bool, required=False, default=True,
                     help="Whether to run MUST or not")
+    ap.add_argument("--run_factor_graph", type=bool, required=False, default=True,
+                    help="Whether to run factor graph or not")
     ap.add_argument("--minimalize_assignments", type=bool, required=False, default=True,
                     help="Whether to minimalize assignments found by MUST")
     args = ap.parse_args(argv[1:])
@@ -156,6 +160,7 @@ def parse_args(argv: list[str]) -> CommandLineOptions:
         largest_support_set=str(args.largest_support_set),
         factor_graph_timeout_seconds=int(args.factor_graph_timeout_seconds),
         run_mus_tool = args.run_mus_tool,
+        run_factor_graph = args.run_factor_graph,
         minimalize_assignments = args.minimalize_assignments)
 
 

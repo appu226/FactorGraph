@@ -51,6 +51,7 @@ namespace oct_22 {
         bool computeExactUsingBdd;
         std::optional<std::string> outputFile;
         bool runMusTool;
+        bool runFg;
         bool mustMinimalizeAssignments;
     };
 

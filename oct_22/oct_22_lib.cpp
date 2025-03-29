@@ -491,6 +491,13 @@ namespace oct_22 {
           false,
           std::optional<bool>(true)
       );
+    auto runFg =
+      std::make_shared<CommandLineOption<bool> >(
+          "--runFg",
+          "Whether to run factor graph (default true)",
+          false,
+          std::optional<bool>(true)
+      );
     auto minimalizeAssignments =
       std::make_shared<CommandLineOption<bool> >(
         "--minimalizeAssignments",
@@ -502,7 +509,7 @@ namespace oct_22 {
     // parse the command line
     blif_solve::parse(
         {  largestSupportSet, largestBddSize, inputFile, verbosity, 
-           computeExactUsingBdd, outputFile, runMusTool, 
+           computeExactUsingBdd, outputFile, runMusTool, runFg,
            minimalizeAssignments },
         argc,
         argv);
@@ -519,6 +526,7 @@ namespace oct_22 {
       *(computeExactUsingBdd->value),
       outputFile->value,
       *(runMusTool->value),
+      *(runFg->value),
       *(minimalizeAssignments->value)
     };
   }
