@@ -102,7 +102,7 @@ int main(int argc, char const * const * const argv)
   if (clo.runMusTool)                                                     // run mustool
   {
     start = blif_solve::now();
-    auto mustMaster = oct_22::createMustMaster(*qdimacs, factorGraphCnf, clo.mustMinimalizeAssignments);
+    auto mustMaster = oct_22::createMustMaster(*qdimacs, factorGraphCnf, clo.mustMinimalizeAssignments, clo.musResultFile());
     mustMaster->enumerate();
     blif_solve_log(INFO, "Must exploration finished in " << blif_solve::duration(start) << " sec");
   }

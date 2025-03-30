@@ -96,10 +96,19 @@ namespace {
 
 namespace oct_22 {
 
+  std::optional<std::string> CommandLineOptions::musResultFile() const
+  {
+    if (outputFile.has_value())
+      return outputFile.value() + ".mus";
+    else
+      return std::nullopt;
+  }
+
   Oct22MucCallback::Oct22MucCallback(
     const CnfPtr& factorGraphCnf, 
     int numMustVariables,
-    bool mustMinimalizeAssignments)
+    bool mustMinimalizeAssignments,
+    std::optional<std::string> const& musResultFile)
   {
     m_numMustVariables = numMustVariables;
     m_mustMinimalizeAssignments = mustMinimalizeAssignments;
@@ -131,6 +140,16 @@ namespace oct_22 {
     m_explorationStartTime = blif_solve::now();
     for (int i = 0; i <= numMustVariables; ++i)
       m_minimalizationSolver.newVar();
+
+    if (musResultFile.has_value())
+    {
+      m_musResultFile.emplace(musResultFile.value());
+      if (!m_musResultFile->is_open())
+      {
+        blif_solve_log(ERROR, "Could not open file " << musResultFile.value() << " for writing");
+        throw std::runtime_error("Could not open file " + musResultFile.value() + " for writing");
+      }
+    }
   }
   
   void Oct22MucCallback::processMuc(const std::vector<std::vector<int> >& muc)
@@ -185,6 +204,10 @@ namespace oct_22 {
       m_factorGraphResultSolver.addClause(negAssump);
       
       std::sort(negAssign.begin(), negAssign.end());
+      if (m_musResultFile.has_value())
+      {
+        (*m_musResultFile) << setToString(negAssign) << " 0" << std::endl;
+      }
       blif_solve_log(INFO, "Adding clause " << setToString(negAssign) << " to solution");
       m_factorGraphCnf->insert(negAssign);
     }
@@ -554,7 +577,8 @@ namespace oct_22 {
   std::shared_ptr<Master> createMustMaster(
     const dd::Qdimacs& qdimacs,
     const Oct22MucCallback::CnfPtr& factorGraphCnf,
-    bool mustMinimalizeAssignments)
+    bool mustMinimalizeAssignments,
+    std::optional<std::string> const& musResultFile)
   {
     // check that we have exactly one quantifier which happens to be existential
     assert(qdimacs.quantifiers.size() == 1);
@@ -569,7 +593,11 @@ namespace oct_22 {
     //   - keeping only the quantified variables
     // create map from non-quantified literals to positions of clauses in the 'outputClauses' vector
     std::vector<std::vector<int> > outputClauses;
-    auto mucCallback = std::make_shared<Oct22MucCallback>(factorGraphCnf, numMustVariables, mustMinimalizeAssignments);
+    auto mucCallback = std::make_shared<Oct22MucCallback>(
+      factorGraphCnf, 
+      numMustVariables,
+      mustMinimalizeAssignments,
+      musResultFile);
     for (const auto & clause: qdimacs.clauses)
     {
       Clause quantifiedLiterals, reversedNonQuantifiedLiterals, nextOutputClause;
@@ -805,7 +833,7 @@ namespace oct_22 {
     auto factorGraphResults = getFactorGraphResults(manager, *fg, *bdds);
     auto factorGraphCnf = convertToCnf(manager, bdds->numVariables + (2 * bdds->clauses.size()), factorGraphResults);
 
-    auto mustMaster = createMustMaster(qdimacs, factorGraphCnf, true);
+    auto mustMaster = createMustMaster(qdimacs, factorGraphCnf, true, std::nullopt);
     mustMaster->enumerate();
 
     auto exactResult = computeExact(*bdds);

@@ -53,6 +53,7 @@ namespace oct_22 {
         bool runMusTool;
         bool runFg;
         bool mustMinimalizeAssignments;
+        std::optional<std::string> musResultFile() const;
     };
 
 
@@ -68,7 +69,11 @@ namespace oct_22 {
       typedef std::map<int, std::set<int> > AssignmentToClauseIndicesMap;
       typedef std::map<int, std::set<size_t> > AssignmentToMarkerPositionsMap;
       typedef Minisat::vec<Minisat::Lit> Assumptions;
-      Oct22MucCallback(const CnfPtr& factorGraphCnf, int numMustVariables, bool mustMinimalizeAssignments);
+      Oct22MucCallback(
+        const CnfPtr& factorGraphCnf, 
+        int numMustVariables, 
+        bool mustMinimalizeAssignments,
+        std::optional<std::string> const& musResultFile);
     
       void processMuc(const std::vector<std::vector<int> >& muc) override;
       void addClause(int markerVariable, const Clause& clause, int clauseIndex, const Assignments& assignments);
@@ -95,6 +100,7 @@ namespace oct_22 {
       std::weak_ptr<Master> m_mustMaster;
       std::clock_t m_explorationStartTime;
       Minisat::Solver m_minimalizationSolver;
+      std::optional<std::ofstream> m_musResultFile;
     };
 
     // function declarations
@@ -105,7 +111,8 @@ namespace oct_22 {
     std::shared_ptr<dd::Qdimacs> parseQdimacs(const std::string & inputFilePath);
     std::shared_ptr<Master> createMustMaster(const dd::Qdimacs& qdimacs,
                                              const Oct22MucCallback::CnfPtr& factorGraphCnf,
-                                             bool mustMinimalizeAssignments);
+                                             bool mustMinimalizeAssignments,
+                                             std::optional<std::string> const& musResultFile);
     std::vector<dd::BddWrapper> getFactorGraphResults(DdManager* ddm, const fgpp::FactorGraph& fg, const dd::QdimacsToBdd& qdimacsToBdd);
     dd::BddWrapper getExactResult(DdManager* ddm, const dd::QdimacsToBdd& qdimacsToBdd);
     Oct22MucCallback::CnfPtr convertToCnf(DdManager* ddm, 

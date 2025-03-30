@@ -290,7 +290,7 @@ namespace {
 
     void writeClause(std::vector<int> const & clause) override
     {
-      std::vector<int> clauseCopy(clause);
+      std::vector<int> clauseCopy(clause.cbegin(), clause.cend());
       std::sort(clauseCopy.begin(), clauseCopy.end());
       m_clauseSet.insert(clauseCopy);
     }
