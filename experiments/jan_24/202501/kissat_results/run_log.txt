@@ -1,0 +1,2 @@
+[INFO] [2025-03-30 21:13:37] Starting jan_24/run_experiment.py
+[INFO] [2025-03-30 21:49:57] Finished jan_24/run_experiment.py
