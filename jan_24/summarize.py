@@ -51,6 +51,8 @@ class TestCaseSummary:
     musRounds: int
     fgmusTimedOut: bool
     fgmusTime: str
+    fgDelibSkip: bool
+    musDelibSkip: bool
 
     #TODO
     def row(self) -> list[str]:
@@ -142,6 +144,8 @@ pattern_mus_processed = re.compile(f"\\[INFO\\] MUC processing finished in ({pat
 pattern_mus_disabled_sets = re.compile(f"\\[INFO\\] Disabled ({pattern_num}) sets from must solver.")
 pattern_fg_timeout = re.compile(f"{pattern_info_time} factor graph timed out in ({pattern_num}) secs")
 pattern_fg_finished = re.compile(f"{pattern_info_time} Factor graph and must finished in ({pattern_num}) seconds")
+pattern_fg_delib_skip = re.compile("\\[INFO\\] Skipping factor graph")
+pattern_mus_delib_skip = re.compile("\\[INFO\\] Skipping mus tool")
 
 def parse_test_case(path: str, file: str) -> TestCaseSummary:
     result = TestCaseSummary(
@@ -174,7 +178,9 @@ def parse_test_case(path: str, file: str) -> TestCaseSummary:
         musNumDisabledSets = 0,
         musRounds = 0,
         fgmusTimedOut = False,
-        fgmusTime = ""
+        fgmusTime = "",
+        fgDelibSkip = False,
+        musDelibSkip = False
     )
     with open(os.path.join(path, file)) as fin:
         for line in fin.readlines():
@@ -284,8 +290,16 @@ def parse_test_case(path: str, file: str) -> TestCaseSummary:
                 continue
             m = pattern_fg_finished.match(line)
             if m is not None and not result.fgmusTimedOut:
-                result.status = "MUS finished"
+                result.status = "Preproc finished unsolved, FG " + ("skipped" if result.fgDelibSkip else "finished") + ", MUS " + ("skipped" if result.musDelibSkip else "finished")
                 result.fgmusTime = f2s(float(m.group(1)))
+                continue
+            m = pattern_fg_delib_skip.match(line)
+            if m is not None:
+                result.fgDelibSkip = True
+                continue
+            m = pattern_mus_delib_skip.match(line)
+            if m is not None:
+                result.musDelibSkip = True
                 continue
 
 

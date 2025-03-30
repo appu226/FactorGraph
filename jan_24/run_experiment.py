@@ -34,6 +34,16 @@ from multiprocessing.pool import ThreadPool
 expt_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+def str2bool(s: str | bool) -> bool:
+    if isinstance(s, bool):
+        return s
+    elif s.lower() in ['0', 'n', 'no', 'f', 'false']:
+        return False
+    elif s.lower() in ['1', 'y', 'yes', 't', 'true']:
+        return True
+    else:
+        raise argparse.ArgumentTypeError("Not a boolean value.")
+
 
 
 ########### Command line options for application ##########
@@ -128,9 +138,9 @@ def parse_args(argv: list[str]) -> CommandLineOptions:
     ap.add_argument("--factor_graph_timeout_seconds", type=int, required=False,
                     help="Timeout for factor graph (and must exploration) in seconds",
                     default=1200)
-    ap.add_argument("--run_mus_tool", type=bool, required=False, default=True,
+    ap.add_argument("--run_mus_tool", type=str2bool, required=False, default=True,
                     help="Whether to run MUST or not")
-    ap.add_argument("--run_factor_graph", type=bool, required=False, default=True,
+    ap.add_argument("--run_factor_graph", type=str2bool, required=False, default=True,
                     help="Whether to run factor graph or not")
     ap.add_argument("--minimalize_assignments", type=bool, required=False, default=True,
                     help="Whether to minimalize assignments found by MUST")

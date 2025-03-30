@@ -106,6 +106,10 @@ int main(int argc, char const * const * const argv)
     mustMaster->enumerate();
     blif_solve_log(INFO, "Must exploration finished in " << blif_solve::duration(start) << " sec");
   }
+  else
+  {
+    blif_solve_log(INFO, "Skipping mus tool");
+  }
 
   if (clo.outputFile.has_value())                                       // write results
     oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
