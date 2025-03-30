@@ -54,6 +54,7 @@ class CommandLineOptions:
     output_folder: str
     num_processes: int
     run_preprocess: bool
+    run_bfss: bool
     bfss_timeout_seconds: int
     kissat_timeout_seconds: int
     preprocess_timeout_seconds: int
@@ -72,6 +73,7 @@ class CommandLineOptions:
                 "--test_case_path", os.path.join(self.input_folder, test_case),
                 "--output_root", self.output_folder,
                 "--run_preprocess", "1" if self.run_preprocess else "0",
+                "--run_bfss", "1" if self.run_bfss else "0",
                 "--bfss_timeout_seconds", str(self.bfss_timeout_seconds),
                 "--kissat_timeout_seconds", str(self.kissat_timeout_seconds),
                 "--preprocess_timeout_seconds", str(self.preprocess_timeout_seconds),
@@ -118,8 +120,10 @@ def parse_args(argv: list[str]) -> CommandLineOptions:
     ap.add_argument("--output_folder", type=str, required=True, default=os.path.join(expt_root, "FactorGraph", "experiments", "jan_24", "results"),
                     help="Output folder to put results in")
     ap.add_argument("--num_processes", type=int, help="Number of processes to run in parallel.", required=False, default=os.cpu_count())
-    ap.add_argument("--run_preprocess", type=bool, required=False, default=True,
-                    help="Whether to run Kissat+BFSS pre-processing or not")
+    ap.add_argument("--run_preprocess", type=str2bool, required=False, default=True,
+                    help="Whether to run pre-processing or not")
+    ap.add_argument("--run_bfss", type=str2bool, required=False, default=True,
+                    help="Whether to run BFSS pre-processing or not")
     ap.add_argument("--bfss_timeout_seconds", type=int, required=False, default=60,
                     help="Timeout, in seconds, for a round of bfss pre-processing")
     ap.add_argument("--kissat_timeout_seconds", type=int, required=False, default=60,
@@ -157,6 +161,7 @@ def parse_args(argv: list[str]) -> CommandLineOptions:
         output_folder=args.output_folder,
         num_processes=args.num_processes,
         run_preprocess=args.run_preprocess,
+        run_bfss=args.run_bfss,
         bfss_timeout_seconds=int(args.bfss_timeout_seconds),
         kissat_timeout_seconds=int(args.kissat_timeout_seconds),
         preprocess_timeout_seconds=int(args.preprocess_timeout_seconds),

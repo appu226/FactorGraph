@@ -213,6 +213,7 @@ class CommandLineOptions:
     test_case_path: str
     output_root: str
     run_preprocess: bool
+    run_bfss: bool
     bfss_timeout_seconds: int
     kissat_timeout_seconds: int
     preprocess_timeout_seconds: int
@@ -265,6 +266,8 @@ class CommandLineOptions:
                         help="Whether to run factor graph algorithm or not")
         ap.add_argument("--minimalize_assignments", type=str2bool, required=False, default=True,
                         help="Whether to minimalize assignments found by MUST")
+        ap.add_argument("--run_bfss", type=str2bool, required=False, default=True,
+                        help="Whether to run bfss or not")
         args = ap.parse_args()
 
         logging.basicConfig(
@@ -276,6 +279,7 @@ class CommandLineOptions:
         return CommandLineOptions(test_case_path=args.test_case_path,
                                   output_root=args.output_root,
                                   run_preprocess=args.run_preprocess,
+                                  run_bfss=args.run_bfss,
                                   bfss_timeout_seconds=args.bfss_timeout_seconds,
                                   kissat_timeout_seconds=args.kissat_timeout_seconds,
                                   preprocess_timeout_seconds=args.preprocess_timeout_seconds,
@@ -411,6 +415,13 @@ def convert_kissat_output_to_bfss(fng: FileNameGen) -> int:
 
 
 
+def copying_kissat_output_to_kissat_input(fng: FileNameGen) -> int:
+    logging.debug(f"Running command: cp {fng.kissat_output} {fng.kissat_input}")
+    shutil.copy(fng.kissat_output, fng.kissat_input)
+    return 0
+
+
+
 
 def convert_preprocess_output_to_factor_graph(preprocess_output: str, factor_graph_input: str, clo: CommandLineOptions) -> None:
     cmd = [
@@ -467,10 +478,16 @@ def main() -> int:
     logging.info(f"[original] {serializeDiagnostics(parseDiagnostics(fng.original_qdimacs, c_functions))}")
 
     if clo.run_preprocess:
-        convert_qdimacs_to_bfss_input(fng, clo, c_functions)
-        input_prepared_time = time.time()
-        logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
-        preprog.checkProgress("init", fng.bfss_input, input_prepared_time - program_start_time)
+        if clo.run_bfss:
+            convert_qdimacs_to_bfss_input(fng, clo, c_functions)
+            input_prepared_time = time.time()
+            logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
+            preprog.checkProgress("init", fng.bfss_input, input_prepared_time - program_start_time)
+        else:
+            shutil.copyfile(fng.original_qdimacs, fng.kissat_input)
+            input_prepared_time = time.time()
+            logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
+            preprog.checkProgress("init", fng.kissat_input, input_prepared_time - program_start_time)
 
         change = True
         round = 1
@@ -485,15 +502,18 @@ def main() -> int:
             if preprog.isSolved():
                 logging.info("skipping run_bfss as problem is already solved")
                 break
-            t1 = time.time()
-            if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
-                logging.info("run_bfss gave non-zero return code")
-                break
-            convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
-            t2 = time.time()
-            change = preprog.checkProgress("bfss", fng.kissat_input, t2 - t1) or change
-            final_preprocess_output = fng.kissat_input
-
+            if clo.run_bfss:
+                t1 = time.time()
+                if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
+                    logging.info("run_bfss gave non-zero return code")
+                    break
+                convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
+                t2 = time.time()
+                change = preprog.checkProgress("bfss", fng.kissat_input, t2 - t1) or change
+                final_preprocess_output = fng.kissat_input
+            else:
+                if round > 1:
+                    copying_kissat_output_to_kissat_input(fng)
 
 
             if preprog.isSolved():
