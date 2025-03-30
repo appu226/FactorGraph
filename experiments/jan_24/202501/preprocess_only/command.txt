@@ -1,1 +1,0 @@
-python3 jan_24/run_experiment.py --input_folder ../all_test_cases --output_folder experiments/jan24_202501/preprocess_only/results --num_processes 10 --bfss_timeout_seconds 1800 --kissat_timeout_seconds 1800 --preprocess_timeout_seconds 1800 --verbosity INFO --largest_bdd_size 10000 --largest_support_set 100 --factor_graph_timeout_seconds 10 full_list

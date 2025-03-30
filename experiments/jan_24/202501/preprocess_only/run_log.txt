@@ -1,2 +1,0 @@
-[INFO] [2025-02-18 07:27:42] Starting jan_24/run_experiment.py
-[INFO] [2025-02-18 07:59:56] jan_24 timed out in 1815 secs for QBFEval2017_AR-fixpoint-10.qdimacs
