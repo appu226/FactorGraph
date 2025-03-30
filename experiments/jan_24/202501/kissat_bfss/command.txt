@@ -1,0 +1,1 @@
+python3 jan_24/run_experiment.py --input_folder ../all_test_cases --output_folder experiments/jan_24/202501/kissat_bfss/results --num_processes 10 --bfss_timeout_seconds 1800 --kissat_timeout_seconds 1800 --preprocess_timeout_seconds 1800 --verbosity INFO --run_factor_graph False --run_mus_tool False full_list
