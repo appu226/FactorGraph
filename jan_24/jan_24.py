@@ -478,16 +478,11 @@ def main() -> int:
     logging.info(f"[original] {serializeDiagnostics(parseDiagnostics(fng.original_qdimacs, c_functions))}")
 
     if clo.run_preprocess:
-        if clo.run_bfss:
-            convert_qdimacs_to_bfss_input(fng, clo, c_functions)
-            input_prepared_time = time.time()
-            logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
-            preprog.checkProgress("init", fng.bfss_input, input_prepared_time - program_start_time)
-        else:
-            shutil.copyfile(fng.original_qdimacs, fng.kissat_input)
-            input_prepared_time = time.time()
-            logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
-            preprog.checkProgress("init", fng.kissat_input, input_prepared_time - program_start_time)
+        
+        shutil.copyfile(fng.original_qdimacs, fng.kissat_input)
+        input_prepared_time = time.time()
+        logging.debug(f"First inputs prepared in {input_prepared_time - program_start_time} sec")
+        preprog.checkProgress("init", fng.kissat_input, input_prepared_time - program_start_time)
 
         change = True
         round = 1
@@ -497,40 +492,45 @@ def main() -> int:
         while change and remaining_time(preprocess_deadline) > 0:
             change = False
 
+            sub_round = 1
+            sub_change = True
+            while sub_change and remaining_time(preprocess_deadline) > 0:
+                sub_change = False
+                if preprog.isSolved():
+                    logging.info("skipping run_kissat as problem is already solved")
+                    break
+                t1 = time.time()
+                if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
+                    logging.info("run_kissat gave non-zero return code")
+                    break
+                t2 = time.time()
+                sub_change = preprog.checkProgress("kissat", fng.kissat_output, t2 - t1)
+                if sub_change:
+                    copying_kissat_output_to_kissat_input(fng)
+                    final_preprocess_output = fng.kissat_input
+                else:
+                    convert_kissat_output_to_bfss(fng)
+                    final_preprocess_output = fng.bfss_input
+                change = sub_change or change
+                logging.debug(f"Progress in sub-round {round}.{sub_round}: {sub_change}")
+                sub_round = sub_round + 1
+            
 
 
-            if preprog.isSolved():
-                logging.info("skipping run_bfss as problem is already solved")
-                break
             if clo.run_bfss:
+                if preprog.isSolved():
+                    round = round + 1
+                    logging.info("skipping run_bfss as problem is already solved")
+                    break
                 t1 = time.time()
                 if run_bfss(fng, clo, preprocess_deadline, c_functions) != 0:
                     logging.info("run_bfss gave non-zero return code")
                     break
-                convert_bfss_output_to_kissat(fng, clo, c_functions) # remove unaries
+                convert_bfss_output_to_kissat(fng, clo, c_functions)
                 t2 = time.time()
                 change = preprog.checkProgress("bfss", fng.kissat_input, t2 - t1) or change
                 final_preprocess_output = fng.kissat_input
-            else:
-                if round > 1:
-                    copying_kissat_output_to_kissat_input(fng)
-
-
-            if preprog.isSolved():
-                logging.info("skipping run_kissat as problem is already solved")
-                break
-            t1 = time.time()
-            if run_kissat(fng, clo, preprocess_deadline, c_functions) != 0:
-                logging.info("run_kissat gave non-zero return code")
-                break
             logging.debug(f"Progress in round {round}: {change}")
-            convert_kissat_output_to_bfss(fng)
-            t2 = time.time()
-            change = preprog.checkProgress("kissat", fng.bfss_input, t2 - t1) or change
-            final_preprocess_output = fng.bfss_input
-            
-            
-            logging.debug(f"Finished pre-processing round {round}")
             round = round + 1
 
         preprocessing_finished_time = time.time()
