@@ -189,7 +189,7 @@ class PreprocessorProgress:
             raise RuntimeError(f"Number of actual variables has increased from {self.current_diagnostics.numActualVars} to {new_diag.numActualVars} in {qdimacsFilePath}")
         if new_diag.numActualQuantifiedVars > self.current_diagnostics.numActualQuantifiedVars:
             raise RuntimeError(f"Number of actual quantified variables has increased from {self.current_diagnostics.numActualQuantifiedVars} to {new_diag.numActualQuantifiedVars} in {qdimacsFilePath}")
-        progress = new_diag.numActualVars < self.current_diagnostics.numActualVars or new_diag.numActualQuantifiedVars < self.current_diagnostics.numActualQuantifiedVars
+        progress = new_diag.numActualVars < self.current_diagnostics.numActualVars or new_diag.numActualQuantifiedVars < self.current_diagnostics.numActualQuantifiedVars or new_diag.numActualClauses < self.current_diagnostics.numActualClauses
         self.current_diagnostics = new_diag
         return progress
     
