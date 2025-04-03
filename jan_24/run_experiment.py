@@ -195,6 +195,9 @@ def run_test_case(input: tuple[str, CommandLineOptions]) -> int:
         return_code = -1
         logging.info(f"jan_24 timed out in {timeout} secs for {test_case}")
         jan_24_process.kill()
+    except:
+        return_code = -1
+        logging.info(f"jan_24 failed with unexpected error for {test_case}")
     return return_code
     
 
@@ -209,11 +212,12 @@ def main(argv: list[str]) -> int:
     logging.debug(f"Initialising {clo.num_processes} threads")
     pool = ThreadPool(clo.num_processes)
     ret_codes: list[int] = pool.imap_unordered(run_test_case, [(test_case, clo) for test_case in clo.test_cases])
+    final_ret_code = 0
     for ret_code in ret_codes:
         if ret_code != 0:
-            return ret_code
+            final_ret_code = ret_code
     logging.info("Finished jan_24/run_experiment.py")
-    return 0
+    return final_ret_code
 
 
 
