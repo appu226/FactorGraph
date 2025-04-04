@@ -1,0 +1,10 @@
+[INFO] [2025-04-03 08:28:14] Starting jan_24/run_experiment.py
+[INFO] [2025-04-03 10:13:59] jan_24 timed out in 1805 secs for QBFEval2017_AR-fixpoint-10.qdimacs
+[INFO] [2025-04-03 10:14:01] jan_24 timed out in 1805 secs for QBFEval2017_AR-fixpoint-4.qdimacs
+[INFO] [2025-04-03 10:14:02] jan_24 timed out in 1805 secs for QBFEval2017_AR-fixpoint-6.qdimacs
+[INFO] [2025-04-03 10:14:11] jan_24 timed out in 1805 secs for QBFEval2017_AR-fixpoint-8.qdimacs
+[INFO] [2025-04-03 17:01:29] jan_24 timed out in 1805 secs for QBFEval2018_AR-fixpoint-10.qdimacs
+[INFO] [2025-04-03 17:08:53] jan_24 timed out in 1805 secs for QBFEval2018_AR-fixpoint-4.qdimacs
+[INFO] [2025-04-03 17:11:31] jan_24 timed out in 1805 secs for QBFEval2018_AR-fixpoint-6.qdimacs
+[INFO] [2025-04-03 17:20:32] jan_24 timed out in 1805 secs for QBFEval2018_AR-fixpoint-8.qdimacs
+[INFO] [2025-04-04 00:26:39] Finished jan_24/run_experiment.py
