@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "oct_22_lib.h"
+#include "approx_var_elim.h"
 #include <mustool/core/Master.h>
 #include <mustool/mcsmus/minisat/core/mcsmus_Solver.h>
 #include <unordered_set>
@@ -726,7 +727,33 @@ namespace oct_22 {
         const dd::Qdimacs& qdimacs
       )
   {
-    throw std::runtime_error("approxVarElim not yet implemented");
+    // convert to factor graph data structure
+    auto ave = ApproxVarElim::parseQdimacs(qdimacs);
+    if (qdimacs.quantifiers.size() != 1 || qdimacs.quantifiers.front().quantifierType != dd::Quantifier::Exists)
+    {
+      throw std::runtime_error("Only qdimacs with exactly one existential quantifier is supported for now.");
+    }
+
+    // approximately remove all variables
+    auto const& qvars = qdimacs.quantifiers.front().variables;
+    for (int x: qvars)
+    {
+      if (x == 0)
+        continue;
+      ave->approximatelyEliminateVar(x);
+    }
+    
+    // convert to cnf
+    auto resultCnf = std::make_shared<Oct22MucCallback::Cnf>();
+    for (auto const& clause: ave->getClauses())
+    {
+      std::vector<int> convertedClause;
+      convertedClause.reserve(clause->vars.size());
+      for (auto const& var: clause->vars)
+        convertedClause.push_back(var.lock()->literal);
+      resultCnf->insert(convertedClause);
+    }
+    return resultCnf;
   }
   
   
