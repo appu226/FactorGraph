@@ -93,10 +93,8 @@ int main(int argc, char const * const * const argv)
   }
   else
   {
-    blif_solve_log(INFO, "Skipping factor graph");
-    std::vector<dd::BddWrapper> trueClauses;
-    trueClauses.push_back(dd::BddWrapper(bdd_one(ddm.get()), ddm.get()));
-    factorGraphCnf = oct_22::convertToCnf(ddm.get(), qdimacs->numVariables, trueClauses);
+    blif_solve_log(INFO, "Skipping factor graph, running approx var elim");
+    factorGraphCnf = oct_22::approxVarElim(*qdimacs);
   }
 
   if (clo.runMusTool)                                                     // run mustool

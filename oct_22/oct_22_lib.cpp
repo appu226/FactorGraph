@@ -719,6 +719,15 @@ namespace oct_22 {
     blif_solve::dumpCnf(ddm, numVariables, funcSet, *result);
     return result;
   }
+
+
+  Oct22MucCallback::CnfPtr
+      approxVarElim(
+        const dd::Qdimacs& qdimacs
+      )
+  {
+    throw std::runtime_error("approxVarElim not yet implemented");
+  }
   
   
   void writeResult(const Oct22MucCallback::Cnf& cnf, 

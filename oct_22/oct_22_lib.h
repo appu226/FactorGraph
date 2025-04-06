@@ -118,6 +118,7 @@ namespace oct_22 {
     Oct22MucCallback::CnfPtr convertToCnf(DdManager* ddm, 
                                           int numVariables, 
                                           const std::vector<dd::BddWrapper> & funcs);
+    Oct22MucCallback::CnfPtr approxVarElim(const dd::Qdimacs& qdimacs);
     void writeResult(const Oct22MucCallback::Cnf& cnf,
                      const dd::Qdimacs& qdimacs,
                      const std::string& outputFile);
