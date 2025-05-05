@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "oct_22_lib.h"
+#include "approx_var_elim.h"
 #include <mustool/core/Master.h>
 #include <mustool/mcsmus/minisat/core/mcsmus_Solver.h>
 #include <unordered_set>
@@ -718,6 +719,30 @@ namespace oct_22 {
         funcSet.insert(func.getUncountedBdd());
     blif_solve::dumpCnf(ddm, numVariables, funcSet, *result);
     return result;
+  }
+
+
+  Oct22MucCallback::CnfPtr
+      approxVarElim(
+        const dd::Qdimacs& qdimacs
+      )
+  {
+      // approximately remove all variables
+    auto ave = ApproxVarElim::parseQdimacs(qdimacs);
+    ave->approximatelyEliminateAllVariables(0);
+    
+    
+    // convert to cnf
+    auto resultCnf = std::make_shared<Oct22MucCallback::Cnf>();
+    for (auto const& clause: ave->getClauses())
+    {
+      std::vector<int> convertedClause;
+      convertedClause.reserve(clause->literals.size());
+      for (auto const& var: clause->literals)
+        convertedClause.push_back(var);
+      resultCnf->insert(convertedClause);
+    }
+    return resultCnf;
   }
   
   

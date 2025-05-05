@@ -48,6 +48,7 @@ SOFTWARE.
 
 #include "testApproxMerge.h"
 #include "testVarScoreQuantification.h"
+#include "testApproxVarElim.h"
 
 void testOct22(DdManager * manager);
 void testCuddBddAndAbstractMulti(DdManager * manager);
@@ -73,7 +74,7 @@ int main()
     DdManager * manager = Cudd_Init(0, 0, 256, 262144, 0);
     common_error(manager, "test/main.cpp : Could not initialize DdManager\n");
 
-    
+    testApproxVarElim(manager);
     testCuddBddCountMintermsMulti(manager);
     testCuddBddAndAbstractMulti(manager);
     testCnfDump(manager);
