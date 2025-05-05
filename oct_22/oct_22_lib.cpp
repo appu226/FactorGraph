@@ -727,30 +727,19 @@ namespace oct_22 {
         const dd::Qdimacs& qdimacs
       )
   {
-    // convert to factor graph data structure
+      // approximately remove all variables
     auto ave = ApproxVarElim::parseQdimacs(qdimacs);
-    if (qdimacs.quantifiers.size() != 1 || qdimacs.quantifiers.front().quantifierType != dd::Quantifier::Exists)
-    {
-      throw std::runtime_error("Only qdimacs with exactly one existential quantifier is supported for now.");
-    }
-
-    // approximately remove all variables
-    auto const& qvars = qdimacs.quantifiers.front().variables;
-    for (int x: qvars)
-    {
-      if (x == 0)
-        continue;
-      ave->approximatelyEliminateVar(x);
-    }
+    ave->approximatelyEliminateAllVariables(0);
+    
     
     // convert to cnf
     auto resultCnf = std::make_shared<Oct22MucCallback::Cnf>();
     for (auto const& clause: ave->getClauses())
     {
       std::vector<int> convertedClause;
-      convertedClause.reserve(clause->vars.size());
-      for (auto const& var: clause->vars)
-        convertedClause.push_back(var.lock()->literal);
+      convertedClause.reserve(clause->literals.size());
+      for (auto const& var: clause->literals)
+        convertedClause.push_back(var);
       resultCnf->insert(convertedClause);
     }
     return resultCnf;

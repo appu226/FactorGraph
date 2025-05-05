@@ -1,6 +1,6 @@
 /*
 
-Copyright 2023 Parakram Majumdar
+Copyright 2025 Parakram Majumdar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -34,47 +34,78 @@ SOFTWARE.
 
 namespace oct_22
 {
-  struct AveVar;
+  struct AveLiteral;
   struct AveClause;
 
-  using AveVarPtr = std::shared_ptr<AveVar>;
-  using AveVarPtrVec = std::vector<std::shared_ptr<AveVar> >;
-  using AveVarWPtr = std::weak_ptr<AveVar>;
-  using AveVarWPtrVec = std::vector<std::weak_ptr<AveVar> >;
+  using AveIntVec = std::vector<int>;
+  using AveLiteralPtr = std::shared_ptr<AveLiteral>;
+  using AveLiteralPtrVec = std::vector<AveLiteralPtr>;
+  using AveLiteralRPtr = AveLiteral*;
+  using AveLiteralRPtrVec = std::vector<AveLiteralRPtr>;
   using AveClausePtr = std::shared_ptr<AveClause>;
-  using AveClausePtrVec = std::vector<std::shared_ptr<AveClause> >;
-  using AveClauseWPtr = std::weak_ptr<AveClause>;
-  using AveClauseWPtrVec = std::vector<std::weak_ptr<AveClause> >;
-
-  struct AveVar
-  {
-    int literal;
-    AveClauseWPtrVec clauses;
-  };
 
   struct AveClause
   {
-    AveVarWPtrVec vars;
+    AveIntVec literals;
+    bool isAcceptable;
+    int numFlippedLiterals;
+    size_t hash;
+    AveClause(AveIntVec v_literals);
+
+    bool operator==(const AveClause& that) const;
+    bool operator!=(const AveClause& that) const;
+    bool operator<(const AveClause& that) const;
+    bool operator>(const AveClause& that) const;
+    bool operator<=(const AveClause& that) const;
+    bool operator>=(const AveClause& that) const;
+  };
+
+  struct AveClausePtrHash
+  {
+    size_t operator()(const AveClausePtr& clause) const
+    {
+      return clause->hash;
+    }
+  };
+  struct AveClausePtrEqual
+  {
+    bool operator()(const AveClausePtr& lhs, const AveClausePtr& rhs) const
+    {
+      return *lhs == *rhs;
+    }
+  };
+
+  using AveClausePtrSet = std::unordered_set<AveClausePtr, AveClausePtrHash, AveClausePtrEqual>;
+
+  struct AveLiteral
+  {
+    int literal;
+    AveClausePtrSet clauses;
+    AveLiteral(int v_literal) : literal(v_literal), clauses() {}
   };
 
   class ApproxVarElim
   {
     private:
-      std::unordered_set<AveClausePtr> m_clauses;
-      std::unordered_map<int, AveVarPtrVec> m_vars;
+      AveClausePtrSet m_clauses;
+      AveLiteralPtrVec m_positiveLiterals;
+      AveLiteralPtrVec m_negativeLiterals;
+      AveIntVec m_varsToEliminate;
 
 
     public:
       using Ptr = std::shared_ptr<ApproxVarElim>;
       static Ptr parseQdimacs(const dd::Qdimacs& qdimacs);
-      void approximatelyEliminateVar(int var);
-      AveClausePtrVec const& getClauses() const;
+      AveClausePtrSet const& getClauses() const;
+      void approximatelyEliminateAllVariables(size_t numClauseIncPerVarElim);
 
     private:
       void addClause(const AveClausePtr& clause);
       void removeClause(const AveClausePtr& clause);
-      void removeVar(const AveVarPtr& var);
-      AveVarPtr getVar(int var) const;
+      AveLiteralPtr const& getLiteral(int literal) const;
+      AveClausePtrSet const& getClausesWithLiteral(int literal) const;
+      void approximatelyEliminateVar(int x, std::unordered_set<int> const& allVarsToElim, size_t numClauseIncPerVarElim);
+      size_t getNonTrivialPairCount(int x) const;
 
   }; // end class ApproxVarElim
 
