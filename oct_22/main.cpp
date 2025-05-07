@@ -110,7 +110,6 @@ int main(int argc, char const * const * const argv)
     if (factorGraphCnf->size() == 0)
     {
       blif_solve_log(INFO, "All factor graph results are ONE.");
-      factorGraphCnf->insert(std::vector<int>{1, -1});
     }
   }
 
