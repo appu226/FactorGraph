@@ -94,7 +94,24 @@ int main(int argc, char const * const * const argv)
   else
   {
     blif_solve_log(INFO, "Skipping factor graph, running approx var elim");
+    start = blif_solve::now();
     factorGraphCnf = oct_22::approxVarElim(*qdimacs);
+    blif_solve_log(INFO, "Factor graph converged after 0 iterations in "
+        << blif_solve::duration(start) << " secs");
+    for (auto const& clause: *factorGraphCnf)
+    {
+      if (clause.size() == 0)
+      {
+        blif_solve_log(INFO, "Some factor graph result was ZERO.");
+        oct_22::writeResult(*factorGraphCnf, *qdimacs, clo.outputFile.value());
+        return 0;
+      }
+    }
+    if (factorGraphCnf->size() == 0)
+    {
+      blif_solve_log(INFO, "All factor graph results are ONE.");
+      factorGraphCnf->insert(std::vector<int>{1, -1});
+    }
   }
 
   if (clo.runMusTool)                                                     // run mustool

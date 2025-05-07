@@ -121,9 +121,10 @@ namespace oct_22 {
       for(auto var: clause)
       {
         auto absvar = var > 0 ? var : -var;
-        maxVar = maxVar > var ? maxVar : var;
+        maxVar = maxVar > absvar ? maxVar : absvar;
       }
     }
+    if (maxVar < numMustVariables) maxVar = numMustVariables;
     blif_solve_log(DEBUG, "Initializing sat solveer to " << maxVar << " variables");
     for (int i = 0; i <= maxVar; ++i)
       m_factorGraphResultSolver.newVar();
