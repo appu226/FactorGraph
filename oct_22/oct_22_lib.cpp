@@ -730,12 +730,12 @@ namespace oct_22 {
   {
       // approximately remove all variables
     auto ave = ApproxVarElim::parseQdimacs(qdimacs);
-    ave->approximatelyEliminateAllVariables(0);
+    ave->approximatelyEliminateAllVariables(20);
     
     
     // convert to cnf
     auto resultCnf = std::make_shared<Oct22MucCallback::Cnf>();
-    for (auto const& clause: ave->getClauses())
+    for (auto const& clause: ave->getResultClauses())
     {
       std::vector<int> convertedClause;
       convertedClause.reserve(clause->literals.size());

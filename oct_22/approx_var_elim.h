@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include <dd/qdimacs.h>
+#include <dd/doubly_linked_list.h>
 
 #include <memory>
 #include <unordered_map>
@@ -88,6 +89,7 @@ namespace oct_22
   {
     private:
       AveClausePtrSet m_clauses;
+      AveClausePtrSet m_resultClauses;
       AveLiteralPtrVec m_positiveLiterals;
       AveLiteralPtrVec m_negativeLiterals;
       AveIntVec m_varsToEliminate;
@@ -96,16 +98,42 @@ namespace oct_22
     public:
       using Ptr = std::shared_ptr<ApproxVarElim>;
       static Ptr parseQdimacs(const dd::Qdimacs& qdimacs);
-      AveClausePtrSet const& getClauses() const;
-      void approximatelyEliminateAllVariables(size_t numClauseIncPerVarElim);
+      AveClausePtrSet const& getResultClauses() const;
+      void approximatelyEliminateAllVariables(size_t maxClauseTreeSize);
+      
+      // Returns all `l` in `literals` such that `abs(l)` is in `variables`
+      // literals, variables must be sorted in ascending order
+      // result is sorted in ascending order
+      static AveIntVec intersection(
+        AveIntVec const& literals,
+        AveIntVec const& variables
+      );
+      
+      // Returns a vector of literals from the clauseLiterals that whose negatives are present in seedLiterals
+      // clauseLiterals, seedLiterals must be sorted in ascending order
+      // result is sorted in ascending order
+      static AveIntVec negatedLiterals(
+        AveIntVec const& clauseLiterals,
+        AveIntVec const& seedLiterals
+      );
+
+      static AveClausePtr resolve(
+        AveIntVec const& c1,
+        AveIntVec const& c2,
+        int pivot
+      );
 
     private:
+      using ClauseList = parakram::DlList<AveClausePtr>;
+
       void addClause(const AveClausePtr& clause);
       void removeClause(const AveClausePtr& clause);
       AveLiteralPtr const& getLiteral(int literal) const;
       AveClausePtrSet const& getClausesWithLiteral(int literal) const;
-      void approximatelyEliminateVar(int x, std::unordered_set<int> const& allVarsToElim, size_t numClauseIncPerVarElim);
-      size_t getNonTrivialPairCount(int x) const;
+      void elimHelper(
+        AveClausePtr const& resultSeed,
+        ClauseList& inputClauses,
+        size_t numClauseIncPerVarElim);
 
   }; // end class ApproxVarElim
 

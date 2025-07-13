@@ -120,6 +120,7 @@ namespace oct_22
       throw std::runtime_error("Innermost quantifier must be an existential quantifier");
     }
     result->m_varsToEliminate = qdimacs.quantifiers.back().variables;
+    std::sort(result->m_varsToEliminate.begin(), result->m_varsToEliminate.end());
     return result;
   }
 
@@ -143,132 +144,6 @@ namespace oct_22
       getLiteral(literal)->clauses.erase(clause);
     }
     m_clauses.erase(clause);
-  }
-
-  void ApproxVarElim::approximatelyEliminateVar(int x, std::unordered_set<int> const& allVarsToElim, size_t numClauseIncPerVarElim)
-  {
-    // let XP be clauses with x and XN be clauses with -x
-    // create a min_heap MH of capacity |XP| + |XN| + NUM_CLAUSE_INC_PER_VAR_ELIM (min element gets pushed out on overflow)
-    // for each clause xp in XP
-    //     mark all clauses in XN as acceptable
-    //     for each literal L in xp s.t. L != x
-    //         mark all clauses that have -L as unacceptable
-    //     for each clause xn in XN that is still acceptable
-    //         create new clause pn = (xp \ +x) V (xn \ -x)
-    //         // count clauses with exactly one flipped literal on a quantified variable
-    //         for all literals L in pn // count flipped literals on all clauses
-    //             for all clauses C with -L
-    //                 C.num_flipped_literals += 1
-    //         num_pairings_for_pn = 0
-    //         for all literals L in pn such that |L| is a quantified variable
-    //             for all clauses C with -L
-    //                 if C.num_flipped_literals == 1
-    //                     num_pairings_for_pn += 1
-    //         for all literals L in pn // reset the counts to zero
-    //             for all clauses C with -L
-    //                 C.num_flipped_literals = 0
-    //         insert pn to MH with weight num_pairings_for_pn
-    // remove all clauses from XP and XN, and add clauses from MH
-    
-    AVEDBG("Eliminating variable " << x);
-    AveClausePtrSet XP = getClausesWithLiteral(x);
-    AveClausePtrSet XN = getClausesWithLiteral(-x);
-    AveClausePtrSet newlyCreatedClauses;
-    AVEDBG("XP size: " << XP.size());
-    AVEDBG("XN size: " << XN.size());
-    size_t discarded_clauses = 0;
-    
-    // create a min_heap MH of capacity |XP| + |XN| + NUM_CLAUSE_INC_PER_VAR_ELIM (min element gets pushed out on overflow)
-    parakram::MaxHeap<AveClausePtr, size_t, std::greater<size_t> > MH;
-    size_t const maxHeapMaxSize = XP.size() + XN.size() + numClauseIncPerVarElim;
-    
-    // for each clause xp in XP
-    for (auto const& xp: XP)
-    {
-    // mark all clauses in XN as acceptable
-      for (auto const& xn: XN)
-        xn->isAcceptable = true;
-
-    // for each literal L in xp s.t. L != x
-      for (auto const& L: xp->literals)
-        if (L != x)
-          // mark all clauses that have -L as unacceptable
-          for (auto const& c_negl: getLiteral(-L)->clauses)
-            c_negl->isAcceptable = false;
-
-      // for each clause xn in XN that is still acceptable
-      for (auto const& xn: XN)
-      {
-        if (xn->isAcceptable)
-        {
-          xn->isAcceptable = false; // reset the flag
-          // create new clause pn = (xp \ +x) V (xn \ -x)
-          AveIntVec pnLiterals;
-          pnLiterals.reserve(xp->literals.size() + xn->literals.size() - 2);
-          for (auto const& L: xp->literals)
-            if (L != x)
-              pnLiterals.push_back(L);
-          for (auto const& L: xn->literals)
-            if (L != -x)
-              pnLiterals.push_back(L);
-          auto pn = std::make_shared<AveClause>(pnLiterals);
-          if (newlyCreatedClauses.count(pn) > 0)
-            continue;
-          newlyCreatedClauses.insert(pn);
-
-          // for all literals L in pn
-          for (auto const& L: pn->literals)
-            // for all clauses C with -L
-            for (const auto& C: getLiteral(-L)->clauses)
-              // C.num_flipped_literals += 1
-              C->numFlippedLiterals += 1;
-          
-          // num_pairings_for_pn = 0
-          size_t numPairingsForPn = 0;
-
-          // for all literals L in pn such that |L| is a quantified variable
-          for (auto const& L: pn->literals)
-          {
-            if (allVarsToElim.count(std::abs(L)) == 0)
-              continue;
-            // for all clauses C with -L
-            for (const auto& C: getLiteral(-L)->clauses)
-            {
-              // if C.num_flipped_literals == 1
-              if (C->numFlippedLiterals == 1)
-                // num_pairings_for_pn += 1
-                numPairingsForPn += 1;
-            }
-          }
-          // for all literals L in pn // reset the counts to zero
-          for (auto const& L: pn->literals)
-            // for all clauses C with -L
-            for (const auto& C: getLiteral(-L)->clauses)
-              // C.num_flipped_literals = 0
-              C->numFlippedLiterals = 0;
-          // insert pn to MH with weight num_pairings_for_pn
-          MH.insert(pn, numPairingsForPn);
-          if (MH.size() > maxHeapMaxSize)
-          {
-            MH.pop();
-            ++discarded_clauses;
-          }
-        }
-      }
-    }
-    // remove all clauses from XP and XN, and add clauses from MH
-    for (auto const& xp: XP)
-      removeClause(xp);
-    for (auto const& xn: XN)
-      removeClause(xn);
-    AVEDBG("MH size: " << MH.size());
-    AVEDBG("Discarded clauses: " << discarded_clauses);
-    while(MH.size() > 0)
-    {
-      auto clause = MH.top();
-      MH.pop();
-      addClause(clause);
-    }
   }
 
   AveLiteralPtr const& ApproxVarElim::getLiteral(int literal) const
@@ -304,67 +179,254 @@ namespace oct_22
     return getLiteral(literal)->clauses;
   }
 
-  AveClausePtrSet const& ApproxVarElim::getClauses() const
+  AveClausePtrSet const& ApproxVarElim::getResultClauses() const
   {
-    return m_clauses;
+    return m_resultClauses;
   }
 
-  void ApproxVarElim::approximatelyEliminateAllVariables(size_t numClaseIncPerVarElim)
+  void ApproxVarElim::approximatelyEliminateAllVariables(size_t maxClauseTreeSize)
   {
-    // sort quantified variables on number of non-trivial pairings
-    std::unordered_map<int, size_t> nonTrivialPairCount;
-    for (auto const& varToElim: m_varsToEliminate)
+    // results = [c for c in input_clauses if not c.has_any(vars_to_elim)]
+    // filtered_inputs = [c for c in input_clauses if c.has_any(vars_to_elim)]
+    ClauseList filteredInputs;
+    auto const& vte = m_varsToEliminate;
+    for (auto const& clause: m_clauses)
     {
-      nonTrivialPairCount[varToElim] = getNonTrivialPairCount(varToElim);
+      if (std::none_of(clause->literals.cbegin(), clause->literals.cend(),
+                       [&vte](int lit) -> bool { return std::find(vte.cbegin(), vte.cend(), std::abs(lit)) != vte.cend(); }))
+      {
+        m_resultClauses.insert(clause);
+      }
+      else
+      {
+        filteredInputs.push_back(clause);
+      }
     }
-    std::sort(m_varsToEliminate.begin(), m_varsToEliminate.end(),
-              [&nonTrivialPairCount](int a, int b) { return nonTrivialPairCount[a] < nonTrivialPairCount[b]; });
-    // eliminate variables in order
-    std::unordered_set<int> allVarsToElim(m_varsToEliminate.cbegin(), m_varsToEliminate.cend());
-    for (auto const& varToElim: m_varsToEliminate)
+
+
+    // for c in filtered_inputs:
+    //     elim_helper(c, filtered_inputs \ {c}, vars_to_elim, results, 0, maxClauseTreeSize)
+    //     filtered_inputs = filtered_inputs \ {c}   # remove c, as we have explored all results with c
+    for (auto cit = filteredInputs.begin(); cit != filteredInputs.end();)
     {
-      approximatelyEliminateVar(varToElim, allVarsToElim, numClaseIncPerVarElim);
-      AVEDBG("remaining clauses: " << m_clauses.size());
+      auto c = cit->value;                                // next input
+      cit = filteredInputs.get_next_and_erase(cit); // remove input, and increment iterator
+      elimHelper(c, filteredInputs, maxClauseTreeSize);
     }
   }
 
-  size_t ApproxVarElim::getNonTrivialPairCount(int x) const
+
+  // recursive helper function
+  // to grow a seed clause
+  // as we try to eliminate vars
+  void ApproxVarElim::elimHelper(
+    AveClausePtr const& resultSeed,
+    ClauseList& inputClauses,
+    size_t maxClauseTreeSize
+  )
   {
-    // for each clause xp in XP
-    //     mark all clauses in XN as acceptable
-    //     for each literal L in xp s.t. L != x
-    //          mark all clauses that have -L as unacceptable
-    //     non_trivial_pairing_count[x] += number of clauses in XN that are still acceptable
-    // mark all clauses in XN as unacceptable
-    size_t count = 0;
-    for (auto const& xp: getClausesWithLiteral(x))
+    if (0 == maxClauseTreeSize)
+      return;
+
+    // # find literals that still need to be eliminated
+    auto resultLiteralsToElim = intersection(resultSeed->literals, m_varsToEliminate);
+
+    // # check if seed is already good enough
+    // # resultSeed should not be empty
+    // # and resultLiteralsToElim should be empty
+    if (!resultSeed->literals.empty()
+        && resultLiteralsToElim.empty())
     {
-      for (auto const& xn: getClausesWithLiteral(-x))
+      std::cout << "Adding result seed: ";
+      for (auto const& lit: resultSeed->literals)
       {
-        xn->isAcceptable = true;
+        std::cout << lit << " ";
       }
+      std::cout << std::endl;
+      m_resultClauses.insert(resultSeed);
+      return;
+    }
 
-      for (auto const& L: xp->literals)
+    // # check each input clause to see if it can be used to grow the seed
+    for (auto cit = inputClauses.begin(); cit != inputClauses.end();)
+    {
+      // # check if c can be used to grow seed -> there should be exactly one negated literal, 
+      // # and it should be in varsToEliminate
+      AveClausePtr c = cit->value;
+      AveIntVec allNegatedLiterals = negatedLiterals(c->literals, resultSeed->literals);
+      if (allNegatedLiterals.size() == 1 && std::binary_search(m_varsToEliminate.cbegin(), m_varsToEliminate.cend(), std::abs(allNegatedLiterals[0])))
       {
-        if (L != x)
-        {
-          for (auto const& c_negl: getLiteral(-L)->clauses)
-          {
-            c_negl->isAcceptable = false;
-          }
-        }
+        // # grow the seed
+        auto v = std::abs(allNegatedLiterals[0]);
+        AveClausePtr newSeed = resolve(resultSeed->literals, c->literals, v);
+        
+        // # recursive step
+        auto erasedCit = cit;
+        cit = inputClauses.get_next_and_erase(cit); // remove c from input clauses, and increment iterator
+        elimHelper(
+          newSeed,
+          inputClauses,
+          maxClauseTreeSize - 1
+        );
+        inputClauses.reinsert_node_before_node(erasedCit, cit); // add c back to input clauses
       }
-
-      for (auto const& xn: getClausesWithLiteral(-x))
+      else
       {
-        if (xn->isAcceptable)
-        {
-          ++count;
-          xn->isAcceptable = false;
-        }
+        cit = cit->next; // advance iterator normally
       }
     }
-    return count;
+               
+  }
+
+  AveClausePtr ApproxVarElim::resolve(
+    AveIntVec const& c1,
+    AveIntVec const& c2,
+    int pivot
+  )
+  {
+    // create a new clause that is the result of resolving c1 and c2 on pivot
+    AveIntVec result;
+    if (c1.empty() && c2.empty())
+        return std::make_shared<AveClause>(std::move(result));
+    result.reserve(c1.size() + c2.size() - 1); // -1 because we will remove the pivot
+
+    auto it1 = c1.cbegin();
+    auto it2 = c2.cbegin();
+
+    while (it1 != c1.cend() || it2 != c2.cend())
+    {
+      if (it2 == c2.cend() || (it1 != c1.cend() && *it1 < *it2))
+      {
+        if (std::abs(*it1) != std::abs(pivot))
+        {
+          result.push_back(*it1);
+        }
+        ++it1;
+      }
+      else if (it1 == c1.cend() || (it2 != c2.cend() && *it2 < *it1))
+      {
+        if (std::abs(*it2) != std::abs(pivot))
+        {
+          result.push_back(*it2);
+        }
+        ++it2;
+      }
+      else
+      {
+
+        if (std::abs(*it1) != std::abs(pivot))
+        {
+          // both are equal, but not the pivot
+          result.push_back(*it1);
+        }
+        ++it1;
+        ++it2;
+      }
+    }
+
+    return std::make_shared<AveClause>(std::move(result));
+  }
+
+  AveIntVec ApproxVarElim::negatedLiterals(
+    AveIntVec const& clauseLiterals,
+    AveIntVec const& seedLiterals
+  )
+  {
+    // ensure non-empty
+    if (clauseLiterals.empty() || seedLiterals.empty())
+      return {};
+
+    // reserve space for result
+    AveIntVec result;
+    result.reserve(std::min(clauseLiterals.size(), seedLiterals.size()));
+
+    auto cit = clauseLiterals.cbegin();
+    auto sit = seedLiterals.crbegin();
+    while (cit < clauseLiterals.cend() && sit != seedLiterals.crend())
+    {
+      int cl = *cit;
+      int sl = -1 * *sit;
+      if (cl < sl)
+      {
+        ++cit;
+      }
+      else if (sl < cl)
+      {
+        ++sit;
+      }
+      else
+      {
+        // found a negated literal
+        result.push_back(cl);
+        ++cit;
+        ++sit;
+      }
+    }
+
+    return std::move(result);
+  }
+
+  AveIntVec ApproxVarElim::intersection(
+    AveIntVec const& literals,
+    AveIntVec const& variables
+  )
+  {
+    // ensure non-empty
+    if (literals.empty() || variables.empty())
+      return {};
+    
+    // reserve space for result
+    AveIntVec result;
+    result.reserve(std::min(literals.size(), variables.size()));
+
+    // segregate negative and positive literals
+    auto firstPositiveLiteralIt = literals.cbegin();
+    while (firstPositiveLiteralIt < literals.cend() && *firstPositiveLiteralIt < 0)
+      ++firstPositiveLiteralIt;
+
+    // search for variables for neg literal from back to front
+    auto reverseSearchIt = variables.crbegin();
+    for (auto negLitSearchIt = literals.cbegin(); negLitSearchIt < firstPositiveLiteralIt && reverseSearchIt != variables.crend();)
+    {
+      int negLitVar = std::abs(*negLitSearchIt);
+      if (negLitVar < *reverseSearchIt)
+      {
+        ++reverseSearchIt;
+      }
+      else if (*reverseSearchIt < negLitVar)
+      {
+        ++negLitSearchIt;
+      }
+      else
+      {
+        result.push_back(*negLitSearchIt);
+        ++negLitSearchIt;
+        ++reverseSearchIt;
+      }
+    }
+
+
+    // search for variables for positive literals from front to back
+    auto forwardSearchIt = variables.cbegin();
+    for (auto posLitSearchIt = firstPositiveLiteralIt; posLitSearchIt < literals.cend() && forwardSearchIt != variables.cend();)
+    {
+      if (*posLitSearchIt < *forwardSearchIt)
+      {
+        ++posLitSearchIt;
+      }
+      else if (*forwardSearchIt < *posLitSearchIt)
+      {
+        ++forwardSearchIt;
+      }
+      else
+      {
+        result.push_back(*posLitSearchIt);
+        ++posLitSearchIt;
+        ++forwardSearchIt;
+      }
+    }
+
+    return std::move(result);
   }
 
 

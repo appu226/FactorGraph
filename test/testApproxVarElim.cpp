@@ -29,45 +29,250 @@ SOFTWARE.
 #include <iostream>
 #include <dd/bdd_factory.h>
 #include <dd/dd.h>
+#include <sstream>
+
+
+namespace {
+    struct IntersectionTestCase {
+        oct_22::AveIntVec literals;
+        oct_22::AveIntVec variables;
+        oct_22::AveIntVec expectedResult;
+
+        void run() const {
+            auto result = oct_22::ApproxVarElim::intersection(literals, variables);
+            if (result != expectedResult) {
+                throw std::runtime_error("Intersection test failed");
+            }
+        }
+
+        static void testAll() {
+            std::vector<IntersectionTestCase> testCases = {
+                {{1, 2, 3}, {2, 3, 4}, {2, 3}},
+                {{-3, -2, -1}, {2, 3, 4}, {-3, -2}},
+                {{-4, -2, 3, 4}, {1, 2, 3, 4}, {-4, -2, 3, 4}},
+                {{}, {1, 2, 3}, {}},
+                {{1, 2, 3}, {}, {}},
+                {{-3, -2, -1}, {}, {}},
+                {{}, {}, {}}
+            };
+    
+            for (const auto& testCase : testCases) {
+                testCase.run();
+            }
+        }
+    }; // end struct IntersectionTestCase
+
+
+    struct NegatedLiteralsTestCase {
+        oct_22::AveIntVec clauseLiterals;
+        oct_22::AveIntVec seedLiterals;
+        oct_22::AveIntVec expectedResult;
+
+        void run() const {
+            auto result = oct_22::ApproxVarElim::negatedLiterals(clauseLiterals, seedLiterals);
+            if (result != expectedResult) {
+                throw std::runtime_error(
+                    "Negated literals test failed, Case:{ " 
+                    + to_string() 
+                    + " } Actual: { " 
+                    + intvec_to_string(result) 
+                    + "}");
+            }
+        }
+
+        static std::string intvec_to_string(const oct_22::AveIntVec& vec) {
+            std::stringstream ss;
+            for (const auto& v : vec) {
+                ss << v << ' ';
+            }
+            return ss.str();
+        }
+
+        std::string to_string() const {
+            std::stringstream result;
+            result << "Clause: [";
+            for (const auto& lit : clauseLiterals) {
+                result << lit << ' ';
+            }
+            result << "], Seed: [";
+            for (const auto& lit : seedLiterals) {
+                result << lit << ' ';
+            }
+            result << "], Expected: [";
+            for (const auto& lit : expectedResult) {
+                result << lit << ' ';
+            }
+            result << "]";
+            return result.str();
+        }
+
+        static void testAll() {
+            std::vector<NegatedLiteralsTestCase> testCases = {
+                {{1, 2, 3}, {2, 3}, {}},
+                {{-3, -2, -1}, {-2}, {}},
+                {{-4, -2, 3, 4}, {1, 2}, {-2}},
+                {{}, {1, 2}, {}},
+                {{1, 2, 3}, {}, {}},
+                {{-3, -2, -1}, {}, {}},
+                {{}, {}, {}},
+                {{-16, -14, -12, -10, -8, -6, -4, -2, 3, 4, 7, 8, 11, 12, 15, 16}, {-16, -15, -14, -13, -8, -7, -6, -5, 9, 10, 11, 12, 13, 14, 15, 16}, {-16, -14, -12, -10, 7, 8, 15, 16}}
+            };
+    
+            for (const auto& testCase : testCases) {
+                testCase.run();
+            }
+        }
+    }; // end struct NegatedLiteralsTestCase
+
+    struct ResolveTestCase {
+        oct_22::AveIntVec c1;
+        oct_22::AveIntVec c2;
+        int pivot;
+        oct_22::AveIntVec expectedResult;
+
+        void run() const {
+            auto result = oct_22::ApproxVarElim::resolve(c1, c2, pivot);
+            if (result->literals != expectedResult) {
+                throw std::runtime_error("Resolve test failed");
+            }
+        }
+
+        static void testAll() {
+            std::vector<ResolveTestCase> testCases{
+                {{}, {}, 1, {}},
+                {{-1}, {}, 1, {}},
+                {{-2}, {}, 1, {-2}},
+                {{1}, {}, 1, {}},
+                {{2}, {}, 1, {2}},
+                {{}, {-1}, 1, {}},
+                {{}, {-2}, 1, {-2}},
+                {{}, {1}, 1, {}},
+                {{}, {2}, 1, {2}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 1, {-9, -8, -7, -6, -3, 2, 4, 5, 6, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 2, {-9, -8, -7, -6, -3, 4, 5, 6, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 3, {-9, -8, -7, -6, 2, 4, 5, 6, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 4, {-9, -8, -7, -6, -3, 2, 5, 6, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 5, {-9, -8, -7, -6, -3, 2, 4, 6, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 6, {-9, -8, -7, -3, 2, 4, 5, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 7, {-9, -8, -6, -3, 2, 4, 5, 6, 8}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 8, {-9, -7, -6, -3, 2, 4, 5, 6}},
+                {{-9, -6, -3, 2, 5, 8}, {-9, -8, -7, 4, 5, 6}, 9, {-8, -7, -6, -3, 2, 4, 5, 6, 8}}
+            };
+
+            for (const auto& testCase : testCases) {
+                testCase.run();
+            }
+        }
+    }; // end struct ResolveTestCase
+
+    struct ApproxVarElimTestCase {
+        DdManager* manager;
+        std::istream &qdimacs_stream;
+        std::istream &expected_stream;
+        bool should_be_exact;
+        size_t search_depth;
+
+        void run() {
+            auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+            auto ave = oct_22::ApproxVarElim::parseQdimacs(*qdimacs);
+            ave->approximatelyEliminateAllVariables(search_depth);
+            auto const& clauses = ave->getResultClauses();
+
+            dd::BddWrapper over_approx_result = dd::BddWrapper(bdd_one(manager), manager);
+            for (auto const& clause: clauses)
+            {
+                auto bdd_clause = over_approx_result.zero();
+                for (auto const& var: clause->literals)
+                {
+                    dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
+                    if (var < 0) bdd_var = -bdd_var;
+                    bdd_clause = bdd_clause + bdd_var;
+                }
+                over_approx_result = over_approx_result * bdd_clause;
+            }
+
+
+
+            auto expected_qdimacs = dd::Qdimacs::parseQdimacs(expected_stream);
+            dd::BddWrapper expected_result = dd::BddWrapper(bdd_one(manager), manager);
+            for (auto const& clause: expected_qdimacs->clauses)
+            {
+                auto bdd_clause = expected_result.zero();
+                for (auto const& var: clause)
+                {
+                    dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
+                    if (var < 0) bdd_var = -bdd_var;
+                    bdd_clause = bdd_clause + bdd_var;
+                }
+                expected_result = expected_result * bdd_clause;
+            }
+
+            if (should_be_exact)
+            {
+                if (over_approx_result != expected_result)
+                {
+                    std::cout << "actual result: " << std::endl;
+                    bdd_print_minterms(manager, over_approx_result.getUncountedBdd());
+                    std::cout << "expected result: " << std::endl;
+                    bdd_print_minterms(manager, expected_result.getUncountedBdd());
+                    throw std::runtime_error("ApproxVarElim did not produce exact result.");
+                }
+            }
+            else
+            {
+                if (!(expected_result * -over_approx_result).isZero())
+                {
+                    std::cout << "actual result: " << std::endl;
+                    bdd_print_minterms(manager, over_approx_result.getUncountedBdd());
+                    std::cout << "expected result: " << std::endl;
+                    bdd_print_minterms(manager, expected_result.getUncountedBdd());
+                    throw std::runtime_error("ApproxVarElim did not produce overapprox result.");
+                }
+            }
+        }
+    }; // end struct ApproxVarElimTestCase
+
+
+
+    void testSmallCase1(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 5 3\n"
+            "a 1 2 3 0\n"
+            "e 4 5 0\n"
+            "-1 3 4 0\n"
+            "-4 2 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+
+        std::string expected_string = 
+            "p cnf 5 1\n"
+            "-1 3 2";
+        std::stringstream expected_stream(expected_string);
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 3};
+    }
+
+
+    void testAdder(DdManager* manager)
+    {
+        std::ifstream adder_fin("test/data/adder.qdimacs");
+        std::ifstream expected_fin("test/expected_outputs/adder.cnf");
+
+        ApproxVarElimTestCase tc {manager, adder_fin, expected_fin, false, 5};
+        tc.run();
+
+    } // end testAdder
+} // end anonymous namespace
+
 
 void testApproxVarElim(DdManager * manager)
 {
-    std::ifstream fin("test/data/adder.qdimacs");
-    auto qdimacs = dd::Qdimacs::parseQdimacs(fin);
-    auto ave = oct_22::ApproxVarElim::parseQdimacs(*qdimacs);
-    ave->approximatelyEliminateAllVariables(0);
-    auto const& clauses = ave->getClauses();
-    dd::BddWrapper over_approx_result = dd::BddWrapper(bdd_one(manager), manager);
-    for (auto const& clause: clauses)
-    {
-        auto bdd_clause = over_approx_result.zero();
-        for (auto const& var: clause->literals)
-        {
-            dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
-            if (var < 0) bdd_var = -bdd_var;
-            bdd_clause = bdd_clause + bdd_var;
-        }
-        over_approx_result = over_approx_result * bdd_clause;
-    }
+    IntersectionTestCase::testAll();
+    NegatedLiteralsTestCase::testAll();
+    ResolveTestCase::testAll();
 
-    std::ifstream expected_fin("test/expected_outputs/adder.cnf");
-    auto expected_qdimacs = dd::Qdimacs::parseQdimacs(expected_fin);
-    dd::BddWrapper expected_result = dd::BddWrapper(bdd_one(manager), manager);
-    for (auto const& clause: expected_qdimacs->clauses)
-    {
-        auto bdd_clause = expected_result.zero();
-        for (auto const& var: clause)
-        {
-            dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
-            if (var < 0) bdd_var = -bdd_var;
-            bdd_clause = bdd_clause + bdd_var;
-        }
-        expected_result = expected_result * bdd_clause;
-    }
-
-    if (!(expected_result * -over_approx_result).isZero())
-    {
-        throw std::runtime_error("Error: ApproxVarElim did not produce an overapproximation");
-    }
+    testSmallCase1(manager);
+    testAdder(manager);
     
 }
