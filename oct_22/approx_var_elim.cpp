@@ -237,12 +237,12 @@ namespace oct_22
     if (!resultSeed->literals.empty()
         && resultLiteralsToElim.empty())
     {
-      std::cout << "Adding result seed: ";
-      for (auto const& lit: resultSeed->literals)
-      {
-        std::cout << lit << " ";
-      }
-      std::cout << std::endl;
+      // std::cout << "Adding result seed: ";
+      // for (auto const& lit: resultSeed->literals)
+      // {
+      //   std::cout << lit << " ";
+      // }
+      // std::cout << std::endl;
       m_resultClauses.insert(resultSeed);
       return;
     }

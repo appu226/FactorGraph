@@ -247,10 +247,35 @@ namespace {
 
         std::string expected_string = 
             "p cnf 5 1\n"
-            "-1 3 2";
+            "-1 3 2 0\n";
         std::stringstream expected_stream(expected_string);
 
         ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 3};
+        tc.run();
+    }
+
+    void testSmallCase2(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 11 6\n"
+            "a 6 7 8 9 10 11 0\n"
+            "e 1 2 3 4 5 0\n"
+            "1 6 0\n"
+            "-1 2 7 0\n"
+            "-2 3 8 0\n"
+            "-3 4 9 0\n"
+            "-4 5 10 0\n"
+            "-5 11 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+
+        std::string expected_string = 
+            "p cnf 6 1\n"
+            "6 7 8 9 10 11 0\n";
+        std::stringstream expected_stream(expected_string);
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 7};
+        tc.run();
     }
 
 
@@ -273,6 +298,7 @@ void testApproxVarElim(DdManager * manager)
     ResolveTestCase::testAll();
 
     testSmallCase1(manager);
+    testSmallCase2(manager);
     testAdder(manager);
     
 }
