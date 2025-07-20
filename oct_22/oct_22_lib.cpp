@@ -730,7 +730,7 @@ namespace oct_22 {
   {
       // approximately remove all variables
     auto ave = ApproxVarElim::parseQdimacs(qdimacs);
-    ave->approximatelyEliminateAllVariables(20);
+    ave->approximatelyEliminateAllVariables(3);
     
     
     // convert to cnf

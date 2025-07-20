@@ -225,9 +225,6 @@ namespace oct_22
     size_t maxClauseTreeSize
   )
   {
-    if (0 == maxClauseTreeSize)
-      return;
-
     // # find literals that still need to be eliminated
     auto resultLiteralsToElim = intersection(resultSeed->literals, m_varsToEliminate);
 
@@ -246,6 +243,9 @@ namespace oct_22
       m_resultClauses.insert(resultSeed);
       return;
     }
+
+    if (0 == maxClauseTreeSize)
+    return;
 
     // # check each input clause to see if it can be used to grow the seed
     for (auto cit = inputClauses.begin(); cit != inputClauses.end();)
