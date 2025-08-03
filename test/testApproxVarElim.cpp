@@ -171,12 +171,14 @@ namespace {
         std::istream &expected_stream;
         bool should_be_exact;
         size_t search_depth;
+        bool recompute_exact_result;
 
         void run() {
             auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
             auto ave = oct_22::ApproxVarElim::parseQdimacs(*qdimacs);
             ave->approximatelyEliminateAllVariables(search_depth);
             auto const& clauses = ave->getResultClauses();
+            // std::cout << "ApproxVarElim: " << clauses.size() << " clauses after elimination." << std::endl;
 
             dd::BddWrapper over_approx_result = dd::BddWrapper(bdd_one(manager), manager);
             for (auto const& clause: clauses)
@@ -184,34 +186,60 @@ namespace {
                 auto bdd_clause = over_approx_result.zero();
                 for (auto const& var: clause->literals)
                 {
+                    // std::cout << var << ' ';
                     dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
                     if (var < 0) bdd_var = -bdd_var;
                     bdd_clause = bdd_clause + bdd_var;
                 }
+                // std::cout << std::endl;
                 over_approx_result = over_approx_result * bdd_clause;
             }
 
 
-
-            auto expected_qdimacs = dd::Qdimacs::parseQdimacs(expected_stream);
             dd::BddWrapper expected_result = dd::BddWrapper(bdd_one(manager), manager);
-            for (auto const& clause: expected_qdimacs->clauses)
+            if (recompute_exact_result)
             {
-                auto bdd_clause = expected_result.zero();
-                for (auto const& var: clause)
+                dd::BddWrapper conjunction = expected_result.one();
+                for (auto const& clause: qdimacs->clauses)
                 {
-                    dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
-                    if (var < 0) bdd_var = -bdd_var;
-                    bdd_clause = bdd_clause + bdd_var;
+                    auto bdd_clause = expected_result.zero();
+                    for (auto const& var: clause)
+                    {
+                        dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
+                        if (var < 0) bdd_var = -bdd_var;
+                        bdd_clause = bdd_clause + bdd_var;
+                    }
+                    conjunction = conjunction * bdd_clause;
                 }
-                expected_result = expected_result * bdd_clause;
+                auto quantififedVariables = expected_result.one();
+                for (auto const& qvar: qdimacs->quantifiers.back().variables)
+                {
+                    dd::BddWrapper bdd_qvar(bdd_new_var_with_index(manager, qvar), manager);
+                    quantififedVariables = quantififedVariables * bdd_qvar;
+                }
+                expected_result = conjunction.existentialQuantification(quantififedVariables);
+            }
+            else
+            {
+                auto expected_qdimacs = dd::Qdimacs::parseQdimacs(expected_stream);
+                for (auto const& clause: expected_qdimacs->clauses)
+                {
+                    auto bdd_clause = expected_result.zero();
+                    for (auto const& var: clause)
+                    {
+                        dd::BddWrapper bdd_var(bdd_new_var_with_index(manager, (var > 0 ? var : -var)), manager);
+                        if (var < 0) bdd_var = -bdd_var;
+                        bdd_clause = bdd_clause + bdd_var;
+                    }
+                    expected_result = expected_result * bdd_clause;
+                }
             }
 
             if (should_be_exact)
             {
                 if (over_approx_result != expected_result)
                 {
-                    std::cout << "actual result: " << std::endl;
+                    std::cout << "computed result: " << std::endl;
                     bdd_print_minterms(manager, over_approx_result.getUncountedBdd());
                     std::cout << "expected result: " << std::endl;
                     bdd_print_minterms(manager, expected_result.getUncountedBdd());
@@ -222,7 +250,7 @@ namespace {
             {
                 if (!(expected_result * -over_approx_result).isZero())
                 {
-                    std::cout << "actual result: " << std::endl;
+                    std::cout << "computed result: " << std::endl;
                     bdd_print_minterms(manager, over_approx_result.getUncountedBdd());
                     std::cout << "expected result: " << std::endl;
                     bdd_print_minterms(manager, expected_result.getUncountedBdd());
@@ -250,7 +278,7 @@ namespace {
             "-1 3 2 0\n";
         std::stringstream expected_stream(expected_string);
 
-        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 3};
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 3, false};
         tc.run();
     }
 
@@ -274,7 +302,48 @@ namespace {
             "6 7 8 9 10 11 0\n";
         std::stringstream expected_stream(expected_string);
 
-        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 7};
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 7, false};
+        tc.run();
+    }
+
+    void testSmallCase3(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 11 6\n"
+            "a 6 7 8 9 10 11 0\n"
+            "e 1 2 3 4 5 0\n"
+            "1 6 0\n"
+            "-1 2 7 0\n"
+            "-2 3 8 0\n"
+            "-3 4 9 0\n"
+            "-4 5 10 0\n"
+            "-5 11 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 7, true};
+        tc.run();
+    }
+
+    void testSmallCase4(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 12 6\n"
+            "a 6 7 8 9 10 11 12 0\n"
+            "e 1 2 3 4 5 0\n"
+            "1 6 0\n"
+            "-1 2 7 0\n"
+            "-2 3 8 0\n"
+            "-3 4 9 0\n"
+            "-4 5 10 0\n"
+            "-5 1 11 0\n"
+            "-1 12 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 9, true};
         tc.run();
     }
 
@@ -284,10 +353,20 @@ namespace {
         std::ifstream adder_fin("test/data/adder.qdimacs");
         std::ifstream expected_fin("test/expected_outputs/adder.cnf");
 
-        ApproxVarElimTestCase tc {manager, adder_fin, expected_fin, false, 5};
+        ApproxVarElimTestCase tc {manager, adder_fin, expected_fin, false, 3, false};
         tc.run();
 
     } // end testAdder
+
+    void testFactorization8(DdManager* manager)
+    {
+        std::ifstream factorization8_fin("test/data/Factorization_factorization8_factor_graph_input.qdimacs");
+        std::ifstream expected_fin("test/expected_outputs/Factorization_factorization8.output.cnf");
+
+        ApproxVarElimTestCase tc {manager, factorization8_fin, expected_fin, false, 4, false};
+        tc.run();
+
+    } // end testFactorization8
 } // end anonymous namespace
 
 
@@ -299,6 +378,13 @@ void testApproxVarElim(DdManager * manager)
 
     testSmallCase1(manager);
     testSmallCase2(manager);
+    // std::cout << "Running testSmallCase3..." << std::endl;
+    testSmallCase3(manager);
+    // std::cout << "Running testSmallCase4..." << std::endl;
+    testSmallCase4(manager);
+    // std::cout << "Running adder test..." << std::endl;
     testAdder(manager);
-    
+    // std::cout << "Runnning factorization8 test..." << std::endl;
+    // testFactorization8(manager);
+    // std::cout << "All ApproxVarElim tests passed!" << std::endl;
 }

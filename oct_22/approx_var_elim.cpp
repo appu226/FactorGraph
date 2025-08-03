@@ -28,6 +28,7 @@ SOFTWARE.
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
+#include <functional>
 
 // #define AVEDBG(x) std::cout << x << std::endl;
 #define AVEDBG(x)
@@ -36,7 +37,7 @@ namespace oct_22
 {
 
   AveClause::AveClause(AveIntVec v_literals)
-    : literals(std::move(v_literals)), isAcceptable(false), numFlippedLiterals(0), hash(0)
+    : literals(std::move(v_literals)), numFlippedQuantifiedLiterals(0), numFlippedNonQuantifiedLiterals(0), hash(0)
   {
     std::sort(literals.begin(), literals.end());
     auto last = std::unique(literals.begin(), literals.end());
@@ -47,53 +48,133 @@ namespace oct_22
     }
   }
 
-  bool AveClause::operator==(const AveClause& that) const
+  AveSeedModification::AveSeedModification(
+    AveIntVec const& oldSeed,
+    AveIntVec const& clause, 
+    AveIntVec const& quantifiedVariables,
+    AveClausePtr& newSeed)
   {
-    if (hash != that.hash)
+    // create a new seed clause
+    newSeed = std::make_shared<AveClause>(AveIntVec{});
+    auto& newSeedLiterals = newSeed->literals;
+    newSeedLiterals.reserve(oldSeed.size() + clause.size());
+
+    // check for flipped quantified literal
+    flippedVar = 0;
     {
-      return false;
+      // iterators to search through oldSeed, clause and quantifiedVariables
+      auto osit = oldSeed.cbegin(), osend = oldSeed.cend();
+      auto ncit = clause.crbegin(), cend = clause.crend(); 
+      while (osit != osend && ncit != cend)
+      {
+        auto oldSeedLit = *osit;
+        auto negatedClauseLit = -*ncit;
+        if (oldSeedLit < negatedClauseLit)
+        {
+          ++osit;
+        }
+        else if (negatedClauseLit < oldSeedLit)
+        {
+          ++ncit;
+        }
+        else
+        {
+          // found a negated literal
+          if (flippedVar != 0 && flippedVar != std::abs(oldSeedLit))
+          {
+            throw std::runtime_error("Multiple flipped literals found in seed and clause.");
+          }
+          flippedVar = std::abs(oldSeedLit);
+          quantifiedLiteralsToRemove.push_back(oldSeedLit);
+          break;
+        }
+      }
     }
-    return this->literals == that.literals;
-  }
-  bool AveClause::operator!=(const AveClause& that) const
-  {
-    if (hash != that.hash)
+
+    // populate the new seed literals
     {
-      return true;
-    }
-    return this->literals != that.literals;
-  }
-  bool AveClause::operator<(const AveClause& that) const
-  {
-    if (hash < that.hash)
-    {
-      return true;
-    }
-    else if (hash > that.hash)
-    {
-      return false;
-    }
-    return this->literals < that.literals;
-  }
-  bool AveClause::operator>(const AveClause& that) const
-  {
-    if (hash > that.hash)
-    {
-      return true;
-    }
-    else if (hash < that.hash)
-    {
-      return false;
-    }
-    return this->literals > that.literals;
-  }
-  bool AveClause::operator<=(const AveClause& that) const
-  {
-    return !(*this > that);
-  }
-  bool AveClause::operator>=(const AveClause& that) const
-  {
-    return !(*this < that);
+      // iterators to search through oldSeed, clause and quantifiedVariables
+      auto osit = oldSeed.begin(), osend = oldSeed.end();
+      auto cit = clause.begin(), cend = clause.end(); 
+      auto qvit = quantifiedVariables.begin(), qvend = quantifiedVariables.end();
+      auto nqvit = quantifiedVariables.rbegin(), nqvend = quantifiedVariables.rend();
+      while (osit != osend || cit != cend)
+      {
+        int next_literal = 0;
+        bool is_newly_added = false;
+        if (cit == cend || (osit != osend && *osit < *cit))
+        {
+          // add old seed literal
+          next_literal = *osit;
+          ++osit;
+        }
+        else if (osit == osend || (cit != cend && *cit < *osit))
+        {
+          // add clause literal
+          next_literal = *cit;
+          is_newly_added = true;
+          ++cit;
+        }
+        else
+        {
+          // both are equal, add one of them
+          next_literal = *osit;
+          ++osit;
+          ++cit;
+        }
+        if (std::abs(next_literal) == flippedVar)
+        {
+          // this is the flipped literal, skip it
+          continue;
+        }
+        else
+        {
+          bool is_quantified = false;
+          if (next_literal > 0)
+          {
+            // positive literal
+            while (qvit != qvend && *qvit < next_literal)
+            {
+              ++qvit;
+            }
+            if (qvit != qvend && *qvit == next_literal)
+            {
+              is_quantified = true;
+              ++qvit;
+            }
+          }
+          else
+          {
+            // negative literal
+            while (nqvit != nqvend && -*nqvit < next_literal)
+            {
+              ++nqvit;
+            }
+            if (nqvit != nqvend && -*nqvit == next_literal)
+            {
+              is_quantified = true;
+              ++nqvit;
+            }
+          }
+          
+          if (is_quantified)
+          {
+            if (is_newly_added)
+            {
+              quantifiedLiteralsToAdd.push_back(next_literal);
+            }
+          }
+          else
+          {
+            if (is_newly_added)
+            {
+              nonQuantifiedLiteralsToAdd.push_back(next_literal);
+            }
+          }
+          newSeedLiterals.push_back(next_literal);
+        }
+      }
+    } 
   }
 
   ApproxVarElim::Ptr ApproxVarElim::parseQdimacs(dd::Qdimacs const& qdimacs)
@@ -121,6 +202,7 @@ namespace oct_22
     }
     result->m_varsToEliminate = qdimacs.quantifiers.back().variables;
     std::sort(result->m_varsToEliminate.begin(), result->m_varsToEliminate.end());
+    result->m_hasVarPivoted.resize(qdimacs.numVariables + 1, false);
     return result;
   }
 
@@ -133,17 +215,8 @@ namespace oct_22
     for (auto const& literal: clause->literals)
     {
       auto lit = getLiteral(literal);
-      lit->clauses.insert(clause);
+      lit->clauses.push_back(clause);
     }
-  }
-
-  void ApproxVarElim::removeClause(const AveClausePtr& clause)
-  {
-    for (auto const& literal: clause->literals)
-    {
-      getLiteral(literal)->clauses.erase(clause);
-    }
-    m_clauses.erase(clause);
   }
 
   AveLiteralPtr const& ApproxVarElim::getLiteral(int literal) const
@@ -174,7 +247,7 @@ namespace oct_22
     }
   }
 
-  AveClausePtrSet const& ApproxVarElim::getClausesWithLiteral(int literal) const
+  AveClausePtrVec const& ApproxVarElim::getClausesWithLiteral(int literal) const
   {
     return getLiteral(literal)->clauses;
   }
@@ -209,9 +282,20 @@ namespace oct_22
     //     filtered_inputs = filtered_inputs \ {c}   # remove c, as we have explored all results with c
     for (auto cit = filteredInputs.begin(); cit != filteredInputs.end();)
     {
-      auto c = cit->value;                                // next input
+      auto c = cit->value;                          // next input
       cit = filteredInputs.get_next_and_erase(cit); // remove input, and increment iterator
-      elimHelper(c, filteredInputs, maxClauseTreeSize);
+
+      // set clause as seed
+      AveClausePtr newSeed;
+      AveSeedModification seedModification({}, c->literals, m_varsToEliminate, newSeed);
+      applySeedModification(seedModification);
+
+      // recurse and grow the seed
+      elimHelper(newSeed, filteredInputs, maxClauseTreeSize);
+
+      // reset the seed
+      seedModification.flip();
+      applySeedModification(seedModification);
     }
   }
 
@@ -253,22 +337,38 @@ namespace oct_22
       // # check if c can be used to grow seed -> there should be exactly one negated literal, 
       // # and it should be in varsToEliminate
       AveClausePtr c = cit->value;
-      AveIntVec allNegatedLiterals = negatedLiterals(c->literals, resultSeed->literals);
-      if (allNegatedLiterals.size() == 1 && std::binary_search(m_varsToEliminate.cbegin(), m_varsToEliminate.cend(), std::abs(allNegatedLiterals[0])))
+      if (c->isResolvable())
       {
         // # grow the seed
-        auto v = std::abs(allNegatedLiterals[0]);
-        AveClausePtr newSeed = resolve(resultSeed->literals, c->literals, v);
+        AveClausePtr newSeed;
+        AveSeedModification seedModification(resultSeed->literals, c->literals, m_varsToEliminate, newSeed);
+        if (m_hasVarPivoted[seedModification.flippedVar])
+        {
+          // var has already been used as pivot, ignore this clause
+          cit = cit->next;
+          continue;
+        }
+        applySeedModification(seedModification);
+        m_hasVarPivoted[seedModification.flippedVar] = true;
+        
+        // remove c from input clauses, and increment iterator
+        auto erasedCit = cit;
+        cit = inputClauses.get_next_and_erase(cit);
         
         // # recursive step
-        auto erasedCit = cit;
-        cit = inputClauses.get_next_and_erase(cit); // remove c from input clauses, and increment iterator
         elimHelper(
           newSeed,
           inputClauses,
           maxClauseTreeSize - 1
         );
-        inputClauses.reinsert_node_before_node(erasedCit, cit); // add c back to input clauses
+
+        // add c back to input clauses
+        inputClauses.reinsert_node_before_node(erasedCit, cit);
+
+        // reset the seed
+        seedModification.flip();
+        applySeedModification(seedModification);
+        m_hasVarPivoted[seedModification.flippedVar] = false;
       }
       else
       {
@@ -427,6 +527,41 @@ namespace oct_22
     }
 
     return std::move(result);
+  }
+
+  void ApproxVarElim::applySeedModification(
+    AveSeedModification const& seedModification
+  )
+  {
+    using ClauseOperation = std::function<void(AveClause&)>;
+    auto applyOperation = [this](AveIntVec const& flippedLiterals, ClauseOperation operation)-> void
+    {
+      for (auto const& lit: flippedLiterals)
+      {
+        auto& clauses = getClausesWithLiteral(-lit);
+        for (auto& clause: clauses)
+        {
+          operation(*clause);
+        }
+      }
+    };
+
+    applyOperation(
+      seedModification.quantifiedLiteralsToAdd,
+      [](AveClause& clause) -> void { ++clause.numFlippedQuantifiedLiterals; }
+    );
+    applyOperation(
+      seedModification.nonQuantifiedLiteralsToAdd,
+      [](AveClause& clause) -> void { ++clause.numFlippedNonQuantifiedLiterals; }
+    );
+    applyOperation(
+      seedModification.quantifiedLiteralsToRemove,
+      [](AveClause& clause) -> void { --clause.numFlippedQuantifiedLiterals; }
+    );
+    applyOperation(
+      seedModification.nonQuantifiedLiteralsToRemove,
+      [](AveClause& clause) -> void { --clause.numFlippedNonQuantifiedLiterals; }
+    );
   }
 
 

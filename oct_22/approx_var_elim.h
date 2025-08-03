@@ -48,17 +48,69 @@ namespace oct_22
   struct AveClause
   {
     AveIntVec literals;
-    bool isAcceptable;
-    int numFlippedLiterals;
+    size_t numFlippedQuantifiedLiterals;
+    size_t numFlippedNonQuantifiedLiterals;
     size_t hash;
     AveClause(AveIntVec v_literals);
 
-    bool operator==(const AveClause& that) const;
-    bool operator!=(const AveClause& that) const;
-    bool operator<(const AveClause& that) const;
-    bool operator>(const AveClause& that) const;
-    bool operator<=(const AveClause& that) const;
-    bool operator>=(const AveClause& that) const;
+    bool isResolvable() const
+    {
+      return numFlippedQuantifiedLiterals == 1 && numFlippedNonQuantifiedLiterals == 0;
+    }
+
+    bool operator==(const AveClause& that) const
+    {
+      if (hash != that.hash)
+      {
+        return false;
+      }
+      return this->literals == that.literals;
+    }
+
+    bool operator!=(const AveClause& that) const
+    {
+      if (hash != that.hash)
+      {
+        return true;
+      }
+      return this->literals != that.literals;
+    }
+
+    bool operator<(const AveClause& that) const
+    {
+      if (hash < that.hash)
+      {
+        return true;
+      }
+      else if (hash > that.hash)
+      {
+        return false;
+      }
+      return this->literals < that.literals;
+    }
+
+    bool operator>(const AveClause& that) const
+    {
+      if (hash > that.hash)
+      {
+        return true;
+      }
+      else if (hash < that.hash)
+      {
+        return false;
+      }
+      return this->literals > that.literals;
+    }
+
+    bool operator<=(const AveClause& that) const
+    {
+      return !(*this > that);
+    }
+    
+    bool operator>=(const AveClause& that) const
+    {
+      return !(*this < that);
+    }
   };
 
   struct AveClausePtrHash
@@ -77,13 +129,33 @@ namespace oct_22
   };
 
   using AveClausePtrSet = std::unordered_set<AveClausePtr, AveClausePtrHash, AveClausePtrEqual>;
+  using AveClausePtrVec = std::vector<AveClausePtr>;
 
   struct AveLiteral
   {
     int literal;
-    AveClausePtrSet clauses;
+    AveClausePtrVec clauses;
     AveLiteral(int v_literal) : literal(v_literal), clauses() {}
   };
+
+  struct AveSeedModification {
+    AveIntVec quantifiedLiteralsToAdd;
+    AveIntVec nonQuantifiedLiteralsToAdd;
+    AveIntVec quantifiedLiteralsToRemove;
+    AveIntVec nonQuantifiedLiteralsToRemove;
+    int flippedVar;
+
+    AveSeedModification(AveIntVec const& oldSeed,
+                        AveIntVec const& clause, 
+                        AveIntVec const& quantifiedVariables,
+                        AveClausePtr& newSeed);
+  
+    void flip() {
+      std::swap(quantifiedLiteralsToAdd, quantifiedLiteralsToRemove);
+      std::swap(nonQuantifiedLiteralsToAdd, nonQuantifiedLiteralsToRemove);
+    }
+  };
+  
 
   class ApproxVarElim
   {
@@ -93,6 +165,7 @@ namespace oct_22
       AveLiteralPtrVec m_positiveLiterals;
       AveLiteralPtrVec m_negativeLiterals;
       AveIntVec m_varsToEliminate;
+      std::vector<bool> m_hasVarPivoted;
 
 
     public:
@@ -127,13 +200,16 @@ namespace oct_22
       using ClauseList = parakram::DlList<AveClausePtr>;
 
       void addClause(const AveClausePtr& clause);
-      void removeClause(const AveClausePtr& clause);
       AveLiteralPtr const& getLiteral(int literal) const;
-      AveClausePtrSet const& getClausesWithLiteral(int literal) const;
+      AveClausePtrVec const& getClausesWithLiteral(int literal) const;
       void elimHelper(
         AveClausePtr const& resultSeed,
         ClauseList& inputClauses,
         size_t numClauseIncPerVarElim);
+
+      void applySeedModification(
+        AveSeedModification const& seedModification
+      );
 
   }; // end class ApproxVarElim
 

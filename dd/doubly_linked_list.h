@@ -179,8 +179,9 @@ namespace parakram {
     {
         if (!it) return nullptr; // Nothing to erase
         if (it == head) {
+            auto ret = it->next; // Save the next iterator
             pop_front();
-            return nullptr;
+            return ret;
         } else if (it == tail) {
             pop_back();
             return nullptr;
