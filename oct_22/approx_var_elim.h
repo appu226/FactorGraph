@@ -27,6 +27,7 @@ SOFTWARE.
 #include <dd/qdimacs.h>
 #include <dd/doubly_linked_list.h>
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -44,6 +45,50 @@ namespace oct_22
   using AveLiteralRPtr = AveLiteral*;
   using AveLiteralRPtrVec = std::vector<AveLiteralRPtr>;
   using AveClausePtr = std::shared_ptr<AveClause>;
+  using AveClauseList = parakram::DlList<AveClausePtr>;
+  using AveClauseListPtr = std::shared_ptr<AveClauseList>;
+  using AveClauseListWPtr = std::weak_ptr<AveClauseList>;
+  using AveClauseListNode = parakram::DlListNode<AveClausePtr>;
+  using AveClauseListNodePtr = std::shared_ptr<AveClauseListNode>;
+  using AveClauseListNodeWPtr = std::weak_ptr<AveClauseListNode>;
+  using AveClauseUpdateFunc = std::function<void(AveClause&)>;
+
+  struct AveLiteralBoolMap {
+    std::vector<bool> positiveLiterals;
+    std::vector<bool> negativeLiterals;
+
+    using Ptr = std::shared_ptr<AveLiteralBoolMap>;
+
+    AveLiteralBoolMap(size_t numLiterals)
+      : positiveLiterals(numLiterals, false),
+        negativeLiterals(numLiterals, false)
+    {
+    }
+
+    bool get(int literal) const
+    {
+      if (literal > 0)
+      {
+        return positiveLiterals[literal - 1];
+      }
+      else
+      {
+        return negativeLiterals[-literal - 1];
+      }
+    }
+
+    void set(int literal, bool value)
+    {
+      if (literal > 0)
+      {
+        positiveLiterals[literal - 1] = value;
+      }
+      else
+      {
+        negativeLiterals[-literal - 1] = value;
+      }
+    }
+  };
 
   struct AveClause
   {
@@ -51,11 +96,36 @@ namespace oct_22
     size_t numFlippedQuantifiedLiterals;
     size_t numFlippedNonQuantifiedLiterals;
     size_t hash;
+    AveClauseListWPtr resolvableList;
+    AveClauseListNodeWPtr resolvableListIter;
+    bool isEnabled;
+    
     AveClause(AveIntVec v_literals);
 
     bool isResolvable() const
     {
       return numFlippedQuantifiedLiterals == 1 && numFlippedNonQuantifiedLiterals == 0;
+    }
+
+    void update(AveClauseUpdateFunc operation)
+    {
+      bool oldIsResolvable = isResolvable();
+      operation(*this);
+      AveClauseListPtr list = resolvableList.lock();
+      if (!list)
+        return;
+      AveClauseListNodePtr iter = resolvableListIter.lock();
+      if (!iter)
+        return;
+      bool newIsResolvable = isResolvable();
+      if (oldIsResolvable && !newIsResolvable)
+      {
+        list->get_next_and_erase(iter);
+      }
+      else if (!oldIsResolvable && newIsResolvable && isEnabled)
+      {
+        list->reinsert_node_before_node(iter, list->end());
+      }
     }
 
     bool operator==(const AveClause& that) const
@@ -143,7 +213,7 @@ namespace oct_22
     AveIntVec nonQuantifiedLiteralsToAdd;
     AveIntVec quantifiedLiteralsToRemove;
     AveIntVec nonQuantifiedLiteralsToRemove;
-    int flippedVar;
+    int pivotSeedLiteral;
 
     AveSeedModification(AveIntVec const& oldSeed,
                         AveIntVec const& clause, 
@@ -165,7 +235,7 @@ namespace oct_22
       AveLiteralPtrVec m_positiveLiterals;
       AveLiteralPtrVec m_negativeLiterals;
       AveIntVec m_varsToEliminate;
-      std::vector<bool> m_hasVarPivoted;
+      AveLiteralBoolMap::Ptr m_isLiteralUsedAsPivot;
 
 
     public:
@@ -197,14 +267,13 @@ namespace oct_22
       );
 
     private:
-      using ClauseList = parakram::DlList<AveClausePtr>;
 
       void addClause(const AveClausePtr& clause);
       AveLiteralPtr const& getLiteral(int literal) const;
       AveClausePtrVec const& getClausesWithLiteral(int literal) const;
       void elimHelper(
         AveClausePtr const& resultSeed,
-        ClauseList& inputClauses,
+        AveClauseList& resolvableClauses,
         size_t numClauseIncPerVarElim);
 
       void applySeedModification(

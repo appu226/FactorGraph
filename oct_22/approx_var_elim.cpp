@@ -37,7 +37,13 @@ namespace oct_22
 {
 
   AveClause::AveClause(AveIntVec v_literals)
-    : literals(std::move(v_literals)), numFlippedQuantifiedLiterals(0), numFlippedNonQuantifiedLiterals(0), hash(0)
+    : literals(std::move(v_literals)),
+    numFlippedQuantifiedLiterals(0),
+    numFlippedNonQuantifiedLiterals(0),
+    hash(0),
+    resolvableList(),
+    resolvableListIter(),
+    isEnabled(true)
   {
     std::sort(literals.begin(), literals.end());
     auto last = std::unique(literals.begin(), literals.end());
@@ -60,7 +66,7 @@ namespace oct_22
     newSeedLiterals.reserve(oldSeed.size() + clause.size());
 
     // check for flipped quantified literal
-    flippedVar = 0;
+    pivotSeedLiteral = 0;
     {
       // iterators to search through oldSeed, clause and quantifiedVariables
       auto osit = oldSeed.cbegin(), osend = oldSeed.cend();
@@ -80,11 +86,11 @@ namespace oct_22
         else
         {
           // found a negated literal
-          if (flippedVar != 0 && flippedVar != std::abs(oldSeedLit))
+          if (pivotSeedLiteral != 0 && pivotSeedLiteral != oldSeedLit)
           {
             throw std::runtime_error("Multiple flipped literals found in seed and clause.");
           }
-          flippedVar = std::abs(oldSeedLit);
+          pivotSeedLiteral = oldSeedLit;
           quantifiedLiteralsToRemove.push_back(oldSeedLit);
           break;
         }
@@ -122,7 +128,7 @@ namespace oct_22
           ++osit;
           ++cit;
         }
-        if (std::abs(next_literal) == flippedVar)
+        if (std::abs(next_literal) == std::abs(pivotSeedLiteral))
         {
           // this is the flipped literal, skip it
           continue;
@@ -182,6 +188,7 @@ namespace oct_22
     Ptr result = std::make_shared<ApproxVarElim>();
     result->m_positiveLiterals.reserve(qdimacs.numVariables);
     result->m_negativeLiterals.reserve(qdimacs.numVariables);
+    result->m_isLiteralUsedAsPivot = std::make_shared<AveLiteralBoolMap>(qdimacs.numVariables);
     for (int i = 1; i <= qdimacs.numVariables; ++i)
     {
       result->m_positiveLiterals.emplace_back(new AveLiteral(i));
@@ -202,7 +209,6 @@ namespace oct_22
     }
     result->m_varsToEliminate = qdimacs.quantifiers.back().variables;
     std::sort(result->m_varsToEliminate.begin(), result->m_varsToEliminate.end());
-    result->m_hasVarPivoted.resize(qdimacs.numVariables + 1, false);
     return result;
   }
 
@@ -261,18 +267,27 @@ namespace oct_22
   {
     // results = [c for c in input_clauses if not c.has_any(vars_to_elim)]
     // filtered_inputs = [c for c in input_clauses if c.has_any(vars_to_elim)]
-    ClauseList filteredInputs;
+    std::vector<AveClausePtr> terminalClauses;
+    AveClauseListPtr resolvableClauses = std::make_shared<AveClauseList>();
+    std::vector<AveClauseListNodePtr> iterStore;
     auto const& vte = m_varsToEliminate;
     for (auto const& clause: m_clauses)
     {
-      if (std::none_of(clause->literals.cbegin(), clause->literals.cend(),
-                       [&vte](int lit) -> bool { return std::find(vte.cbegin(), vte.cend(), std::abs(lit)) != vte.cend(); }))
+      auto varsToEliminate = intersection(clause->literals, vte);
+      if (varsToEliminate.empty())
       {
         m_resultClauses.insert(clause);
       }
       else
       {
-        filteredInputs.push_back(clause);
+        iterStore.push_back(resolvableClauses->push_back(clause));
+        resolvableClauses->pop_back();
+        clause->resolvableListIter = iterStore.back();
+        clause->resolvableList = resolvableClauses;
+        if (varsToEliminate.size() == 1)
+        {
+          terminalClauses.push_back(clause);
+        }
       }
     }
 
@@ -280,22 +295,23 @@ namespace oct_22
     // for c in filtered_inputs:
     //     elim_helper(c, filtered_inputs \ {c}, vars_to_elim, results, 0, maxClauseTreeSize)
     //     filtered_inputs = filtered_inputs \ {c}   # remove c, as we have explored all results with c
-    for (auto cit = filteredInputs.begin(); cit != filteredInputs.end();)
+    for (auto const& terminalClause: terminalClauses)
     {
-      auto c = cit->value;                          // next input
-      cit = filteredInputs.get_next_and_erase(cit); // remove input, and increment iterator
-
       // set clause as seed
       AveClausePtr newSeed;
-      AveSeedModification seedModification({}, c->literals, m_varsToEliminate, newSeed);
+      AveSeedModification seedModification({}, terminalClause->literals, m_varsToEliminate, newSeed);
       applySeedModification(seedModification);
 
       // recurse and grow the seed
-      elimHelper(newSeed, filteredInputs, maxClauseTreeSize);
+      elimHelper(newSeed, *resolvableClauses, maxClauseTreeSize);
 
       // reset the seed
       seedModification.flip();
       applySeedModification(seedModification);
+
+      // never look at this clause again
+      terminalClause->isEnabled = false;
+
     }
   }
 
@@ -305,7 +321,7 @@ namespace oct_22
   // as we try to eliminate vars
   void ApproxVarElim::elimHelper(
     AveClausePtr const& resultSeed,
-    ClauseList& inputClauses,
+    AveClauseList& resolvableClauses,
     size_t maxClauseTreeSize
   )
   {
@@ -331,49 +347,47 @@ namespace oct_22
     if (0 == maxClauseTreeSize)
     return;
 
+    std::vector<AveClausePtr> resolvableClausesVec;
+    for(auto cit = resolvableClauses.begin(); cit != resolvableClauses.end(); cit = cit->next)
+    {
+      resolvableClausesVec.push_back(cit->value);
+    }
+
     // # check each input clause to see if it can be used to grow the seed
-    for (auto cit = inputClauses.begin(); cit != inputClauses.end();)
+    for (auto const& c: resolvableClausesVec)
     {
       // # check if c can be used to grow seed -> there should be exactly one negated literal, 
       // # and it should be in varsToEliminate
-      AveClausePtr c = cit->value;
-      if (c->isResolvable())
+      if (!c->isResolvable())
       {
-        // # grow the seed
-        AveClausePtr newSeed;
-        AveSeedModification seedModification(resultSeed->literals, c->literals, m_varsToEliminate, newSeed);
-        if (m_hasVarPivoted[seedModification.flippedVar])
-        {
-          // var has already been used as pivot, ignore this clause
-          cit = cit->next;
-          continue;
-        }
-        applySeedModification(seedModification);
-        m_hasVarPivoted[seedModification.flippedVar] = true;
-        
-        // remove c from input clauses, and increment iterator
-        auto erasedCit = cit;
-        cit = inputClauses.get_next_and_erase(cit);
-        
-        // # recursive step
-        elimHelper(
-          newSeed,
-          inputClauses,
-          maxClauseTreeSize - 1
-        );
-
-        // add c back to input clauses
-        inputClauses.reinsert_node_before_node(erasedCit, cit);
-
-        // reset the seed
-        seedModification.flip();
-        applySeedModification(seedModification);
-        m_hasVarPivoted[seedModification.flippedVar] = false;
+        throw std::runtime_error("Clause is not resolvable, but should be.");
       }
-      else
+      if  (!c->isEnabled)
       {
-        cit = cit->next; // advance iterator normally
+        continue;
       }
+      // # grow the seed
+      AveClausePtr newSeed;
+      AveSeedModification seedModification(resultSeed->literals, c->literals, m_varsToEliminate, newSeed);
+      if (m_isLiteralUsedAsPivot->get(seedModification.pivotSeedLiteral))
+      {
+        continue;
+      }
+
+      applySeedModification(seedModification);
+      m_isLiteralUsedAsPivot->set(seedModification.pivotSeedLiteral, true);
+      
+      // # recursive step
+      elimHelper(
+        newSeed,
+        resolvableClauses,
+        maxClauseTreeSize - 1
+      );
+
+      // reset the seed
+      m_isLiteralUsedAsPivot->set(seedModification.pivotSeedLiteral, false);
+      seedModification.flip();
+      applySeedModification(seedModification);
     }
                
   }
@@ -541,7 +555,7 @@ namespace oct_22
         auto& clauses = getClausesWithLiteral(-lit);
         for (auto& clause: clauses)
         {
-          operation(*clause);
+          clause->update(operation);
         }
       }
     };

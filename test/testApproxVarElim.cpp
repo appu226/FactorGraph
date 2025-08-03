@@ -347,6 +347,77 @@ namespace {
         tc.run();
     }
 
+    void testSmallCase5(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 6 4\n"
+            "a 3 4 5 6 0\n"
+            "e 1 2 0\n"
+            "1 3 0\n"
+            "-1 -2 4 0\n"
+            "-1 -2 5 0\n"
+            "2 6 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 4, true};
+        tc.run();
+    }
+
+    void testSmallCase6(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 5 3\n"
+            "a 1 2 3 0\n"
+            "e 4 5 0\n"
+            "1 4 0\n"
+            "2 -4 5 0\n"
+            "3 -5 -4 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 4, true};
+        tc.run();
+    }
+
+    void testSmallCase7(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 6 3\n"
+            "a 1 2 3 0\n"
+            "e 4 5 6 0\n"
+            "1 -4 -5 0\n"
+            "2 4 -6 0\n"
+            "3 6 5 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 4, true};
+        tc.run();
+    }
+
+
+    void testSmallCase8(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 8 4\n"
+            "a 1 2 3 4 0\n"
+            "e 5 6 7 0\n"
+            "1 -5 -7 0\n"
+            "2 5 6 0\n"
+            "3 5 -6 0\n"
+            "4 7 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, true, 18, true};
+        tc.run();
+    }
+
 
     void testAdder(DdManager* manager)
     {
@@ -363,7 +434,7 @@ namespace {
         std::ifstream factorization8_fin("test/data/Factorization_factorization8_factor_graph_input.qdimacs");
         std::ifstream expected_fin("test/expected_outputs/Factorization_factorization8.output.cnf");
 
-        ApproxVarElimTestCase tc {manager, factorization8_fin, expected_fin, false, 4, false};
+        ApproxVarElimTestCase tc {manager, factorization8_fin, expected_fin, false, 3, false};
         tc.run();
 
     } // end testFactorization8
@@ -382,9 +453,17 @@ void testApproxVarElim(DdManager * manager)
     testSmallCase3(manager);
     // std::cout << "Running testSmallCase4..." << std::endl;
     testSmallCase4(manager);
+    // std::cout << "Running testSmallCase5..." << std::endl;
+    testSmallCase5(manager);
+    // std::cout << "Running testSmallCase6..." << std::endl;
+    testSmallCase6(manager);
+    // std::cout << "Running testSmallCase7..." << std::endl;
+    testSmallCase7(manager);
+    // std::cout << "Running testSmallCase8..." << std::endl;
+    testSmallCase8(manager);
     // std::cout << "Running adder test..." << std::endl;
     testAdder(manager);
     // std::cout << "Runnning factorization8 test..." << std::endl;
-    // testFactorization8(manager);
+    testFactorization8(manager);
     // std::cout << "All ApproxVarElim tests passed!" << std::endl;
 }
