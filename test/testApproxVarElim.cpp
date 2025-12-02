@@ -237,6 +237,7 @@ namespace {
 
             if (should_be_exact)
             {
+                
                 if (over_approx_result != expected_result)
                 {
                     std::cout << "computed result: " << std::endl;
@@ -418,6 +419,26 @@ namespace {
         tc.run();
     }
 
+    void testSmallCase9(DdManager* manager)
+    {
+        std::string problem_qdimacs = 
+            "p cnf 11 6\n"
+            "a 1 2 3 4 5 6 0\n"
+            "e 7 8 9 10 11 0\n"
+            "1 7 9 0\n"
+            "-7 2 8 0\n"
+            "-8 3 -7 0\n"
+            "-9 4 10 0\n"
+            "-10 11 5 0\n"
+            "-11 6 -10 0\n"
+            ;
+        std::stringstream qdimacs_stream(problem_qdimacs);
+        std::stringstream expected_stream;
+
+        ApproxVarElimTestCase tc {manager, qdimacs_stream, expected_stream, false, 18, false};
+        tc.run();
+    }
+
 
     void testAdder(DdManager* manager)
     {
@@ -449,21 +470,13 @@ void testApproxVarElim(DdManager * manager)
 
     testSmallCase1(manager);
     testSmallCase2(manager);
-    // std::cout << "Running testSmallCase3..." << std::endl;
     testSmallCase3(manager);
-    // std::cout << "Running testSmallCase4..." << std::endl;
     testSmallCase4(manager);
-    // std::cout << "Running testSmallCase5..." << std::endl;
     testSmallCase5(manager);
-    // std::cout << "Running testSmallCase6..." << std::endl;
     testSmallCase6(manager);
-    // std::cout << "Running testSmallCase7..." << std::endl;
     testSmallCase7(manager);
-    // std::cout << "Running testSmallCase8..." << std::endl;
     testSmallCase8(manager);
-    // std::cout << "Running adder test..." << std::endl;
+    testSmallCase9(manager);
     testAdder(manager);
-    // std::cout << "Runnning factorization8 test..." << std::endl;
     testFactorization8(manager);
-    // std::cout << "All ApproxVarElim tests passed!" << std::endl;
 }

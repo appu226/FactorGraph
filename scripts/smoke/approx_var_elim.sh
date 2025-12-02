@@ -6,3 +6,4 @@ build/out/oct_22/oct_22 --largestSupportSet 90 --largestBddSize 5000 --inputFile
 echo Checking 8 bit factors
 build/out/jan_24/factorization_debugger --inputFile temp/Factorization_factorization8_factor_graph_output_ave.qdimacs --bitVars 87,88,89,90,91,92,93,94 --verbosity QUIET
 
+echo SUCCESS

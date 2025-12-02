@@ -28,6 +28,7 @@ SOFTWARE.
 #include <dd/doubly_linked_list.h>
 
 #include <functional>
+#include <atomic>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -242,7 +243,7 @@ namespace oct_22
       using Ptr = std::shared_ptr<ApproxVarElim>;
       static Ptr parseQdimacs(const dd::Qdimacs& qdimacs);
       AveClausePtrSet const& getResultClauses() const;
-      void approximatelyEliminateAllVariables(size_t maxClauseTreeSize);
+      void approximatelyEliminateAllVariables(size_t maxClauseTreeSize, size_t numMaxSeconds = 0);
       
       // Returns all `l` in `literals` such that `abs(l)` is in `variables`
       // literals, variables must be sorted in ascending order
@@ -274,7 +275,8 @@ namespace oct_22
       void elimHelper(
         AveClausePtr const& resultSeed,
         AveClauseList& resolvableClauses,
-        size_t numClauseIncPerVarElim);
+        size_t numClauseIncPerVarElim,
+        std::shared_ptr<std::atomic<bool>> const& hasExpired);
 
       void applySeedModification(
         AveSeedModification const& seedModification

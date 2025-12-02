@@ -29,6 +29,9 @@ SOFTWARE.
 #include <stdexcept>
 #include <iostream>
 #include <functional>
+#include <atomic>
+#include <thread>
+#include <chrono>
 
 // #define AVEDBG(x) std::cout << x << std::endl;
 #define AVEDBG(x)
@@ -263,8 +266,23 @@ namespace oct_22
     return m_resultClauses;
   }
 
-  void ApproxVarElim::approximatelyEliminateAllVariables(size_t maxClauseTreeSize)
+  void ApproxVarElim::approximatelyEliminateAllVariables(size_t maxClauseTreeSize, size_t numMaxSeconds)
   {
+    // deadline flag (false -> not expired). Use a shared_ptr so the
+    // detached timer thread can safely outlive this stack frame without
+    // creating a dangling reference.
+    auto hasExpired = std::make_shared<std::atomic<bool>>(false);
+
+    // if a max seconds is specified, spawn a thread that waits and sets the flag
+    if (numMaxSeconds != 0)
+    {
+      std::shared_ptr<std::atomic<bool>> timerFlag = hasExpired; // copy for thread
+      std::thread([numMaxSeconds, timerFlag]() {
+        std::this_thread::sleep_for(std::chrono::seconds(static_cast<long>(numMaxSeconds)));
+        // mark as expired
+        timerFlag->store(true, std::memory_order_release);
+      }).detach();
+    }
     // results = [c for c in input_clauses if not c.has_any(vars_to_elim)]
     // filtered_inputs = [c for c in input_clauses if c.has_any(vars_to_elim)]
     std::vector<AveClausePtr> terminalClauses;
@@ -273,6 +291,12 @@ namespace oct_22
     auto const& vte = m_varsToEliminate;
     for (auto const& clause: m_clauses)
     {
+      // check deadline each iteration
+      if (hasExpired->load(std::memory_order_acquire))
+      {
+        // already expired -> stop processing
+        break;
+      }
       auto varsToEliminate = intersection(clause->literals, vte);
       if (varsToEliminate.empty())
       {
@@ -297,13 +321,19 @@ namespace oct_22
     //     filtered_inputs = filtered_inputs \ {c}   # remove c, as we have explored all results with c
     for (auto const& terminalClause: terminalClauses)
     {
+      // check deadline each iteration
+      if (hasExpired->load(std::memory_order_acquire))
+      {
+        // already expired -> stop processing
+        break;
+      }
       // set clause as seed
       AveClausePtr newSeed;
       AveSeedModification seedModification({}, terminalClause->literals, m_varsToEliminate, newSeed);
       applySeedModification(seedModification);
 
       // recurse and grow the seed
-      elimHelper(newSeed, *resolvableClauses, maxClauseTreeSize);
+      elimHelper(newSeed, *resolvableClauses, maxClauseTreeSize, hasExpired);
 
       // reset the seed
       seedModification.flip();
@@ -322,7 +352,8 @@ namespace oct_22
   void ApproxVarElim::elimHelper(
     AveClausePtr const& resultSeed,
     AveClauseList& resolvableClauses,
-    size_t maxClauseTreeSize
+    size_t maxClauseTreeSize,
+    std::shared_ptr<std::atomic<bool>> const& hasExpired
   )
   {
     // # find literals that still need to be eliminated
@@ -347,6 +378,12 @@ namespace oct_22
     if (0 == maxClauseTreeSize)
     return;
 
+    // check for deadline before growing seed
+    if (hasExpired->load(std::memory_order_acquire))
+    {
+      return;
+    }
+
     std::vector<AveClausePtr> resolvableClausesVec;
     for(auto cit = resolvableClauses.begin(); cit != resolvableClauses.end(); cit = cit->next)
     {
@@ -356,6 +393,11 @@ namespace oct_22
     // # check each input clause to see if it can be used to grow the seed
     for (auto const& c: resolvableClausesVec)
     {
+      // per-iteration deadline check
+      if (hasExpired->load(std::memory_order_acquire))
+      {
+        break;
+      }
       // # check if c can be used to grow seed -> there should be exactly one negated literal, 
       // # and it should be in varsToEliminate
       if (!c->isResolvable())
@@ -381,7 +423,8 @@ namespace oct_22
       elimHelper(
         newSeed,
         resolvableClauses,
-        maxClauseTreeSize - 1
+        maxClauseTreeSize - 1,
+        hasExpired
       );
 
       // reset the seed
