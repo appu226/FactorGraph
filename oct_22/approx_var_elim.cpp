@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "approx_var_elim.h"
 #include <dd/max_heap.h>
+#include <blif_solve_lib/log.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -280,6 +281,7 @@ namespace oct_22
       std::thread([numMaxSeconds, timerFlag]() {
         std::this_thread::sleep_for(std::chrono::seconds(static_cast<long>(numMaxSeconds)));
         // mark as expired
+        blif_solve_log(INFO, "AVE: Time limit reached, terminating further processing.");
         timerFlag->store(true, std::memory_order_release);
       }).detach();
     }
