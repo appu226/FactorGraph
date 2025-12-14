@@ -1,0 +1,1 @@
+python3 FactorGraph/jan_24/ave_runner.py --input_root experiments/ave_exact/inputs --output_root experiments/ave_exact/outputs_exact --log_verbosity INFO --ave_binary FactorGraph/build/out/oct_22/ave_main --max_clause_tree_size 5 --timeout_seconds 900 --num_processes 10
