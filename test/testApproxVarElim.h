@@ -29,3 +29,4 @@ SOFTWARE.
 
 
 void testApproxVarElim(DdManager * manager);
+void testAve2(DdManager * manager);
