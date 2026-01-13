@@ -27,6 +27,7 @@ SOFTWARE.
 #include <dd/qdimacs.h>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <optional>
 
@@ -38,13 +39,22 @@ namespace oct_22
 
         // clause literals
         std::vector<int> literals;
+        size_t hash;
         Ave2Clause(std::vector<int> v_literals, bool sortAndUnique = true);
         bool operator==(const Ave2Clause& that) const
         {
-            return this->literals == that.literals;
+            return this->hash == that.hash && this->literals == that.literals;
         }
         bool operator <(const Ave2Clause& that) const
         {
+            if (this->hash < that.hash)
+            {
+                return true;
+            }
+            else if (this->hash > that.hash)
+            {
+                return false;
+            }
             return this->literals < that.literals;
         }
 
@@ -54,8 +64,17 @@ namespace oct_22
         std::optional<CPtr> resolveOnVar(size_t var, const Ave2Clause& that) const;
     };
 
+    struct Ave2ClauseHash
+    {
+        size_t operator()(const Ave2Clause& clause) const
+        {
+            return clause.hash;
+        }
+    };
+
     using Ave2ClauseCPtr = Ave2Clause::CPtr;
     using Ave2ClauseVec = std::shared_ptr<std::vector<Ave2ClauseCPtr> >;
+    using Ave2ClauseSet = std::shared_ptr<std::unordered_set<Ave2Clause, Ave2ClauseHash, std::equal_to<Ave2Clause>, std::allocator<Ave2Clause> > >;
 
     struct Ave2ClauseMap
     {
@@ -69,7 +88,7 @@ namespace oct_22
         public:
         using Ptr = std::shared_ptr<Ave2>;
         static Ptr parseQdimacs(const dd::Qdimacs& qdimacs);
-        Ave2ClauseVec approximatelyEliminateAllVariables(size_t searchDepth);
+        Ave2ClauseSet approximatelyEliminateAllVariables(size_t searchDepth);
 
         static Ave2ClauseVec filterOutClausesWithNoVarsToEliminate(Ave2ClauseVec& clauses, Ave2Clause const& literalsToEliminate);
 
@@ -82,7 +101,7 @@ namespace oct_22
 
         void growSeed(
             Ave2ClauseCPtr const& seed, 
-            Ave2ClauseVec& resultClauses, 
+            Ave2ClauseSet& resultClauses, 
             size_t searchDepth, 
             Ave2Clause const& alreadyEliminatedLiterals, 
             std::unordered_map<int, Ave2ClauseCPtr>& literalToResolverMap);

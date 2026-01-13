@@ -88,6 +88,11 @@ namespace oct_22
       auto last = std::unique(literals.begin(), literals.end());
       literals.erase(last, literals.end());
     }
+    hash = 0;
+    for (auto const v: literals)
+    {
+        hash ^= static_cast<size_t>(v) + 0x9e3b79b9 + (hash<<6) + (hash>>2);
+    }
   }
 
 
@@ -148,6 +153,7 @@ namespace oct_22
   Ave2::Ptr Ave2::parseQdimacs(const dd::Qdimacs& qdimacs)
   {
     Ave2::Ptr result = std::make_shared<Ave2>();
+    result->m_clauses = std::make_shared<std::vector<Ave2ClauseCPtr> >();
     for (auto const& inClause: qdimacs.clauses)
     {
       auto outClause = std::make_shared<Ave2Clause>(inClause);
@@ -178,17 +184,22 @@ namespace oct_22
 
 
   // main entry point
-  Ave2ClauseVec Ave2::approximatelyEliminateAllVariables(size_t searchDepth)
+  Ave2ClauseSet Ave2::approximatelyEliminateAllVariables(size_t searchDepth)
   {
-    // filter out clauses with no vars to eliminate
-    Ave2ClauseVec result = filterOutClausesWithNoVarsToEliminate(m_clauses, *m_literalsToEliminate);
+    // convert clauses to set and filter out clauses with no vars to eliminate
+    Ave2ClauseSet result = std::make_shared<std::unordered_set<Ave2Clause, Ave2ClauseHash, std::equal_to<Ave2Clause>, std::allocator<Ave2Clause> > >();
+    Ave2ClauseVec tempClauses = m_clauses;
+    auto filteredClauses = filterOutClausesWithNoVarsToEliminate(tempClauses, *m_literalsToEliminate);
+    for (const auto& clause : *filteredClauses)
+    {
+      result->insert(*clause);
+    }
 
     // a collection to keep track of already eliminated literals
     Ave2Clause alreadyEliminatedLilterals(std::vector<int>{});
 
     // a map that remembers which clause which was used to resolve a given literal  
     std::unordered_map<int, Ave2ClauseCPtr> literalToResolverMap;
-
 
     // recursive algorithm, starting with each clause as seed
     for (auto const& seed: *m_clauses)
@@ -198,14 +209,10 @@ namespace oct_22
     return result;
   }
 
-
-
-
-
   // recursive function to grow a seed clause
   void Ave2::growSeed(
       Ave2ClauseCPtr const& seed,
-      Ave2ClauseVec& resultClauses,
+      Ave2ClauseSet& resultClauses,
       size_t searchDepth,
       Ave2Clause const& alreadyEliminatedLiterals,
       std::unordered_map<int, Ave2ClauseCPtr>& literalToResolverMap)
@@ -215,7 +222,7 @@ namespace oct_22
     if (seedLte->literals.empty())
     {
       // all literals eliminated
-      resultClauses->push_back(seed);
+      resultClauses->insert(*seed);
       return;
     }
 

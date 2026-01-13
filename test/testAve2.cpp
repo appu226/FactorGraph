@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "testApproxVarElim.h"
 #include <oct_22/ave2.h>
+#include <sstream>
 
 
 namespace {
@@ -181,6 +182,82 @@ namespace {
 
   }
 
+  void testAve2SmallCase1(DdManager* manager)
+  {
+    std::string problem_qdimacs = 
+        "p cnf 5 3\n"
+        "a 1 2 3 0\n"
+        "e 4 5 0\n"
+        "-1 3 4 0\n"
+        "-4 2 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+    auto ave = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result = ave->approximatelyEliminateAllVariables(3);
+    
+    // Expected: result should have 1 clause with literals {-1, 2, 3}
+    if (result->size() != 1) {
+      throw std::runtime_error("testAve2SmallCase1: expected 1 clause in result, got " + std::to_string(result->size()));
+    }
+    auto expectedClause = std::make_shared<oct_22::Ave2Clause>(oct_22::Ave2Clause({-1, 2, 3}));
+    if (!(*result->begin() == *expectedClause)) {
+      throw std::runtime_error("testAve2SmallCase1: result clause does not match expected");
+    }
+  }
+
+  void testAve2SmallCase2(DdManager* manager)
+  {
+    std::string problem_qdimacs = 
+        "p cnf 11 6\n"
+        "a 6 7 8 9 10 11 0\n"
+        "e 1 2 3 4 5 0\n"
+        "1 6 0\n"
+        "-1 2 7 0\n"
+        "-2 3 8 0\n"
+        "-3 4 9 0\n"
+        "-4 5 10 0\n"
+        "-5 11 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+    auto ave = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result = ave->approximatelyEliminateAllVariables(7);
+    
+    // Expected: result should have 1 clause with literals {6, 7, 8, 9, 10, 11}
+    if (result->size() != 1) {
+      throw std::runtime_error("testAve2SmallCase2: expected 1 clause in result, got " + std::to_string(result->size()));
+    }
+    auto expectedClause = std::make_shared<oct_22::Ave2Clause>(oct_22::Ave2Clause({6, 7, 8, 9, 10, 11}));
+    if (!(*result->begin() == *expectedClause)) {
+      throw std::runtime_error("testAve2SmallCase2: result clause does not match expected");
+    }
+  }
+
+  void testAve2SmallCase3(DdManager* manager)
+  {
+    std::string problem_qdimacs = 
+        "p cnf 11 6\n"
+        "a 6 7 8 9 10 11 0\n"
+        "e 1 2 3 4 5 0\n"
+        "1 6 0\n"
+        "-1 2 7 0\n"
+        "-2 3 8 0\n"
+        "-3 4 9 0\n"
+        "-4 5 10 0\n"
+        "-5 11 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+    auto ave = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result = ave->approximatelyEliminateAllVariables(7);
+    
+    // Expected: result should have 1 clause with literals {6, 7, 8, 9, 10, 11}
+    if (result->size() != 1) {
+      throw std::runtime_error("testAve2SmallCase3: expected 1 clause in result, got " + std::to_string(result->size()));
+    }
+  }
+
 } // end anonymous namespace
 
 
@@ -188,5 +265,8 @@ void testAve2(DdManager * manager) {
     testAve2ClauseIntersect();
     testFilterOutClausesWithNoVarsToEliminate();
     testAve2ClauseResolveOnVar();
+    testAve2SmallCase1(manager);
+    testAve2SmallCase2(manager);
+    testAve2SmallCase3(manager);
 }
 
