@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include <algorithm>
 #include <stdexcept>
+#include <atomic>
+#include <thread>
+#include <chrono>
 
 
 namespace {
@@ -184,8 +187,24 @@ namespace oct_22
 
 
   // main entry point
-  Ave2ClauseSet Ave2::approximatelyEliminateAllVariables(size_t searchDepth)
+  Ave2ClauseSet Ave2::approximatelyEliminateAllVariables(size_t searchDepth, size_t timeoutSeconds)
   {
+    // deadline flag (false -> not expired). Use a shared_ptr so the
+    // detached timer thread can safely outlive this stack frame without
+    // creating a dangling reference.
+    auto hasExpired = std::make_shared<std::atomic<bool>>(false);
+
+    // if a max seconds is specified, spawn a thread that waits and sets the flag
+    if (timeoutSeconds != 0)
+    {
+      std::shared_ptr<std::atomic<bool>> timerFlag = hasExpired; // copy for thread
+      std::thread([timeoutSeconds, timerFlag]() {
+        std::this_thread::sleep_for(std::chrono::seconds(static_cast<long>(timeoutSeconds)));
+        // mark as expired
+        timerFlag->store(true, std::memory_order_release);
+      }).detach();
+    }
+
     // convert clauses to set and filter out clauses with no vars to eliminate
     Ave2ClauseSet result = std::make_shared<std::unordered_set<Ave2Clause, Ave2ClauseHash, std::equal_to<Ave2Clause>, std::allocator<Ave2Clause> > >();
     Ave2ClauseVec tempClauses = m_clauses;
@@ -204,7 +223,7 @@ namespace oct_22
     // recursive algorithm, starting with each clause as seed
     for (auto const& seed: *m_clauses)
     {
-      growSeed(seed, result, searchDepth, alreadyEliminatedLilterals, literalToResolverMap);
+      growSeed(seed, result, searchDepth, alreadyEliminatedLilterals, literalToResolverMap, hasExpired);
     }
     return result;
   }
@@ -215,8 +234,15 @@ namespace oct_22
       Ave2ClauseSet& resultClauses,
       size_t searchDepth,
       Ave2Clause const& alreadyEliminatedLiterals,
-      std::unordered_map<int, Ave2ClauseCPtr>& literalToResolverMap)
+      std::unordered_map<int, Ave2ClauseCPtr>& literalToResolverMap,
+      std::shared_ptr<std::atomic<bool>> const& hasExpired)
   {
+    // check for deadline at the start of recursion
+    if (hasExpired->load(std::memory_order_acquire))
+    {
+      return;
+    }
+
     // seed literals to eliminate
     auto seedLte = seed->intersect(*m_literalsToEliminate);
     if (seedLte->literals.empty())
@@ -262,7 +288,7 @@ namespace oct_22
             // simple resolvent found, let's recurse
             foundSimpleResolvant = true;
             LiteralToResolverMapInsertionBackTracker backTracker(literalToResolverMap, L, c);
-            growSeed(resolvent, resultClauses, searchDepth - 1, *newEliminatedLiterals, literalToResolverMap);
+            growSeed(resolvent, resultClauses, searchDepth - 1, *newEliminatedLiterals, literalToResolverMap, hasExpired);
           }
         }
       }
@@ -314,7 +340,7 @@ namespace oct_22
           if (allReintroducedLiteralsCanBeReRemoved)
           {
             LiteralToResolverMapInsertionBackTracker backTracker(literalToResolverMap, L, newResolvingClause);
-            growSeed(newResolvent, resultClauses, searchDepth - 1, *(l2a.newEliminatedLiterals), literalToResolverMap);
+            growSeed(newResolvent, resultClauses, searchDepth - 1, *(l2a.newEliminatedLiterals), literalToResolverMap, hasExpired);
           }
         }
       }

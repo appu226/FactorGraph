@@ -30,6 +30,7 @@ SOFTWARE.
 #include <unordered_set>
 #include <vector>
 #include <optional>
+#include <atomic>
 
 namespace oct_22
 {
@@ -88,7 +89,7 @@ namespace oct_22
         public:
         using Ptr = std::shared_ptr<Ave2>;
         static Ptr parseQdimacs(const dd::Qdimacs& qdimacs);
-        Ave2ClauseSet approximatelyEliminateAllVariables(size_t searchDepth);
+        Ave2ClauseSet approximatelyEliminateAllVariables(size_t searchDepth, size_t timeoutSeconds = 0);
 
         static Ave2ClauseVec filterOutClausesWithNoVarsToEliminate(Ave2ClauseVec& clauses, Ave2Clause const& literalsToEliminate);
 
@@ -104,7 +105,8 @@ namespace oct_22
             Ave2ClauseSet& resultClauses, 
             size_t searchDepth, 
             Ave2Clause const& alreadyEliminatedLiterals, 
-            std::unordered_map<int, Ave2ClauseCPtr>& literalToResolverMap);
+            std::unordered_map<int, Ave2ClauseCPtr>& literalToResolverMap,
+            std::shared_ptr<std::atomic<bool>> const& hasExpired);
 
     };
 

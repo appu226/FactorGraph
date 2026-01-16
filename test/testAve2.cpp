@@ -258,6 +258,75 @@ namespace {
     }
   }
 
+  void testAve2SmallCase4(DdManager* manager)
+  {
+    std::string problem_qdimacs = 
+        "p cnf 11 6\n"
+        "a 6 7 8 9 10 11 0\n"
+        "e 1 2 3 4 5 0\n"
+        "1 6 0\n"
+        "-1 2 7 0\n"
+        "2 3 8 0\n"
+        "-3 4 9 0\n"
+        "-4 5 10 0\n"
+        "-5 11 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+    auto ave = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result = ave->approximatelyEliminateAllVariables(7);
+    
+    // Expected: result should have 0 clauses (unsatisfiable)
+    if (result->size() != 0) {
+      throw std::runtime_error("testAve2SmallCase4: expected 0 clauses in result, got " + std::to_string(result->size()));
+    }
+  }
+
+
+  void testAve2SmallCase5(DdManager* manager)
+  {
+    std::string problem_qdimacs = 
+        "p cnf 7 4\n"
+        "a 4 5 6 7 0\n"
+        "e 1 2 3 0\n"
+        "1 3 4 0\n"
+        "-1 2 5 0\n"
+        "-2 3 6 0\n"
+        "-3 7 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+    auto ave = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result = ave->approximatelyEliminateAllVariables(7);
+    
+    // Expected: result should have 1 clause {4 5 6 7}
+    if (result->size() != 1) {
+      throw std::runtime_error("testAve2SmallCase5: expected 1 clause in result, got " + std::to_string(result->size()));
+    }
+  }
+
+  void testAve2SmallCase6(DdManager* manager)
+  {
+    std::string problem_qdimacs = 
+        "p cnf 7 4\n"
+        "a 4 5 6 7 0\n"
+        "e 1 2 3 0\n"
+        "1 3 4 0\n"
+        "-1 2 5 0\n"
+        "-2 3 6 0\n"
+        "-3 7 -5 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+    auto ave = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result = ave->approximatelyEliminateAllVariables(7);
+    
+    // Expected: result should have 0 clauses
+    if (result->size() != 0) {
+      throw std::runtime_error("testAve2SmallCase6: expected 0 clauses in result, got " + std::to_string(result->size()));
+    }
+  }
+
 } // end anonymous namespace
 
 
@@ -268,5 +337,8 @@ void testAve2(DdManager * manager) {
     testAve2SmallCase1(manager);
     testAve2SmallCase2(manager);
     testAve2SmallCase3(manager);
+    testAve2SmallCase4(manager);
+    testAve2SmallCase5(manager);
+    testAve2SmallCase6(manager);
 }
 
