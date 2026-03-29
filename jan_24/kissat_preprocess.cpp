@@ -81,10 +81,20 @@ int main(int argc, char const * const * const argv)
         kw.parse(fin);
     }
 
-    kissat_eliminate_variables(kw.solver, kw.quantifiedVars.data(), kw.quantifiedVars.size());
+    auto kissat_result = kissat_eliminate_variables(kw.solver, kw.quantifiedVars.data(), kw.quantifiedVars.size());
+    blif_solve_log(DEBUG, "kissat_preprocess result: " << kissat_result);
 
     blif_solve_log(DEBUG, "Writing to " << clo.outputFile);
-    kw.dumpToFile(clo.outputFile);
+    
+    if (kissat_result == 20) {
+        // Formula is unsatisfiable, write an unsatisfiable CNF (empty clause)
+        std::ofstream fout(clo.outputFile);
+        fout << "p cnf " << kw.numVars << " 1\n";
+        fout << "0\n";
+        blif_solve_log(INFO, "kissat_preprocess determined formula is unsatisfiable.");
+    } else {
+        kw.dumpToFile(clo.outputFile);
+    }
 
     blif_solve_log(INFO, "Finished kissat_preprocess.");
     return 0;
