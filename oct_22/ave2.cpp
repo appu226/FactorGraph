@@ -32,6 +32,8 @@ SOFTWARE.
 #include <thread>
 #include <chrono>
 
+#include <blif_solve_lib/log.h>
+
 
 namespace {
 
@@ -201,6 +203,7 @@ namespace oct_22
       std::thread([timeoutSeconds, timerFlag]() {
         std::this_thread::sleep_for(std::chrono::seconds(static_cast<long>(timeoutSeconds)));
         // mark as expired
+        blif_solve_log(INFO, "AVE: Time limit reached, terminating further processing.");
         timerFlag->store(true, std::memory_order_release);
       }).detach();
     }
