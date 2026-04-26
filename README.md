@@ -116,6 +116,44 @@ An incomplete attempt at MUC discovery using statistical techniques.
 **Source code (incomplete):**\
 [may_22](./may_22)
 
+### Factor Graph
+This is an algorithm for existentially quantifying variables from a CNF, or any conjunction of boolean formulae, taking inspiration from [Belief Propagation](https://en.wikipedia.org/wiki/Belief_propagation) (also known as Sum Product and Factor Graph algorithms). The theory is beautiful and worth a read, although the practical results were quite under whelming.
+
+**Algorithm overview:**\
+[factor_graph.pdf](./factor_graph/factor_graph.pdf)
+
+**Source code:**:\
+[factor_graph](./factor_graph)
+
+**Usage:**\
+`factor_graph_main` is an interactive command line executable that takes a path to a cnf file as the one and only command line argument.
+```
+build/out/factor_graph_main/factor_graph_main <path to cnf file>
+max memory allowed : 4000 MB
+numclauses is 4, numvars = 5
+factor graph created
+-> help
+quit/exit                : end the program
+help                     : print this message
+verify                   : verify the factor graph
+print                    : print the factor graph to files
+createpng                : create a png of the factorgraph
+checkpoint               : set checkpoint 2
+rollback                 : rollback to checkpoint 0
+makeacyclic              : attempt to make the graph acyclic
+converge                 : pass messages to convergence
+setvar                   : set a variable to be true or false
+assertmsg                : check whether message passing works
+mergevar                 : merge two variable nodes
+mergefunc                : merge two function nodes
+mergeheur3               : merge 2-neigh func nodes with other func nodes of super set of neighbors
+fgtest3                  : make the graph acyclic by recursively assigning values to variables
+fgtest4                  : compare the exact answer timewise with factorgraph result
+randomgroup              : make a random grouping of variables
+```
+
+## Dependencies
+
 ### CUDD
 The CUDD package is a package written in C for the manipulation of
 decision diagrams.  It supports binary decision diagrams (BDDs),
@@ -162,15 +200,8 @@ Given an unsatisfyable conjunction X of boolean functions, Minimal Unsatisfiable
 A copy of MUS is incorporated into the code base, under the [mustool](./mustool) folder, with additional instrumentations for incremental result discovery. An algorithm for using MUS 
 
 
-### Factor Graph
-This is an algorithm for existentially quantifying variables from a CNF, or any conjunction of boolean formulae, taking inspiration from [Belief Propagation](https://en.wikipedia.org/wiki/Belief_propagation) (also known as Sum Product and Factor Graph algorithms). The theory is beautiful and worth a read, although the practical results were quite under whelming.
-
-Full write-up: [factor_graph.pdf](./factor_graph/factor_graph.pdf)
-
 ## Setup
 
-
-## Codebase
 
 ## Experimental results
 
