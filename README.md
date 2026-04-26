@@ -60,12 +60,97 @@ options:
   --run_bfss RUN_BFSS   Whether to run bfss or not
 ```
 
-### Dec 21
-### May 22
 ### Oct 22
-### Binary Decision Diagrams
+Given an existential quantification problem $\exists_X \phi(X, Y)$, and an overapproximate solution $\phi'(Y)$, we can construct a third formula  $\beta(Y) = \phi'(Y) \wedge \neg \exists_X \phi(X, Y) = \phi(Y) \wedge \forall_X \neg \phi(X, Y)$ to investigate whether $\phi'$ is the exact solution or not. 
+The `oct_22` algorithm uses MUST to discover unsatisfyable cores for $\forall_X \neg \phi(X, Y)$, iteratively tightening the over-approximate result $\phi'$ until it becomes exact.
+
+**Algorithm overview:**\
+[oct_22.pdf](./oct_22/oct_22.pdf).
+
+**Source code:**\
+[oct_22](./oct_22])
+
+**Usage:**
+```
+build/out/oct_22/oct_22 --help
+--help/-h:      Print this help and exit.
+--largestSupportSet:    largest allowed support set size while clumping cnf factors
+--largestBddSize:       largest allowed bdd size while clumping cnf factors
+--inputFile:    Input qdimacs file with exactly one quantifier which is existential     [Mandatory]
+--verbosity:    Log verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)
+--computeExactUsingBdd: Compute exact solution (default false)
+--outputFile:   Cnf file with result
+--runMusTool:   Whether to run MUS tool (default true)
+--runFg:        Whether to run factor graph (default true)
+--minimalizeAssignments:        Whether to minimalize assignments found by must
+```
+
+
+### Dec 21
+This is an older version of the Oct 22 algorithm, without some of the improvements such as assiginment minimalization.
+
+**Algorithm overview:**\
+[dec_21.pdf](./dec_21/dec_21.pdf)
+
+**Source code:**\
+[dec_21](./dec_21)
+
+**Usage:**
+```
+build/out/dec_21/dec_21 --help
+--help/-h:      Print this help and exit.
+--largestSupportSet:    largest allowed support set size while clumping cnf factors
+--maxMucSize:   max clauses allowed in an MUC
+--inputFile:    Input qdimacs file with exactly one quantifier which is existential     [Mandatory]
+--verbosity:    Log verbosity (QUIET/ERROR/WARNING/INFO/DEBUG)
+--computeExact: Compute exact solution (default false)
+```
+
+
+### May 22
+An incomplete attempt at MUC discovery using statistical techniques.
+
+**Algorithm overview:**\
+[may_22.pdf](./may_22/may_22.pdf)
+
+**Source code (incomplete):**\
+[may_22](./may_22)
+
+### CUDD
+The CUDD package is a package written in C for the manipulation of
+decision diagrams.  It supports binary decision diagrams (BDDs),
+algebraic decision diagrams (ADDs), and Zero-Suppressed BDDs (ZDDs).
+
+**Source code:**
+* Official repository at [cuddorg](https://github.com/cuddorg/cudd)
+* Private fork of cuddorg repo by [appu226](https://github.com/appu226/cudd/tree/feature/rename_macro_fail), with minor compilation fixes
+* Official repository at [Open ROAD](https://github.com/The-OpenROAD-Project/cudd)
+
+**Wrapper:**\
+This project uses CUDD for implementing the Factor Graph algorithm, using the following utlities on top of CUDD:
+* [cuddAndAbsMulti](./dd/cuddAndAbsMulti.h): A low level implementation of the "And Abstract" operation ($\exists_X \wedge_{i=1}^N F_i(X, Y)$) for more than two functions ($N>2$)
+* [dd.h](./dd/dd.h): Utility layer with automatic reference count increment. (Not recommended for low level use.)
+* [bdd_factory.h](./dd/bdd_factory.h): A C++ wrapper over CUDD BDDs with automatic resource management. (Not recommended for low level use.)
+
+
 ### Kissat Elimination
+Kissat is a "keep it simple and clean bare metal SAT solver" written in C.
+The original project is hosted at https://github.com/arminbiere/kissat.
+This Factor Graph project depends on a [fork](https://github.com/appu226/kissat/tree/cav_2024), that exposes a low level function [`kissat_eliminate_variables`](https://github.com/appu226/kissat/blob/66cfd9012bdba800f26e2b44b3d2d0e02a9b80f0/src/kissat.h#L42) for existential quantification of a specific subset of variables.
+
+```c
+int kissat_eliminate_variables (kissat *solver, int *idx_array, unsigned idx_array_size);
+```
+
+
 ### BFSS Elimination
+BFSS, or Blazingly Fast Skolem function Synthesis, is a tool based on work reported in the following two papers:
+* S. Akshay, Supratik Chakraborty, Shubham Goel, Sumith Kulal, Shetal Shah, "Boolean Functional Synthesis: Hardness and Practical Algorithms", to appear in Formal Methods in System Design, 2020
+* S. Akshay, Supratik Chakraborty, Shubham Goel, Sumith Kulal, and Shetal Shah, "What's hard about Boolean Functional Synthesis?" in Proceedings of 30th International Conference on Computer Aided Verification, 2018
+
+This Factor Graph project uses the [`readCnf`](https://github.com/BooleanFunctionalSynthesis/bfss/blob/master/src/readCnf.cpp) executable from BFSS to try and eliminate existentially quantified variables from a qdimacs.
+
+
 
 ### MUST
 Given an unsatisfyable conjunction X of boolean functions, Minimal Unsatisfiable Subsets or MUSes are subsets C of X such that:
@@ -92,7 +177,11 @@ Full write-up: [factor_graph.pdf](./factor_graph/factor_graph.pdf)
 
 ## References
 
-MUST:
+**CUDD:**\
+[CUDD: CU decision diagram package release 2.4.2](https://scholar.google.com/scholar?oi=bibs&cluster=11128894880390368791&btnI=1&hl=en)\
+F Somenzi - University of Colorado at Boulder, 2009
+
+**MUST:**
 ```
 @inproceedings{DBLP:conf/tacas/BendikC20,
   author    = {Jaroslav Bend{\'{\i}}k and
@@ -104,5 +193,58 @@ MUST:
   pages     = {135--152},
   publisher = {Springer},
   year      = {2020}
+}
+```
+
+**Kissat:**
+<p>
+<a href="https://cca.informatik.uni-freiburg.de/biere/index.html#publications">Armin Biere</a>,
+<a href="/biere/index.html">Tobias Faller</a>,
+Katalin Fazekas,
+<a href="https://cca.informatik.uni-freiburg.de/fleury/index.html">Mathias Fleury</a>,
+Nils Froleyks
+and
+<a href="https://cca.informatik.uni-freiburg.de/pollittf.html">Florian Pollitt</a>
+<br>
+<a href="https://cca.informatik.uni-freiburg.de/papers/BiereFallerFazekasFleuryFroleyksPollitt-SAT-Competition-2024-solvers.pdf">CaDiCaL, Gimsatul, IsaSAT and Kissat Entering the SAT Competition 2024</a>
+<br>
+<i>Proc.&nbsp;SAT Competition 2024: Solver, Benchmark and Proof Checker Descriptions</i>
+<br>
+Marijn Heule, Markus Iser, Matti J&auml;rvisalo, Martin Suda (editors)
+<br>
+Department of Computer Science Report Series B
+<br>
+vol.&nbsp;B-2024-1,
+pages 8-10,
+University of Helsinki 2024
+<br>
+[ <a href="https://cca.informatik.uni-freiburg.de/papers/BiereFallerFazekasFleuryFroleyksPollitt-SAT-Competition-2024-solvers.pdf">paper</a>
+| <a href="https://cca.informatik.uni-freiburg.de/papers/BiereFallerFazekasFleuryFroleyksPollitt-SAT-Competition-2024-solvers.bib">bibtex</a>
+| <a href="https://github.com/arminbiere/cadical">cadical</a>
+| <a href="https://github.com/arminbiere/kissat">kissat</a>
+| <a href="https://github.com/arminbiere/gimsatul">gimsatul</a>
+| <a href="https://cca.informatik.uni-freiburg.de/sat24medals">medals</a>
+]
+</p>
+
+
+**BFSS:**
+```
+@InProceedings{bfss-cav2018,
+    author="Akshay, S.
+    and Chakraborty, Supratik
+    and Goel, Shubham
+    and Kulal, Sumith
+    and Shah, Shetal",
+    editor="Chockler, Hana
+    and Weissenbacher, Georg",
+    title="What's Hard About Boolean Functional Synthesis?",
+    booktitle="Computer Aided Verification",
+    year="2018",
+    publisher="Springer International Publishing",
+    address="Cham",
+    pages="251--269",
+    abstract="Given a relational specification between Boolean inputs and outputs, the goal of Boolean functional synthesis is to synthesize each output as a function of the inputs such that the specification is met. In this paper, we first show that unless some hard conjectures in complexity theory are falsified, Boolean functional synthesis must generate large Skolem functions in the worst-case. Given this inherent hardness, what does one do to solve the problem? We present a two-phase algorithm, where the first phase is efficient both in terms of time and size of synthesized functions, and solves a large fraction of benchmarks. To explain this surprisingly good performance, we provide a sufficient condition under which the first phase must produce correct answers. When this condition fails, the second phase builds upon the result of the first phase, possibly requiring exponential time and generating exponential-sized functions in the worst-case. Detailed experimental evaluation shows our algorithm to perform better than other techniques for a large number of benchmarks.",
+    isbn="978-3-319-96145-3"
 }
 ```
