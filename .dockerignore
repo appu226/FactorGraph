@@ -1,0 +1,8 @@
+.git
+.vscode
+Testing
+build
+temp
+tmp
+**/__pycache__
+external
