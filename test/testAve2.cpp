@@ -327,6 +327,42 @@ namespace {
     }
   }
 
+  void testAve2SearchDepth(DdManager* manager)
+  {
+    // same chain as testAve2SmallCase2: eliminating 1..5 needs 5 resolution steps
+    std::string problem_qdimacs =
+        "p cnf 11 6\n"
+        "a 6 7 8 9 10 11 0\n"
+        "e 1 2 3 4 5 0\n"
+        "1 6 0\n"
+        "-1 2 7 0\n"
+        "-2 3 8 0\n"
+        "-3 4 9 0\n"
+        "-4 5 10 0\n"
+        "-5 11 0\n"
+        ;
+    std::stringstream qdimacs_stream(problem_qdimacs);
+    auto qdimacs = dd::Qdimacs::parseQdimacs(qdimacs_stream);
+
+    // Expected: depth 4 is not enough, result should have 0 clauses
+    auto ave4 = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result4 = ave4->approximatelyEliminateAllVariables(4);
+    if (result4->size() != 0) {
+      throw std::runtime_error("testAve2SearchDepth: expected 0 clauses at depth 4, got " + std::to_string(result4->size()));
+    }
+
+    // Expected: depth 5 is enough, result should have 1 clause {6, 7, 8, 9, 10, 11}
+    auto ave5 = oct_22::Ave2::parseQdimacs(*qdimacs);
+    auto result5 = ave5->approximatelyEliminateAllVariables(5);
+    if (result5->size() != 1) {
+      throw std::runtime_error("testAve2SearchDepth: expected 1 clause at depth 5, got " + std::to_string(result5->size()));
+    }
+    auto expectedClause = std::make_shared<oct_22::Ave2Clause>(oct_22::Ave2Clause({6, 7, 8, 9, 10, 11}));
+    if (!(*result5->begin() == *expectedClause)) {
+      throw std::runtime_error("testAve2SearchDepth: result clause does not match expected");
+    }
+  }
+
 } // end anonymous namespace
 
 
@@ -340,5 +376,6 @@ void testAve2(DdManager * manager) {
     testAve2SmallCase4(manager);
     testAve2SmallCase5(manager);
     testAve2SmallCase6(manager);
+    testAve2SearchDepth(manager);
 }
 

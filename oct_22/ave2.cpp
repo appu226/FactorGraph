@@ -255,6 +255,12 @@ namespace oct_22
       return;
     }
 
+    // search depth exhausted, cannot resolve any further
+    if (0 == searchDepth)
+    {
+      return;
+    }
+
     // try to eliminate each literal to be eliminate
     for (int L: seedLte->literals)
     {
